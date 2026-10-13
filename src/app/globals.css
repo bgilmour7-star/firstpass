@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/lexend';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '../styles/tokens.css';
+@import '../styles/ds-bundle.css';
+
+/* Self-hosted fonts (no Google Fonts call at runtime). The design-system token stacks fall back to these names. */
+:root {
+  --font-display-next: 'Bricolage Grotesque Variable';
+  --font-body-next: 'Lexend Variable';
+  --font-mono-next: 'IBM Plex Mono';
+}
+
+/* Design-system tokens exposed to Tailwind: bg-surface-200, text-ink-100, border-border-100, font-display ... */
+@theme inline {
+  --color-surface-100: var(--surface-100);
+  --color-surface-200: var(--surface-200);
+  --color-surface-300: var(--surface-300);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-border-100: var(--border-100);
+  --color-rink-100: var(--rink-100);
+  --color-rink-200: var(--rink-200);
+  --color-whistle-100: var(--whistle-100);
+  --color-good-100: var(--good-100);
+  --color-flag-100: var(--flag-100);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+html,
+body {
+  background: var(--surface-100);
+  color: var(--ink-100);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+
+.rink-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

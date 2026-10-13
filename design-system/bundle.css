@@ -1,0 +1,359 @@
+/* Firstpass design system — shared component classes, every value bound to a token. */
+
+:root {
+  /* New tokens — added to close gaps a UX review surfaced on 2026-10-12.
+     Defined once here (bundle.css is linked by every screen) rather than
+     duplicated into each screen's own inline :root block. */
+  /* role-defense-100 now lives in tokens.json (light + dark); it was hardcoded
+     here, which pinned the light value in dark mode. */
+  --focus-ring: 0 0 0 3px rgba(12, 110, 143, 0.45); /* Keyboard focus indicator.
+     Every interactive element draws this via :focus-visible below instead of
+     the browser default outline — there was previously no focus styling
+     anywhere in the system (a:hover only), which is a real WCAG 2.4.7 gap. */
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, [role="button"]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fp-btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+}
+.fp-btn--primary { background: var(--rink-100); color: #ffffff; }
+.fp-btn--primary:hover { background: var(--rink-200); }
+.fp-btn--secondary { background: var(--surface-300); color: var(--ink-100); border: 1px solid var(--border-100); }
+.fp-btn--accent { background: var(--whistle-100); color: #ffffff; }
+.fp-btn--disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
+
+.fp-card {
+  background: var(--surface-200);
+  border: 1px solid var(--border-100);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  transition: box-shadow 0.15s ease;
+}
+.fp-card:hover { box-shadow: var(--shadow-sm); }
+.fp-card__media {
+  height: 140px;
+  background: var(--surface-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fp-card__body {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.fp-card__title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ink-100);
+  margin: 0;
+}
+.fp-card__text {
+  font-family: 'Lexend', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-200);
+  margin: 0;
+}
+
+.fp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: 'Lexend', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  border: 1px solid var(--border-100);
+  background: var(--surface-300);
+  color: var(--ink-100);
+  min-height: 28px;
+}
+/* Chip state model — three distinct meanings that were previously all
+   rendered as fp-chip--active, which is why the same filled-teal chip meant
+   three different things depending on which screen you were on.
+     fp-chip             quiet attribute display (default) — border, no fill.
+     fp-chip--emphasis   an attribute worth drawing the eye to (e.g. a drill
+                         card's own puck-state). Outlined in rink-100, never
+                         filled — it is not something the user chose.
+     fp-chip--selected   the one true selection state: a filter toggle that's
+                         on, or the option picked in a compare view.
+     fp-chip--quiet      a low-emphasis attribute label (skill-level tags)
+                         with no border/fill at all — replaces the ad hoc
+                         inline `style="background:transparent"` overrides
+                         that were scattered across screens for this case. */
+.fp-chip--emphasis {
+  background: transparent;
+  color: var(--rink-100);
+  border-color: var(--rink-100);
+}
+.fp-chip--selected {
+  background: var(--rink-100);
+  color: #ffffff;
+  border-color: var(--rink-100);
+}
+.fp-chip--quiet {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+/* Deprecated: kept as an alias of fp-chip--selected only so a screen not yet
+   migrated doesn't silently lose styling. New work should never add this
+   class — pick --emphasis, --selected or --quiet by what it actually means. */
+.fp-chip--active {
+  background: var(--rink-100);
+  color: #ffffff;
+  border-color: var(--rink-100);
+}
+
+/* fp-chip-progression — wraps a sequence of chips that are genuinely
+   ordered stages a drill moves through (e.g. puck-state: No puck → With
+   puck → Puck + passing), with a small right-arrow connector between each
+   pair so the sequence reads as "this leads to that," not as a row of
+   unrelated attributes. Only wrap chips in this when the order itself is
+   the point — an independent filter row (toggle any of these on) should
+   stay a plain row of chips with no arrows, since there's no "next" to
+   point to. Reuses the exact arrow glyph the Passing icon already uses
+   elsewhere in the system, so this isn't a new visual concept. */
+.fp-chip-progression { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.fp-chip-progression__arrow { color: var(--ink-200); flex: 0 0 auto; }
+
+.fp-drillcard {
+  background: var(--surface-200);
+  border: 1px solid var(--border-100);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.fp-drillcard--dragging {
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dragging);
+  transform: rotate(-1deg);
+  border-color: transparent;
+}
+.fp-drillcard__duration {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--ink-200);
+  min-width: 44px;
+}
+.fp-drillcard__title {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink-100);
+  margin: 0;
+}
+
+/* fp-step-badge — a sequence/order marker (1, 2, 3... in a practice
+   timeline). Deliberately NOT rink-100: rink-100 is reserved for
+   primary/selected/action meaning (buttons, the puck-carrier role in a
+   diagram, a selected chip). A step number is none of those — it's just
+   "where in the order this falls" — so it gets its own neutral ink-100
+   treatment instead of colliding with rink-100's other three jobs. */
+.fp-step-badge {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: var(--radius-full);
+  background: var(--ink-100);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* fp-stepper — the one canonical "N stages, this one is current" control.
+   Renders identically whether it's read-only (a practice-card summary) or
+   interactive (tap a stage to preview it) — same markup, the interactive
+   version just uses <button> segments instead of plain <div>s. Replaces the
+   CSS clip-path "chevron pill" control, which needed a pill width, a cut
+   percentage and an overlap margin to all agree exactly and broke twice
+   when they didn't. */
+.fp-stepper { display: flex; flex-direction: column; gap: var(--space-2); }
+.fp-stepper__track { display: flex; gap: 3px; }
+.fp-stepper__segment {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--border-100);
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.fp-stepper__segment--active { background: var(--rink-100); }
+button.fp-stepper__segment { cursor: pointer; }
+button.fp-stepper__segment:hover { filter: brightness(0.92); }
+.fp-stepper__labels { display: flex; gap: 3px; }
+.fp-stepper__label {
+  flex: 1;
+  margin: 0;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  color: var(--ink-200);
+  font-family: var(--font-body);
+}
+.fp-stepper__label--active { color: var(--ink-100); font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   fp-rink — RinkDiagram. The SVG is drawn by firstpass.RinkDiagram.render()
+   (bundle.js) in feet; every colour here comes from a token so light and dark
+   themes follow automatically. Rink markings are deliberately quiet tints so
+   players and paths (ink-100) carry the drawing, the way the strongest
+   competitor diagrams read. */
+.fp-rink { display: block; width: 100%; height: auto; overflow: hidden; font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); }
+.fp-rink__ice { fill: var(--rink-ice, #FCFEFF); }
+.fp-rink__boards { fill: none; stroke: var(--rink-boards, #3E5258); }
+.fp-rink__red, .fp-rink__red-thin { fill: none; stroke: var(--rink-line-red, #DE9E9C); }
+.fp-rink__red-fill { fill: var(--rink-line-red, #DE9E9C); }
+.fp-rink__blue, .fp-rink__blue-thin { fill: none; stroke: var(--rink-line-blue, #93B7D3); }
+.fp-rink__blue-fill { fill: var(--rink-line-blue, #93B7D3); }
+.fp-rink__crease { fill: var(--rink-crease, #E2EFF7); stroke: var(--rink-line-red, #DE9E9C); }
+.fp-rink__net { fill: none; stroke: var(--rink-boards, #3E5258); stroke-linecap: round; stroke-linejoin: round; }
+.fp-rink__area { fill: color-mix(in srgb, var(--rink-100, #0C6E8F) 7%, transparent); stroke: var(--rink-100, #0C6E8F); }
+.fp-rink__divider { stroke: var(--ink-200, #51646A); stroke-linecap: round; }
+.fp-rink__path { fill: none; stroke: var(--ink-100, #0E1B1E); stroke-linecap: round; stroke-linejoin: round; }
+.fp-rink__path--x { stroke: var(--role-defense-100, #5C6A8C); }
+.fp-rink__head { fill: var(--ink-100, #0E1B1E); }
+.fp-rink__head--x { fill: var(--role-defense-100, #5C6A8C); }
+.fp-rink__o { fill: var(--rink-ice, #FCFEFF); stroke: var(--rink-100, #0C6E8F); }
+.fp-rink__x line { stroke: var(--role-defense-100, #5C6A8C); stroke-linecap: round; }
+.fp-rink__f { fill: var(--rink-100, #0C6E8F); }
+.fp-rink__d { fill: var(--rink-200, #084F68); }
+.fp-rink__goalie { fill: var(--ink-200, #51646A); }
+.fp-rink__coach { fill: var(--rink-ice, #FCFEFF); stroke: var(--ink-100, #0E1B1E); }
+.fp-rink text { text-anchor: middle; dominant-baseline: central; font-weight: 700; }
+.fp-rink__coach-text { fill: var(--ink-100, #0E1B1E); }
+.fp-rink__disc-text { fill: var(--surface-100, #FFFFFF); }
+.fp-rink .fp-rink__tag { fill: var(--ink-100, #0E1B1E); text-anchor: start; font-weight: 600; }
+.fp-rink__step circle { fill: var(--ink-100, #0E1B1E); }
+.fp-rink__step text { fill: var(--surface-100, #FFFFFF); font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; }
+.fp-rink__pucks circle, .fp-rink__puck { fill: var(--ink-100, #0E1B1E); }
+.fp-rink__cone { fill: var(--whistle-100, #C2572A); }
+.fp-rink__station-badge circle { fill: var(--rink-200, #084F68); }
+.fp-rink__station-badge text { fill: var(--surface-100, #FFFFFF); font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; }
+.fp-rink .fp-rink__station-label { paint-order: stroke; stroke: var(--rink-ice, #FCFEFF); stroke-width: 1.2px; stroke-linejoin: round; fill: var(--ink-100, #0E1B1E); text-anchor: start; font-family: var(--font-body, 'Lexend', sans-serif); font-weight: 600; }
+.fp-rink .fp-rink__note { paint-order: stroke; stroke: var(--rink-ice, #FCFEFF); stroke-width: 1px; fill: var(--ink-200, #51646A); font-family: var(--font-body, 'Lexend', sans-serif); font-weight: 500; }
+
+.fp-rink-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+.fp-rink-legend__item { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-body, 'Lexend', sans-serif); font-size: 12px; line-height: 16px; color: var(--ink-200, #51646A); }
+.fp-rink-legend__glyph { width: 30px; height: 20px; flex: 0 0 30px; }
+
+/* Step-through: activeStep fades earlier steps and hides later ones. No activeStep = every step shown. */
+.fp-rink__pathgrp { transition: opacity 0.25s ease; }
+.fp-rink__pathgrp.is-past { opacity: 0.22; }
+.fp-rink__pathgrp.is-future { opacity: 0; }
+/* Animation: paths wait as ghosts, light up while they play, settle back when done. */
+.fp-rink__anim-path { opacity: 0.16; }
+.fp-rink__anim-path.on { opacity: 1; }
+.fp-rink__anim-path.done { opacity: 0.35; }
+@media (prefers-reduced-motion: reduce) { .fp-rink__pathgrp { transition: none; } }
+.fp-rink .fp-rink__station-sub { fill: var(--ink-200, #51646A); text-anchor: start; font-family: var(--font-body, 'Lexend', sans-serif); font-weight: 500; paint-order: stroke; stroke: var(--rink-ice, #FCFEFF); stroke-width: 1px; }
+/* Print (detail: 'print'): rink in firm greys, centre line dashed like the real checkered red line, players and paths solid black. */
+.fp-rink--print { --rink-ice: #FFFFFF; --rink-boards: #111111; --rink-line-red: #8A8A8A; --rink-line-blue: #8A8A8A; --rink-crease: #EFEFEF; --ink-100: #000000; --ink-200: #333333; --rink-100: #000000; --rink-200: #000000; --role-defense-100: #000000; --whistle-100: #000000; --surface-100: #FFFFFF; }
+.fp-rink--print .fp-rink__centre { stroke-dasharray: 2.2 1.6; }
+.fp-rink--print .fp-rink__o { fill: #FFFFFF; }
+.fp-rink--print .fp-rink__cone { fill: #FFFFFF; stroke: #000000; stroke-width: 0.5px; }
+
+/* highlight: the station's zone stays bright and outlined; the rest of the half fades back but stays visible for context. */
+.fp-rink__dim { fill: var(--rink-ice, #FCFEFF); opacity: 0.72; }
+.fp-rink__zone-hl { fill: none; stroke: var(--rink-200, #084F68); }
+.fp-rink__muted { opacity: 0.32; filter: grayscale(1); }
+
+/* ---------------------------------------------------------------------------
+   Focus — what a drill (and so a practice) works on.
+   Six attributes, always in this order: Skating, Puck control, Passing,
+   Shooting, Game sense, Effort & fun. Three levels: Main (2), Some (1), none (0).
+   The level is carried by pips (two filled = Main, one = Some) AND by the
+   word or weight, never by colour alone.
+     .fp-focus-chip            one attribute on a drill row or card (Some)
+     .fp-focus-chip--main      a Main attribute: firmer border, bold label
+     .fp-focus-pips            the two-pip level mark (use <i> / <i class="on">)
+     .fp-focus-list            drill detail: attribute, pips, level, why
+     .fp-focus-sum             practice summary: the same pips (top two = Main), minutes
+   --------------------------------------------------------------------------- */
+.fp-focus-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fp-focus-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 24px; padding: 0 9px; border-radius: var(--radius-full);
+  font-family: var(--font-body, 'Lexend', sans-serif); font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap;
+  border: 1px solid var(--border-100); background: var(--surface-100); color: var(--ink-100);
+}
+.fp-focus-chip--main { border-color: var(--rink-100); font-weight: 600; }
+.fp-focus-pips { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.fp-focus-pips i { display: block; width: 5px; height: 11px; border-radius: 2px; background: var(--surface-300); box-shadow: inset 0 0 0 1px var(--border-100); }
+.fp-focus-pips i.on { background: var(--rink-100); box-shadow: none; }
+.fp-focus-pips--lg i { width: 7px; height: 15px; border-radius: 2px; }
+
+.fp-focus-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.fp-focus-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--border-100); }
+.fp-focus-list__name { font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; }
+.fp-focus-list__level { font-size: 13px; color: var(--ink-200); align-self: center; }
+.fp-focus-list__why { grid-column: 1 / -1; font-size: 14px; line-height: 20px; color: var(--ink-200); }
+
+.fp-focus-sum { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.fp-focus-sum li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--surface-300); font-size: 14px; }
+.fp-focus-sum li:first-child { border-top: none; }
+.fp-focus-sum__name { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; }
+.fp-focus-sum li.is-top .fp-focus-sum__name { font-weight: 700; }
+.fp-focus-sum li.is-none { color: var(--ink-200); }
+.fp-focus-sum__min { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--ink-200); }
+
+/* ---------------------------------------------------------------------------
+   Panel — a side panel of practice-wide information ("This practice").
+   Built to scan down the left edge:
+     .fp-panel               the column (22px between sections)
+     .fp-panel__label        small grey label naming the whole panel
+     .fp-panel-sec           one section; every section after the first gets a rule above it
+     .fp-panel-sec__head     heading row: .fp-panel-sec__title (17px display bold) + .fp-panel-sec__meta (its count, right)
+     .fp-anchor-list         rows that each start with ONE anchor (pips, a number, a station badge)
+       .fp-anchor-list__anchor   30px column: the anchor
+       .fp-anchor-list__name     bold name
+       .fp-anchor-list__detail   grey detail on its own line
+     .fp-anchor-list--tight  one-line rows (equipment): count + item
+   --------------------------------------------------------------------------- */
+.fp-panel { display: flex; flex-direction: column; gap: 22px; }
+.fp-panel__label { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink-200); }
+.fp-panel-sec { display: flex; flex-direction: column; gap: 12px; }
+.fp-panel-sec + .fp-panel-sec { padding-top: 22px; border-top: 1px solid var(--border-100); }
+.fp-panel-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.fp-panel-sec__title { margin: 0; font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-weight: 700; font-size: 17px; line-height: 22px; color: var(--ink-100); }
+.fp-panel-sec__meta { font-size: 12px; color: var(--ink-200); }
+.fp-anchor-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.fp-anchor-list > li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.fp-anchor-list--badges > li { align-items: center; }
+.fp-anchor-list__anchor { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; font-size: 20px; line-height: 22px; color: var(--ink-100); }
+.fp-anchor-list__body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.fp-anchor-list__name { font-weight: 600; font-size: 15px; color: var(--ink-100); }
+.fp-anchor-list__detail { font-size: 13px; color: var(--ink-200); }
+.fp-anchor-list--tight { gap: 8px; }
+.fp-anchor-list--tight .fp-anchor-list__anchor { font-size: 15px; line-height: 20px; }
+.fp-anchor-list--tight > li { font-size: 14px; }

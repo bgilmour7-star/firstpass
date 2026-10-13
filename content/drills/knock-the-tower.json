@@ -1,0 +1,272 @@
+{
+  "id": "knock-the-tower",
+  "funName": "Knock the Tower",
+  "plainName": "Hit-the-pylon scrimmage",
+  "sourceTitle": "Hit the Pylon Scrimmage",
+  "minutes": 10,
+  "gear": "1 cone, pinnies, pucks",
+  "worksAsStation": true,
+  "description": "Small teams play across the ice. No nets, no goalies: one cone in the middle, and you score by hitting it with the puck. After a goal, give the puck to a coach, who sends it back in. Play never stops.",
+  "steps": [
+    "Score by hitting the cone.",
+    "Goal? Puck to the coach, who sends it back in."
+  ],
+  "cues": [
+    "Find open ice!",
+    "Everyone back when they have it."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Open ice, support, defending the cone."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "A real game that never stops."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "Hitting a small target."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Lots of touches in traffic."
+    }
+  ],
+  "groupModel": "stations",
+  "source": {
+    "label": "Hockey Canada U7 Plans 15, 23 · no skill code",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-15-e.pdf",
+    "note": "We drew mini nets. In the source there are no nets or goalies: one pylon in the middle, and you score by hitting it."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "3 on 3, two pucks",
+        "3 on 3",
+        "2 on 2 + coach"
+      ],
+      "groups": [
+        "Eagles",
+        "Bears",
+        "Sharks"
+      ]
+    },
+    "cones": [
+      {
+        "x": 36,
+        "y": 26
+      },
+      {
+        "x": 36,
+        "y": 66
+      },
+      {
+        "x": 87,
+        "y": 50
+      }
+    ],
+    "players": [
+      {
+        "role": "O",
+        "x": 20,
+        "y": 18
+      },
+      {
+        "role": "O",
+        "x": 24,
+        "y": 34
+      },
+      {
+        "role": "O",
+        "x": 48,
+        "y": 16
+      },
+      {
+        "role": "X",
+        "x": 52,
+        "y": 32
+      },
+      {
+        "role": "X",
+        "x": 30,
+        "y": 16
+      },
+      {
+        "role": "X",
+        "x": 16,
+        "y": 28
+      },
+      {
+        "role": "O",
+        "x": 20,
+        "y": 58
+      },
+      {
+        "role": "O",
+        "x": 26,
+        "y": 74
+      },
+      {
+        "role": "O",
+        "x": 48,
+        "y": 58
+      },
+      {
+        "role": "X",
+        "x": 50,
+        "y": 72
+      },
+      {
+        "role": "X",
+        "x": 40,
+        "y": 76
+      },
+      {
+        "role": "X",
+        "x": 16,
+        "y": 68
+      },
+      {
+        "role": "C",
+        "x": 58,
+        "y": 78
+      },
+      {
+        "role": "O",
+        "x": 82,
+        "y": 38
+      },
+      {
+        "role": "O",
+        "x": 92,
+        "y": 66
+      },
+      {
+        "role": "X",
+        "x": 82,
+        "y": 66
+      },
+      {
+        "role": "X",
+        "x": 92,
+        "y": 40
+      },
+      {
+        "role": "C",
+        "x": 93,
+        "y": 52
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            26,
+            58
+          ],
+          [
+            30,
+            62
+          ],
+          [
+            33,
+            65
+          ]
+        ],
+        "step": 1,
+        "caption": "Score by hitting the cone."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            33,
+            65
+          ],
+          [
+            35,
+            66
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            24,
+            34
+          ],
+          [
+            29,
+            30
+          ],
+          [
+            33,
+            27.5
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            48,
+            16
+          ],
+          [
+            44,
+            22
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            56,
+            76
+          ],
+          [
+            48,
+            70
+          ]
+        ],
+        "fromPlayer": false,
+        "step": 2,
+        "stepSide": "right",
+        "caption": "Goal? Puck to the coach, who sends it back in."
+      }
+    ]
+  },
+  "status": "in_review",
+  "stations": [
+    {
+      "station": "A",
+      "group": "Eagles",
+      "version": "3 on 3 with a second puck when one team hogs it."
+    },
+    {
+      "station": "B",
+      "group": "Bears",
+      "version": "3 on 3."
+    },
+    {
+      "station": "C",
+      "group": "Sharks",
+      "version": "2 on 2 with a coach helping both teams."
+    }
+  ]
+}
