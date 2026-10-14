@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
 import { FOCUS_ATTRIBUTES, GROUPS, nextStatuses, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
+import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
 
 const MOVE_LABEL: Record<Status, Partial<Record<Status, string>>> = {
@@ -24,7 +25,16 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [pending, start] = useTransition();
-  const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(detail.drill), [draft, detail.drill]);
+  // Status changes only through the status buttons, so it never counts as an unsaved edit.
+  const dirty = useMemo(() => !sameDrill({ ...draft, status: null }, { ...detail.drill, status: null }), [draft, detail.drill]);
+  // When the saved drill changes (a save, a status move, Claude's redraw), take it on
+  // unless the reviewer has edits in progress.
+  const shown = useRef(detail.drill);
+  useEffect(() => {
+    const previous = shown.current;
+    shown.current = detail.drill;
+    setDraft((d) => (sameDrill(d, previous) ? detail.drill : d));
+  }, [detail.drill]);
   const open = detail.requests.filter((r) => !r.resolvedAt);
   const [requestText, setRequestText] = useState('');
 
