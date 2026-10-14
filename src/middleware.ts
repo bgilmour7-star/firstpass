@@ -9,6 +9,18 @@ export async function middleware(request: NextRequest) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return NextResponse.next(); // local mode, see src/lib/drills/store.ts
 
+  // A sign-in link that lands anywhere but /auth/callback (e.g. Supabase falling back to the
+  // Site URL) still carries its one-time code. Send it on to be exchanged for a session.
+  const code = request.nextUrl.searchParams.get('code');
+  if (code && !request.nextUrl.pathname.startsWith('/auth/')) {
+    const callback = request.nextUrl.clone();
+    callback.pathname = '/auth/callback';
+    callback.search = '';
+    callback.searchParams.set('code', code);
+    callback.searchParams.set('next', request.nextUrl.pathname === '/' ? '/admin/drills' : request.nextUrl.pathname);
+    return NextResponse.redirect(callback);
+  }
+
   let response = NextResponse.next({ request });
   const supabase = createServerClient(url, key, {
     cookies: {

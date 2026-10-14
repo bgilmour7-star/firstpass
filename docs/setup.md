@@ -6,7 +6,12 @@ Production: https://firstpass-bgilmour7-5571s-projects.vercel.app (Vercel projec
 1. **SQL editor →** paste and run `supabase/migrations/20261013000000_drill_review.sql` (tables, admin check, RLS).
 2. **SQL editor →** paste and run `supabase/seed/drills.sql` (the drills in `content/drills`; regenerate with `npm run seed:sql`). It skips drills that are already there.
 3. **Authentication → URL configuration:** Site URL = the production URL above. Redirect URLs: `https://firstpass-bgilmour7-5571s-projects.vercel.app/**` and `http://localhost:3000/**`.
-4. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.
+4. **Authentication → Emails → Templates:** in both **Magic Link** and **Confirm signup**, replace the link with
+   ```html
+   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/admin/drills">Sign in to Firstpass</a>
+   ```
+   This link works even when it's opened in a different browser from the one that asked for it (e.g. inside the Gmail app).
+5. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.
 
 ## Make yourself an admin
 1. Open the production URL, enter your email, click the link in the email.

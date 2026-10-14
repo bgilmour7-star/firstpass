@@ -10,7 +10,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </div>
       {error && (
         <p role="alert" className="text-sm text-flag-100">
-          That link didn&apos;t work or has expired. Ask for a new one.
+          That link didn&apos;t work. Links work once and expire after an hour. Ask for a new one.
         </p>
       )}
       <LoginForm next={next?.startsWith('/') ? next : '/admin/drills'} />
