@@ -1,20 +1,45 @@
 import { describe, expect, it } from 'vitest';
-import { addMinutes, blockSchema, copyBlocks, newDrillIds, practiceFocus, rotation, startTimes, starterBlocks, totalMinutes, type Block } from './schema';
+import {
+  addMinutes,
+  blockForDrill,
+  blockSchema,
+  changeBlock,
+  copyBlocks,
+  isAdapted,
+  levelFor,
+  newDrillIds,
+  practiceFocus,
+  practiceSchema,
+  rotationToday,
+  startTimes,
+  starterBlocks,
+  todayUnits,
+  totalMinutes,
+  unusedZones,
+  zoneFor,
+  type Block,
+  type RotationBlock,
+} from './schema';
 
-const drill = (id: string, minutes = 8): Block => ({ id, kind: 'drill', drillId: id, minutes });
-const stations = (ids: (string | null)[], minutes = 8): Block => ({
-  id: 'st',
-  kind: 'stations',
+const drill = (id: string, minutes = 8): Block => ({ id, kind: 'drill', drillId: id, minutes, levels: {} });
+const rotation = (ids: (string | null)[], minutes = 8, drop: ('A' | 'B' | 'C')[] = []): RotationBlock => ({
+  id: 'rot',
+  kind: 'rotation',
   minutes,
   stations: ids.map((d, i) => ({ station: (['A', 'B', 'C'] as const)[i], drillId: d, coach: '' })),
+  drop,
 });
+const team = { groups: [{ group: 'Sharks' as const, skaters: 3 }, { group: 'Bears' as const, skaters: 4 }, { group: 'Eagles' as const, skaters: 5 }] };
 
 describe('timing', () => {
-  it('stations count once per rotation', () => {
-    expect(totalMinutes([drill('a', 5), stations(['x', 'y', 'z'], 8)])).toBe(29);
+  it('a rotation counts every station it runs', () => {
+    expect(totalMinutes([drill('a', 5), rotation(['x', 'y', 'z'], 8)])).toBe(29);
+  });
+  it('a rotation runs one station per group today', () => {
+    expect(totalMinutes([drill('a', 5), rotation(['x', 'y', 'z'], 8)], 2)).toBe(21);
   });
   it('retimes every block after a change', () => {
-    expect(startTimes('17:45', [drill('a', 5), stations(['x', 'y', 'z'], 8), drill('b', 3)])).toEqual(['17:45', '17:50', '18:14']);
+    expect(startTimes('17:45', [drill('a', 5), rotation(['x', 'y', 'z'], 8), drill('b', 3)])).toEqual(['17:45', '17:50', '18:14']);
   });
   it('wraps the clock', () => {
     expect(addMinutes('23:50', 20)).toBe('00:10');
@@ -24,11 +49,92 @@ describe('timing', () => {
   });
 });
 
-describe('rotation', () => {
-  it('every group visits every station once', () => {
-    const r = rotation(['Eagles', 'Bears', 'Sharks'], 3);
-    expect(r[0]).toEqual(['Eagles', 'Bears', 'Sharks']);
-    for (let i = 0; i < 3; i++) expect(new Set(r.map((row) => row[i])).size).toBe(3);
+describe('older plans', () => {
+  it('read a saved "stations" rotation as a rotation', () => {
+    const old = { id: 's', kind: 'stations', minutes: 8, stations: [{ station: 'A', drillId: 'x', coach: '' }, { station: 'B', drillId: null, coach: '' }] };
+    const b = blockSchema.parse(old);
+    expect(b.kind).toBe('rotation');
+  });
+  it('read a drill without levels', () => {
+    expect(blockSchema.parse({ id: 'd', kind: 'drill', drillId: 'x', minutes: 5 })).toMatchObject({ levels: {} });
+  });
+  it('read a practice without attendance', () => {
+    const p = practiceSchema.parse({ id: 'p', teamId: 't', date: '2026-10-15', startTime: '17:45', minutes: 60, ice: 'half', status: 'draft', blocks: [] });
+    expect(p.attendance).toBeNull();
+  });
+});
+
+describe("who's here today", () => {
+  it('uses the usual groups, easiest first', () => {
+    expect(todayUnits(team, null).map((u) => u.label)).toEqual(['Sharks', 'Bears', 'Eagles']);
+  });
+  it('merges groups and adds their skaters', () => {
+    const u = todayUnits(team, { counts: { Sharks: 2, Bears: 3, Eagles: 4 }, merges: [['Bears', 'Sharks']] });
+    expect(u.map((x) => [x.key, x.skaters])).toEqual([
+      ['Sharks+Bears', 5],
+      ['Eagles', 4],
+    ]);
+  });
+  it('drops a group with nobody there', () => {
+    expect(todayUnits(team, { counts: { Sharks: 0, Bears: 4, Eagles: 5 }, merges: [['Sharks', 'Bears']] }).map((u) => u.key)).toEqual(['Bears', 'Eagles']);
+  });
+  it('knows when today differs from usual', () => {
+    expect(isAdapted(team, { counts: { Sharks: 3, Bears: 4, Eagles: 5 }, merges: [] })).toBe(false);
+    expect(isAdapted(team, { counts: { Sharks: 3, Bears: 4, Eagles: 5 }, merges: [['Sharks', 'Bears']] })).toBe(true);
+  });
+});
+
+describe('blocks adapt', () => {
+  const units2 = todayUnits(team, { counts: { Sharks: 2, Bears: 3, Eagles: 4 }, merges: [['Sharks', 'Bears']] });
+  const snake = {
+    levels: [
+      { level: '1.0', name: '', adds: '', groups: ['Sharks' as const], diagram: {} },
+      { level: '1.1', name: '', adds: '', groups: ['Bears' as const], diagram: {} },
+      { level: '1.2', name: '', adds: '', groups: ['Eagles' as const], diagram: {} },
+    ],
+  };
+  const knock = {
+    stations: [
+      { station: 'A' as const, group: 'Eagles' as const, version: '3 on 3, two pucks' },
+      { station: 'B' as const, group: 'Bears' as const, version: '3 on 3' },
+      { station: 'C' as const, group: 'Sharks' as const, version: '2 on 2 with a coach' },
+    ],
+  };
+  it('a merged group starts at the easier level', () => {
+    expect(levelFor(snake, units2[0], {})).toBe('1.0');
+    expect(levelFor(snake, units2[1], {})).toBe('1.2');
+  });
+  it("keeps the coach's level for a group", () => {
+    expect(levelFor(snake, units2[0], { 'Sharks+Bears': '1.1' })).toBe('1.1');
+  });
+  it('a merged group gets its easier group’s station, and the rest sit out', () => {
+    expect(zoneFor(knock, units2[0], {})).toBe('C');
+    expect(unusedZones(knock, units2, {})).toEqual(['B']);
+    expect(unusedZones(knock, units2, { 'Sharks+Bears': 'B' })).toEqual(['C']);
+  });
+  it('a rotation drops the last station unless the coach picks another', () => {
+    expect(rotationToday(rotation(['x', 'y', 'z']), 2).off).toEqual(['C']);
+    expect(rotationToday(rotation(['x', 'y', 'z'], 8, ['B']), 2).off).toEqual(['B']);
+    expect(rotationToday(rotation(['x', 'y', 'z'], 8, ['B']), 3).off).toEqual([]);
+  });
+});
+
+describe('changing a block', () => {
+  it('keeps its place and minutes', () => {
+    const water: Block = { id: 'w', kind: 'activity', activity: 'water', title: 'Water', minutes: 3, note: '' };
+    const d = changeBlock(water, 'drill');
+    expect(d).toMatchObject({ id: 'w', kind: 'drill', drillId: '', minutes: 3 });
+  });
+  it('a drill keeps its drill when it becomes station-based', () => {
+    expect(changeBlock(drill('knock', 13), 'stations')).toMatchObject({ kind: 'stations', drillId: 'knock', minutes: 13 });
+  });
+  it('a rotation spreads the minutes over its stations', () => {
+    const r = changeBlock(drill('x', 24), 'rotation');
+    expect(r.kind === 'rotation' && r.minutes * r.stations.length).toBe(24);
+  });
+  it('a station drill from the library goes in as stations', () => {
+    expect(blockForDrill({ id: 'knock', minutes: 12, groupModel: 'stations' }).kind).toBe('stations');
+    expect(blockForDrill({ id: 'snake', minutes: 10, groupModel: 'levels' }).kind).toBe('drill');
   });
 });
 
@@ -38,8 +144,8 @@ describe('focus', () => {
     ['pass', { focus: [{ attribute: 'Passing' as const, level: 2 as const, why: '' }, { attribute: 'Skating' as const, level: 1 as const, why: '' }] }],
     ['game', { focus: [{ attribute: 'Game sense' as const, level: 1 as const, why: '' }] }],
   ]);
-  it('is minute-weighted and stations count full minutes', () => {
-    const f = practiceFocus([drill('skate', 10), stations(['pass', 'game', null], 8)], drills);
+  it('is minute-weighted and rotation stations count full minutes', () => {
+    const f = practiceFocus([drill('skate', 10), rotation(['pass', 'game', null], 8)], drills);
     const by = Object.fromEntries(f.map((x) => [x.attribute, x]));
     expect(by.Skating.score).toBe(28);
     expect(by.Passing.score).toBe(16);
@@ -53,7 +159,7 @@ describe('focus', () => {
 describe('new to the kids', () => {
   it('flags drills not used in earlier practices', () => {
     const earlier = [{ id: 'p1', date: '2026-10-07', blocks: [drill('skate')] }];
-    const plan = { id: 'p2', date: '2026-10-14', blocks: [drill('skate'), stations(['pass', 'skate', null])] };
+    const plan = { id: 'p2', date: '2026-10-14', blocks: [drill('skate'), rotation(['pass', 'skate', null])] };
     expect([...newDrillIds(plan, earlier)]).toEqual(['pass']);
   });
   it('ignores later practices', () => {
@@ -64,13 +170,11 @@ describe('new to the kids', () => {
 
 describe('copy', () => {
   it('copies blocks with fresh ids and independent stations', () => {
-    const src = [stations(['a', 'b', 'c'])];
+    const src = [rotation(['a', 'b', 'c'])];
     const c = copyBlocks(src);
     expect(c[0].id).not.toBe(src[0].id);
-    if (c[0].kind === 'stations' && src[0].kind === 'stations') {
-      c[0].stations[0].drillId = 'z';
-      expect(src[0].stations[0].drillId).toBe('a');
-    }
+    if (c[0].kind === 'rotation') c[0].stations[0].drillId = 'z';
+    expect(src[0].stations[0].drillId).toBe('a');
     expect(blockSchema.safeParse(c[0]).success).toBe(true);
   });
 });

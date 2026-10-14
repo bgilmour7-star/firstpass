@@ -10,6 +10,8 @@ export interface RinkDiagramProps {
   scope?: 'full' | 'half' | 'zone';
   /** On a half-ice view: keep the whole half for context, dim the other U7 station zones and outline this one. Use for station cards. */
   highlight?: 'A' | 'B' | 'C';
+  /** U7 station zones not in use today (fewer groups): what's drawn in them is dropped and the zone is greyed out. */
+  unused?: ('A' | 'B' | 'C')[];
   /** Other drills sharing the ice (e.g. the other stations), drawn muted and grey beneath this one for context. */
   context?: RinkDiagramProps[];
   /** With scope 'zone': A = end-zone top corner, B = bottom corner, C = neutral strip (shown sideways). */

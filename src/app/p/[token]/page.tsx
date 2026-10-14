@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getAppStore } from '@/lib/app/store';
-import { addMinutes, clock, practiceFocus } from '@/lib/plans/schema';
+import { addMinutes, clock, practiceFocus, todayUnits, withStationDrills } from '@/lib/plans/schema';
 import { PlanView } from '@/components/plan-view';
 import { Mark } from '@/components/app-header';
 
@@ -19,9 +19,11 @@ export default async function ParentView({ params }: { params: Promise<{ token: 
       </main>
     );
   }
-  const { team, practice, drills } = shared;
+  const { team, groups, practice, drills } = shared;
   const byId = new Map(drills.map((d) => [d.id, d]));
-  const focus = practiceFocus(practice.blocks, byId).filter((f) => f.level === 2).map((f) => f.attribute.toLowerCase());
+  // Without the team's groups (an older link function), assume the usual three.
+  const units = todayUnits({ groups: groups ?? [{ group: 'Sharks', skaters: 1 }, { group: 'Bears', skaters: 1 }, { group: 'Eagles', skaters: 1 }] }, practice.attendance);
+  const focus = practiceFocus(practice.blocks, byId, units.length).filter((f) => f.level === 2).map((f) => f.attribute.toLowerCase());
   const date = new Date(practice.date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' });
   return (
     <main className="mx-auto flex max-w-xl flex-col gap-5 px-4 py-8">
@@ -35,7 +37,7 @@ export default async function ParentView({ params }: { params: Promise<{ token: 
         </p>
         {focus.length > 0 && <p className="text-[15px]">Today the kids work mostly on {focus.join(' and ')}.</p>}
       </div>
-      <PlanView blocks={practice.blocks} startTime={practice.startTime} groups={[]} drills={byId} mode="parent" />
+      <PlanView blocks={withStationDrills(practice.blocks, byId)} startTime={practice.startTime} units={units} drills={byId} mode="parent" />
       <p className="text-xs text-ink-200">Shared by your coach. This link stops working after 30 days.</p>
     </main>
   );

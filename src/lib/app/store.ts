@@ -9,7 +9,7 @@ import type { Practice, Team } from '../plans/schema';
 export type NewPractice = Omit<Practice, 'id'>;
 export type Share = { token: string; expiresAt: string };
 /** What a parent link shows: no ids beyond the drills, no coach names. */
-export type SharedPractice = { team: string; practice: Pick<Practice, 'date' | 'startTime' | 'minutes' | 'ice' | 'blocks'>; drills: Drill[] };
+export type SharedPractice = { team: string; groups: Team['groups'] | null; practice: Pick<Practice, 'date' | 'startTime' | 'minutes' | 'ice' | 'blocks' | 'attendance'>; drills: Drill[] };
 
 export interface AppStore {
   myTeam(userId: string): Promise<Team | null>;

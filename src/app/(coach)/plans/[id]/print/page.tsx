@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { addMinutes, clock } from '@/lib/plans/schema';
+import { addMinutes, clock, isAdapted, todayUnits, withStationDrills } from '@/lib/plans/schema';
 import { PlanView } from '@/components/plan-view';
 import { PrintButton } from './print-button';
 
@@ -15,6 +15,7 @@ export default async function Printout({ params }: { params: Promise<{ id: strin
   const p = await store.getPractice(id);
   if (!p || p.teamId !== team.id) notFound();
   const drills = new Map((await store.libraryDrills()).map((d) => [d.id, d]));
+  const units = todayUnits(team, p.attendance);
   const date = new Date(p.date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' });
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4">
@@ -33,8 +34,11 @@ export default async function Printout({ params }: { params: Promise<{ id: strin
           {clock(p.startTime)}–{clock(addMinutes(p.startTime, p.minutes))} · {p.ice === 'half' ? 'Half ice' : 'Full ice'}
         </span>
       </header>
-      <p className="text-sm text-ink-200">Groups: {team.groups.map((g) => `${g.group} ${g.skaters}`).join(' · ')}</p>
-      <PlanView blocks={p.blocks} startTime={p.startTime} groups={team.groups.map((g) => g.group)} drills={drills} mode="print" />
+      <p className="text-sm text-ink-200">
+        {isAdapted(team, p.attendance) ? 'Today: ' : 'Groups: '}
+        {units.map((u) => `${u.label} ${u.skaters}`).join(' · ')}
+      </p>
+      <PlanView blocks={withStationDrills(p.blocks, drills)} startTime={p.startTime} units={units} drills={drills} mode="print" />
     </div>
   );
 }

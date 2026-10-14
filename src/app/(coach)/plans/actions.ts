@@ -24,6 +24,8 @@ export async function createPractice(formData: FormData) {
       ice: team.ice === 'full' ? 'full' : 'half',
       status: 'draft',
       blocks: last ? copyBlocks(last.blocks) : starterBlocks(team.practiceMinutes),
+      // Who's here is set fresh for each practice; it starts as the team's usual groups.
+      attendance: null,
     },
     coach.id,
   );

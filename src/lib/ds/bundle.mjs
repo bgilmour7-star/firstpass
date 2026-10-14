@@ -390,6 +390,19 @@ const window = {};
 
   function renderRink(spec) {
     spec = spec || {};
+    // Stations not in use today (fewer groups): drop what's drawn inside them and grey them out.
+    var unusedBoxes = [];
+    if (spec.unused && spec.unused.length) {
+      var ul = spec.side === 'right' ? mirrorLayout(STATION_LAYOUTS.halfice) : STATION_LAYOUTS.halfice;
+      spec.unused.forEach(function (z) { var zi = ['A', 'B', 'C'].indexOf(String(z).toUpperCase()); if (zi >= 0) unusedBoxes.push(ul.boxes[zi]); });
+      var inside = function (x, y) { return unusedBoxes.some(function (b) { return x >= b[0] && x <= b[0] + b[2] && y >= b[1] && y <= b[1] + b[3]; }); };
+      var keep = function (q) { return !inside(q.x, q.y); };
+      spec = Object.assign({}, spec, {
+        players: (spec.players || []).filter(keep), cones: (spec.cones || []).filter(keep), nets: (spec.nets || []).filter(keep),
+        piles: (spec.piles || []).filter(keep), pucks: (spec.pucks || []).filter(keep), labels: (spec.labels || []).filter(keep),
+        paths: (spec.paths || []).filter(function (q) { return !inside(q.points[0][0], q.points[0][1]); })
+      });
+    }
     var d = Object.assign({}, DETAIL[DETAIL[spec.detail] ? spec.detail : 'full']);
     var portrait = spec.orient === 'portrait';
     d.portrait = portrait;
@@ -422,6 +435,7 @@ const window = {};
       s += '<rect class="fp-rink__area" x="' + a.x + '" y="' + a.y + '" width="' + a.w + '" height="' + a.h + '" rx="1.2" stroke-width="' + d.thin * 1.6 + '" stroke-dasharray="' + d.thin * 5 + ' ' + d.thin * 3.5 + '"/>';
     });
     if (spec.stations) s += renderStations(spec.stations, d, spec.scope === 'half' && spec.side !== 'left');
+    unusedBoxes.forEach(function (bx) { s += '<rect class="fp-rink__dim" x="' + bx[0] + '" y="' + bx[1] + '" width="' + bx[2] + '" height="' + bx[3] + '"/>'; });
     if (spec.highlight) {
       // Keep the whole half in view for context; dim the other U7 station zones and outline this one.
       var hl = spec.side === 'right' ? mirrorLayout(STATION_LAYOUTS.halfice) : STATION_LAYOUTS.halfice;

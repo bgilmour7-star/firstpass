@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
+import { withStationDrills } from '@/lib/plans/schema';
 import { TodayView } from './today-view';
 
 export const dynamic = 'force-dynamic';
@@ -28,5 +29,5 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
       </div>
     );
   const drills = await store.libraryDrills();
-  return <TodayView practice={chosen} team={team} drills={drills} isToday={chosen.date === today} />;
+  return <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} isToday={chosen.date === today} />;
 }

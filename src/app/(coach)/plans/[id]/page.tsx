@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { drillIds } from '@/lib/plans/schema';
+import { drillIds, withStationDrills } from '@/lib/plans/schema';
 import { Builder } from './builder';
 
 export const dynamic = 'force-dynamic';
@@ -16,5 +16,6 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   const [all, drills, share] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.activeShare(practice.id)]);
   // Drills the kids have done before this practice ("known"), for the New tag and the library drawer.
   const known = [...new Set(all.filter((p) => p.id !== practice.id && p.date < practice.date).flatMap((p) => p.blocks.flatMap(drillIds)))];
-  return <Builder initial={practice} team={team} drills={drills} known={known} copiedFrom={copied ?? null} initialShare={share} />;
+  const byId = new Map(drills.map((d) => [d.id, d]));
+  return <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} copiedFrom={copied ?? null} initialShare={share} />;
 }

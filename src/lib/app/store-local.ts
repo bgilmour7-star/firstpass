@@ -2,7 +2,7 @@ import 'server-only';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
+import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
 import { newShareToken, type AppStore, type NewPractice, type Share, type SharedPractice } from './store';
 
@@ -55,10 +55,11 @@ export class LocalAppStore implements AppStore {
     await write(s);
   }
   async listPractices(teamId: string) {
-    return (await read()).practices.filter((p) => p.teamId === teamId).sort((a, b) => b.date.localeCompare(a.date) || b.startTime.localeCompare(a.startTime));
+    return (await read()).practices.filter((p) => p.teamId === teamId).map((p) => practiceSchema.parse(p)).sort((a, b) => b.date.localeCompare(a.date) || b.startTime.localeCompare(a.startTime));
   }
   async getPractice(id: string) {
-    return (await read()).practices.find((p) => p.id === id) ?? null;
+    const p = (await read()).practices.find((x) => x.id === id);
+    return p ? practiceSchema.parse(p) : null;
   }
   async createPractice(p: NewPractice) {
     const s = await read();
@@ -108,7 +109,13 @@ export class LocalAppStore implements AppStore {
     const p = share && s.practices.find((x) => x.id === share.practiceId);
     const team = p && s.teams.find((t) => t.id === p.teamId);
     if (!p || !team) return null;
-    const used = new Set(p.blocks.flatMap((b) => (b.kind === 'drill' ? [b.drillId] : b.kind === 'stations' ? b.stations.map((x) => x.drillId ?? '') : [])));
-    return { team: team.name, practice: { date: p.date, startTime: p.startTime, minutes: p.minutes, ice: p.ice, blocks: p.blocks }, drills: (await this.libraryDrills()).filter((d) => used.has(d.id)) };
+    const parsed = practiceSchema.parse(p);
+    const used = new Set(parsed.blocks.flatMap(drillIds));
+    return {
+      team: team.name,
+      groups: team.groups,
+      practice: { date: parsed.date, startTime: parsed.startTime, minutes: parsed.minutes, ice: parsed.ice, blocks: parsed.blocks, attendance: parsed.attendance },
+      drills: (await this.libraryDrills()).filter((d) => used.has(d.id)),
+    };
   }
 }

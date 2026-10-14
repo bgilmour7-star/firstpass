@@ -1,20 +1,19 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { supabaseServer } from '../supabase/server';
-import { practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
+import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
 import { newShareToken, type AppStore, type NewPractice, type Share, type SharedPractice } from './store';
-import { blockSchema } from '../plans/schema';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
 type TeamRow = { id: string; name: string; age_group: string; groups: Team['groups']; coaches_on_ice: number; practice_minutes: number; ice: Team['ice']; new_drills_per_week: number };
-type PracticeRow = { id: string; team_id: string; date: string; start_time: string; minutes: number; ice: Practice['ice']; status: Practice['status']; blocks: Practice['blocks'] };
+type PracticeRow = { id: string; team_id: string; date: string; start_time: string; minutes: number; ice: Practice['ice']; status: Practice['status']; blocks: Practice['blocks']; attendance?: Practice['attendance'] };
 
 const toTeam = (r: TeamRow): Team =>
   teamSchema.parse({ id: r.id, name: r.name, ageGroup: r.age_group, groups: r.groups, coachesOnIce: r.coaches_on_ice, practiceMinutes: r.practice_minutes, ice: r.ice, newDrillsPerWeek: r.new_drills_per_week });
 const toPractice = (r: PracticeRow): Practice =>
-  practiceSchema.parse({ id: r.id, teamId: r.team_id, date: r.date, startTime: r.start_time.slice(0, 5), minutes: r.minutes, ice: r.ice, status: r.status, blocks: r.blocks });
+  practiceSchema.parse({ id: r.id, teamId: r.team_id, date: r.date, startTime: r.start_time.slice(0, 5), minutes: r.minutes, ice: r.ice, status: r.status, blocks: r.blocks, attendance: r.attendance ?? null });
 
 export class SupabaseAppStore implements AppStore {
   async myTeam(userId: string) {
@@ -62,10 +61,15 @@ export class SupabaseAppStore implements AppStore {
   }
   async savePractice(p: Practice) {
     const db = await supabaseServer();
-    const { error } = await db
-      .from('practices')
-      .update({ date: p.date, start_time: p.startTime, minutes: p.minutes, ice: p.ice, status: p.status, blocks: p.blocks, updated_at: new Date().toISOString() })
-      .eq('id', p.id);
+    const row = { date: p.date, start_time: p.startTime, minutes: p.minutes, ice: p.ice, status: p.status, blocks: p.blocks, attendance: p.attendance, updated_at: new Date().toISOString() };
+    let { error } = await db.from('practices').update(row).eq('id', p.id);
+    if (error && /attendance/.test(error.message)) {
+      // The attendance migration hasn't run yet: save the plan anyway, without today's groups.
+      console.error('[store] practices.attendance missing; run supabase/migrations/20261015000000_attendance.sql');
+      const { attendance: _skip, ...rest } = row;
+      void _skip;
+      ({ error } = await db.from('practices').update(rest).eq('id', p.id));
+    }
     if (error) throw error;
   }
   async deletePractice(id: string) {
@@ -112,7 +116,7 @@ export class SupabaseAppStore implements AppStore {
     const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false } });
     const { data, error } = await anon.rpc('shared_practice', { link: token });
     if (error || !data) return null;
-    const r = data as { team: string; practice: { date: string; start_time: string; minutes: number; ice: 'half' | 'full'; blocks: unknown[] }; drills: { id: string; content: Record<string, unknown> }[] };
+    const r = data as { team: string; groups?: unknown; practice: { date: string; start_time: string; minutes: number; ice: 'half' | 'full'; blocks: unknown[]; attendance?: unknown }; drills: { id: string; content: Record<string, unknown> }[] };
     const blocks = r.practice.blocks.flatMap((b) => {
       const x = blockSchema.safeParse(b);
       return x.success ? [x.data] : [];
@@ -121,6 +125,13 @@ export class SupabaseAppStore implements AppStore {
       const x = drillSchema.safeParse({ ...d.content, id: d.id, status: 'live' });
       return x.success ? [x.data] : [];
     });
-    return { team: r.team, practice: { date: r.practice.date, startTime: r.practice.start_time.slice(0, 5), minutes: r.practice.minutes, ice: r.practice.ice, blocks }, drills };
+    const attendance = attendanceSchema.safeParse(r.practice.attendance);
+    const groups = teamSchema.shape.groups.safeParse(r.groups);
+    return {
+      team: r.team,
+      groups: groups.success ? groups.data : null,
+      practice: { date: r.practice.date, startTime: r.practice.start_time.slice(0, 5), minutes: r.practice.minutes, ice: r.practice.ice, blocks, attendance: attendance.success ? attendance.data : null },
+      drills,
+    };
   }
 }

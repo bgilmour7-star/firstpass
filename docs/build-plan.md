@@ -35,6 +35,7 @@ Design: canvas "Key screens" and "Plan next practice".
 ### 3.2 Practice plan model and builder
 - [x] Plans as a JSON block list (decision 0003): drill, stations (with rotation), activity blocks.
 - [x] Builder: "⋯" menu (swap, move, duplicate, remove), minutes stepper, insert between blocks, library drawer, live retiming, overtime banner with one-tap trims, minute-weighted focus, autosave. Later: drag to reorder, collapsed Stations.
+- [x] **3.4 Builder rework (decision 0004, 2026-10-14):** Drill (levels per group), Stations (one diagram, one station per group), Rotation (everyone does every station) and Activity blocks; change a block's kind in place; add at any gap; Who's here today with merges, adapting every block; time card; sticky plan bar on desktop, bottom bar on phones; drag to reorder on desktop. **Brett: run `supabase/migrations/20261015000000_attendance.sql`.**
 - [x] Next practice starts as a copy of the last one; New tag on drills new to the kids; new-drill limit visible.
 
 ## Milestone 4 — Rink-side and sharing

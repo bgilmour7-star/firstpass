@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
-import { addMinutes, blockMinutes, clock, rotation, type Block, type Practice, type Team } from '@/lib/plans/schema';
+import { addMinutes, blockMinutes, clock, levelFor, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import type { RinkDiagramProps } from '../../../../design-system/index';
 
 // The practice timeline on a phone at the rink: done blocks greyed, the current block open with a
-// countdown (and who is where for stations), upcoming blocks below.
+// countdown (and the whistle for a rotation), upcoming blocks below. Adapted to who's here today.
 
 const toMin = (hhmm: string) => {
   const [h, m] = hhmm.split(':').map(Number);
@@ -34,12 +35,13 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
     } catch {}
   };
 
-  const groups = team.groups.map((g) => g.group);
+  const units = todayUnits(team, practice.attendance);
+  const gc = units.length;
   const start = toMin(practice.startTime) + offset;
   let acc = 0;
   const spans = practice.blocks.map((b) => {
     const s = start + acc;
-    acc += blockMinutes(b);
+    acc += blockMinutes(b, gc);
     return { b, s, e: start + acc };
   });
   const nowMin = now ? now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60 : -1;
@@ -101,12 +103,12 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
                 {done && <span className="text-xs font-semibold text-ink-200">Done</span>}
                 {i === current && (
                   <span className="rounded-full bg-rink-100 px-2 py-0.5 font-mono text-xs text-surface-100">
-                    {b.kind === 'stations' && nowMin < e - b.minutes ? `Whistle in ${left(s + b.minutes * (Math.floor((nowMin - s) / b.minutes) + 1))}` : `Now · ${left(e)}`}
+                    {b.kind === 'rotation' && nowMin < e - b.minutes ? `Whistle in ${left(s + b.minutes * (Math.floor((nowMin - s) / b.minutes) + 1))}` : `Now · ${left(e)}`}
                   </span>
                 )}
-                {!done && i !== current && <span className="font-mono text-xs text-ink-200">{blockMinutes(b)} min</span>}
+                {!done && i !== current && <span className="font-mono text-xs text-ink-200">{blockMinutes(b, gc)} min</span>}
               </div>
-              {isNow && <Detail block={b} byId={byId} groups={groups} startMin={s} nowMin={live ? nowMin : s} fmt={fmt} />}
+              {isNow && <Detail block={b} byId={byId} units={units} startMin={s} nowMin={live ? nowMin : s} fmt={fmt} />}
             </li>
           );
         })}
@@ -120,18 +122,49 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
 
 function title(b: Block, byId: Map<string, Drill>) {
   if (b.kind === 'activity') return b.title;
-  if (b.kind === 'drill') return byId.get(b.drillId)?.funName ?? 'Drill';
-  return 'Stations';
+  if (b.kind === 'rotation') return 'Rotation';
+  return byId.get(b.drillId)?.funName ?? 'Drill';
 }
 
-function Detail({ block, byId, groups, startMin, nowMin, fmt }: { block: Block; byId: Map<string, Drill>; groups: string[]; startMin: number; nowMin: number; fmt: (m: number) => string }) {
+function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; byId: Map<string, Drill>; units: Unit[]; startMin: number; nowMin: number; fmt: (m: number) => string }) {
   if (block.kind === 'activity') return block.note ? <p className="pt-2 text-[15px]">{block.note}</p> : null;
-  if (block.kind === 'drill') {
+  if (block.kind === 'drill' || block.kind === 'stations') {
     const d = byId.get(block.drillId);
     if (!d) return null;
+    let spec = d.diagram as RinkDiagramProps;
+    let groups: React.ReactNode = null;
+    if (block.kind === 'drill' && d.levels?.length)
+      groups = (
+        <ul className="flex flex-col text-[15px]">
+          {units.map((u) => {
+            const lv = levelFor(d, u, block.levels);
+            return (
+              <li key={u.key} className="border-t border-border-100 py-1">
+                <b>{u.label}</b> · <span className="font-mono">{lv}</span> {d.levels!.find((l) => l.level === lv)?.name}
+              </li>
+            );
+          })}
+        </ul>
+      );
+    if (block.kind === 'stations') {
+      const who = (z: string) => units.filter((u, i) => zoneFor(d, u, block.zones, i) === z).map((u) => u.label).join(', ');
+      if (d.diagram.stations?.layout === 'halfice') spec = { ...spec, unused: unusedZones(d, units, block.zones), stations: { ...d.diagram.stations, layout: 'halfice', groups: ZONES.map((z) => who(z) || '—') } };
+      groups = (
+        <ul className="flex flex-col text-[15px]">
+          {(d.stations ?? [])
+            .filter((s) => who(s.station))
+            .map((s) => (
+              <li key={s.station} className="border-t border-border-100 py-1">
+                <b className="font-mono">{s.station}</b> · <b>{who(s.station)}</b> · {s.version}
+              </li>
+            ))}
+        </ul>
+      );
+    }
     return (
       <div className="flex flex-col gap-2 pt-3">
-        <Rink spec={d.diagram} title={d.funName} />
+        <Rink spec={spec} title={d.funName} />
+        {groups}
         <p className="text-[15px]">{d.steps.join(' ')}</p>
         {d.cues.map((c) => (
           <p key={c} className="font-display text-lg font-bold">
@@ -141,24 +174,23 @@ function Detail({ block, byId, groups, startMin, nowMin, fmt }: { block: Block; 
       </div>
     );
   }
-  const rot = rotation(groups, block.stations.length);
-  const r = Math.min(rot.length - 1, Math.max(0, Math.floor((nowMin - startMin) / block.minutes)));
+  const { active } = rotationToday(block, units.length);
+  const r = Math.min(active.length - 1, Math.max(0, Math.floor((nowMin - startMin) / block.minutes)));
   return (
     <div className="flex flex-col gap-3 pt-3">
       <p className="text-sm text-ink-200">
-        Rotation {r + 1} of {rot.length}
-        {r + 1 < rot.length && ` · next whistle at ${fmt(startMin + block.minutes * (r + 1))}`}
+        Turn {r + 1} of {active.length}
+        {r + 1 < active.length && ` · next whistle at ${fmt(startMin + block.minutes * (r + 1))}`} · everyone does every station
       </p>
       <ul className="flex flex-col gap-3">
-        {block.stations.map((s, i) => {
+        {active.map((s) => {
           const d = s.drillId ? byId.get(s.drillId) : undefined;
           return (
             <li key={s.station} className="grid grid-cols-[28px_minmax(0,1fr)] gap-2 border-t border-border-100 pt-3">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink-100 font-mono text-sm text-surface-100">{s.station}</span>
               <div className="flex min-w-0 flex-col gap-1">
                 <span className="flex flex-wrap items-baseline gap-x-2">
-                  <b className="font-display text-base">{rot[r]?.[i] ?? ''}</b>
-                  <span className="text-sm">{d?.funName ?? 'No drill'}</span>
+                  <b className="font-display text-base">{d?.funName ?? 'No drill'}</b>
                   {s.coach && <span className="text-xs text-ink-200">{s.coach}</span>}
                 </span>
                 {d && <Rink spec={d.diagram} title={d.funName} detail="thumb" className="max-w-[260px]" />}

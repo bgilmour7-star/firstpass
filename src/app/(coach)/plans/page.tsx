@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { clock, drillIds, newDrillIds, totalMinutes } from '@/lib/plans/schema';
+import { clock, drillIds, newDrillIds, todayUnits, totalMinutes } from '@/lib/plans/schema';
 import { createPractice } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const row = (p: (typeof plans)[number]) => {
     const fresh = newDrillIds(p, plans);
     const ids = [...new Set(p.blocks.flatMap(drillIds))];
-    const over = totalMinutes(p.blocks) - p.minutes;
+    const over = totalMinutes(p.blocks, todayUnits(team, p.attendance).length) - p.minutes;
     return (
       <li key={p.id}>
         <Link href={`/plans/${p.id}`} className="grid grid-cols-[96px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
