@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-// The coach app comes in later milestones (docs/build-plan.md). For now the only screen is drill review.
+// Coaches land on their plans. (Admins reach drill review from the header.)
 export default function Home() {
-  redirect('/admin/drills');
+  redirect('/plans');
 }

@@ -18,7 +18,37 @@
 - [ ] **1.6 Diagram loop in practice:** give Claude Supabase access (setup step 5), work the first real request end to end. Done when a request goes Open → Done with a redrawn diagram.
 - [ ] **1.7 Pilot library:** encode ~30 drills for the first six weeks (Hockey Canada U7 plans 1–12 first), each from its source. Done when 30 drills are In review and `npm run drills -- validate` passes.
 
-## Milestone 2 — Team setup (onboarding)
+## Order (agreed 2026-10-13)
+Pilot first: Brett's own team plans real practices before anything for other coaches. So: **3 → 4 → 5 → 2 → 6**. Onboarding (2) waits until a second team is ready. Drills for the pilot library (1.7) are written in parallel; review pace is the real constraint.
+
+## Milestone 3 — Team, library and plan builder
+Design: canvas "Key screens" and "Plan next practice".
+
+### 3.0 Your team, without onboarding
+- [x] Tables `teams`, `team_members`, `practices` with RLS by membership (`supabase/migrations/20261014000000_teams_and_practices.sql`). **Still to do: an automated test that coach A cannot read or write team B** (needs a test Supabase project).
+- [x] One plain Team page (name, skaters and group counts, coaches on the ice, usual practice length and ice). Creating the first team makes you its head coach.
+
+### 3.1 Coach drill library
+- [x] RLS: coaches read drills with status `live` only. (Same test gap as 3.0.)
+- [x] Library page with focus filters and a read-only drill page. Later: fits our gear, known to the kids.
+
+### 3.2 Practice plan model and builder
+- [x] Plans as a JSON block list (decision 0003): drill, stations (with rotation), activity blocks.
+- [x] Builder: "⋯" menu (swap, move, duplicate, remove), minutes stepper, insert between blocks, library drawer, live retiming, overtime banner with one-tap trims, minute-weighted focus, autosave. Later: drag to reorder, collapsed Stations.
+- [x] Next practice starts as a copy of the last one; New tag on drills new to the kids; new-drill limit visible.
+
+## Milestone 4 — Rink-side and sharing
+- [ ] Phone Today view: timeline, current block expanded with countdown, stations "who is where".
+- [ ] Parent link: capability token (random, revocable, expires), no sign-in, team-level only.
+- [ ] Printout: two letter pages, black and white (RinkDiagram `detail: 'print'`).
+
+## Milestone 5 — Check-in and the next plan
+- [ ] Push/email 30 min after practice; one tap per drill (Flopped / OK / Big hit), reasons, "Ready for harder?" by group.
+- [ ] If skipped, ask when the coach opens the next practice.
+- [ ] Suggestions on the next plan from check-in data, **rules first** (too much waiting → swap for a station drill; group ready → move up a level).
+- [ ] Only then: AI suggestions through one module (Vercel AI SDK, default Claude Haiku, model in config), validated against the live library, with a 20-case eval set and a per-team monthly cap.
+
+## Milestone 2 — Onboarding (when a second team is ready)
 Design: canvas "Onboarding & home" page.
 
 ### 2.1 Teams, coaches and tenancy
@@ -39,29 +69,6 @@ Out of scope: billing (stub `plan`, `price_cents`, `currency='CAD'` only).
 - [ ] Skater count and group counts (Eagles, Bears, Sharks) — counts only, never names.
 - [ ] Coaches on the ice (sets how many stations), gear checklist, starting focus by month.
 - [ ] Ends on "First practice ready" (needs Milestone 3).
-
-## Milestone 3 — Library and plan builder
-Design: canvas "Key screens" and "Plan next practice".
-
-### 3.1 Coach drill library
-- [ ] RLS: coaches read drills with status `live` only. **Test: a coach cannot read a draft drill.**
-- [ ] Library page: focus filters in pips, fits our gear, known to the kids, fun name with plain name.
-
-### 3.2 Practice plan model and builder
-- [ ] `practice_plans` + `plan_blocks` (drill, minutes, kind: all / drill / stations / water / scrimmage), stations with rotation.
-- [ ] Builder: drag, "⋯" menu (swap, minutes, duplicate, move, remove), insert between blocks, library drawer for swap/add, live retiming with overtime banner, focus summary minute-weighted.
-- [ ] Next practice starts as a copy of the last one; New tag on drills new to the kids; new-drill limit visible.
-
-## Milestone 4 — Rink-side and sharing
-- [ ] Phone Today view: timeline, current block expanded with countdown, stations "who is where".
-- [ ] Parent link: capability token (random, revocable, expires), no sign-in, team-level only.
-- [ ] Printout: two letter pages, black and white (RinkDiagram `detail: 'print'`).
-
-## Milestone 5 — Check-in and the next plan
-- [ ] Push/email 30 min after practice; one tap per drill (Flopped / OK / Big hit), reasons, "Ready for harder?" by group.
-- [ ] If skipped, ask when the coach opens the next practice.
-- [ ] Suggestions on the next plan from check-in data, **rules first** (too much waiting → swap for a station drill; group ready → move up a level).
-- [ ] Only then: AI suggestions through one module (Vercel AI SDK, default Claude Haiku, model in config), validated against the live library, with a 20-case eval set and a per-team monthly cap.
 
 ## Milestone 6 — Pilot hardening
 - [ ] Error tracking with phone alerts, uptime check on sign-in and Today.

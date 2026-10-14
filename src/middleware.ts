@@ -33,7 +33,8 @@ export async function middleware(request: NextRequest) {
     },
   });
   const { data } = await supabase.auth.getUser();
-  if (!data.user && request.nextUrl.pathname.startsWith('/admin')) {
+  const open = ['/login', '/auth/', '/not-allowed'].some((p) => request.nextUrl.pathname.startsWith(p));
+  if (!data.user && !open) {
     const login = request.nextUrl.clone();
     login.pathname = '/login';
     login.searchParams.set('next', request.nextUrl.pathname);
