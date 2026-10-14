@@ -122,7 +122,7 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
 
 function title(b: Block, byId: Map<string, Drill>) {
   if (b.kind === 'activity') return b.title;
-  if (b.kind === 'rotation') return 'Rotation';
+  if (b.kind === 'rotation') return (b.drillId && byId.get(b.drillId)?.funName) || 'Rotation';
   return byId.get(b.drillId)?.funName ?? 'Drill';
 }
 
@@ -174,8 +174,33 @@ function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; b
       </div>
     );
   }
-  const { active } = rotationToday(block, units.length);
+  const { active, off } = rotationToday(block, units.length);
   const r = Math.min(active.length - 1, Math.max(0, Math.floor((nowMin - startMin) / block.minutes)));
+  const rot = block.drillId ? byId.get(block.drillId) : undefined;
+  if (rot)
+    return (
+      <div className="flex flex-col gap-3 pt-3">
+        <p className="text-sm text-ink-200">
+          Turn {r + 1} of {active.length}
+          {r + 1 < active.length && ` · next whistle at ${fmt(startMin + block.minutes * (r + 1))}`} · everyone does every zone
+        </p>
+        <Rink spec={{ ...rot.diagram, unused: ZONES.filter((z) => !active.some((s) => s.station === z) || off.includes(z)) } as RinkDiagramProps} title={rot.funName} />
+        <ul className="flex flex-col gap-2">
+          {(rot.zones ?? [])
+            .filter((z) => !off.includes(z.station))
+            .map((z) => (
+              <li key={z.station} className="grid grid-cols-[28px_minmax(0,1fr)] gap-2 border-t border-border-100 pt-2">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink-100 font-mono text-sm text-surface-100">{z.station}</span>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <b className="font-display text-base">{z.name}</b>
+                  <span className="text-sm">{z.how}</span>
+                  <span className="text-sm font-semibold">“{z.cue}”</span>
+                </div>
+              </li>
+            ))}
+        </ul>
+      </div>
+    );
   return (
     <div className="flex flex-col gap-3 pt-3">
       <p className="text-sm text-ink-200">

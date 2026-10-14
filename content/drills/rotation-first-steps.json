@@ -1,0 +1,186 @@
+{
+  "id": "rotation-first-steps",
+  "funName": "First Steps",
+  "plainName": "Getting up, C-cuts and glides, three zones",
+  "sourceTitle": "Phase I Lesson 2 skill stations",
+  "minutes": 6,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "Three first-skating stations for early in the season. Groups move to the next zone on the whistle: getting up off the ice, C-cut pushes, and two-foot then one-foot glides.",
+  "steps": [
+    "A: get up into ready stance, then skate to the blue line.",
+    "B: glide on one foot and push C-cuts with the other.",
+    "C: a few strides, then glide on two feet, then one."
+  ],
+  "cues": [
+    "Knees, hands, up!",
+    "Push a C, bring it home.",
+    "Freeze like a statue."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Getting up, stance, push and glide."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Falling and getting up is a game."
+    }
+  ],
+  "groupModel": "rotation",
+  "zones": [
+    {
+      "station": "A",
+      "name": "Get up!",
+      "how": "Lie on your back. On the whistle, roll over, get to your knees and stand up in ready stance. Then a few strides, drop to your knees, up again, skate to the blue line.",
+      "cue": "Knees, hands, up!"
+    },
+    {
+      "station": "B",
+      "name": "C-cuts",
+      "how": "Glide on one foot and push C shapes with the other, three or four times. Then switch feet.",
+      "cue": "Push a C, bring it home."
+    },
+    {
+      "station": "C",
+      "name": "Glide statues",
+      "how": "A few strides, then glide on two feet in ready stance like a statue. Then try one foot.",
+      "cue": "Freeze like a statue."
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Phase I Lesson 2 · 1.1.02, 1.4.01, 1.1.06–1.1.07",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-02-e.pdf",
+    "note": "The source offers four, two or six stations. We kept three that fit the half-ice zones; Fall Down, Simon Says and T-push are left for other plans."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Get up!",
+        "C-cuts",
+        "Glide statues"
+      ]
+    },
+    "players": [
+      {
+        "role": "O",
+        "x": 22,
+        "y": 18
+      },
+      {
+        "role": "O",
+        "x": 34,
+        "y": 18
+      },
+      {
+        "role": "O",
+        "x": 46,
+        "y": 18
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 60
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 72
+      },
+      {
+        "role": "O",
+        "x": 84,
+        "y": 16
+      },
+      {
+        "role": "O",
+        "x": 92,
+        "y": 16
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            22,
+            21
+          ],
+          [
+            40,
+            28
+          ],
+          [
+            60,
+            30
+          ]
+        ],
+        "step": 1,
+        "caption": "A: get up into ready stance, then skate to the blue line."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            16,
+            60
+          ],
+          [
+            40,
+            60
+          ],
+          [
+            64,
+            60
+          ]
+        ],
+        "step": 2,
+        "caption": "B: glide on one foot and push C-cuts with the other."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            16,
+            72
+          ],
+          [
+            40,
+            72
+          ],
+          [
+            64,
+            72
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            84,
+            18
+          ],
+          [
+            84,
+            46
+          ],
+          [
+            84,
+            74
+          ]
+        ],
+        "step": 3,
+        "caption": "C: a few strides, then glide on two feet, then one."
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

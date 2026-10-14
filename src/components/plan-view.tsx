@@ -81,15 +81,44 @@ function StationsView({ block, drill, units, mode }: { block: Extract<Block, { k
 }
 
 function RotationView({ block, drills, gc, mode }: { block: Extract<Block, { kind: 'rotation' }>; drills: Map<string, Drill>; gc: number; mode: Mode }) {
-  const { active } = rotationToday(block, gc);
+  const { active, off } = rotationToday(block, gc);
+  const rot = block.drillId ? drills.get(block.drillId) : undefined;
+  const intro =
+    mode === 'parent'
+      ? `Kids rotate through ${active.length} stations in their groups, ${block.minutes} minutes each.`
+      : `${active.length} stations, ${block.minutes} min each. Everyone does every station; whistle every ${block.minutes} min.`;
+  if (rot) {
+    const used = rot.zones?.filter((z) => !off.includes(z.station)) ?? [];
+    return (
+      <div className="flex flex-col gap-2">
+        <h3 className="font-display text-lg font-bold">{rot.funName}</h3>
+        <p className="text-[15px] text-ink-200">{intro}</p>
+        <div className={mode === 'print' ? 'grid grid-cols-[minmax(0,1fr)_220px] items-start gap-3' : ''}>
+          <ul className="flex flex-col">
+            {used.map((z) => (
+              <li key={z.station} className="grid grid-cols-[26px_minmax(0,1fr)] gap-2 border-t border-border-100 py-2 break-inside-avoid">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-ink-100 font-mono text-xs text-surface-100">{z.station}</span>
+                <div className="text-[15px]">
+                  <b>{z.name}</b>
+                  {mode === 'print' && (
+                    <>
+                      <p>{z.how}</p>
+                      <p className="font-semibold">“{z.cue}”</p>
+                    </>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+          {mode === 'print' && <Rink spec={{ ...rot.diagram, unused: ZONES.filter((z) => !used.some((u) => u.station === z)) } as RinkDiagramProps} title={rot.funName} detail="print" />}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-2">
       <h3 className="font-display text-lg font-bold">Rotation</h3>
-      <p className="text-[15px] text-ink-200">
-        {mode === 'parent'
-          ? `Kids rotate through ${active.length} stations in their groups, ${block.minutes} minutes each.`
-          : `${active.length} stations, ${block.minutes} min each. Everyone does every station; whistle every ${block.minutes} min.`}
-      </p>
+      <p className="text-[15px] text-ink-200">{intro}</p>
       <ul className="flex flex-col">
         {active.map((s) => (
           <li key={s.station} className="grid grid-cols-[26px_minmax(0,1fr)] gap-2 border-t border-border-100 py-2 break-inside-avoid">

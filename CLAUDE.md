@@ -33,4 +33,4 @@ Reviewers ask for diagram changes on the drill review screen. To work them:
 4. `npm run drills -- push <id>`, then `npm run drills -- resolve <requestId> "<one sentence on what changed>"`.
 5. Commit the JSON so the drill's history lives in git.
 
-Drawing rules: courses that end in a shot run toward the real net; groups are either levels of one progression (Sharks 1.0, Bears 1.1, Eagles 1.2) or one station each on half ice (A, B, C); captions are one plain sentence per step.
+Drawing rules: courses that end in a shot run toward the real net; groups are either levels of one progression (Sharks 1.0, Bears 1.1, Eagles 1.2), one station each on half ice (A, B, C), or a rotation drill (2–3 zones, each its own activity, everyone does every zone); captions are one plain sentence per step.

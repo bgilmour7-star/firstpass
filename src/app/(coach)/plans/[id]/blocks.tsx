@@ -162,80 +162,77 @@ export function StationsCard({ block, drill, units, onZone }: { block: StationsB
   );
 }
 
-/** Everyone does every station. One map of the half, a drill per station; no "who starts where". */
+/**
+ * A rotation is one rotation drill: its zones, one map of the half, everyone does every zone.
+ * No "who starts where": the coach decides on the ice. Older rotations built from single drills
+ * still show, with a nudge to swap for a rotation drill.
+ */
 export function RotationCard({
   block,
+  drill,
   byId,
   known,
   groupCount,
-  onPick,
+  onChoose,
   onUseInstead,
-  onAddStation,
-  onRemoveStation,
 }: {
   block: RotationBlock;
+  drill?: Drill;
   byId: Map<string, Drill>;
   known: Set<string>;
   groupCount: number;
-  onPick: (i: number) => void;
+  onChoose: () => void;
   onUseInstead: (z: Zone) => void;
-  onAddStation: () => void;
-  onRemoveStation: (i: number) => void;
 }) {
   const { active, off } = rotationToday(block, groupCount);
-  const name = (id: string | null) => (id ? (byId.get(id)?.funName ?? 'Drill not live') : 'No drill yet');
   const letters = block.stations.map((s) => s.station);
-  const spec: RinkDiagramProps = {
-    scope: 'half',
-    side: 'left',
-    stations: { layout: 'halfice', labels: ZONES.map((z) => (letters.includes(z) ? name(block.stations.find((s) => s.station === z)!.drillId) : '')) },
-    unused: ZONES.filter((z) => !letters.includes(z) || off.includes(z)),
-  };
   const lastActive = active[active.length - 1]?.station;
+  const old = !block.drillId && block.stations.some((s) => s.drillId);
+  if (!drill && !old)
+    return (
+      <button type="button" onClick={onChoose} className="flex w-fit items-center gap-2 rounded-full border border-dashed border-rink-100 px-4 py-2 text-sm font-medium text-rink-100 hover:bg-surface-200">
+        Choose a rotation: zones and activities ready to go
+      </button>
+    );
+  const zoneName = (z: Zone) => (drill ? (drill.zones?.find((x) => x.station === z)?.name ?? '') : (byId.get(block.stations.find((s) => s.station === z)?.drillId ?? '')?.funName ?? 'No drill'));
+  const spec: RinkDiagramProps = drill
+    ? ({ ...drill.diagram, unused: ZONES.filter((z) => !letters.includes(z) || off.includes(z)) } as RinkDiagramProps)
+    : { scope: 'half', side: 'left', stations: { layout: 'halfice', labels: ZONES.map((z) => (letters.includes(z) ? zoneName(z) : '')) }, unused: ZONES.filter((z) => !letters.includes(z) || off.includes(z)) };
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 sm:grid-cols-[220px_minmax(0,1fr)]">
-      <Rink spec={spec} title={`Rotation: ${active.map((s) => `${name(s.drillId)} at ${s.station}`).join(', ')}`} detail="thumb" className="max-w-[260px] rounded-sm border border-border-100" />
+      <Rink spec={spec} title={`${drill?.funName ?? 'Rotation'}: ${active.map((s) => `${zoneName(s.station)} at ${s.station}`).join(', ')}`} detail="thumb" className="max-w-[260px] rounded-sm border border-border-100" />
       <div className="flex min-w-0 flex-col">
-        {block.stations.map((s, i) => {
-          const d = s.drillId ? byId.get(s.drillId) : undefined;
+        {block.stations.map((s) => {
           const isOff = off.includes(s.station);
+          const z = drill?.zones?.find((x) => x.station === s.station);
+          const single = !drill && s.drillId ? byId.get(s.drillId) : undefined;
           return (
             <div key={s.station} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2.5 border-t border-border-100 py-2 text-sm">
               <Badge zone={s.station} dim={isOff} />
               <span className={`flex min-w-0 flex-col ${isOff ? 'opacity-50' : ''}`}>
                 <span className="flex flex-wrap items-center gap-2">
-                  <b className={isOff ? 'line-through' : ''}>{name(s.drillId)}</b>
-                  {s.drillId && !known.has(s.drillId) && <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>}
+                  <b className={isOff ? 'line-through' : ''}>{zoneName(s.station)}</b>
+                  {single && !known.has(single.id) && <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>}
                 </span>
-                <span className="text-xs text-ink-200">{isOff ? `Not used today (${groupCount} group${groupCount === 1 ? '' : 's'})` : (d?.plainName ?? '')}</span>
+                <span className="text-xs text-ink-200">{isOff ? `Not used today (${groupCount} group${groupCount === 1 ? '' : 's'})` : (z?.how ?? single?.plainName ?? '')}</span>
               </span>
-              <span className="flex items-center gap-1">
-                {isOff && lastActive ? (
-                  <button type="button" onClick={() => onUseInstead(lastActive)} className="min-h-9 rounded-full px-2.5 text-[13px] text-rink-100 hover:bg-surface-200">
-                    Use instead of {lastActive}
-                  </button>
-                ) : (
-                  <button type="button" onClick={() => onPick(i)} className="min-h-9 rounded-full px-2.5 text-[13px] text-rink-100 hover:bg-surface-200">
-                    {s.drillId ? 'Change' : 'Choose a drill'}
-                  </button>
-                )}
-                {block.stations.length > 2 && (
-                  <button type="button" aria-label={`Remove station ${s.station}`} onClick={() => onRemoveStation(i)} className="h-9 w-9 rounded-full text-ink-200 hover:bg-surface-200">
-                    ×
-                  </button>
-                )}
-              </span>
+              {isOff && lastActive && (
+                <button type="button" onClick={() => onUseInstead(lastActive)} className="min-h-9 rounded-full px-2.5 text-[13px] text-rink-100 hover:bg-surface-200">
+                  Use instead of {lastActive}
+                </button>
+              )}
             </div>
           );
         })}
-        <p className="flex flex-wrap items-center gap-x-3 border-t border-border-100 pt-2 text-xs text-ink-200">
-          <span>Everyone does every station. Whistle every {block.minutes} min; you pick who starts where.</span>
-          {block.stations.length < 3 && (
-            <button type="button" onClick={onAddStation} className="text-rink-100 hover:underline">
-              + Add a station
+        <p className="border-t border-border-100 pt-2 text-xs text-ink-200">Everyone does every zone. Whistle every {block.minutes} min; you pick who starts where.</p>
+        {old && (
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 rounded-md bg-surface-200 px-3 py-2 text-xs">
+            Built from single drills, before rotation drills.
+            <button type="button" onClick={onChoose} className="font-medium text-rink-100 hover:underline">
+              Swap for a rotation drill
             </button>
-          )}
-        </p>
+          </p>
+        )}
       </div>
     </div>
   );

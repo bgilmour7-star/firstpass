@@ -154,7 +154,10 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
         <div className="flex min-w-0 flex-col gap-6">
           <RinkStepper spec={detail.drill.diagram} title={draft.funName} />
 
-          <Section title={draft.groupModel === 'levels' ? 'Levels by group' : draft.groupModel === 'stations' ? 'Group stations' : 'Groups'} hint={draft.groupModel === 'levels' ? 'Same drill, one thing added each level.' : draft.groupModel === 'stations' ? 'One station per group, all at once.' : undefined}>
+          <Section
+            title={draft.groupModel === 'levels' ? 'Levels by group' : draft.groupModel === 'stations' ? 'Group stations' : draft.groupModel === 'rotation' ? 'Rotation zones' : 'Groups'}
+            hint={draft.groupModel === 'levels' ? 'Same drill, one thing added each level.' : draft.groupModel === 'stations' ? 'One station per group, all at once.' : draft.groupModel === 'rotation' ? 'Every group does every zone, moving on the whistle.' : undefined}
+          >
             {draft.groupModel === 'versions' && (
               <div className="flex flex-col gap-3 rounded-md border border-whistle-100 p-4">
                 <p className="text-sm">
@@ -196,6 +199,26 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
                   </li>
                 ))}
               </ol>
+            )}
+            {draft.groupModel === 'rotation' && (
+              <ul className="flex flex-col">
+                {draft.zones?.map((z, i) => (
+                  <li key={z.station} className="grid grid-cols-[28px_minmax(0,1fr)] items-start gap-3 border-t border-border-100 py-3">
+                    <span className="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink-100 font-mono text-sm text-surface-100">{z.station}</span>
+                    <div className="flex min-w-0 flex-col gap-2">
+                      <Field label="Activity">
+                        <input className={input} maxLength={40} value={z.name} onChange={(e) => set('zones', draft.zones!.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+                      </Field>
+                      <Field label="How it works">
+                        <textarea rows={2} className={input} maxLength={240} value={z.how} onChange={(e) => set('zones', draft.zones!.map((x, j) => (j === i ? { ...x, how: e.target.value } : x)))} />
+                      </Field>
+                      <Field label="Say this">
+                        <input className={input} maxLength={80} value={z.cue} onChange={(e) => set('zones', draft.zones!.map((x, j) => (j === i ? { ...x, cue: e.target.value } : x)))} />
+                      </Field>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
             {draft.groupModel === 'stations' && (
               <ul className="flex flex-col">

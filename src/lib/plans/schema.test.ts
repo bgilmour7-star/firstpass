@@ -5,7 +5,9 @@ import {
   blockSchema,
   changeBlock,
   copyBlocks,
+  drillIds,
   isAdapted,
+  isOldRotation,
   levelFor,
   newDrillIds,
   practiceFocus,
@@ -26,6 +28,7 @@ const rotation = (ids: (string | null)[], minutes = 8, drop: ('A' | 'B' | 'C')[]
   id: 'rot',
   kind: 'rotation',
   minutes,
+  drillId: null,
   stations: ids.map((d, i) => ({ station: (['A', 'B', 'C'] as const)[i], drillId: d, coach: '' })),
   drop,
 });
@@ -128,9 +131,20 @@ describe('changing a block', () => {
   it('a drill keeps its drill when it becomes station-based', () => {
     expect(changeBlock(drill('knock', 13), 'stations')).toMatchObject({ kind: 'stations', drillId: 'knock', minutes: 13 });
   });
-  it('a rotation spreads the minutes over its stations', () => {
+  it('a rotation spreads the minutes over one station per group', () => {
     const r = changeBlock(drill('x', 24), 'rotation');
-    expect(r.kind === 'rotation' && r.minutes * r.stations.length).toBe(24);
+    expect(r).toMatchObject({ kind: 'rotation', drillId: null, minutes: 8 });
+    expect(totalMinutes([r])).toBe(24);
+  });
+  it('a rotation drill brings its zones', () => {
+    const r = blockForDrill({ id: 'rot', minutes: 8, groupModel: 'rotation', zones: [{ station: 'A', name: 'a', how: '', cue: '' }, { station: 'C', name: 'c', how: '', cue: '' }] });
+    expect(r).toMatchObject({ kind: 'rotation', drillId: 'rot' });
+    expect(r.kind === 'rotation' && r.stations.map((s) => s.station)).toEqual(['A', 'C']);
+    expect(drillIds(r)).toEqual(['rot']);
+  });
+  it('an older rotation built from single drills still reads', () => {
+    expect(isOldRotation(rotation(['x', 'y', null]))).toBe(true);
+    expect(isOldRotation(rotation([null, null]))).toBe(false);
   });
   it('a station drill from the library goes in as stations', () => {
     expect(blockForDrill({ id: 'knock', minutes: 12, groupModel: 'stations' }).kind).toBe('stations');

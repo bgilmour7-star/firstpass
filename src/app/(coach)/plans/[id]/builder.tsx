@@ -13,11 +13,12 @@ import {
   blockMinutes,
   changeBlock,
   clock,
+  drillIds,
+  isOldRotation,
   isAdapted,
   levelFor,
   newActivity,
   newId,
-  newRotation,
   practiceFocus,
   rotationToday,
   startTimes,
@@ -41,7 +42,7 @@ import { AttendanceDialog, BLOCK_TYPES, Icon, input, LibraryDrawer, Menu, PanelS
 // (a bottom bar on phones); blocks can be added at any gap and changed to another kind in place;
 // "Who's here today" adapts every block to the groups on the ice.
 
-type Picker = { mode: 'add'; at: number; filter: DrawerFilter } | { mode: 'fill'; blockId: string; filter: DrawerFilter } | { mode: 'slot'; blockId: string; station: number };
+type Picker = { mode: 'add'; at: number; filter: DrawerFilter } | { mode: 'fill'; blockId: string; filter: DrawerFilter };
 type AddChoice = 'drill' | 'stations' | 'rotation' | ActivityKind | { drillId: string };
 
 const day = (iso: string) =>
@@ -114,10 +115,10 @@ export function Builder({
   const used = totalMinutes(blocks, gc);
   const endTime = addMinutes(plan.startTime, used);
   const focus = practiceFocus(blocks, byId, gc);
-  const inPlan = new Set(blocks.flatMap((b) => (b.kind === 'drill' || b.kind === 'stations' ? [b.drillId] : b.kind === 'rotation' ? b.stations.map((s) => s.drillId ?? '') : [])).filter(Boolean));
+  const inPlan = new Set(blocks.flatMap(drillIds));
   const fresh = [...inPlan].filter((d) => !knownSet.has(d));
   const gear = [...new Set([...inPlan].map((d) => byId.get(d)?.gear).filter((g): g is string => !!g && g !== 'None'))];
-  const name = (b: Block) => (b.kind === 'activity' ? b.title : b.kind === 'rotation' ? 'Rotation' : (byId.get(b.drillId)?.funName ?? 'Drill'));
+  const name = (b: Block) => (b.kind === 'activity' ? b.title : b.kind === 'rotation' ? ((b.drillId && byId.get(b.drillId)?.funName) ?? 'Rotation') : (byId.get(b.drillId)?.funName ?? 'Drill'));
 
   const setBlocks = (f: (b: Block[]) => Block[]) => setPlan((p) => ({ ...p, blocks: f(p.blocks) }));
   const update = (id: string, f: (b: Block) => Block) => setBlocks((bs) => bs.map((b) => (b.id === id ? f(b) : b)));
@@ -136,13 +137,7 @@ export function Builder({
     if (typeof choice === 'object') {
       const d = byId.get(choice.drillId);
       if (d) insert(at, blockForDrill(d));
-    } else if (choice === 'drill' || choice === 'stations')
-      setPicker({
-        mode: 'add',
-        at,
-        filter: choice === 'stations' ? 'stations' : 'all',
-      });
-    else if (choice === 'rotation') insert(at, newRotation(Math.min(3, Math.max(2, team.coachesOnIce))));
+    } else if (choice === 'drill' || choice === 'stations' || choice === 'rotation') setPicker({ mode: 'add', at, filter: choice === 'drill' ? 'all' : choice });
     else insert(at, newActivity(choice));
   }
 
@@ -153,18 +148,10 @@ export function Builder({
     if (picker.mode === 'add') insert(picker.at, blockForDrill(d));
     if (picker.mode === 'fill')
       update(picker.blockId, (b) => {
-        const fresh = blockForDrill(d, b.kind === 'activity' || b.kind === 'rotation' ? d.minutes : b.minutes);
-        return { ...fresh, id: b.id };
+        // A rotation keeps its minutes per station; an activity takes the drill's own minutes.
+        const keep = b.kind === 'activity' ? d.minutes : b.kind === 'rotation' ? (d.groupModel === 'rotation' ? b.minutes : d.minutes) : d.groupModel === 'rotation' ? d.minutes : b.minutes;
+        return { ...blockForDrill(d, keep), id: b.id };
       });
-    if (picker.mode === 'slot')
-      update(picker.blockId, (b) =>
-        b.kind === 'rotation'
-          ? {
-              ...b,
-              stations: b.stations.map((s, i) => (i === picker.station ? { ...s, drillId } : s)),
-            }
-          : b,
-      );
     setPicker(null);
   }
 
@@ -217,12 +204,8 @@ export function Builder({
       run: () => {
         const next = changeBlock(b, to, gc);
         update(b.id, () => next);
-        if ((next.kind === 'drill' || next.kind === 'stations') && !next.drillId)
-          setPicker({
-            mode: 'fill',
-            blockId: b.id,
-            filter: next.kind === 'stations' ? 'stations' : 'all',
-          });
+        if ((next.kind === 'drill' || next.kind === 'stations' || next.kind === 'rotation') && !next.drillId)
+          setPicker({ mode: 'fill', blockId: b.id, filter: next.kind === 'drill' ? 'all' : next.kind });
       },
     }));
 
@@ -388,16 +371,11 @@ export function Builder({
                       sub: changeTargets(b),
                       note: 'Keeps the time slot and minutes',
                     },
-                    ...((b.kind === 'drill' || b.kind === 'stations') && b.drillId
+                    ...(b.kind !== 'activity' && (b.drillId || isOldRotation(b))
                       ? [
                           {
-                            label: 'Swap for another drill',
-                            run: () =>
-                              setPicker({
-                                mode: 'fill',
-                                blockId: b.id,
-                                filter: b.kind === 'stations' ? 'stations' : 'all',
-                              }),
+                            label: b.kind === 'rotation' ? 'Swap for another rotation' : 'Swap for another drill',
+                            run: () => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'drill' ? 'all' : b.kind }),
                           },
                         ]
                       : []),
@@ -421,14 +399,8 @@ export function Builder({
                       danger: true,
                     },
                   ]}
-                  onChooseDrill={() =>
-                    setPicker({
-                      mode: 'fill',
-                      blockId: b.id,
-                      filter: b.kind === 'stations' ? 'stations' : 'all',
-                    })
-                  }
-                  onPickSlot={(s) => setPicker({ mode: 'slot', blockId: b.id, station: s })}
+                  onChooseDrill={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'all' })}
+
                 />
               </section>
             </li>
@@ -558,10 +530,8 @@ export function Builder({
           drills={drills}
           known={knownSet}
           inPlan={inPlan}
-          title={
-            picker.mode === 'slot' ? `Drill for station ${ZONES[picker.station]}` : picker.mode === 'fill' ? 'Choose a drill' : picker.filter === 'stations' ? 'Add a station drill' : 'Add a drill'
-          }
-          filter={picker.mode === 'slot' ? 'rotation' : picker.filter}
+          title={picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a station drill' : picker.mode === 'fill' ? 'Choose a drill' : 'Add a drill'}
+          filter={picker.filter}
           onPick={pick}
           onClose={() => setPicker(null)}
         />
@@ -583,7 +553,6 @@ function BlockBody({
   update,
   menu,
   onChooseDrill,
-  onPickSlot,
 }: {
   block: Block;
   index: number;
@@ -595,11 +564,10 @@ function BlockBody({
   update: (f: (b: Block) => Block) => void;
   menu: Parameters<typeof Menu>[0]['items'];
   onChooseDrill: () => void;
-  onPickSlot: (i: number) => void;
 }) {
   void index;
   void count;
-  const d = b.kind === 'drill' || b.kind === 'stations' ? byId.get(b.drillId) : undefined;
+  const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
   const fewer = gc < 3;
   let tag = 'ACTIVITY';
   let tone = 'text-ink-200';
@@ -613,7 +581,7 @@ function BlockBody({
   }
   if (b.kind === 'rotation') {
     const { active, off } = rotationToday(b, gc);
-    tag = `ROTATION · ${active.length} STATION${active.length === 1 ? '' : 'S'}${off.length ? ' TODAY' : ''}`;
+    tag = b.stations.length ? `ROTATION · ${active.length} STATION${active.length === 1 ? '' : 'S'}${off.length ? ' TODAY' : ''}` : 'ROTATION';
     tone = 'text-rink-200';
   }
   return (
@@ -639,7 +607,7 @@ function BlockBody({
                 onChange={(e) => update((x) => ({ ...x, note: e.target.value }) as Block)}
               />
             </>
-          ) : b.kind === 'rotation' ? (
+          ) : b.kind === 'rotation' && !d && isOldRotation(b) ? (
             <h2 className="font-display text-[19px] font-bold leading-6">Rotation</h2>
           ) : d ? (
             <>
@@ -650,7 +618,7 @@ function BlockBody({
             </>
           ) : (
             <button type="button" onClick={onChooseDrill} className="w-fit font-display text-[19px] font-bold leading-6 text-rink-100 hover:underline">
-              {b.drillId ? 'This drill isn’t live any more. Swap it' : 'Choose a drill'}
+              {b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}
             </button>
           )}
         </div>
@@ -674,22 +642,12 @@ function BlockBody({
       {b.kind === 'rotation' && (
         <RotationCard
           block={b}
+          drill={d}
           byId={byId}
           known={known}
           groupCount={gc}
-          onPick={onPickSlot}
+          onChoose={onChooseDrill}
           onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))}
-          onAddStation={() =>
-            update((x) => {
-              if (x.kind !== 'rotation') return x;
-              const next = ZONES.find((z) => !x.stations.some((s) => s.station === z))!;
-              return {
-                ...x,
-                stations: [...x.stations, { station: next, drillId: null, coach: '' }].sort((p, q) => p.station.localeCompare(q.station)),
-              };
-            })
-          }
-          onRemoveStation={(i) => update((x) => (x.kind === 'rotation' ? { ...x, stations: x.stations.filter((_, j) => j !== i) } : x))}
         />
       )}
     </div>

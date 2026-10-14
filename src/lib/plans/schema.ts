@@ -8,7 +8,8 @@ import { FOCUS_ATTRIBUTES, GROUPS, type Drill, type Group } from '../drills/sche
 // Four kinds of block (decision 0004):
 //   drill     one drill for everyone; if it has levels, each group does its own level (a progression)
 //   stations  one drill, one diagram, each group at its own station (A, B, C)
-//   rotation  every group does every station, moving on the whistle; the coach picks who starts where
+//   rotation  one rotation drill (2-3 zones, each its own activity); every group does every zone,
+//             moving on the whistle; the coach picks who starts where
 //   activity  free skate, water, huddle, small games
 // Who's here today (attendance) is set per practice and adapts every block: a rotation runs as
 // many stations as there are groups, levels and stations follow merged groups. Per-block choices
@@ -51,10 +52,13 @@ const rotationBlock = z.object({
   kind: z.literal('rotation'),
   // Minutes at each station.
   minutes: z.number().int().min(2).max(20),
+  /** The rotation drill: its zones are the stations. Null on an empty rotation or an older one built from single drills. */
+  drillId: z.string().nullable().default(null),
+  /** One entry per zone. Older rotations (before rotation drills) hold a drill per station here. */
   stations: z
     .array(z.object({ station: zone, drillId: z.string().nullable(), coach: z.string().max(40).default('') }))
-    .min(2)
-    .max(3),
+    .max(3)
+    .default([]),
   /** Stations the coach chose to sit out when there are fewer groups than stations. Default: the last ones. */
   drop: z.array(zone).default([]),
 });
@@ -188,8 +192,16 @@ export function unusedZones(drill: Pick<Drill, 'stations'> | undefined, units: U
 
 // ---------------------------------------------------------------- time
 
+/** An older rotation built from single drills, before rotation drills existed. */
+export function isOldRotation(b: Block): boolean {
+  return b.kind === 'rotation' && !b.drillId && b.stations.some((s) => s.drillId);
+}
+
 export function blockMinutes(b: Block, groupCount = 3): number {
-  return b.kind === 'rotation' ? b.minutes * rotationToday(b, groupCount).active.length : b.minutes;
+  if (b.kind !== 'rotation') return b.minutes;
+  // An empty rotation is timed as one station per group until a rotation drill is picked.
+  if (!b.stations.length) return b.minutes * Math.min(3, Math.max(1, groupCount));
+  return b.minutes * rotationToday(b, groupCount).active.length;
 }
 
 export function totalMinutes(blocks: Block[], groupCount = 3): number {
@@ -222,7 +234,7 @@ export function startTimes(startTime: string, blocks: Block[], groupCount = 3): 
 /** Drill ids a block uses. */
 export function drillIds(b: Block): string[] {
   if (b.kind === 'drill' || b.kind === 'stations') return b.drillId ? [b.drillId] : [];
-  if (b.kind === 'rotation') return b.stations.map((s) => s.drillId).filter((x): x is string => !!x);
+  if (b.kind === 'rotation') return b.drillId ? [b.drillId] : b.stations.map((s) => s.drillId).filter((x): x is string => !!x);
   return [];
 }
 
@@ -241,7 +253,11 @@ export function practiceFocus(blocks: Block[], drills: Map<string, Pick<Drill, '
   };
   for (const b of blocks) {
     if (b.kind === 'drill' || b.kind === 'stations') add(b.drillId, b.minutes);
-    if (b.kind === 'rotation') rotationToday(b, groupCount).active.forEach((s) => add(s.drillId, b.minutes));
+    if (b.kind === 'rotation') {
+      const active = rotationToday(b, groupCount).active;
+      if (b.drillId) add(b.drillId, b.minutes * active.length);
+      else active.forEach((s) => add(s.drillId, b.minutes));
+    }
   }
   const ranked = [...score.entries()].filter(([, s]) => s > 0).sort((a, b) => b[1] - a[1]);
   const main = new Set(ranked.slice(0, 2).map(([a]) => a));
@@ -260,14 +276,16 @@ export function newId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-/** A drill from the library goes in as the block its group model calls for. */
-export function blockForDrill(d: Pick<Drill, 'id' | 'minutes' | 'groupModel'>, minutes = d.minutes): Block {
+/** A drill from the library goes in as the block its group model calls for. For a rotation, minutes are per zone. */
+export function blockForDrill(d: Pick<Drill, 'id' | 'minutes' | 'groupModel' | 'zones'>, minutes = d.minutes): Block {
+  if (d.groupModel === 'rotation')
+    return { id: newId(), kind: 'rotation', drillId: d.id, minutes: Math.min(20, Math.max(2, minutes)), stations: (d.zones ?? []).map((z) => ({ station: z.station, drillId: null, coach: '' })), drop: [] };
   return d.groupModel === 'stations' ? { id: newId(), kind: 'stations', drillId: d.id, minutes, zones: {} } : { id: newId(), kind: 'drill', drillId: d.id, minutes, levels: {} };
 }
 
-export function newRotation(stationCount: number, minutesEach = 8): RotationBlock {
-  const n = Math.min(3, Math.max(2, stationCount));
-  return { id: newId(), kind: 'rotation', minutes: Math.min(20, Math.max(2, minutesEach)), stations: ZONES.slice(0, n).map((station) => ({ station, drillId: null, coach: '' })), drop: [] };
+/** An empty rotation: the coach picks one rotation drill for it. */
+export function newRotation(minutesEach = 8): RotationBlock {
+  return { id: newId(), kind: 'rotation', minutes: Math.min(20, Math.max(2, minutesEach)), drillId: null, stations: [], drop: [] };
 }
 
 export function newActivity(kind: ActivityKind, minutes?: number): Block {
@@ -288,10 +306,7 @@ export function changeBlock(b: Block, to: ChangeTarget, groupCount = 3): Block {
   if (to === 'stations') return { id: b.id, kind: 'stations', drillId: keepDrill, minutes: mins, zones: {} };
   if (to === 'rotation') {
     if (b.kind === 'rotation') return b;
-    const n = Math.min(3, Math.max(2, groupCount));
-    const r = newRotation(n, Math.round(total / Math.min(n, Math.max(1, groupCount))));
-    if (keepDrill) r.stations[0].drillId = keepDrill;
-    return { ...r, id: b.id };
+    return { ...newRotation(Math.round(total / Math.min(3, Math.max(1, groupCount)))), id: b.id };
   }
   const a = newActivity(to, mins);
   return { ...a, id: b.id };
@@ -309,7 +324,7 @@ export function copyBlocks(blocks: Block[]): Block[] {
 
 /** A sensible first plan when there's nothing to copy. */
 export function starterBlocks(minutes: number): Block[] {
-  const blocks: Block[] = [{ ...newActivity('free_skate', 5), note: 'Greet every kid by name.' } as Block, newRotation(3, 8), newActivity('water', 3)];
+  const blocks: Block[] = [{ ...newActivity('free_skate', 5), note: 'Greet every kid by name.' } as Block, newRotation(8), newActivity('water', 3)];
   const left = minutes - totalMinutes(blocks) - 5;
   if (left > 0) blocks.push(newActivity('scrimmage', left));
   blocks.push({ ...newActivity('huddle', 5), title: 'Huddle & shout-outs' } as Block);

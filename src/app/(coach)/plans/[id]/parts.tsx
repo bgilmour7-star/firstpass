@@ -180,11 +180,12 @@ export function LibraryDrawer({
     return () => window.removeEventListener('keydown', esc);
   }, [onClose]);
   const list = drills
-    .filter((d) => filter === 'all' || (filter === 'stations' ? d.groupModel === 'stations' : d.worksAsStation))
+    // Rotations come only from rotation drills (zones ready to go); other lists leave them out.
+    .filter((d) => (filter === 'all' ? d.groupModel !== 'rotation' : d.groupModel === filter))
     .filter((d) => !focus || d.focus.some((f) => f.attribute === focus && f.level === 2))
     .filter((d) => !q || `${d.funName} ${d.plainName}`.toLowerCase().includes(q.toLowerCase()))
     .sort((a, b) => Number(inPlan.has(a.id)) - Number(inPlan.has(b.id)) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName));
-  const hint = filter === 'stations' ? 'Drills where each group plays at its own station.' : filter === 'rotation' ? 'Drills that work as a rotation station.' : '';
+  const hint = filter === 'stations' ? 'Drills where each group plays at its own station.' : filter === 'rotation' ? 'Rotations: zones and activities ready to go. Everyone does every zone.' : '';
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" aria-label="Close" className="absolute inset-0 bg-ink-100/40" onClick={onClose} />
@@ -215,7 +216,7 @@ export function LibraryDrawer({
                     {!known.has(d.id) && <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>}
                   </span>
                   <span className="text-xs text-ink-200">
-                    {d.plainName} · {d.minutes} min{d.groupModel === 'levels' && d.levels ? ` · ${d.levels.length} levels` : d.groupModel === 'stations' ? ' · stations' : ''}
+                    {d.plainName} · {d.minutes} min{d.groupModel === 'rotation' ? ' a zone' : ''}{d.groupModel === 'levels' && d.levels ? ` · ${d.levels.length} levels` : d.groupModel === 'stations' ? ' · stations' : d.groupModel === 'rotation' ? ` · ${d.zones?.length ?? 0} zones` : ''}
                   </span>
                   <span className="text-xs">{d.focus.filter((f) => f.level === 2).map((f) => f.attribute).join(' · ')}</span>
                   {inPlan.has(d.id) && <span className="text-xs text-ink-200">Already in this plan</span>}
@@ -223,7 +224,7 @@ export function LibraryDrawer({
               </button>
             </li>
           ))}
-          {list.length === 0 && <li className="text-sm text-ink-200">No drills match.</li>}
+          {list.length === 0 && <li className="text-sm text-ink-200">{filter === 'rotation' ? 'No rotations in the library yet. Admins add them in drill review.' : 'No drills match.'}</li>}
         </ul>
       </div>
     </div>

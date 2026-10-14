@@ -42,6 +42,23 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
               </ol>
             </Section>
           )}
+          {d.groupModel === 'rotation' && d.zones && (
+            <Section title="Rotation zones">
+              <ul>
+                {d.zones.map((z) => (
+                  <li key={z.station} className="grid grid-cols-[28px_minmax(0,1fr)] items-baseline gap-2 border-t border-border-100 py-2 text-sm">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-ink-100 font-mono text-xs text-surface-100">{z.station}</span>
+                    <span className="flex flex-col gap-0.5">
+                      <b>{z.name}</b>
+                      <span>{z.how}</span>
+                      <span className="font-semibold">“{z.cue}”</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-ink-200">Every group does every zone, moving on the whistle.</p>
+            </Section>
+          )}
           {d.groupModel === 'stations' && d.stations && (
             <Section title="Group stations">
               <ul>

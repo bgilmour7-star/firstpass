@@ -57,14 +57,20 @@ export const drillSchema = z.object({
     .min(1)
     .refine((f) => f.filter((x) => x.level === 2).length <= 2, 'At most two Main focus attributes')
     .refine((f) => new Set(f.map((x) => x.attribute)).size === f.length, 'Each attribute once'),
-  // How skill groups use the drill: each at a level of one progression, or each at its own station.
+  // How skill groups use the drill: each at a level of one progression, each at its own station,
+  // or a rotation (2-3 zones with their own activity; every group does every zone, decision 0004).
   // 'versions' is the legacy spike model, kept until a reviewer picks levels or stations.
-  groupModel: z.enum(['levels', 'stations', 'versions']),
+  groupModel: z.enum(['levels', 'stations', 'rotation', 'versions']),
   levels: z
     .array(z.object({ level: z.string(), name: z.string(), adds: z.string(), groups: z.array(z.enum(GROUPS)), diagram: diagramSchema }))
     .optional(),
   stations: z.array(z.object({ station: z.enum(['A', 'B', 'C']), group: z.enum(GROUPS), version: z.string() })).optional(),
   versions: z.array(z.object({ group: z.enum(GROUPS), version: z.string() })).optional(),
+  /** A rotation's zones on the half-ice layout, each with its own activity. */
+  zones: z
+    .array(z.object({ station: z.enum(['A', 'B', 'C']), name: z.string().max(40), how: z.string().max(240), cue: z.string().max(80) }))
+    .max(3)
+    .optional(),
   source: z.object({ label: z.string(), url: z.string().url().nullable(), note: z.string().optional() }),
   diagram: diagramSchema,
   status: z.enum(STATUSES),
@@ -117,6 +123,12 @@ export function groupModelProblem(d: Drill): string | null {
   }
   if (d.groupModel === 'stations') {
     if (!d.stations || d.stations.length !== 3) return 'Give each group a station.';
+  }
+  if (d.groupModel === 'rotation') {
+    const z = d.zones ?? [];
+    if (z.length < 2) return 'A rotation needs two or three zones.';
+    if (new Set(z.map((x) => x.station)).size !== z.length) return 'Each zone needs its own letter.';
+    if (z.some((x) => !x.name.trim() || !x.how.trim())) return 'Name each zone and say how it works.';
   }
   return null;
 }
