@@ -1,11 +1,11 @@
 # Setup
 
-Production: https://firstpass-bgilmour7-5571s-projects.vercel.app (Vercel project `firstpass`, Supabase connected through the Vercel Marketplace integration, which sets the env vars). Every push to `main` deploys.
+Production: https://firstpass-jet.vercel.app (Vercel project `firstpass`, Supabase connected through the Vercel Marketplace integration, which sets the env vars). Every push to `main` deploys.
 
 ## Once, in Supabase (open it from Vercel → Storage → the Supabase store → Open in Supabase)
 1. **SQL editor →** paste and run `supabase/migrations/20261013000000_drill_review.sql` (tables, admin check, RLS).
 2. **SQL editor →** paste and run `supabase/seed/drills.sql` (the drills in `content/drills`; regenerate with `npm run seed:sql`). It skips drills that are already there.
-3. **Authentication → URL configuration:** Site URL = the production URL above. Redirect URLs: `https://firstpass-bgilmour7-5571s-projects.vercel.app/**` and `http://localhost:3000/**`.
+3. **Authentication → URL configuration:** Site URL = the production URL above. Redirect URLs: `https://firstpass-jet.vercel.app/**` and `http://localhost:3000/**`.
 4. **Authentication → Emails → Templates:** in both **Magic Link** and **Confirm signup**, replace the link with
    ```html
    <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/admin/drills">Sign in to Firstpass</a>
