@@ -14,7 +14,7 @@
 - [x] 1.2 Drill schema (`src/lib/drills/schema.ts`), status moves, tests.
 - [x] 1.3 Supabase schema with RLS (`supabase/migrations/…_drill_review.sql`), magic-link sign-in, `requireAdmin()`.
 - [x] 1.4 Review queue and one-drill screen: edit text, focus pips, levels or stations, diagram requests, review notes, status.
-- [ ] **1.5 Go live (Brett, ~20 min):** follow `docs/setup.md`. Done when Brett and the head coach can sign in and see six drills.
+- [x] **1.5 Go live:** live at https://firstpass-jet.vercel.app (2026-10-13). Brett signed in, reviewed and approved a drill. Head coach still to be added.
 - [ ] **1.6 Diagram loop in practice:** give Claude Supabase access (setup step 5), work the first real request end to end. Done when a request goes Open → Done with a redrawn diagram.
 - [ ] **1.7 Pilot library:** encode ~30 drills for the first six weeks (Hockey Canada U7 plans 1–12 first), each from its source. Done when 30 drills are In review and `npm run drills -- validate` passes.
 
