@@ -10,6 +10,9 @@ export async function GET(request: NextRequest) {
     const supabase = await supabaseServer();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(new URL(next, request.url));
+    console.error('[auth] %s failed: %s %s', 'exchangeCodeForSession', error.status ?? '', error.code ?? error.message);
+    return NextResponse.redirect(new URL(`/login?error=link&reason=${encodeURIComponent(error.code ?? error.message)}`, request.url));
   }
-  return NextResponse.redirect(new URL('/login?error=link', request.url));
+  console.error('[auth] sign-in link arrived without a token', request.nextUrl.search);
+  return NextResponse.redirect(new URL('/login?error=link&reason=missing_token', request.url));
 }
