@@ -51,3 +51,21 @@ export async function deletePractice(id: string) {
   revalidatePath('/plans');
   redirect('/plans');
 }
+
+export async function shareWithParents(practiceId: string): Promise<{ ok: true; token: string; expiresAt: string } | { ok: false; error: string }> {
+  const { coach, team } = await requireTeam('/plans');
+  const store = await getAppStore();
+  const p = await store.getPractice(practiceId);
+  if (!p || p.teamId !== team.id) return { ok: false, error: 'This plan belongs to another team.' };
+  const share = (await store.activeShare(practiceId)) ?? (await store.createShare(practiceId, team.id, coach.id));
+  return { ok: true, ...share };
+}
+
+export async function stopSharing(practiceId: string): Promise<{ ok: boolean }> {
+  const { team } = await requireTeam('/plans');
+  const store = await getAppStore();
+  const p = await store.getPractice(practiceId);
+  if (!p || p.teamId !== team.id) return { ok: false };
+  await store.revokeShares(practiceId);
+  return { ok: true };
+}

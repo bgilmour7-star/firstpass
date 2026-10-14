@@ -9,7 +9,7 @@ const Pip = firstpass.Pips as { render(level: number, opts?: { size?: 'sm' | 'lg
 
 // The design-system renderer escapes all text it draws, so its SVG string is safe to inject.
 
-export function Rink({ spec, title, detail = 'full', className = '' }: { spec: RinkDiagramProps; title: string; detail?: 'full' | 'thumb'; className?: string }) {
+export function Rink({ spec, title, detail = 'full', className = '' }: { spec: RinkDiagramProps; title: string; detail?: 'full' | 'thumb' | 'print'; className?: string }) {
   const svg = useMemo(() => RD.render({ ...spec, title, detail }), [spec, title, detail]);
   return <div className={`rink-frame ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
 }

@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
-import type { AppStore, NewPractice } from './store';
+import { newShareToken, type AppStore, type NewPractice, type Share, type SharedPractice } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
-type State = { teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[] };
+type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
+type State = { teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[] };
 
 async function read(): Promise<State> {
   try {
@@ -81,5 +82,33 @@ export class LocalAppStore implements AppStore {
     const files = (await fs.readdir(dir)).filter((f) => f.endsWith('.json'));
     const all = await Promise.all(files.map(async (f) => drillSchema.safeParse(JSON.parse(await fs.readFile(join(dir, f), 'utf8')))));
     return all.filter((r) => r.success).map((r) => r.data!);
+  }
+
+  async activeShare(practiceId: string): Promise<Share | null> {
+    const now = new Date().toISOString();
+    const r = ((await read()).shares ?? []).find((x) => x.practiceId === practiceId && !x.revokedAt && x.expiresAt > now);
+    return r ? { token: r.token, expiresAt: r.expiresAt } : null;
+  }
+  async createShare(practiceId: string, teamId: string): Promise<Share> {
+    const s = await read();
+    const row: ShareRow = { token: newShareToken(), practiceId, teamId, expiresAt: new Date(Date.now() + 30 * 864e5).toISOString(), revokedAt: null };
+    s.shares = [...(s.shares ?? []), row];
+    await write(s);
+    return { token: row.token, expiresAt: row.expiresAt };
+  }
+  async revokeShares(practiceId: string) {
+    const s = await read();
+    s.shares = (s.shares ?? []).map((x) => (x.practiceId === practiceId && !x.revokedAt ? { ...x, revokedAt: new Date().toISOString() } : x));
+    await write(s);
+  }
+  async sharedPractice(token: string): Promise<SharedPractice | null> {
+    const s = await read();
+    const now = new Date().toISOString();
+    const share = (s.shares ?? []).find((x) => x.token === token && !x.revokedAt && x.expiresAt > now);
+    const p = share && s.practices.find((x) => x.id === share.practiceId);
+    const team = p && s.teams.find((t) => t.id === p.teamId);
+    if (!p || !team) return null;
+    const used = new Set(p.blocks.flatMap((b) => (b.kind === 'drill' ? [b.drillId] : b.kind === 'stations' ? b.stations.map((x) => x.drillId ?? '') : [])));
+    return { team: team.name, practice: { date: p.date, startTime: p.startTime, minutes: p.minutes, ice: p.ice, blocks: p.blocks }, drills: (await this.libraryDrills()).filter((d) => used.has(d.id)) };
   }
 }

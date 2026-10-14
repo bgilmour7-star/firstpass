@@ -66,3 +66,30 @@ h3 {
     animation: none !important;
   }
 }
+
+/* Printout: two letter pages, black and white, readable at arm's length (design decision). */
+@page {
+  size: letter;
+  margin: 12mm;
+}
+@media print {
+  :root,
+  :root:not([data-theme='light']),
+  :root[data-theme='dark'] {
+    --surface-100: #ffffff;
+    --surface-200: #ffffff;
+    --surface-300: #eeeeee;
+    --ink-100: #000000;
+    --ink-200: #333333;
+    --border-100: #999999;
+    --rink-100: #000000;
+    --rink-200: #000000;
+    --whistle-100: #000000;
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #ffffff;
+    font-size: 15px;
+  }
+}

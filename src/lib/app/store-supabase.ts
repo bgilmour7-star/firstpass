@@ -1,8 +1,10 @@
 import 'server-only';
+import { createClient } from '@supabase/supabase-js';
 import { supabaseServer } from '../supabase/server';
 import { practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
-import type { AppStore, NewPractice } from './store';
+import { newShareToken, type AppStore, type NewPractice, type Share, type SharedPractice } from './store';
+import { blockSchema } from '../plans/schema';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
@@ -79,5 +81,46 @@ export class SupabaseAppStore implements AppStore {
       const parsed = drillSchema.safeParse({ ...r.content, id: r.id, status: r.status });
       return parsed.success ? [parsed.data] : [];
     });
+  }
+
+  async activeShare(practiceId: string): Promise<Share | null> {
+    const db = await supabaseServer();
+    const { data } = await db
+      .from('practice_shares')
+      .select('token, expires_at')
+      .eq('practice_id', practiceId)
+      .is('revoked_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data ? { token: data.token, expiresAt: data.expires_at } : null;
+  }
+  async createShare(practiceId: string, teamId: string, userId: string): Promise<Share> {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('practice_shares').insert({ token: newShareToken(), practice_id: practiceId, team_id: teamId, created_by: userId }).select('token, expires_at').single();
+    if (error) throw error;
+    return { token: data.token, expiresAt: data.expires_at };
+  }
+  async revokeShares(practiceId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.from('practice_shares').update({ revoked_at: new Date().toISOString() }).eq('practice_id', practiceId).is('revoked_at', null);
+    if (error) throw error;
+  }
+  async sharedPractice(token: string): Promise<SharedPractice | null> {
+    // Anonymous on purpose: parents have no account. The SQL function decides what they may see.
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false } });
+    const { data, error } = await anon.rpc('shared_practice', { link: token });
+    if (error || !data) return null;
+    const r = data as { team: string; practice: { date: string; start_time: string; minutes: number; ice: 'half' | 'full'; blocks: unknown[] }; drills: { id: string; content: Record<string, unknown> }[] };
+    const blocks = r.practice.blocks.flatMap((b) => {
+      const x = blockSchema.safeParse(b);
+      return x.success ? [x.data] : [];
+    });
+    const drills = r.drills.flatMap((d) => {
+      const x = drillSchema.safeParse({ ...d.content, id: d.id, status: 'live' });
+      return x.success ? [x.data] : [];
+    });
+    return { team: r.team, practice: { date: r.practice.date, startTime: r.practice.start_time.slice(0, 5), minutes: r.practice.minutes, ice: r.practice.ice, blocks }, drills };
   }
 }

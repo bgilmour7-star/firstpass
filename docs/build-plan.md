@@ -38,9 +38,9 @@ Design: canvas "Key screens" and "Plan next practice".
 - [x] Next practice starts as a copy of the last one; New tag on drills new to the kids; new-drill limit visible.
 
 ## Milestone 4 — Rink-side and sharing
-- [ ] Phone Today view: timeline, current block expanded with countdown, stations "who is where".
-- [ ] Parent link: capability token (random, revocable, expires), no sign-in, team-level only.
-- [ ] Printout: two letter pages, black and white (RinkDiagram `detail: 'print'`).
+- [x] Phone Today view: timeline, current block open with countdown (whistle countdown during stations), who is where now, "Start the clock now" for late starts.
+- [x] Parent link: random 32-character token, revocable, expires after 30 days, no sign-in; parents see fun names, plain names and focus only (`supabase/migrations/20261014010000_parent_links.sql`).
+- [x] Printout: letter pages, black and white, print diagrams, rotation table with whistle times.
 
 ## Milestone 5 — Check-in and the next plan
 - [ ] Push/email 30 min after practice; one tap per drill (Flopped / OK / Big hit), reasons, "Ready for harder?" by group.

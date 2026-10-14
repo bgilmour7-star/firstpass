@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 export function AppHeader({ email, isAdmin, local, teamName }: { email: string; isAdmin: boolean; local: boolean; teamName?: string }) {
   const path = usePathname();
   const items = [
+    { href: '/today', label: 'Today' },
     { href: '/plans', label: 'Plans' },
     { href: '/drills', label: 'Drills' },
     { href: '/team', label: 'Team' },
@@ -34,7 +35,7 @@ export function AppHeader({ email, isAdmin, local, teamName }: { email: string; 
   return (
     <>
       {local && (
-        <p className="bg-surface-300 px-4 py-2 text-center text-xs text-ink-100">
+        <p className="bg-surface-300 px-4 py-2 text-center text-xs text-ink-100 print:hidden">
           Local mode: data lives in <code className="font-mono">content/drills</code> and <code className="font-mono">.local/</code>. Connect Supabase to share it.
         </p>
       )}

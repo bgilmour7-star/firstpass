@@ -19,13 +19,13 @@ import {
   type Practice,
   type Team,
 } from '@/lib/plans/schema';
-import { deletePractice, savePractice } from '../actions';
+import { deletePractice, savePractice, shareWithParents, stopSharing } from '../actions';
 
 type Picker = { mode: 'add'; at: number } | { mode: 'swap'; blockId: string } | { mode: 'station'; blockId: string; station: number };
 
 const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' });
 
-export function Builder({ initial, team, drills, known, copiedFrom }: { initial: Practice; team: Team; drills: Drill[]; known: string[]; copiedFrom: string | null }) {
+export function Builder({ initial, team, drills, known, copiedFrom, initialShare }: { initial: Practice; team: Team; drills: Drill[]; known: string[]; copiedFrom: string | null; initialShare: { token: string; expiresAt: string } | null }) {
   const [plan, setPlan] = useState<Practice>(initial);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved');
   const [saveError, setSaveError] = useState('');
@@ -130,6 +130,15 @@ export function Builder({ initial, team, drills, known, copiedFrom }: { initial:
               ))}
             </div>
           </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href={`/plans/${plan.id}/print`} className="inline-flex min-h-9 items-center rounded-full border border-border-100 px-3 text-sm hover:bg-surface-200">
+            Printout
+          </Link>
+          <Link href={`/today?plan=${plan.id}`} className="inline-flex min-h-9 items-center rounded-full border border-border-100 px-3 text-sm hover:bg-surface-200">
+            Rink-side view
+          </Link>
+          <ShareControl practiceId={plan.id} initial={initialShare} />
         </div>
         <details className="text-sm">
           <summary className="w-fit cursor-pointer text-ink-200 hover:text-ink-100">Date, time and ice</summary>
@@ -597,6 +606,75 @@ function LibraryDrawer({
           {list.length === 0 && <li className="text-sm text-ink-200">No drills match.</li>}
         </ul>
       </div>
+    </div>
+  );
+}
+
+function ShareControl({ practiceId, initial }: { practiceId: string; initial: { token: string; expiresAt: string } | null }) {
+  const [share, setShare] = useState(initial);
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [pending, start] = useTransition();
+  const url = share ? `${typeof window === 'undefined' ? '' : window.location.origin}/p/${share.token}` : '';
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => {
+          setOpen((o) => !o);
+          if (!share)
+            start(async () => {
+              const r = await shareWithParents(practiceId);
+              if (r.ok) setShare({ token: r.token, expiresAt: r.expiresAt });
+            });
+        }}
+        className="inline-flex min-h-9 items-center rounded-full border border-border-100 px-3 text-sm hover:bg-surface-200"
+      >
+        Share with parents
+      </button>
+      {open && (
+        <div className="absolute left-0 z-30 mt-2 flex w-[min(92vw,380px)] flex-col gap-2 rounded-md border border-border-100 bg-surface-100 p-3 shadow-lg">
+          {pending || !share ? (
+            <p className="text-sm text-ink-200">Making a link…</p>
+          ) : (
+            <>
+              <p className="text-sm">Anyone with this link sees the plan: no sign-in, no names. It stops working on {new Date(share.expiresAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}.</p>
+              <input readOnly aria-label="Parent link" value={url} onFocus={(e) => e.currentTarget.select()} className={`${input} w-full font-mono text-xs`} />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(url);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    } catch {
+                      setCopied(false);
+                    }
+                  }}
+                  className="min-h-9 rounded-full bg-rink-100 px-3 text-sm font-medium text-surface-100"
+                >
+                  {copied ? 'Copied' : 'Copy link'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    start(async () => {
+                      await stopSharing(practiceId);
+                      setShare(null);
+                      setOpen(false);
+                    })
+                  }
+                  className="min-h-9 rounded-full px-3 text-sm text-flag-100 hover:bg-surface-200"
+                >
+                  Turn off link
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
