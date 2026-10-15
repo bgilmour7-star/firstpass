@@ -5,7 +5,7 @@
 alter table public.teams add column if not exists calendar_url text check (calendar_url is null or calendar_url ~ '^https?://');
 alter table public.teams add column if not exists calendar_synced_at timestamptz;
 
-create table public.ice_times (
+create table if not exists public.ice_times (
   id uuid primary key default gen_random_uuid(),
   team_id uuid not null references public.teams (id) on delete cascade,
   uid text not null,                       -- the calendar event's UID
@@ -23,8 +23,9 @@ create table public.ice_times (
   updated_at timestamptz not null default now(),
   unique (team_id, uid)
 );
-create index ice_times_team_date on public.ice_times (team_id, date);
+create index if not exists ice_times_team_date on public.ice_times (team_id, date);
 
 alter table public.ice_times enable row level security;
+drop policy if exists "members manage their ice times" on public.ice_times;
 create policy "members manage their ice times" on public.ice_times for all
   using (public.is_team_member(team_id)) with check (public.is_team_member(team_id));
