@@ -4,11 +4,11 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
-import { newShareToken, type AppStore, type NewPractice, type Share, type SharedPractice } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
-type State = { teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[] };
+type State = { teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -117,5 +117,43 @@ export class LocalAppStore implements AppStore {
       practice: { date: parsed.date, startTime: parsed.startTime, minutes: parsed.minutes, ice: parsed.ice, blocks: parsed.blocks, attendance: parsed.attendance },
       drills: (await this.libraryDrills()).filter((d) => used.has(d.id)),
     };
+  }
+
+  async calendar(teamId: string) {
+    return (await read()).calendars?.[teamId] ?? null;
+  }
+  async setCalendar(teamId: string, url: string | null) {
+    const s = await read();
+    s.calendars = { ...(s.calendars ?? {}) };
+    if (url) s.calendars[teamId] = { url, syncedAt: null };
+    else {
+      delete s.calendars[teamId];
+      s.iceTimes = (s.iceTimes ?? []).filter((x) => x.teamId !== teamId || x.practiceId);
+    }
+    await write(s);
+  }
+  async markCalendarSynced(teamId: string, at: string) {
+    const s = await read();
+    if (s.calendars?.[teamId]) s.calendars[teamId].syncedAt = at;
+    await write(s);
+  }
+  async iceTimes(teamId: string) {
+    return ((await read()).iceTimes ?? []).filter((x) => x.teamId === teamId).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+  }
+  async upsertIceTimes(teamId: string, rows: IceTimeRow[]) {
+    const s = await read();
+    const all = s.iceTimes ?? [];
+    for (const r of rows) {
+      const i = all.findIndex((x) => x.teamId === teamId && x.uid === r.uid);
+      if (i >= 0) all[i] = { ...all[i], ...r };
+      else all.push({ ...r, id: randomUUID(), teamId });
+    }
+    s.iceTimes = all;
+    await write(s);
+  }
+  async setIceTime(id: string, patch: { ignored?: boolean; practiceId?: string | null }) {
+    const s = await read();
+    s.iceTimes = (s.iceTimes ?? []).map((x) => (x.id === id ? { ...x, ...patch } : x));
+    await write(s);
   }
 }

@@ -2,40 +2,54 @@ import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { clock, drillIds, newDrillIds, todayUnits, totalMinutes } from '@/lib/plans/schema';
-import { createPractice } from './actions';
+import { syncCalendar } from '@/lib/calendar/sync';
+import type { IceTime } from '@/lib/app/store';
+import { createPractice, ignoreIceTime, planIceTime } from './actions';
 
 export const dynamic = 'force-dynamic';
 
 const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
 const STATUS = { draft: 'Draft', ready: 'Ready', done: 'Done' } as const;
 
-export default async function Plans({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function Plans({ searchParams }: { searchParams: Promise<{ error?: string; hidden?: string; all?: string }> }) {
   const { team } = await requireTeam('/plans');
-  const { error } = await searchParams;
+  const { error, hidden, all } = await searchParams;
+  const limit = all ? 200 : 6;
   const store = await getAppStore();
-  const [plans, drills] = await Promise.all([store.listPractices(team.id), store.libraryDrills()]);
+  // Read the team's calendar first (at most once an hour), so moved ice times move their plans.
+  const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
+  const [plans, drills, ice] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.iceTimes(team.id)]);
   const names = new Map(drills.map((d) => [d.id, d.funName]));
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const upcoming = plans.filter((p) => p.date >= today).reverse();
   const past = plans.filter((p) => p.date < today);
   const lastTime = plans[0]?.startTime ?? '17:45';
+  const planIds = new Set(plans.map((p) => p.id));
+  const iceFor = new Map(ice.filter((x) => x.practiceId).map((x) => [x.practiceId!, x]));
+  // Ice times still to plan: practices, then games and the rest further down; hidden ones on request.
+  const toPlan = ice.filter((x) => x.date >= today && !x.cancelled && !(x.practiceId && planIds.has(x.practiceId)) && x.kind !== 'other');
+  const shown = toPlan.filter((x) => (hidden ? x.ignored : !x.ignored));
+  const hiddenCount = toPlan.filter((x) => x.ignored).length;
 
   const row = (p: (typeof plans)[number]) => {
     const fresh = newDrillIds(p, plans);
     const ids = [...new Set(p.blocks.flatMap(drillIds))];
     const over = totalMinutes(p.blocks, todayUnits(team, p.attendance).length) - p.minutes;
+    const it = iceFor.get(p.id);
     return (
       <li key={p.id}>
-        <Link href={`/plans/${p.id}`} className="grid grid-cols-[96px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
+        <Link href={`/plans/${p.id}`} className="grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
           <span className="flex flex-col">
             <b className="font-display">{day(p.date)}</b>
-            <span className="font-mono text-xs text-ink-200">{clock(p.startTime)} · {p.minutes} min</span>
+            <span className="whitespace-nowrap font-mono text-xs text-ink-200">{clock(p.startTime)} · {p.minutes} min</span>
           </span>
           <span className="min-w-0 truncate text-sm text-ink-200">
             {ids.length ? ids.map((i) => names.get(i) ?? 'Drill not live').join(' · ') : 'No drills yet'}
           </span>
           <span className="flex items-center gap-2">
             {fresh.size > 0 && <span className="rounded-full border border-whistle-100 px-2 py-0.5 text-xs font-semibold text-whistle-100">{fresh.size} new</span>}
+            {it?.cancelled && p.date >= today && <span className="text-xs font-semibold text-flag-100">Cancelled in the calendar</span>}
+            {it?.movedFrom && !it.cancelled && <span className="text-xs font-semibold text-whistle-100">Moved from {it.movedFrom}</span>}
             {over > 0 && <span className="text-xs font-semibold text-flag-100">{over} min over</span>}
             <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${p.status === 'ready' ? 'border-rink-100 text-rink-100' : p.status === 'done' ? 'border-border-100 text-ink-200' : 'border-dashed border-border-100 text-ink-200'}`}>
               {STATUS[p.status]}
@@ -69,6 +83,49 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
       </div>
       {error && <p className="text-sm text-flag-100">Pick a date and a start time.</p>}
 
+      {sync.status === 'error' && (
+        <p className="text-sm text-flag-100">
+          {sync.error}{' '}
+          <Link href="/team" className="underline">
+            Check the calendar link
+          </Link>
+        </p>
+      )}
+      {sync.status === 'none' && !ice.length ? (
+        <p className="rounded-md bg-surface-200 px-4 py-3 text-sm">
+          Add your team&apos;s calendar link in{' '}
+          <Link href="/team" className="font-medium text-rink-100 hover:underline">
+            Team
+          </Link>{' '}
+          and your ice times show up here, ready to plan.
+        </p>
+      ) : (
+        <section className="flex flex-col gap-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-[17px] font-extrabold">{hidden ? 'Hidden ice times' : 'Ice times to plan'}</h2>
+            {(hiddenCount > 0 || hidden) && (
+              <Link href={hidden ? '/plans' : '/plans?hidden=1'} className="text-sm text-rink-100 hover:underline">
+                {hidden ? 'Back' : `${hiddenCount} hidden`}
+              </Link>
+            )}
+          </div>
+          {shown.length ? (
+            <ul className="grid gap-2">
+              {shown.slice(0, limit).map((x) => (
+                <IceRow key={x.id} x={x} />
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-ink-200">{hidden ? 'Nothing hidden.' : 'Every upcoming ice time has a plan.'}</p>
+          )}
+          {shown.length > limit && (
+            <Link href={hidden ? '/plans?hidden=1&all=1' : '/plans?all=1'} className="w-fit text-sm text-rink-100 hover:underline">
+              Show {shown.length - limit} more this season
+            </Link>
+          )}
+        </section>
+      )}
+
       <section className="flex flex-col gap-3">
         <h2 className="text-[17px] font-extrabold">Coming up</h2>
         {upcoming.length ? <ul className="grid gap-2">{upcoming.map(row)}</ul> : <p className="text-sm text-ink-200">Nothing planned yet.</p>}
@@ -80,5 +137,41 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
         </section>
       )}
     </div>
+  );
+}
+
+function IceRow({ x }: { x: IceTime }) {
+  const game = x.kind === 'game';
+  return (
+    <li className={`grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border p-3 ${game ? 'border-dashed border-border-100' : 'border-border-100'}`}>
+      <span className="flex flex-col">
+        <b className="font-display">{day(x.date)}</b>
+        <span className="whitespace-nowrap font-mono text-xs text-ink-200">
+          {clock(x.startTime)} · {x.minutes} min
+        </span>
+      </span>
+      <span className="flex min-w-0 flex-col text-sm">
+        <span className="truncate">
+          {game ? <b>Game</b> : x.title}
+          {x.sharedWith && <span className="text-ink-200"> · {game ? x.sharedWith : `shared with ${x.sharedWith}`}</span>}
+        </span>
+        <span className="truncate text-xs text-ink-200">
+          {x.rink}
+          {x.movedFrom && <span className="font-semibold text-whistle-100"> · Moved from {x.movedFrom}</span>}
+        </span>
+      </span>
+      <span className="flex items-center gap-1">
+        <form action={ignoreIceTime.bind(null, x.id, !x.ignored)}>
+          <button type="submit" className="min-h-9 rounded-full px-3 text-sm text-ink-200 hover:bg-surface-200">
+            {x.ignored ? 'Show again' : 'Not ours'}
+          </button>
+        </form>
+        <form action={planIceTime.bind(null, x.id)}>
+          <button type="submit" className={`min-h-9 rounded-full px-4 text-sm font-medium ${game ? 'border border-border-100 hover:bg-surface-200' : 'bg-rink-100 text-surface-100 hover:bg-rink-200'}`}>
+            {game ? 'Plan anyway' : 'Plan it'}
+          </button>
+        </form>
+      </span>
+    </li>
   );
 }

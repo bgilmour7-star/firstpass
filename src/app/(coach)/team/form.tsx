@@ -47,7 +47,7 @@ export function TeamForm({ team, welcome }: { team: Team; welcome: boolean }) {
             </label>
           ))}
         </div>
-        <p className="text-xs text-ink-200">Groups rotate through stations in this order: {t.groups.map((g) => g.group).join(' → ')}. New drills reach the Eagles first.</p>
+        <p className="text-xs text-ink-200">Your usual groups. On each practice you can set who&apos;s actually there and merge groups for the day.</p>
       </Section>
 
       <Section title="Practices">

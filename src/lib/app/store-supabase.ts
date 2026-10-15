@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { supabaseServer } from '../supabase/server';
 import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
-import { newShareToken, type AppStore, type NewPractice, type Share, type SharedPractice } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
@@ -133,5 +133,76 @@ export class SupabaseAppStore implements AppStore {
       practice: { date: r.practice.date, startTime: r.practice.start_time.slice(0, 5), minutes: r.practice.minutes, ice: r.practice.ice, blocks, attendance: attendance.success ? attendance.data : null },
       drills,
     };
+  }
+
+  async calendar(teamId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('teams').select('calendar_url, calendar_synced_at').eq('id', teamId).maybeSingle();
+    if (error || !data?.calendar_url) return null; // also when the calendar migration hasn't run
+    return { url: data.calendar_url as string, syncedAt: (data.calendar_synced_at as string | null) ?? null };
+  }
+  async setCalendar(teamId: string, url: string | null) {
+    const db = await supabaseServer();
+    const { error } = await db.from('teams').update({ calendar_url: url, calendar_synced_at: null }).eq('id', teamId);
+    if (error) throw error;
+    if (!url) await db.from('ice_times').delete().eq('team_id', teamId).is('practice_id', null);
+  }
+  async markCalendarSynced(teamId: string, at: string) {
+    const db = await supabaseServer();
+    // Only the head coach may update the team row; for other coaches the sync still happened.
+    await db.from('teams').update({ calendar_synced_at: at }).eq('id', teamId);
+  }
+  async iceTimes(teamId: string): Promise<IceTime[]> {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('ice_times').select('*').eq('team_id', teamId).order('date').order('start_time');
+    if (error) return [];
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      teamId: r.team_id,
+      uid: r.uid,
+      date: r.date,
+      startTime: String(r.start_time).slice(0, 5),
+      minutes: r.minutes,
+      title: r.title,
+      rink: r.rink,
+      kind: r.kind,
+      sharedWith: r.shared_with,
+      cancelled: r.cancelled,
+      ignored: r.ignored,
+      practiceId: r.practice_id,
+      movedFrom: r.moved_from,
+    }));
+  }
+  async upsertIceTimes(teamId: string, rows: IceTimeRow[]) {
+    if (!rows.length) return;
+    const db = await supabaseServer();
+    const { error } = await db.from('ice_times').upsert(
+      rows.map((r) => ({
+        team_id: teamId,
+        uid: r.uid,
+        date: r.date,
+        start_time: r.startTime,
+        minutes: r.minutes,
+        title: r.title,
+        rink: r.rink,
+        kind: r.kind,
+        shared_with: r.sharedWith,
+        cancelled: r.cancelled,
+        ignored: r.ignored,
+        practice_id: r.practiceId,
+        moved_from: r.movedFrom,
+        updated_at: new Date().toISOString(),
+      })),
+      { onConflict: 'team_id,uid' },
+    );
+    if (error) throw error;
+  }
+  async setIceTime(id: string, patch: { ignored?: boolean; practiceId?: string | null }) {
+    const db = await supabaseServer();
+    const row: Record<string, unknown> = {};
+    if (patch.ignored !== undefined) row.ignored = patch.ignored;
+    if (patch.practiceId !== undefined) row.practice_id = patch.practiceId;
+    const { error } = await db.from('ice_times').update(row).eq('id', id);
+    if (error) throw error;
   }
 }

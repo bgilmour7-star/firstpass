@@ -64,8 +64,8 @@ Out of scope: billing (stub `plan`, `price_cents`, `currency='CAD'` only).
 
 ### 2.2 Season and practice slots
 - [ ] Season dates (date picker with presets), practice slots (day, time, length, ice: half / full / it changes).
-- [ ] Calendar import from an iCal link (TeamSnap, Google, association feed): detect practices, coach confirms, games left out, shared-ice opponent read from the event name.
-- [ ] Re-check the link daily (Vercel cron) so moved ice times update.
+- [x] Calendar import from an iCal link (decision 0005, 2026-10-14): Team page link; Plans shows ice times with Plan it / Not ours; games left out unless planned anyway; the other team read from the event name; moved ice times move their plans. **Brett: run `supabase/migrations/20261016000000_calendar.sql`.**
+- [ ] Re-check the link daily (Vercel cron). For now it's re-read when a coach opens Plans, at most hourly.
 
 ### 2.3 Groups, gear and focus
 - [ ] Skater count and group counts (Eagles, Bears, Sharks) — counts only, never names.
