@@ -40,8 +40,8 @@ export async function saveCalendar(raw: string): Promise<CalendarCheck> {
   const store = await getAppStore();
   try {
     await store.setCalendar(team.id, read.url);
-  } catch {
-    return { ok: false, error: 'Only the head coach can change the calendar link.' };
+  } catch (e) {
+    return { ok: false, error: calendarError(e) };
   }
   const sync = await syncCalendar(store, team.id, { force: true });
   if (sync.status === 'error') return { ok: false, error: sync.error };
@@ -58,9 +58,17 @@ export async function removeCalendar(): Promise<{ ok: boolean; error?: string }>
   const { team } = await requireTeam('/team');
   try {
     await (await getAppStore()).setCalendar(team.id, null);
-  } catch {
-    return { ok: false, error: 'Only the head coach can change the calendar link.' };
+  } catch (e) {
+    return { ok: false, error: calendarError(e) };
   }
   revalidatePath('/plans');
   return { ok: true };
+}
+
+function calendarError(e: unknown): string {
+  const m = e instanceof Error ? e.message : '';
+  if (m === 'calendar-migration-missing') return 'The calendar isn’t set up in the database yet. Run supabase/migrations/20261016000000_calendar.sql in the Supabase SQL editor, then try again.';
+  if (m === 'not-head-coach') return 'Only the head coach can change the calendar link.';
+  console.error('[calendar] saving the link failed:', m);
+  return 'Couldn’t save the link. Try again in a minute.';
 }

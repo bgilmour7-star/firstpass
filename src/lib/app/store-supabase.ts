@@ -143,8 +143,10 @@ export class SupabaseAppStore implements AppStore {
   }
   async setCalendar(teamId: string, url: string | null) {
     const db = await supabaseServer();
-    const { error } = await db.from('teams').update({ calendar_url: url, calendar_synced_at: null }).eq('id', teamId);
-    if (error) throw error;
+    const { data, error } = await db.from('teams').update({ calendar_url: url, calendar_synced_at: null }).eq('id', teamId).select('id');
+    if (error) throw new Error(/calendar_url|column|schema cache/i.test(error.message) ? 'calendar-migration-missing' : error.message);
+    // RLS lets only the head coach update the team; anyone else updates no rows.
+    if (!data?.length) throw new Error('not-head-coach');
     if (!url) await db.from('ice_times').delete().eq('team_id', teamId).is('practice_id', null);
   }
   async markCalendarSynced(teamId: string, at: string) {
