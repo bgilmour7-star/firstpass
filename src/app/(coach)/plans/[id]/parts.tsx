@@ -29,7 +29,7 @@ export const Icon = {
 };
 
 export const BLOCK_TYPES = [
-  { kind: 'drill', label: 'Drill', help: 'One basic drill. If it has levels, use one for everyone or spread several over the groups.', icon: Icon.drill },
+  { kind: 'drill', label: 'Drill', help: 'One basic drill for the whole group. If it has levels, pick the one everyone does.', icon: Icon.drill },
   { kind: 'stations', label: 'Stations', help: 'One stations drill: each group plays its own version at its own spot.', icon: Icon.stations },
   { kind: 'rotation', label: 'Rotation', help: 'One rotation drill: every group does every zone, moving on the whistle.', icon: Icon.rotation },
   { kind: 'activity', label: 'Activity', help: 'Water, huddle, free skate, small games. No drill.', icon: Icon.activity },
@@ -190,7 +190,7 @@ export function LibraryDrawer({
       ? 'Each group plays its own version at its own spot, all at once.'
       : filter === 'rotation'
         ? 'Zones and activities ready to go. Everyone does every zone.'
-        : 'Drills everyone can do. Some have levels: pick one for everyone, or several.';
+        : 'Drills the whole group does together. Some have levels: you pick one in the plan.';
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" aria-label="Close" className="absolute inset-0 bg-ink-100/40" onClick={onClose} />

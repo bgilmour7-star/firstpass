@@ -8,8 +8,7 @@ import {
   drillIds,
   isAdapted,
   isOldRotation,
-  levelsInPlay,
-  levelsToday,
+  blockLevel,
   newDrillIds,
   practiceFocus,
   practiceSchema,
@@ -24,7 +23,7 @@ import {
   type RotationBlock,
 } from './schema';
 
-const drill = (id: string, minutes = 8): Block => ({ id, kind: 'drill', drillId: id, minutes, use: [], levels: {} });
+const drill = (id: string, minutes = 8): Block => ({ id, kind: 'drill', drillId: id, minutes, level: 1 });
 const rotation = (ids: (string | null)[], minutes = 8, drop: ('A' | 'B' | 'C')[] = []): RotationBlock => ({
   id: 'rot',
   kind: 'rotation',
@@ -59,8 +58,8 @@ describe('older plans', () => {
     const b = blockSchema.parse(old);
     expect(b.kind).toBe('rotation');
   });
-  it('read a drill without levels', () => {
-    expect(blockSchema.parse({ id: 'd', kind: 'drill', drillId: 'x', minutes: 5 })).toMatchObject({ levels: {} });
+  it('read a drill block without a level', () => {
+    expect(blockSchema.parse({ id: 'd', kind: 'drill', drillId: 'x', minutes: 5 })).toMatchObject({ level: 1 });
   });
   it('read a practice without attendance', () => {
     const p = practiceSchema.parse({ id: 'p', teamId: 't', date: '2026-10-15', startTime: '17:45', minutes: 60, ice: 'half', status: 'draft', blocks: [] });
@@ -97,8 +96,6 @@ describe('blocks adapt', () => {
       { name: 'Give-and-go', adds: '', diagram: {} },
     ],
   };
-  const units3 = todayUnits(team, null);
-  const all = { use: [], levels: {} };
   const knock = {
     stations: [
       { station: 'A' as const, group: 'Eagles' as const, version: '3 on 3, two pucks' },
@@ -106,30 +103,20 @@ describe('blocks adapt', () => {
       { station: 'C' as const, group: 'Sharks' as const, version: '2 on 2 with a coach' },
     ],
   };
-  const lv = (block: { use: number[]; levels: Record<string, number> }, units = units3) => [...levelsToday(snake, block, units).values()];
-  it('every level in play by default, one per group, easiest first', () => {
-    expect(levelsInPlay(snake, all)).toEqual([1, 2, 3]);
-    expect(lv(all)).toEqual([1, 2, 3]);
+  it('a drill block runs one level for everyone, Level 1 by default', () => {
+    expect(blockLevel(snake, { level: 1 })).toBe(1);
+    expect(blockLevel(snake, { level: 3 })).toBe(3);
   });
-  it('with two groups today, the easiest and hardest levels', () => {
-    expect(lv(all, units2)).toEqual([1, 3]);
+  it('a level the drill no longer has falls back to its last level', () => {
+    expect(blockLevel({ groupModel: 'basic', levels: [] }, { level: 3 })).toBe(1);
+    expect(blockLevel(snake, { level: 5 as number })).toBe(3);
   });
-  it('one level in play: everyone does it', () => {
-    expect(lv({ use: [2], levels: {} })).toEqual([2, 2, 2]);
-  });
-  it('two levels in play over three groups: the easier one goes to the easier groups', () => {
-    expect(lv({ use: [3, 1], levels: {} })).toEqual([1, 3, 3]);
-  });
-  it("keeps the coach's level for a group, if that level is in play", () => {
-    expect(lv({ use: [], levels: { 'Sharks+Bears': 2 } }, units2)).toEqual([2, 3]);
-    expect(lv({ use: [1, 3], levels: { 'Sharks+Bears': 2 } }, units2)).toEqual([1, 3]);
-  });
-  it('a drill with nothing added has one level', () => {
-    expect(levelsInPlay({ groupModel: 'basic', levels: [] }, { use: [2] })).toEqual([1]);
-  });
-  it('older plans with level labels still read', () => {
-    const b = blockSchema.parse({ id: 'x', kind: 'drill', drillId: 'snake', minutes: 10, levels: { Sharks: '1.0', Bears: '1.2', Eagles: 'odd' } });
-    expect(b).toMatchObject({ use: [], levels: { Sharks: 1, Bears: 3 } });
+  it('older plans: one chosen level is kept, a mix or per-group levels become Level 1', () => {
+    const read = (b: object) => blockSchema.parse({ id: 'x', kind: 'drill', drillId: 'snake', minutes: 10, ...b });
+    expect(read({ use: [2], levels: {} })).toMatchObject({ level: 2 });
+    expect(read({ use: [1, 3], levels: { Sharks: 1 } })).toMatchObject({ level: 1 });
+    expect(read({ levels: { Sharks: '1.0', Bears: '1.2' } })).toMatchObject({ level: 1 });
+    expect(read({ level: 2 })).not.toHaveProperty('use');
   });
   it('a merged group gets its easier group’s station, and the rest sit out', () => {
     expect(zoneFor(knock, units2[0], {})).toBe('C');

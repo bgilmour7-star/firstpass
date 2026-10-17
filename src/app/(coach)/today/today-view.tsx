@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { addMinutes, blockMinutes, clock, levelsToday, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import { addMinutes, blockLevel, blockMinutes, clock, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../design-system/index';
 
 // The practice timeline on a phone at the rink: done blocks greyed, the current block open with a
@@ -135,22 +135,14 @@ function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; b
     let spec = d.diagram as RinkDiagramProps;
     let groups: React.ReactNode = null;
     if (block.kind === 'drill' && levelCount(d) > 1) {
-      const today = levelsToday(d, block, units);
-      const used = [...new Set(today.values())];
-      // One level for everyone: show that level's diagram.
-      if (used.length === 1) spec = levelOf(d, used[0]).diagram as RinkDiagramProps;
+      // The whole group does one level: show that level's diagram and what it adds.
+      const l = levelOf(d, blockLevel(d, block));
+      spec = l.diagram as RinkDiagramProps;
       groups = (
-        <ul className="flex flex-col text-[15px]">
-          {units.map((u) => {
-            const l = levelOf(d, today.get(u.key) ?? 1);
-            return (
-              <li key={u.key} className="border-t border-border-100 py-1">
-                <b>{u.label}</b> · <span className="font-mono">Level {l.n}</span> {l.name}
-                {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
-              </li>
-            );
-          })}
-        </ul>
+        <p className="text-[15px]">
+          <span className="font-mono">Level {l.n}</span> · <b>{l.name}</b>
+          {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
+        </p>
       );
     }
     if (block.kind === 'stations') {

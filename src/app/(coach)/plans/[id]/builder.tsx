@@ -16,7 +16,7 @@ import {
   drillIds,
   isOldRotation,
   isAdapted,
-  levelsToday,
+  blockLevel,
   newActivity,
   newId,
   practiceFocus,
@@ -35,7 +35,7 @@ import {
   type Zone,
 } from '@/lib/plans/schema';
 import { deletePractice, savePractice } from '../actions';
-import { DrillCard, Ladder, RotationCard, StationsCard } from './blocks';
+import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
 import { AttendanceDialog, BLOCK_TYPES, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter } from './parts';
 
 // The plan builder (decision 0004). A sticky plan bar keeps the key actions in reach on long plans
@@ -171,10 +171,6 @@ export function Builder({
           if (n !== rotationToday(b, gc).active.length) lines.push(`The rotation runs ${n} zone${n === 1 ? '' : 's'} of ${b.minutes} min.`);
         }
         const d = b.kind === 'drill' || b.kind === 'stations' ? byId.get(b.drillId) : undefined;
-        if (b.kind === 'drill' && d?.levels.length) {
-          const lv = levelsToday(d, b, u2);
-          u2.filter((u) => u.groups.length > 1).forEach((u) => lines.push(`In ${d.funName}, ${u.label} do level ${lv.get(u.key)}.`));
-        }
         if (b.kind === 'stations' && d) {
           const off = unusedZones(d, u2, b.zones);
           const on = ZONES.filter((z) => !off.includes(z) && d.stations?.some((s) => s.station === z));
@@ -575,8 +571,7 @@ function BlockBody({
   let tag = 'ACTIVITY';
   let tone = 'text-ink-200';
   if (b.kind === 'drill') {
-    const inPlay = b.use.length && d?.levels.length ? b.use.length : (d?.levels.length ?? 0) + 1;
-    tag = `DRILL${d?.levels.length ? ` · ${inPlay === 1 ? `LEVEL ${b.use[0] ?? 1}` : `${inPlay} LEVELS`}` : ''}${fewer && d?.levels.length && inPlay > 1 ? ` · ${gc} GROUP${gc === 1 ? '' : 'S'} TODAY` : ''}`;
+    tag = `DRILL${d?.levels.length ? ` · LEVEL ${blockLevel(d, b)} OF ${d.levels.length + 1}` : ''}`;
     tone = 'text-rink-100';
   }
   if (b.kind === 'stations') {
@@ -638,13 +633,7 @@ function BlockBody({
       {b.kind === 'drill' &&
         d &&
         (d.levels.length ? (
-          <Ladder
-            block={b}
-            drill={d}
-            units={units}
-            onLevel={(k, lv) => update((x) => (x.kind === 'drill' ? { ...x, levels: { ...x.levels, [k]: lv } } : x))}
-            onUse={(use) => update((x) => (x.kind === 'drill' ? { ...x, use } : x))}
-          />
+          <LevelPicker block={b} drill={d} onLevel={(level) => update((x) => (x.kind === 'drill' ? { ...x, level } : x))} />
         ) : (
           <DrillCard drill={d} isNew={!known.has(d.id)} />
         ))}

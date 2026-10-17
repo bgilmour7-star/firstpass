@@ -40,7 +40,7 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
                   </li>
                 ))}
               </ol>
-              <p className="text-xs text-ink-200">In a plan, pick which levels are in play: one for everyone, or several spread over the groups.</p>
+              <p className="text-xs text-ink-200">In a plan, you pick one level and the whole group does it.</p>
             </Section>
           )}
           {d.groupModel === 'rotation' && d.zones && (

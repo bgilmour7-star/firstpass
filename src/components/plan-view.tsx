@@ -1,7 +1,7 @@
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { blockMinutes, clock, levelsToday, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
+import { blockLevel, blockMinutes, clock, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../design-system/index';
 
 // Read-only plan in time order, for the printout and the parent link, adapted to today's groups.
@@ -26,21 +26,18 @@ export function PlanView({ blocks, startTime, units, drills, mode }: { blocks: B
                 {b.note && mode === 'print' && <p className="text-[15px]">{b.note}</p>}
               </div>
             )}
-            {b.kind === 'drill' && <DrillBlock drill={drills.get(b.drillId)} mode={mode} />}
-            {b.kind === 'drill' && mode === 'print' && drills.get(b.drillId) && levelCount(drills.get(b.drillId)!) > 1 ? (
-              <ul className="mt-2 flex flex-col text-[15px]">
-                {units.map((u) => {
-                  const d = drills.get(b.drillId)!;
-                  const l = levelOf(d, levelsToday(d, b, units).get(u.key) ?? 1);
+            {b.kind === 'drill' && <DrillBlock drill={drills.get(b.drillId)} level={blockLevel(drills.get(b.drillId), b)} mode={mode} />}
+            {b.kind === 'drill' && drills.get(b.drillId) && levelCount(drills.get(b.drillId)!) > 1
+              ? (() => {
+                  const l = levelOf(drills.get(b.drillId)!, blockLevel(drills.get(b.drillId), b));
                   return (
-                    <li key={u.key} className="border-t border-border-100 py-1">
-                      <b>{u.label}</b> · <span className="font-mono">Level {l.n}</span> {l.name}
-                      {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
-                    </li>
+                    <p className="mt-1 text-[15px]">
+                      <span className="font-mono">Level {l.n}</span> · <b>{l.name}</b>
+                      {l.adds && mode === 'print' ? <span className="text-ink-200"> ({l.adds})</span> : null}
+                    </p>
                   );
-                })}
-              </ul>
-            ) : null}
+                })()
+              : null}
             {b.kind === 'stations' && <StationsView block={b} drill={drills.get(b.drillId)} units={units} mode={mode} />}
             {b.kind === 'rotation' && <RotationView block={b} drills={drills} gc={gc} mode={mode} />}
           </div>
@@ -134,7 +131,7 @@ function RotationView({ block, drills, gc, mode }: { block: Extract<Block, { kin
   );
 }
 
-function DrillBlock({ drill, mode, small }: { drill?: Drill; mode: Mode; small?: boolean }) {
+function DrillBlock({ drill, level = 1, mode, small }: { drill?: Drill; level?: number; mode: Mode; small?: boolean }) {
   if (!drill) return <p className="text-[15px] text-ink-200">Drill to be chosen.</p>;
   if (mode === 'parent')
     return (
@@ -151,7 +148,7 @@ function DrillBlock({ drill, mode, small }: { drill?: Drill; mode: Mode; small?:
         <p className="text-[15px] font-semibold">“{drill.cues[0]}”</p>
         {drill.gear !== 'None' && <p className="text-sm text-ink-200">Gear: {drill.gear}</p>}
       </div>
-      <Rink spec={drill.diagram} title={drill.funName} detail="print" />
+      <Rink spec={levelOf(drill, level).diagram} title={drill.funName} detail="print" />
     </div>
   );
 }

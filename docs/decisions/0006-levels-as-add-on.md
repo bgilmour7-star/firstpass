@@ -15,13 +15,15 @@ A drill had five group models: levels, stations, rotation, together and the lega
 A.
 - **Group models are now three:** `basic`, `stations` and `rotation`. Each matches one block kind: Drill, Stations or Rotation.
 - **A basic drill is Level 1.** `levelName` names it in a few words. `levels` holds up to two added levels, each with a name, what it adds (one sentence) and its own diagram. A new level starts as a copy of the diagram before it, and the reviewer asks Claude to redraw what changes.
-- **Levels don't belong to groups.** A Drill block picks the **levels in play** (`use`; empty means all). The levels in play are spread over today's groups, easiest group on the easiest level. With one level in play, everyone does it. With more levels than groups, the easiest and hardest are used. The coach can still change a group's level (`levels`, now level numbers).
-- **Older data is upgraded when read, so there's no data migration.** `together` becomes basic. `levels` (1.0/1.1/1.2) becomes basic: the first level names Level 1 and the others become added levels. `versions` becomes basic: the easiest group's line names Level 1. A plan's old labels "1.0", "1.1" and "1.2" read as levels 1, 2 and 3. Stored drills take the new shape the next time they're saved.
+- **Levels don't belong to groups.** A Drill block picks **one level** (`level`, default 1) and the whole group does it. *(Amended 2026-10-17, Brett: "the entire group must do drills. You cannot run 2 different levels of a progression at the same time… No groups for drills, only for stations and as an option for rotations." This replaces the first version, where a block could put several levels in play and spread them over the groups.)*
+- **Older data is upgraded when read, so there's no data migration.** `together` becomes basic. `levels` (1.0/1.1/1.2) becomes basic: the first level names Level 1 and the others become added levels. `versions` becomes basic: the easiest group's line names Level 1. An older drill block keeps its level if it had exactly one in play, otherwise it reads as Level 1. Stored drills take the new shape the next time they're saved.
 - "Progression" is kept for how skills build across the season, lesson to lesson, not for levels inside a drill.
 
 ## Consequences
 - Airplanes and Hot Potato Partners came from per-group versions. Their added levels reuse the main diagram until someone asks for a redraw.
-- The coach drill page, Rink-side, the printout and the parent link show "Level n" with what it adds.
+- The builder shows the chosen level with its diagram and the other levels as "Use this level" stubs (the "Level picker" design canvas). On a phone the chosen level goes full width.
+- The coach drill page, Rink-side, the printout and the parent link show "Level n" with what it adds, and the printout and Rink-side draw that level's diagram.
+- Groups appear only in Stations blocks. Rotations may get an optional "which group starts in which zone" later.
 - The model map ("Firstpass Model Map" artifact) shows the new shape.
 
 ## Revisit when

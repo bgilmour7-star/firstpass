@@ -6,8 +6,8 @@ import { FOCUS_ATTRIBUTES, GROUPS, levelCount, MAX_LEVELS, type Drill, type Grou
 // everything after it.
 //
 // Four kinds of block (decision 0004):
-//   drill     one basic drill. If it has added levels, the block picks which are in play (one for
-//             everyone, or several spread over the groups, easiest first; decision 0006)
+//   drill     one basic drill, run by the whole group at once. If it has added levels, the block
+//             picks one level for everyone (decision 0006, amended 2026-10-17)
 //   stations  one drill, one diagram, each group at its own station (A, B, C)
 //   rotation  one rotation drill (2-3 zones, each its own activity); every group does every zone,
 //             moving on the whistle; the coach picks who starts where
@@ -37,10 +37,8 @@ const drillBlock = z.object({
   // Empty until the coach picks one (a block changed to a drill starts empty).
   drillId: z.string(),
   minutes: z.number().int().min(1).max(60),
-  /** Levels in play in this block (1 = the drill itself). Empty = every level the drill has. */
-  use: z.array(z.number().int().min(1).max(MAX_LEVELS)).default([]),
-  /** Level chosen for a group today, keyed by group key ("Sharks", "Sharks+Bears"). Missing = spread easiest first. */
-  levels: z.record(z.string(), z.number().int().min(1).max(MAX_LEVELS)).default({}),
+  /** The level everyone does (1 = the drill as written). Groups never split a drill block. */
+  level: z.number().int().min(1).max(MAX_LEVELS).default(1),
 });
 const stationsBlock = z.object({
   id,
@@ -77,19 +75,21 @@ const activityBlock = z.object({
 /**
  * Reads older plans:
  * - before decision 0004 a rotation was called "stations";
- * - before decision 0006 a drill block's levels were the drill's level labels ("1.0", "1.1", "1.2"), now level numbers (1, 2, 3).
+ * - a drill block once held per-group levels; it now holds one level for everyone (decision 0006).
  */
 function upgradeBlock(b: unknown): unknown {
   if (!b || typeof b !== 'object') return b;
   const x = b as { kind?: string; stations?: unknown; levels?: unknown };
   if (x.kind === 'stations' && Array.isArray(x.stations)) return { ...b, kind: 'rotation' };
-  if (x.kind === 'drill' && x.levels && typeof x.levels === 'object') {
-    const levels: Record<string, number> = {};
-    for (const [k, v] of Object.entries(x.levels as Record<string, unknown>)) {
-      const n = typeof v === 'number' ? v : typeof v === 'string' && /^1\.\d$/.test(v) ? Number(v.slice(2)) + 1 : NaN;
-      if (Number.isInteger(n) && n >= 1 && n <= MAX_LEVELS) levels[k] = n;
-    }
-    return { ...b, levels };
+  if (x.kind === 'drill' && !('level' in (b as object))) {
+    // Before the amendment a block could spread several levels over the groups ("use", "levels").
+    // A drill block now runs one level for everyone: keep a single chosen level, else Level 1.
+    const use = (b as { use?: unknown }).use;
+    const one = Array.isArray(use) && use.length === 1 && Number.isInteger(use[0]) ? (use[0] as number) : 1;
+    const { use: _u, levels: _l, ...rest } = b as Record<string, unknown>;
+    void _u;
+    void _l;
+    return { ...rest, level: Math.min(MAX_LEVELS, Math.max(1, one)) };
   }
   return b;
 }
@@ -186,26 +186,9 @@ export function rotationToday(b: RotationBlock, groupCount: number): { active: R
   return { active: b.stations.filter((s) => !off.includes(s.station)), off };
 }
 
-/** The levels in play in a drill block, easiest first: the coach's pick, else every level the drill has. */
-export function levelsInPlay(drill: Pick<Drill, 'groupModel' | 'levels'> | undefined, block: Pick<DrillBlock, 'use'>): number[] {
-  const n = drill ? levelCount(drill) : 1;
-  const picked = [...new Set(block.use)].filter((l) => l >= 1 && l <= n).sort((a, b) => a - b);
-  return picked.length ? picked : Array.from({ length: n }, (_, i) => i + 1);
-}
-
-/**
- * The level each group does today. The coach's choice for a group if it is in play; otherwise the
- * levels in play are spread over today's groups, easiest group on the easiest level. With one level
- * in play everyone does it; with more levels than groups the easiest and hardest are used.
- */
-export function levelsToday(drill: Pick<Drill, 'groupModel' | 'levels'> | undefined, block: Pick<DrillBlock, 'use' | 'levels'>, units: Unit[]): Map<string, number> {
-  const play = levelsInPlay(drill, block);
-  const out = new Map<string, number>();
-  units.forEach((u, i) => {
-    const chosen = block.levels[u.key];
-    out.set(u.key, chosen && play.includes(chosen) ? chosen : play[units.length <= 1 ? 0 : Math.round((i * (play.length - 1)) / (units.length - 1))]);
-  });
-  return out;
+/** The level a drill block runs, kept within the levels the drill has (a level can be removed in review). */
+export function blockLevel(drill: Pick<Drill, 'groupModel' | 'levels'> | undefined, block: Pick<DrillBlock, 'level'>): number {
+  return Math.min(Math.max(1, block.level), drill ? levelCount(drill) : 1);
 }
 
 /** The station a group plays at in a station drill: the coach's choice, else its easiest group's station. */
@@ -310,7 +293,7 @@ export function newId(): string {
 export function blockForDrill(d: Pick<Drill, 'id' | 'minutes' | 'groupModel' | 'zones'>, minutes = d.minutes): Block {
   if (d.groupModel === 'rotation')
     return { id: newId(), kind: 'rotation', drillId: d.id, minutes: Math.min(20, Math.max(2, minutes)), stations: (d.zones ?? []).map((z) => ({ station: z.station, drillId: null, coach: '' })), drop: [] };
-  return d.groupModel === 'stations' ? { id: newId(), kind: 'stations', drillId: d.id, minutes, zones: {} } : { id: newId(), kind: 'drill', drillId: d.id, minutes, use: [], levels: {} };
+  return d.groupModel === 'stations' ? { id: newId(), kind: 'stations', drillId: d.id, minutes, zones: {} } : { id: newId(), kind: 'drill', drillId: d.id, minutes, level: 1 };
 }
 
 /** An empty rotation: the coach picks one rotation drill for it. */
@@ -332,7 +315,7 @@ export function changeBlock(b: Block, to: ChangeTarget, groupCount = 3): Block {
   const total = blockMinutes(b, groupCount);
   const keepDrill = b.kind === 'drill' || b.kind === 'stations' ? b.drillId : b.kind === 'rotation' ? (b.stations.find((s) => s.drillId)?.drillId ?? '') : '';
   const mins = Math.min(60, Math.max(1, total));
-  if (to === 'drill') return { id: b.id, kind: 'drill', drillId: keepDrill, minutes: mins, use: [], levels: {} };
+  if (to === 'drill') return { id: b.id, kind: 'drill', drillId: keepDrill, minutes: mins, level: 1 };
   if (to === 'stations') return { id: b.id, kind: 'stations', drillId: keepDrill, minutes: mins, zones: {} };
   if (to === 'rotation') {
     if (b.kind === 'rotation') return b;
