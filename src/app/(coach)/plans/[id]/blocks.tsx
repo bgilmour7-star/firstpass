@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Pips, Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { blockLevel, rotationToday, unusedZones, zoneFor, ZONES, type DrillBlock, type RotationBlock, type StationsBlock, type Unit, type Zone } from '@/lib/plans/schema';
+import { blockLevels, levelMinutes, rotationToday, unusedZones, zoneFor, ZONES, type DrillBlock, type RotationBlock, type StationsBlock, type Unit, type Zone } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { Badge } from './parts';
 
@@ -35,54 +35,75 @@ export function DrillCard({ drill, isNew }: { drill?: Drill; isNew: boolean }) {
 }
 
 /**
- * A drill with added levels: the coach picks one level and the whole group does it (decision 0006).
- * The chosen level shows its diagram; the others are compact "Use this level" stubs. On a phone the
- * chosen level goes full width and the others sit under it.
+ * A drill with added levels. Each level is a switch: the whole group does the levels that are on,
+ * in order, easiest first, splitting the block's minutes (decision 0006). Levels that are on show
+ * their diagram; the others are compact stubs. On a phone the levels that are on come first.
  */
-export function LevelPicker({ block, drill, onLevel }: { block: DrillBlock; drill: Drill; onLevel: (level: number) => void }) {
-  const level = blockLevel(drill, block);
+export function LevelPicker({ block, drill, onLevels }: { block: DrillBlock; drill: Drill; onLevels: (levels: number[]) => void }) {
+  const on = blockLevels(drill, block);
+  const mins = levelMinutes(block.minutes, on.length);
   const all = Array.from({ length: levelCount(drill) }, (_, i) => levelOf(drill, i + 1));
   const what = (l: (typeof all)[number]) => (l.n === 1 ? 'As written.' : `Adds: ${l.adds}`);
+  const toggle = (n: number) => {
+    const next = on.includes(n) ? on.filter((x) => x !== n) : [...on, n].sort((x, y) => x - y);
+    if (next.length) onLevels(next);
+  };
+  const tick = (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 7.5l2.6 2.6L11 4.5" />
+    </svg>
+  );
   return (
-    <div role="radiogroup" aria-label={`Level of ${drill.funName} for the whole group`} className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-stretch sm:gap-4">
-      {all.map((l) =>
-        l.n === level ? (
+    <div role="group" aria-label={`Levels of ${drill.funName}`} className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-stretch sm:gap-4">
+      {all.map((l) => {
+        const i = on.indexOf(l.n);
+        if (i >= 0) {
+          const last = on.length === 1;
+          return (
+            <button
+              key={l.n}
+              type="button"
+              role="checkbox"
+              aria-checked="true"
+              aria-disabled={last || undefined}
+              aria-label={`Level ${l.n}, ${l.name}: on, ${mins[i]} minutes${last ? '. At least one level stays on' : ''}`}
+              onClick={() => toggle(l.n)}
+              className={`relative order-first flex flex-col gap-2 rounded-md border-2 border-rink-100 bg-surface-100 p-1.5 text-left sm:order-none sm:w-[212px] ${last ? 'col-span-2 cursor-default' : ''}`}
+            >
+              <Rink spec={l.diagram as RinkDiagramProps} title={`${drill.funName} level ${l.n}`} detail="thumb" className="w-full rounded-sm" />
+              <span aria-hidden="true" className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-md bg-rink-100 text-surface-100">
+                {tick}
+              </span>
+              <span className="flex items-baseline gap-2 px-1">
+                <span className="font-mono text-[13px] font-medium text-rink-100">{l.n}</span>
+                <b className="text-[15px] font-semibold leading-5">{l.name}</b>
+              </span>
+              <span className="pl-[25px] pr-1 text-[13px] leading-[18px] text-ink-200 sm:min-h-[54px]">{what(l)}</span>
+              <span className="mt-auto pb-1 pl-[25px] font-mono text-[12px] text-ink-100">
+                {on.length > 1 ? `${i === 0 ? 'First' : 'Then'} · ` : ''}
+                {mins[i]} min
+              </span>
+            </button>
+          );
+        }
+        return (
           <button
             key={l.n}
             type="button"
-            role="radio"
-            aria-checked="true"
-            aria-label={`Level ${l.n}, ${l.name}: everyone does this`}
-            className="relative order-first col-span-2 flex flex-col gap-2 rounded-md border-2 border-rink-100 bg-surface-100 p-1.5 text-left sm:order-none sm:w-[212px]"
-          >
-            <Rink spec={l.diagram as RinkDiagramProps} title={`${drill.funName} level ${l.n}`} detail="thumb" className="w-full rounded-sm" />
-            <span aria-hidden="true" className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border-2 border-rink-100 bg-surface-100">
-              <span className="h-3 w-3 rounded-full bg-rink-100" />
-            </span>
-            <span className="flex items-baseline gap-2 px-1">
-              <span className="font-mono text-[13px] font-medium text-rink-100">{l.n}</span>
-              <b className="text-[15px] font-semibold leading-5">{l.name}</b>
-            </span>
-            <span className="pb-1 pl-[25px] pr-1 text-[13px] leading-[18px] text-ink-200 sm:min-h-[54px]">{what(l)}</span>
-          </button>
-        ) : (
-          <button
-            key={l.n}
-            type="button"
-            role="radio"
+            role="checkbox"
             aria-checked="false"
-            aria-label={`Use level ${l.n}, ${l.name}`}
-            onClick={() => onLevel(l.n)}
+            aria-label={`Level ${l.n}, ${l.name}: off`}
+            onClick={() => toggle(l.n)}
             className="relative flex min-h-[88px] flex-col gap-1 rounded-md border-[1.5px] border-dashed border-ink-200 bg-surface-200 p-3 text-left hover:border-rink-100 sm:w-[148px] sm:gap-2"
           >
-            <span aria-hidden="true" className="absolute right-3 top-3 h-6 w-6 rounded-full border-2 border-ink-200" />
+            <span aria-hidden="true" className="absolute right-3 top-3 h-6 w-6 rounded-md border-2 border-ink-200" />
             <span className="font-mono text-[13px] font-medium text-rink-100">Level {l.n}</span>
             <b className="pr-6 text-[15px] font-semibold leading-5">{l.name}</b>
             <span className="hidden text-[13px] leading-[18px] text-ink-200 sm:block">{what(l)}</span>
-            <span className="mt-auto hidden text-sm font-medium text-rink-100 sm:block">Use this level</span>
+            <span className="mt-auto hidden text-sm font-medium text-rink-100 sm:block">+ Add this level</span>
           </button>
-        ),
-      )}
+        );
+      })}
     </div>
   );
 }

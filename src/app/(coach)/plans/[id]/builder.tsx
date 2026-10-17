@@ -16,7 +16,7 @@ import {
   drillIds,
   isOldRotation,
   isAdapted,
-  blockLevel,
+  blockLevels,
   newActivity,
   newId,
   practiceFocus,
@@ -571,7 +571,8 @@ function BlockBody({
   let tag = 'ACTIVITY';
   let tone = 'text-ink-200';
   if (b.kind === 'drill') {
-    tag = `DRILL${d?.levels.length ? ` · LEVEL ${blockLevel(d, b)} OF ${d.levels.length + 1}` : ''}`;
+    const lv = d?.levels.length ? blockLevels(d, b) : [];
+    tag = `DRILL${lv.length > 1 ? ` · LEVELS ${lv.join(' → ')}` : lv.length ? ` · LEVEL ${lv[0]} OF ${d!.levels.length + 1}` : ''}`;
     tone = 'text-rink-100';
   }
   if (b.kind === 'stations') {
@@ -633,7 +634,7 @@ function BlockBody({
       {b.kind === 'drill' &&
         d &&
         (d.levels.length ? (
-          <LevelPicker block={b} drill={d} onLevel={(level) => update((x) => (x.kind === 'drill' ? { ...x, level } : x))} />
+          <LevelPicker block={b} drill={d} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />
         ) : (
           <DrillCard drill={d} isNew={!known.has(d.id)} />
         ))}

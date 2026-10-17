@@ -1,7 +1,7 @@
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { blockLevel, blockMinutes, clock, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
+import { blockLevels, blockMinutes, clock, levelMinutes, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../design-system/index';
 
 // Read-only plan in time order, for the printout and the parent link, adapted to today's groups.
@@ -26,15 +26,27 @@ export function PlanView({ blocks, startTime, units, drills, mode }: { blocks: B
                 {b.note && mode === 'print' && <p className="text-[15px]">{b.note}</p>}
               </div>
             )}
-            {b.kind === 'drill' && <DrillBlock drill={drills.get(b.drillId)} level={blockLevel(drills.get(b.drillId), b)} mode={mode} />}
+            {b.kind === 'drill' && <DrillBlock drill={drills.get(b.drillId)} level={blockLevels(drills.get(b.drillId), b)[0]} mode={mode} />}
             {b.kind === 'drill' && drills.get(b.drillId) && levelCount(drills.get(b.drillId)!) > 1
               ? (() => {
-                  const l = levelOf(drills.get(b.drillId)!, blockLevel(drills.get(b.drillId), b));
+                  const d = drills.get(b.drillId)!;
+                  const lv = blockLevels(d, b);
+                  const mins = levelMinutes(b.minutes, lv.length);
                   return (
-                    <p className="mt-1 text-[15px]">
-                      <span className="font-mono">Level {l.n}</span> · <b>{l.name}</b>
-                      {l.adds && mode === 'print' ? <span className="text-ink-200"> ({l.adds})</span> : null}
-                    </p>
+                    <ol className="mt-1 flex flex-col gap-3 text-[15px]">
+                      {lv.map((n, i) => {
+                        const l = levelOf(d, n);
+                        return (
+                          <li key={n} className={mode === 'print' && i > 0 ? 'grid grid-cols-[minmax(0,1fr)_220px] items-start gap-3' : ''}>
+                            <p>
+                              <span className="font-mono">{mins[i]} min</span> · <b>Level {l.n}: {l.name}</b>
+                              {l.adds && mode === 'print' ? <span className="text-ink-200"> ({l.adds})</span> : null}
+                            </p>
+                            {mode === 'print' && i > 0 ? <Rink spec={l.diagram} title={`${d.funName} level ${l.n}`} detail="print" /> : null}
+                          </li>
+                        );
+                      })}
+                    </ol>
                   );
                 })()
               : null}

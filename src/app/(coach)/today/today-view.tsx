@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { addMinutes, blockLevel, blockMinutes, clock, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import { addMinutes, blockLevels, blockMinutes, clock, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../design-system/index';
 
 // The practice timeline on a phone at the rink: done blocks greyed, the current block open with a
@@ -135,14 +135,24 @@ function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; b
     let spec = d.diagram as RinkDiagramProps;
     let groups: React.ReactNode = null;
     if (block.kind === 'drill' && levelCount(d) > 1) {
-      // The whole group does one level: show that level's diagram and what it adds.
-      const l = levelOf(d, blockLevel(d, block));
-      spec = l.diagram as RinkDiagramProps;
+      // The whole group does the levels in order. Show the one that's on now, and when to switch.
+      const lv = blockLevels(d, block);
+      const mins = levelMinutes(block.minutes, lv.length);
+      const starts = mins.map((_, i) => startMin + mins.slice(0, i).reduce((x, y) => x + y, 0));
+      const now = Math.max(0, starts.findLastIndex((t) => nowMin >= t));
+      spec = levelOf(d, lv[now]).diagram as RinkDiagramProps;
       groups = (
-        <p className="text-[15px]">
-          <span className="font-mono">Level {l.n}</span> · <b>{l.name}</b>
-          {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
-        </p>
+        <ol className="flex flex-col text-[15px]">
+          {lv.map((n, i) => {
+            const l = levelOf(d, n);
+            return (
+              <li key={n} className={`border-t border-border-100 py-1 ${i === now ? '' : 'text-ink-200'}`}>
+                <span className="font-mono">{fmt(starts[i])}</span> · <b className={i === now ? '' : 'font-medium'}>Level {l.n}: {l.name}</b>
+                {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
+              </li>
+            );
+          })}
+        </ol>
       );
     }
     if (block.kind === 'stations') {
