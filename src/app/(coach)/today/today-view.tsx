@@ -212,7 +212,7 @@ function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; b
     <div className="flex flex-col gap-3 pt-3">
       <p className="text-sm text-ink-200">
         Turn {r + 1} of {active.length}
-        {r + 1 < active.length && ` · next whistle at ${fmt(startMin + block.minutes * (r + 1))}`} · everyone does every station
+        {r + 1 < active.length && ` · next whistle at ${fmt(startMin + block.minutes * (r + 1))}`} · everyone does every zone
       </p>
       <ul className="flex flex-col gap-3">
         {active.map((s) => {

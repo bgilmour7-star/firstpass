@@ -129,6 +129,16 @@ export function upgradeDrill(raw: unknown): unknown {
   return rest;
 }
 
+/** A drill's shape in a few words, the same on every screen: "Basic · 3 levels", "Stations", "Rotation · 3 zones". */
+export function shapeLabel(d: Pick<Drill, 'groupModel' | 'levels' | 'zones'>): string {
+  if (d.groupModel === 'rotation') return `Rotation · ${d.zones?.length ?? 0} zones`;
+  if (d.groupModel === 'stations') return 'Stations';
+  return d.levels?.length ? `Basic · ${d.levels.length + 1} levels` : 'Basic';
+}
+
+/** The block a drill goes in (decision 0006: the drill decides the block). */
+export const BLOCK_FOR: Record<(typeof GROUP_MODELS)[number], string> = { basic: 'Drill', stations: 'Stations', rotation: 'Rotation' };
+
 /** How many levels a drill has: 1 for a drill with nothing added, up to 3. */
 export function levelCount(d: Pick<Drill, 'groupModel' | 'levels'>): number {
   return d.groupModel === 'basic' ? 1 + (d.levels?.length ?? 0) : 1;

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
-import { FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, nextStatuses, PART_LABEL, PARTS, type Drill, type Status } from '@/lib/drills/schema';
+import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, shapeLabel, nextStatuses, PART_LABEL, PARTS, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
@@ -140,7 +140,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
           <RinkStepper spec={detail.drill.diagram} title={draft.funName} />
 
           <Section
-            title={draft.groupModel === 'basic' ? 'Levels' : draft.groupModel === 'stations' ? 'Group stations' : 'Rotation zones'}
+            title={`${shapeLabel(draft)} · goes in a ${BLOCK_FOR[draft.groupModel]} block`}
             hint={
               draft.groupModel === 'basic'
                 ? 'Level 1 is the drill as written. Add a level when a group is ready for one more thing.'

@@ -137,7 +137,7 @@ export function Builder({
     if (typeof choice === 'object') {
       const d = byId.get(choice.drillId);
       if (d) insert(at, blockForDrill(d));
-    } else if (choice === 'drill' || choice === 'stations' || choice === 'rotation') setPicker({ mode: 'add', at, filter: choice === 'drill' ? 'all' : choice });
+    } else if (choice === 'drill' || choice === 'stations' || choice === 'rotation') setPicker({ mode: 'add', at, filter: choice === 'drill' ? 'basic' : choice });
     else insert(at, newActivity(choice));
   }
 
@@ -168,7 +168,7 @@ export function Builder({
       for (const b of blocks) {
         if (b.kind === 'rotation') {
           const n = rotationToday(b, u2.length).active.length;
-          if (n !== rotationToday(b, gc).active.length) lines.push(`The rotation runs ${n} station${n === 1 ? '' : 's'} of ${b.minutes} min.`);
+          if (n !== rotationToday(b, gc).active.length) lines.push(`The rotation runs ${n} zone${n === 1 ? '' : 's'} of ${b.minutes} min.`);
         }
         const d = b.kind === 'drill' || b.kind === 'stations' ? byId.get(b.drillId) : undefined;
         if (b.kind === 'drill' && d?.levels.length) {
@@ -208,7 +208,7 @@ export function Builder({
         const next = changeBlock(b, to, gc);
         update(b.id, () => next);
         if ((next.kind === 'drill' || next.kind === 'stations' || next.kind === 'rotation') && !next.drillId)
-          setPicker({ mode: 'fill', blockId: b.id, filter: next.kind === 'drill' ? 'all' : next.kind });
+          setPicker({ mode: 'fill', blockId: b.id, filter: next.kind === 'drill' ? 'basic' : next.kind });
       },
     }));
 
@@ -378,7 +378,7 @@ export function Builder({
                       ? [
                           {
                             label: b.kind === 'rotation' ? 'Swap for another rotation' : 'Swap for another drill',
-                            run: () => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'drill' ? 'all' : b.kind }),
+                            run: () => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'drill' ? 'basic' : b.kind }),
                           },
                         ]
                       : []),
@@ -402,7 +402,7 @@ export function Builder({
                       danger: true,
                     },
                   ]}
-                  onChooseDrill={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'all' })}
+                  onChooseDrill={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
 
                 />
               </section>
@@ -438,7 +438,7 @@ export function Builder({
             onAddDrill={() => {
               const last = blocks[blocks.length - 1];
               const at = last?.kind === 'activity' && last.activity === 'huddle' ? blocks.length - 1 : blocks.length;
-              setPicker({ mode: 'add', at, filter: 'all' });
+              setPicker({ mode: 'add', at, filter: 'basic' });
             }}
             addAt={(() => {
               const last = blocks[blocks.length - 1];
@@ -533,7 +533,7 @@ export function Builder({
           drills={drills}
           known={knownSet}
           inPlan={inPlan}
-          title={picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a station drill' : picker.mode === 'fill' ? 'Choose a drill' : 'Add a drill'}
+          title={picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a stations drill' : picker.mode === 'fill' ? 'Choose a drill' : 'Add a drill'}
           filter={picker.filter}
           onPick={pick}
           onClose={() => setPicker(null)}
@@ -585,7 +585,7 @@ function BlockBody({
   }
   if (b.kind === 'rotation') {
     const { active, off } = rotationToday(b, gc);
-    tag = b.stations.length ? `ROTATION · ${active.length} STATION${active.length === 1 ? '' : 'S'}${off.length ? ' TODAY' : ''}` : 'ROTATION';
+    tag = b.stations.length ? `ROTATION · ${active.length} ZONE${active.length === 1 ? '' : 'S'}${off.length ? ' TODAY' : ''}` : 'ROTATION';
     tone = 'text-rink-200';
   }
   return (

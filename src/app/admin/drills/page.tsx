@@ -60,7 +60,7 @@ export default async function DrillQueue({ searchParams }: { searchParams: Promi
                     <StatusPill status={d.status} />
                     <DiagramFlag count={d.openRequests} />
                   </span>
-                  <span className="text-xs text-ink-200">{GROUP_MODEL_LABEL[d.groupModel]}{d.groupModel === 'basic' && d.levelCount > 1 ? ` · ${d.levelCount} levels` : ''}</span>
+                  <span className="text-xs text-ink-200">{d.groupModel === 'basic' && d.levelCount > 1 ? `Basic · ${d.levelCount} levels` : GROUP_MODEL_LABEL[d.groupModel]}</span>
                 </div>
                 <div className="hidden flex-col items-end gap-1.5 sm:flex">
                   <StatusPill status={d.status} />

@@ -90,9 +90,19 @@ export function Ladder({
       <ol className="-mx-4 grid snap-x auto-cols-[160px] grid-flow-col gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] sm:overflow-visible sm:px-0">
         {all.map((l) => {
           const on = play.includes(l.n);
+          const only = on && play.length === 1;
           const here = at(l.n);
           return (
-            <li key={l.n} className={`flex min-w-0 snap-start flex-col gap-2 ${on ? '' : 'opacity-45'}`}>
+            <li key={l.n} className={`group relative flex min-w-0 snap-start flex-col gap-2 rounded-md p-1.5 ${only ? 'ring-2 ring-rink-100' : ''} ${on ? '' : 'opacity-45 hover:opacity-80'}`}>
+              {/* Tapping a level uses only that level: the common case, one tap. The toggles above mix levels. */}
+              <button
+                type="button"
+                aria-label={only ? `Only level ${l.n} is in play` : `Use only level ${l.n}: ${l.name}`}
+                aria-pressed={only}
+                disabled={only}
+                onClick={() => onUse([l.n])}
+                className="absolute inset-0 z-10 rounded-md hover:bg-ink-100/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-rink-100 disabled:cursor-default disabled:hover:bg-transparent"
+              />
               <Rink spec={l.diagram as RinkDiagramProps} title={`${drill.funName} level ${l.n}`} detail="thumb" className="max-w-[240px] rounded-sm border border-border-100" />
               <span className="flex flex-col">
                 <span className="font-mono text-xs font-medium text-rink-100">Level {l.n}</span>
@@ -101,7 +111,9 @@ export function Ladder({
               </span>
               <span className="flex flex-wrap gap-1.5">
                 {!on ? (
-                  <span className="text-[13px] text-ink-200">Not in play</span>
+                  <span className="text-[13px] text-ink-200">
+                    Not in play · <span className="text-rink-100 group-hover:underline">Use only this</span>
+                  </span>
                 ) : here.length ? (
                   here.map((u) => (
                     <span key={u.key} className="inline-flex h-7 items-center rounded-full border border-ink-100 px-2.5 text-[13px] font-semibold">
@@ -117,7 +129,14 @@ export function Ladder({
         })}
       </ol>
       {play.length === 1 ? (
-        <p className="text-xs text-ink-200">Everyone does level {play[0]}.</p>
+        <p className="text-xs text-ink-200">
+          Everyone does level {play[0]}.{' '}
+          {all.length > 1 && (
+            <button type="button" onClick={() => onUse([])} className="relative z-20 text-rink-100 hover:underline">
+              Use all {all.length} levels
+            </button>
+          )}
+        </p>
       ) : edit ? (
         <div className="flex flex-wrap items-center gap-2">
           {units.map((u) => (
@@ -138,7 +157,7 @@ export function Ladder({
         </div>
       ) : (
         <p className="text-xs text-ink-200">
-          Easiest group on the easiest level.{' '}
+          Easiest group on the easiest level. Tap a level to use only that one.{' '}
           <button type="button" onClick={() => setEdit(true)} className="text-rink-100 hover:underline">
             Change who does which
           </button>

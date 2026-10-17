@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { FOCUS_ATTRIBUTES } from '@/lib/drills/schema';
+import { FOCUS_ATTRIBUTES, shapeLabel } from '@/lib/drills/schema';
 import { Pips, Rink } from '@/components/ds';
 
 export const dynamic = 'force-dynamic';
@@ -62,7 +62,7 @@ export default async function Library({ searchParams }: { searchParams: Promise<
                         <Pips level={2} /> {f.attribute}
                       </span>
                     ))}
-                    {d.worksAsStation && <span className="text-ink-200">Works as a station</span>}
+                    <span className="text-ink-200">{shapeLabel(d)}</span>
                   </span>
                 </Link>
               </li>

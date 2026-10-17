@@ -29,10 +29,10 @@ export const Icon = {
 };
 
 export const BLOCK_TYPES = [
-  { kind: 'drill', label: 'Drill', help: 'One drill for everyone. With levels, each group can do its own.', icon: Icon.drill },
-  { kind: 'stations', label: 'Stations', help: 'One drill, each group at its own station.', icon: Icon.stations },
-  { kind: 'rotation', label: 'Rotation', help: 'Everyone does every station, moving on the whistle.', icon: Icon.rotation },
-  { kind: 'activity', label: 'Activity', help: 'Free skate, water, huddle, small games.', icon: Icon.activity },
+  { kind: 'drill', label: 'Drill', help: 'One basic drill. If it has levels, use one for everyone or spread several over the groups.', icon: Icon.drill },
+  { kind: 'stations', label: 'Stations', help: 'One stations drill: each group plays its own version at its own spot.', icon: Icon.stations },
+  { kind: 'rotation', label: 'Rotation', help: 'One rotation drill: every group does every zone, moving on the whistle.', icon: Icon.rotation },
+  { kind: 'activity', label: 'Activity', help: 'Water, huddle, free skate, small games. No drill.', icon: Icon.activity },
 ] as const;
 
 export function Badge({ zone, dim }: { zone: string; dim?: boolean }) {
@@ -153,7 +153,8 @@ export function PanelSec({ title, right, children }: { title: string; right?: st
   );
 }
 
-export type DrawerFilter = 'all' | 'stations' | 'rotation';
+/** Each block kind lists only its own kind of drill (decision 0006). */
+export type DrawerFilter = 'basic' | 'stations' | 'rotation';
 
 export function LibraryDrawer({
   drills,
@@ -180,12 +181,16 @@ export function LibraryDrawer({
     return () => window.removeEventListener('keydown', esc);
   }, [onClose]);
   const list = drills
-    // Rotations come only from rotation drills (zones ready to go); other lists leave them out.
-    .filter((d) => (filter === 'all' ? d.groupModel !== 'rotation' : d.groupModel === filter))
+    .filter((d) => d.groupModel === filter)
     .filter((d) => !focus || d.focus.some((f) => f.attribute === focus && f.level === 2))
     .filter((d) => !q || `${d.funName} ${d.plainName}`.toLowerCase().includes(q.toLowerCase()))
     .sort((a, b) => Number(inPlan.has(a.id)) - Number(inPlan.has(b.id)) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName));
-  const hint = filter === 'stations' ? 'Drills where each group plays at its own station.' : filter === 'rotation' ? 'Rotations: zones and activities ready to go. Everyone does every zone.' : '';
+  const hint =
+    filter === 'stations'
+      ? 'Each group plays its own version at its own spot, all at once.'
+      : filter === 'rotation'
+        ? 'Zones and activities ready to go. Everyone does every zone.'
+        : 'Drills everyone can do. Some have levels: pick one for everyone, or several.';
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" aria-label="Close" className="absolute inset-0 bg-ink-100/40" onClick={onClose} />
@@ -216,7 +221,7 @@ export function LibraryDrawer({
                     {!known.has(d.id) && <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>}
                   </span>
                   <span className="text-xs text-ink-200">
-                    {d.plainName} · {d.minutes} min{d.groupModel === 'rotation' ? ' a zone' : ''}{d.groupModel === 'basic' && d.levels.length ? ` · ${d.levels.length + 1} levels` : d.groupModel === 'stations' ? ' · stations' : d.groupModel === 'rotation' ? ` · ${d.zones?.length ?? 0} zones` : ''}
+                    {d.plainName} · {d.minutes} min{d.groupModel === 'rotation' ? ' a zone' : ''}{d.groupModel === 'basic' && d.levels.length ? ` · ${d.levels.length + 1} levels` : d.groupModel === 'rotation' ? ` · ${d.zones?.length ?? 0} zones` : ''}
                   </span>
                   <span className="text-xs">{d.focus.filter((f) => f.level === 2).map((f) => f.attribute).join(' · ')}</span>
                   {inPlan.has(d.id) && <span className="text-xs text-ink-200">Already in this plan</span>}

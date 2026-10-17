@@ -1,4 +1,4 @@
-import { levelCount, levelOf, PART_LABEL } from '@/lib/drills/schema';
+import { BLOCK_FOR, levelCount, levelOf, PART_LABEL, shapeLabel } from '@/lib/drills/schema';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
@@ -22,7 +22,7 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
       <div>
         <h1 className="text-[28px] font-extrabold leading-8">{d.funName}</h1>
         <p className="text-ink-200">
-          {PART_LABEL[d.part]} · {d.plainName} · <span className="font-mono text-sm">{d.minutes} min</span> · {d.gear}
+          {PART_LABEL[d.part]} · {shapeLabel(d)}, goes in a {BLOCK_FOR[d.groupModel]} block · {d.plainName} · <span className="font-mono text-sm">{d.minutes} min</span> · {d.gear}
         </p>
       </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
@@ -61,7 +61,7 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
             </Section>
           )}
           {d.groupModel === 'stations' && d.stations && (
-            <Section title="Group stations">
+            <Section title="Stations">
               <ul>
                 {d.stations.map((s) => (
                   <li key={s.station} className="grid grid-cols-[28px_64px_minmax(0,1fr)] items-baseline gap-2 border-t border-border-100 py-2 text-sm">
