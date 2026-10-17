@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
-import { FOCUS_ATTRIBUTES, GROUPS, nextStatuses, type Drill, type Status } from '@/lib/drills/schema';
+import { FOCUS_ATTRIBUTES, GROUPS, nextStatuses, PART_LABEL, PARTS, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
@@ -155,7 +155,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
           <RinkStepper spec={detail.drill.diagram} title={draft.funName} />
 
           <Section
-            title={draft.groupModel === 'levels' ? 'Levels by group' : draft.groupModel === 'stations' ? 'Group stations' : draft.groupModel === 'rotation' ? 'Rotation zones' : 'Groups'}
+            title={draft.groupModel === 'levels' ? 'Levels by group' : draft.groupModel === 'stations' ? 'Group stations' : draft.groupModel === 'rotation' ? 'Rotation zones' : draft.groupModel === 'together' ? 'Groups' : 'Groups'}
             hint={draft.groupModel === 'levels' ? 'Same drill, one thing added each level.' : draft.groupModel === 'stations' ? 'One station per group, all at once.' : draft.groupModel === 'rotation' ? 'Every group does every zone, moving on the whistle.' : undefined}
           >
             {draft.groupModel === 'versions' && (
@@ -200,6 +200,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
                 ))}
               </ol>
             )}
+            {draft.groupModel === 'together' && <p className="text-sm text-ink-200">Everyone together: the whole team does this at once, so there are no groups to set.</p>}
             {draft.groupModel === 'rotation' && (
               <ul className="flex flex-col">
                 {draft.zones?.map((z, i) => (
@@ -307,6 +308,26 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
               <Field label="Plain name" help="What it works on, for search and parents." error={errors.plainName}>
                 <input className={input} value={draft.plainName} onChange={(e) => set('plainName', e.target.value)} />
               </Field>
+            </div>
+          </Section>
+
+          <Section title="Where it goes in a practice">
+            <div className="flex flex-wrap items-center gap-2">
+              <div role="radiogroup" aria-label="Part of the practice" className="inline-flex rounded-full bg-surface-300 p-[3px]">
+                {PARTS.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    role="radio"
+                    aria-checked={draft.part === p}
+                    onClick={() => set('part', p)}
+                    className={`min-h-9 rounded-full px-4 text-sm ${draft.part === p ? 'bg-surface-100 font-semibold shadow-sm' : 'text-ink-200 hover:text-ink-100'}`}
+                  >
+                    {PART_LABEL[p]}
+                  </button>
+                ))}
+              </div>
+              {draft.lessons.length > 0 && <span className="text-sm text-ink-200">Hockey Canada U7 Lesson {draft.lessons.join(', ')}</span>}
             </div>
           </Section>
 

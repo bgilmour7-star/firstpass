@@ -1,3 +1,4 @@
+import { PART_LABEL } from '@/lib/drills/schema';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
@@ -21,7 +22,7 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
       <div>
         <h1 className="text-[28px] font-extrabold leading-8">{d.funName}</h1>
         <p className="text-ink-200">
-          {d.plainName} · <span className="font-mono text-sm">{d.minutes} min</span> · {d.gear}
+          {PART_LABEL[d.part]} · {d.plainName} · <span className="font-mono text-sm">{d.minutes} min</span> · {d.gear}
         </p>
       </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">

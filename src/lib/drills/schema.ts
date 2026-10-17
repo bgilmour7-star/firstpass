@@ -7,6 +7,9 @@ import { z } from 'zod';
 export const GROUPS = ['Sharks', 'Bears', 'Eagles'] as const;
 export const FOCUS_ATTRIBUTES = ['Skating', 'Puck control', 'Passing', 'Shooting', 'Game sense', 'Effort & fun'] as const;
 export const STATUSES = ['draft', 'in_review', 'approved', 'live'] as const;
+/** Which slot of a practice a drill fills (decision 0006: the Hockey Canada practice shape). */
+export const PARTS = ['warmup', 'skill', 'game'] as const;
+export const PART_LABEL: Record<(typeof PARTS)[number], string> = { warmup: 'Warm-up', skill: 'Skill', game: 'Fun game' };
 
 export const STATUS_LABEL: Record<Status, string> = {
   draft: 'Draft',
@@ -59,8 +62,12 @@ export const drillSchema = z.object({
     .refine((f) => new Set(f.map((x) => x.attribute)).size === f.length, 'Each attribute once'),
   // How skill groups use the drill: each at a level of one progression, each at its own station,
   // or a rotation (2-3 zones with their own activity; every group does every zone, decision 0004).
+  // 'together': everyone does the same thing at once (warm-ups, fun games).
   // 'versions' is the legacy spike model, kept until a reviewer picks levels or stations.
-  groupModel: z.enum(['levels', 'stations', 'rotation', 'versions']),
+  groupModel: z.enum(['levels', 'stations', 'rotation', 'together', 'versions']),
+  part: z.enum(PARTS).default('skill'),
+  /** The Hockey Canada U7 lessons this drill comes from, e.g. [3, 4]. Lets the season plan find it. */
+  lessons: z.array(z.number().int().min(1).max(32)).default([]),
   levels: z
     .array(z.object({ level: z.string(), name: z.string(), adds: z.string(), groups: z.array(z.enum(GROUPS)), diagram: diagramSchema }))
     .optional(),

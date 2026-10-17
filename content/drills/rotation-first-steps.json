@@ -30,6 +30,10 @@
     }
   ],
   "groupModel": "rotation",
+  "part": "skill",
+  "lessons": [
+    2
+  ],
   "zones": [
     {
       "station": "A",

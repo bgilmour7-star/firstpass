@@ -1,0 +1,192 @@
+{
+  "id": "rotation-green-light",
+  "funName": "Green Light",
+  "plainName": "Stops, glides and C-cuts, three zones",
+  "sourceTitle": "Lesson 4 skill stations",
+  "minutes": 7,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "A review day from Lesson 4. Groups move to the next zone on the whistle: the one o’clock–eleven o’clock stop as a stop-light game, arm-pump glides, and alternating C-cuts.",
+  "steps": [
+    "A: skate on green, glide on yellow, stop on red.",
+    "B: pump your arms, then glide as far as you can.",
+    "C: push alternating C-cuts down the strip."
+  ],
+  "cues": [
+    "Green go, yellow glide, red stop!",
+    "Pump your arms, glide like a rocket.",
+    "Push out, bring it home."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Stance, edges, push and stop."
+    }
+  ],
+  "groupModel": "rotation",
+  "part": "skill",
+  "lessons": [
+    4
+  ],
+  "zones": [
+    {
+      "station": "A",
+      "name": "Stop lights",
+      "how": "Line up on the goal line. Green: skate. Yellow: glide. Red: stop on one skate, the turned foot pushing snow. Cross the zone with several stops, then come back stopping on the other foot.",
+      "cue": "Green go, yellow glide, red stop!"
+    },
+    {
+      "station": "B",
+      "name": "Rocket glides",
+      "how": "Line up on the goal line. Pump your arms to get going, then glide as far as you can on two skates.",
+      "cue": "Pump your arms, glide like a rocket."
+    },
+    {
+      "station": "C",
+      "name": "C-cut zigzag",
+      "how": "Push C shapes with one foot, then the other, bringing each foot back under you before the next push.",
+      "cue": "Push out, bring it home."
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 4 · 1.3.06, 1.1.05, 1.4.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "Lesson 4 introduces nothing new: it reviews Lesson 3. We kept the stops, arm-pump glides and alternating C-cuts; striding, glide turns and edge control are in Race Cars."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Stop lights",
+        "Rocket glides",
+        "C-cut zigzag"
+      ]
+    },
+    "players": [
+      {
+        "role": "O",
+        "x": 12,
+        "y": 16
+      },
+      {
+        "role": "O",
+        "x": 12,
+        "y": 28
+      },
+      {
+        "role": "O",
+        "x": 12,
+        "y": 40
+      },
+      {
+        "role": "O",
+        "x": 12,
+        "y": 54
+      },
+      {
+        "role": "O",
+        "x": 12,
+        "y": 66
+      },
+      {
+        "role": "O",
+        "x": 12,
+        "y": 78
+      },
+      {
+        "role": "O",
+        "x": 87,
+        "y": 17
+      },
+      {
+        "role": "O",
+        "x": 94,
+        "y": 17
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            16
+          ],
+          [
+            34,
+            16
+          ]
+        ],
+        "end": "stop",
+        "step": 1,
+        "caption": "A: skate on green, glide on yellow, stop on red."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            38,
+            16
+          ],
+          [
+            60,
+            16
+          ]
+        ],
+        "end": "stop",
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            60
+          ],
+          [
+            38,
+            60
+          ],
+          [
+            64,
+            60
+          ]
+        ],
+        "step": 2,
+        "caption": "B: pump your arms, then glide as far as you can."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            87,
+            20
+          ],
+          [
+            92,
+            26
+          ],
+          [
+            84,
+            40
+          ],
+          [
+            92,
+            54
+          ],
+          [
+            86,
+            70
+          ]
+        ],
+        "step": 3,
+        "caption": "C: push alternating C-cuts down the strip."
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

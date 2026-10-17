@@ -1,0 +1,243 @@
+{
+  "id": "rotation-edges-and-pucks",
+  "funName": "Edges and Pucks",
+  "plainName": "Outside edges, stickhandling, side steps, three zones",
+  "sourceTitle": "Lesson 6 skill stations",
+  "minutes": 7,
+  "gear": "1 puck each",
+  "worksAsStation": false,
+  "description": "Lesson 6 introduces the puckhandling stance, stationary stickhandling and figure 8s on the outside edge. Groups move to the next zone on the whistle.",
+  "steps": [
+    "A: ride a figure 8 on the outside edges.",
+    "B: move the puck side to side and call out the fingers.",
+    "C: side-step down the strip and back."
+  ],
+  "cues": [
+    "Knees bent, chest up.",
+    "Eyes up, soft hands.",
+    "Step, step, don’t cross."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Outside edges and lateral movement."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "First stickhandling, eyes up."
+    }
+  ],
+  "groupModel": "rotation",
+  "part": "skill",
+  "lessons": [
+    6
+  ],
+  "zones": [
+    {
+      "station": "A",
+      "name": "Outside 8s",
+      "how": "Ride the outside edge of your left skate all the way around the circle, then switch to the right skate to finish the 8.",
+      "cue": "Knees bent, chest up."
+    },
+    {
+      "station": "B",
+      "name": "Finger count",
+      "how": "Puck in front, stick heel just off the ice. Roll your wrists to move the puck side to side and call out how many fingers the coach holds up.",
+      "cue": "Eyes up, soft hands."
+    },
+    {
+      "station": "C",
+      "name": "Side steps",
+      "how": "Ready stance, side-step down the strip and back without crossing your feet. One step, then two, then three each way.",
+      "cue": "Step, step, don’t cross."
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 6 · 1.2.02, 2.1.01, 1.1.11",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "Lesson 6 also lists inside-edge figure 8s, Horse and Buggy and the stop; those are in Side Step Simon and Horse and Buggy."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Outside 8s",
+        "Finger count",
+        "Side steps"
+      ]
+    },
+    "players": [
+      {
+        "role": "O",
+        "x": 56,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 16,
+        "y": 56
+      },
+      {
+        "role": "O",
+        "x": 30,
+        "y": 56
+      },
+      {
+        "role": "O",
+        "x": 44,
+        "y": 56
+      },
+      {
+        "role": "O",
+        "x": 23,
+        "y": 72
+      },
+      {
+        "role": "O",
+        "x": 37,
+        "y": 72
+      },
+      {
+        "role": "C",
+        "x": 62,
+        "y": 64
+      },
+      {
+        "role": "O",
+        "x": 87,
+        "y": 17
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            31.0,
+            36.5
+          ],
+          [
+            39.0,
+            34.4
+          ],
+          [
+            44.9,
+            28.5
+          ],
+          [
+            47.0,
+            20.5
+          ],
+          [
+            44.9,
+            12.5
+          ],
+          [
+            39.0,
+            6.6
+          ],
+          [
+            31.0,
+            4.5
+          ],
+          [
+            23.0,
+            6.6
+          ],
+          [
+            17.1,
+            12.5
+          ],
+          [
+            15.0,
+            20.5
+          ],
+          [
+            17.1,
+            28.5
+          ],
+          [
+            23.0,
+            34.4
+          ],
+          [
+            31.0,
+            36.5
+          ]
+        ],
+        "step": 1,
+        "caption": "A: ride a figure 8 on the outside edges."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            16,
+            59
+          ],
+          [
+            20,
+            61
+          ],
+          [
+            16,
+            63
+          ],
+          [
+            20,
+            65
+          ]
+        ],
+        "step": 2,
+        "caption": "B: move the puck side to side and call out the fingers."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            87,
+            20
+          ],
+          [
+            85,
+            40
+          ],
+          [
+            87,
+            72
+          ]
+        ],
+        "step": 3,
+        "caption": "C: side-step down the strip and back."
+      }
+    ],
+    "cones": [],
+    "pucks": [
+      {
+        "x": 19,
+        "y": 59
+      },
+      {
+        "x": 33,
+        "y": 59
+      },
+      {
+        "x": 47,
+        "y": 59
+      },
+      {
+        "x": 26,
+        "y": 75
+      },
+      {
+        "x": 40,
+        "y": 75
+      }
+    ]
+  },
+  "status": "in_review"
+}

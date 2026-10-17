@@ -1,0 +1,132 @@
+{
+  "id": "game-garbage-trucks",
+  "funName": "Garbage Trucks",
+  "plainName": "Two-team puck pick-up race",
+  "sourceTitle": "Garbage Man",
+  "minutes": 8,
+  "gear": "All the pucks",
+  "worksAsStation": false,
+  "description": "Two teams, each with a face-off circle as home base (the dump). Pucks (garbage) are scattered around the end zone. On the whistle, skate to a puck, stop, pick it up and bring it home, one at a time. Gloves stay on. The team with the most garbage wins.",
+  "steps": [
+    "Skate to a puck and stop at it.",
+    "Bring it home to your circle, one at a time."
+  ],
+  "cues": [
+    "Stop at every puck!",
+    "Gloves on!"
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "A team race."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Lots of quick starts and stops."
+    }
+  ],
+  "groupModel": "together",
+  "part": "game",
+  "lessons": [
+    5,
+    6
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 5, 6 · Garbage Man",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source calls it Garbage Man (Garbage Dump in Phase II)."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 31,
+        "y": 20
+      },
+      {
+        "role": "O",
+        "x": 31,
+        "y": 64
+      },
+      {
+        "role": "O",
+        "x": 45,
+        "y": 30
+      },
+      {
+        "role": "O",
+        "x": 45,
+        "y": 55
+      }
+    ],
+    "pucks": [
+      {
+        "x": 55,
+        "y": 12
+      },
+      {
+        "x": 60,
+        "y": 42
+      },
+      {
+        "x": 50,
+        "y": 76
+      },
+      {
+        "x": 18,
+        "y": 42
+      },
+      {
+        "x": 66,
+        "y": 26
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            45,
+            30
+          ],
+          [
+            52,
+            38
+          ],
+          [
+            58,
+            42
+          ]
+        ],
+        "end": "stop",
+        "step": 1,
+        "caption": "Skate to a puck and stop at it."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            58,
+            44
+          ],
+          [
+            44,
+            54
+          ],
+          [
+            34,
+            62
+          ]
+        ],
+        "step": 2,
+        "caption": "Bring it home to your circle, one at a time."
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

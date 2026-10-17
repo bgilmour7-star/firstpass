@@ -26,4 +26,4 @@ export function DiagramFlag({ count }: { count: number }) {
   );
 }
 
-export const GROUP_MODEL_LABEL = { levels: 'Levels by group', stations: 'Group stations', rotation: 'Rotation', versions: 'Needs levels or stations' } as const;
+export const GROUP_MODEL_LABEL = { levels: 'Levels by group', stations: 'Group stations', rotation: 'Rotation', together: 'Everyone together', versions: 'Needs levels or stations' } as const;

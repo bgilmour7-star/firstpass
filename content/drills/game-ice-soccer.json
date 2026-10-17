@@ -1,0 +1,127 @@
+{
+  "id": "game-ice-soccer",
+  "funName": "Ice Soccer",
+  "plainName": "Cross-ice soccer, no sticks",
+  "sourceTitle": "Soccer",
+  "minutes": 10,
+  "gear": "1 soft ball, 4 pylons",
+  "worksAsStation": false,
+  "description": "Cross-ice soccer with no sticks. Two teams kick a soft ball toward two pylon goals at the side boards. Play never stops: after a goal the coach rolls the ball back in. No score kept.",
+  "steps": [
+    "Kick the ball toward the other team’s pylon goal.",
+    "Goal? The coach rolls the ball back in."
+  ],
+  "cues": [
+    "Little kicks, keep your balance.",
+    "Find the open ice."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Space, teammates and attacking a goal."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "A real game, no sticks needed."
+    }
+  ],
+  "groupModel": "together",
+  "part": "game",
+  "lessons": [
+    3
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 3 · fun game",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source only says “Soccer – cross-ice, no sticks”. The pylon goals, the coach restart and no score are ours."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 30,
+        "y": 30
+      },
+      {
+        "role": "O",
+        "x": 45,
+        "y": 48
+      },
+      {
+        "role": "X",
+        "x": 38,
+        "y": 40
+      },
+      {
+        "role": "X",
+        "x": 52,
+        "y": 58
+      },
+      {
+        "role": "C",
+        "x": 70,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            45,
+            48
+          ],
+          [
+            42,
+            60
+          ],
+          [
+            40,
+            74
+          ]
+        ],
+        "step": 1,
+        "caption": "Kick the ball toward the other team’s pylon goal."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            70,
+            42
+          ],
+          [
+            52,
+            42
+          ]
+        ],
+        "fromPlayer": false,
+        "step": 2,
+        "caption": "Goal? The coach rolls the ball back in."
+      }
+    ],
+    "cones": [
+      {
+        "x": 34,
+        "y": 5
+      },
+      {
+        "x": 46,
+        "y": 5
+      },
+      {
+        "x": 34,
+        "y": 80
+      },
+      {
+        "x": 46,
+        "y": 80
+      }
+    ]
+  },
+  "status": "in_review"
+}

@@ -1,0 +1,223 @@
+{
+  "id": "rotation-race-cars",
+  "funName": "Race Cars",
+  "plainName": "Edges, glide turns and striding, three zones",
+  "sourceTitle": "Lesson 3 skill stations",
+  "minutes": 7,
+  "gear": "4 pylons",
+  "worksAsStation": false,
+  "description": "Three skating stations from Lesson 3. Groups move to the next zone on the whistle: riding one edge around a circle, glide turns around a pylon race track, and scooter pushes that turn into striding.",
+  "steps": [
+    "A: ride the circle on one skate.",
+    "B: glide around the race track, turning at each pylon.",
+    "C: scoot with one foot, then stride with both."
+  ],
+  "cues": [
+    "Lean on one skate, other foot up.",
+    "Both wheels on the track.",
+    "Push, stretch, bring it home."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Stance, edges, push and stop."
+    }
+  ],
+  "groupModel": "rotation",
+  "part": "skill",
+  "lessons": [
+    3
+  ],
+  "zones": [
+    {
+      "station": "A",
+      "name": "Edge rides",
+      "how": "A few strides, then ride around the circle on your left skate, inside edge, without putting the other foot down. Come back on the outside edge, then switch skates.",
+      "cue": "Lean on one skate, other foot up."
+    },
+    {
+      "station": "B",
+      "name": "Race track",
+      "how": "Four pylons make a race track. A few strides, glide on two skates, and turn around each pylon without lifting a skate. Then go the other way.",
+      "cue": "Both wheels on the track."
+    },
+    {
+      "station": "C",
+      "name": "Scooters",
+      "how": "Push with one skate like a scooter, all the way down, then switch feet. Then stride: push, stretch the leg, bring it back under you.",
+      "cue": "Push, stretch, bring it home."
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 3 · 1.3.01, 1.4.12, 1.6.01, 1.1.05",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "Lesson 3 has six stations in two sets. We kept edge control, glide turns and striding; arm-pump glides, alternating C-cuts and stops come back in Lesson 4."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Edge rides",
+        "Race track",
+        "Scooters"
+      ]
+    },
+    "players": [
+      {
+        "role": "O",
+        "x": 56,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 62,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 26,
+        "y": 50
+      },
+      {
+        "role": "O",
+        "x": 34,
+        "y": 50
+      },
+      {
+        "role": "O",
+        "x": 87,
+        "y": 17
+      },
+      {
+        "role": "O",
+        "x": 94,
+        "y": 17
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            43.3,
+            10.2
+          ],
+          [
+            39.0,
+            6.6
+          ],
+          [
+            33.8,
+            4.7
+          ],
+          [
+            28.2,
+            4.7
+          ],
+          [
+            23.0,
+            6.6
+          ],
+          [
+            18.7,
+            10.2
+          ],
+          [
+            16.0,
+            15.0
+          ],
+          [
+            15.0,
+            20.5
+          ],
+          [
+            16.0,
+            26.0
+          ]
+        ],
+        "step": 1,
+        "caption": "A: ride the circle on one skate."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            52
+          ],
+          [
+            34,
+            51
+          ],
+          [
+            54,
+            53
+          ],
+          [
+            56,
+            68
+          ],
+          [
+            54,
+            81
+          ],
+          [
+            34,
+            82
+          ],
+          [
+            16,
+            80
+          ],
+          [
+            13,
+            66
+          ]
+        ],
+        "step": 2,
+        "caption": "B: glide around the race track, turning at each pylon."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            87,
+            20
+          ],
+          [
+            87,
+            40
+          ],
+          [
+            87,
+            72
+          ]
+        ],
+        "step": 3,
+        "caption": "C: scoot with one foot, then stride with both."
+      }
+    ],
+    "cones": [
+      {
+        "x": 18,
+        "y": 55
+      },
+      {
+        "x": 50,
+        "y": 55
+      },
+      {
+        "x": 50,
+        "y": 78
+      },
+      {
+        "x": 18,
+        "y": 78
+      }
+    ]
+  },
+  "status": "in_review"
+}

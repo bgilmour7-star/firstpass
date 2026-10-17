@@ -1,0 +1,128 @@
+{
+  "id": "warmup-skill-doctor-tag",
+  "funName": "Skill Doctor Tag",
+  "plainName": "Tag warm-up with skill tasks",
+  "sourceTitle": "Tag",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "Coaches are it. A tagged skater goes to the Skill Doctor, a coach at the referee’s circle, who gives a task: fall to your knees and get up, balance on one foot, jump on one foot, or C-cuts. Then back into the game.",
+  "steps": [
+    "Coaches chase and tag.",
+    "Tagged? See the Skill Doctor, do the task, and skate back in."
+  ],
+  "cues": [
+    "Keep your head up!",
+    "Do the task, then go!"
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "A chasing game everyone plays."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Agility, balance and quick starts."
+    }
+  ],
+  "groupModel": "together",
+  "part": "warmup",
+  "lessons": [
+    4,
+    6
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 4, 6 · 1.1.02–1.1.04, 1.4.03",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source calls it Tag. The Skill Doctor stands at the referee’s circle."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 50,
+        "y": 20
+      },
+      {
+        "role": "O",
+        "x": 70,
+        "y": 60
+      },
+      {
+        "role": "O",
+        "x": 130,
+        "y": 24
+      },
+      {
+        "role": "O",
+        "x": 150,
+        "y": 58
+      },
+      {
+        "role": "O",
+        "x": 96,
+        "y": 30
+      },
+      {
+        "role": "C",
+        "x": 60,
+        "y": 40
+      },
+      {
+        "role": "C",
+        "x": 140,
+        "y": 40
+      },
+      {
+        "role": "C",
+        "x": 100,
+        "y": 79
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            60,
+            40
+          ],
+          [
+            66,
+            52
+          ],
+          [
+            70,
+            58
+          ]
+        ],
+        "step": 1,
+        "caption": "Coaches chase and tag."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            72,
+            62
+          ],
+          [
+            86,
+            72
+          ],
+          [
+            98,
+            77
+          ]
+        ],
+        "step": 2,
+        "caption": "Tagged? See the Skill Doctor, do the task, and skate back in."
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

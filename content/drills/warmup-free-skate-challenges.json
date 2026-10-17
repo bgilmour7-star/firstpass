@@ -1,0 +1,139 @@
+{
+  "id": "warmup-free-skate-challenges",
+  "funName": "Free Skate Challenges",
+  "plainName": "Warm-up laps with skating challenges",
+  "sourceTitle": "Free Skate",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "Everyone skates laps between the blue lines, going clockwise. The coach calls a challenge every few seconds: fall to your knees and get up, glide on one foot, jump the lines, C-cuts, then speed up.",
+  "steps": [
+    "Skate laps between the blue lines, going clockwise.",
+    "On the call: knees and up, one-foot glide, jump the lines, C-cuts, speed up."
+  ],
+  "cues": [
+    "Knees, hands, up!",
+    "Eyes up, find space."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Lots of laps with balance and edge challenges."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Fast changes keep everyone moving."
+    }
+  ],
+  "groupModel": "together",
+  "part": "warmup",
+  "lessons": [
+    3,
+    5
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 3, 5 · 1.1.02, 1.1.07, 1.1.04, 1.4.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source calls it Free Skate; Lesson 3 uses knees, one-foot glides and jumping the lines, Lesson 5 adds C-cuts."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 84,
+        "y": 14
+      },
+      {
+        "role": "O",
+        "x": 110,
+        "y": 12
+      },
+      {
+        "role": "O",
+        "x": 122,
+        "y": 40
+      },
+      {
+        "role": "O",
+        "x": 112,
+        "y": 72
+      },
+      {
+        "role": "O",
+        "x": 86,
+        "y": 70
+      },
+      {
+        "role": "C",
+        "x": 100,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            84,
+            12
+          ],
+          [
+            100,
+            9
+          ],
+          [
+            118,
+            12
+          ],
+          [
+            123,
+            40
+          ],
+          [
+            118,
+            72
+          ],
+          [
+            100,
+            76
+          ],
+          [
+            82,
+            72
+          ],
+          [
+            77,
+            42
+          ],
+          [
+            82,
+            16
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate laps between the blue lines, going clockwise."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            112,
+            72
+          ],
+          [
+            104,
+            74
+          ]
+        ],
+        "end": "stop",
+        "step": 2,
+        "caption": "On the call: knees and up, one-foot glide, jump the lines, C-cuts, speed up."
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}
