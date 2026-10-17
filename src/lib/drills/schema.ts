@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const GROUPS = ['Sharks', 'Bears', 'Eagles'] as const;
 export const FOCUS_ATTRIBUTES = ['Skating', 'Puck control', 'Passing', 'Shooting', 'Game sense', 'Effort & fun'] as const;
 export const STATUSES = ['draft', 'in_review', 'approved', 'live'] as const;
-/** Which slot of a practice a drill fills (decision 0006: the Hockey Canada practice shape). */
+/** Which slot of a practice a drill fills (the Hockey Canada practice shape; see the season plan decision). */
 export const PARTS = ['warmup', 'skill', 'game'] as const;
 export const PART_LABEL: Record<(typeof PARTS)[number], string> = { warmup: 'Warm-up', skill: 'Skill', game: 'Fun game' };
 
@@ -17,6 +17,11 @@ export const STATUS_LABEL: Record<Status, string> = {
   approved: 'Approved',
   live: 'Live',
 };
+
+export const GROUP_MODELS = ['basic', 'stations', 'rotation'] as const;
+export const GROUP_MODEL_LABEL: Record<(typeof GROUP_MODELS)[number], string> = { basic: 'Basic', stations: 'Stations', rotation: 'Rotation' };
+/** A basic drill plus at most two added levels: one level per group. */
+export const MAX_LEVELS = 3;
 
 const point = z.tuple([z.number(), z.number()]);
 const xy = z.object({ x: z.number(), y: z.number() }).passthrough();
@@ -44,7 +49,7 @@ export const diagramSchema = z
   })
   .passthrough();
 
-export const drillSchema = z.object({
+const drillObject = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),
   funName: z.string().min(1, 'Give the drill a name kids will remember').max(40),
   plainName: z.string().min(1, 'Say what the drill works on in plain words').max(60),
@@ -60,19 +65,19 @@ export const drillSchema = z.object({
     .min(1)
     .refine((f) => f.filter((x) => x.level === 2).length <= 2, 'At most two Main focus attributes')
     .refine((f) => new Set(f.map((x) => x.attribute)).size === f.length, 'Each attribute once'),
-  // How skill groups use the drill: each at a level of one progression, each at its own station,
-  // or a rotation (2-3 zones with their own activity; every group does every zone, decision 0004).
-  // 'together': everyone does the same thing at once (warm-ups, fun games).
-  // 'versions' is the legacy spike model, kept until a reviewer picks levels or stations.
-  groupModel: z.enum(['levels', 'stations', 'rotation', 'together', 'versions']),
+  // How skill groups use the drill (decision 0006):
+  // 'basic': one drill everyone can do. It is Level 1; up to two harder levels can be added.
+  // 'stations': each group plays its own version at its own spot on half ice, all at once.
+  // 'rotation': 2-3 zones with their own activity; every group does every zone (decision 0004).
+  groupModel: z.enum(GROUP_MODELS),
   part: z.enum(PARTS).default('skill'),
   /** The Hockey Canada U7 lessons this drill comes from, e.g. [3, 4]. Lets the season plan find it. */
   lessons: z.array(z.number().int().min(1).max(32)).default([]),
-  levels: z
-    .array(z.object({ level: z.string(), name: z.string(), adds: z.string(), groups: z.array(z.enum(GROUPS)), diagram: diagramSchema }))
-    .optional(),
+  /** A basic drill's own level (Level 1) in a few words, e.g. "Skate the course". */
+  levelName: z.string().max(40).default(''),
+  /** Harder levels added on top of the drill: Level 2, then Level 3. Each adds one thing and has its own diagram. */
+  levels: z.array(z.object({ name: z.string().max(40), adds: z.string().max(200), diagram: diagramSchema })).max(MAX_LEVELS - 1).default([]),
   stations: z.array(z.object({ station: z.enum(['A', 'B', 'C']), group: z.enum(GROUPS), version: z.string() })).optional(),
-  versions: z.array(z.object({ group: z.enum(GROUPS), version: z.string() })).optional(),
   /** A rotation's zones on the half-ice layout, each with its own activity. */
   zones: z
     .array(z.object({ station: z.enum(['A', 'B', 'C']), name: z.string().max(40), how: z.string().max(240), cue: z.string().max(80) }))
@@ -83,7 +88,58 @@ export const drillSchema = z.object({
   status: z.enum(STATUSES),
 });
 
+export const drillSchema = z.preprocess(upgradeDrill, drillObject);
+
 export type Drill = z.infer<typeof drillSchema>;
+export type GroupModel = Drill['groupModel'];
+
+const ORDER: readonly string[] = GROUPS;
+const firstSentence = (t: string) => (t.split(/(?<=[.!?])\s/)[0] ?? t).replace(/[.!?]$/, '').slice(0, 40);
+
+/**
+ * Reads drills saved before decision 0006. Stored drills are upgraded when read and saved in
+ * the new shape the next time they are saved, so no data migration is needed.
+ * - 'together' → basic, no added levels.
+ * - 'levels' (one level per group, 1.0/1.1/1.2) → basic: the first level names Level 1, the rest are added levels.
+ * - 'versions' (a line of text per group) → basic: the easiest group's line names Level 1, the others become added levels.
+ */
+export function upgradeDrill(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object') return raw;
+  const d = raw as Record<string, unknown> & { groupModel?: string; diagram?: unknown };
+  const { versions, ...rest } = d as typeof d & { versions?: { group: string; version: string }[] };
+  if (d.groupModel === 'together') return { ...rest, groupModel: 'basic', levels: [] };
+  if (d.groupModel === 'levels' && Array.isArray(d.levels)) {
+    const old = d.levels as { name?: string; adds?: string; diagram?: unknown }[];
+    return {
+      ...rest,
+      groupModel: 'basic',
+      levelName: (old[0]?.name ?? '').slice(0, 40),
+      levels: old.slice(1, MAX_LEVELS).map((l) => ({ name: (l.name ?? '').slice(0, 40), adds: (l.adds ?? '').slice(0, 200), diagram: l.diagram ?? d.diagram })),
+    };
+  }
+  if (d.groupModel === 'versions') {
+    const v = [...(versions ?? [])].sort((a, b) => ORDER.indexOf(a.group) - ORDER.indexOf(b.group));
+    return {
+      ...rest,
+      groupModel: 'basic',
+      levelName: firstSentence(v[0]?.version ?? ''),
+      levels: v.slice(1, MAX_LEVELS).map((x) => ({ name: firstSentence(x.version), adds: x.version.slice(0, 200), diagram: d.diagram })),
+    };
+  }
+  return rest;
+}
+
+/** How many levels a drill has: 1 for a drill with nothing added, up to 3. */
+export function levelCount(d: Pick<Drill, 'groupModel' | 'levels'>): number {
+  return d.groupModel === 'basic' ? 1 + (d.levels?.length ?? 0) : 1;
+}
+
+/** Level n of a drill (1-based). Level 1 is the drill itself. */
+export function levelOf(d: Pick<Drill, 'levelName' | 'description' | 'diagram' | 'levels'>, n: number): { n: number; name: string; adds: string; diagram: Drill['diagram'] } {
+  if (n <= 1 || !d.levels?.[n - 2]) return { n: 1, name: d.levelName || 'Basic', adds: '', diagram: d.diagram };
+  const l = d.levels[n - 2];
+  return { n, name: l.name, adds: l.adds, diagram: l.diagram };
+}
 export type Status = (typeof STATUSES)[number];
 export type Group = (typeof GROUPS)[number];
 
@@ -121,12 +177,10 @@ export function nextStatuses(from: Status): Status[] {
 
 // The group model must be complete before a drill can be approved.
 export function groupModelProblem(d: Drill): string | null {
-  if (d.groupModel === 'versions') return 'Pick levels or stations for the groups.';
-  if (d.groupModel === 'levels') {
-    if (!d.levels?.length) return 'Add at least one level.';
-    const covered = new Set(d.levels.flatMap((l) => l.groups));
-    const missing = GROUPS.filter((g) => !covered.has(g));
-    if (missing.length) return `No level for ${missing.join(', ')}.`;
+  if (d.groupModel === 'basic' && d.levels.length) {
+    if (!d.levelName.trim()) return 'Name Level 1.';
+    const i = d.levels.findIndex((l) => !l.name.trim() || !l.adds.trim());
+    if (i >= 0) return `Name Level ${i + 2} and say what it adds.`;
   }
   if (d.groupModel === 'stations') {
     if (!d.stations || d.stations.length !== 3) return 'Give each group a station.';

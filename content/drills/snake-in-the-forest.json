@@ -38,404 +38,22 @@
       "why": "A shot to finish."
     }
   ],
-  "groupModel": "levels",
+  "groupModel": "basic",
   "part": "skill",
   "lessons": [],
-  "source": {
-    "label": "Hockey Canada U7 Plan 15 · skill 2.2.08",
-    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-15-e.pdf",
-    "note": "We had a plain slalom. The source adds a full circle around the fifth cone and a glide turn at the end. We kept those and changed the finish: out of the corner, up the boards, then back down to the net for a shot."
-  },
-  "diagram": {
-    "scope": "half",
-    "side": "left",
-    "cones": [
-      {
-        "x": 24,
-        "y": 64
-      },
-      {
-        "x": 34,
-        "y": 64
-      },
-      {
-        "x": 44,
-        "y": 64
-      },
-      {
-        "x": 54,
-        "y": 64
-      },
-      {
-        "x": 66,
-        "y": 64
-      },
-      {
-        "x": 84,
-        "y": 60
-      }
-    ],
-    "players": [
-      {
-        "role": "O",
-        "x": 12,
-        "y": 74
-      },
-      {
-        "role": "O",
-        "x": 8,
-        "y": 78
-      },
-      {
-        "role": "C",
-        "x": 42,
-        "y": 22
-      }
-    ],
-    "paths": [
-      {
-        "type": "skate",
-        "points": [
-          [
-            12,
-            74
-          ],
-          [
-            19,
-            68
-          ],
-          [
-            29,
-            60
-          ],
-          [
-            39,
-            68
-          ],
-          [
-            49,
-            60
-          ],
-          [
-            58,
-            66
-          ],
-          [
-            62,
-            58
-          ],
-          [
-            70,
-            58
-          ],
-          [
-            71,
-            69
-          ],
-          [
-            62,
-            70
-          ],
-          [
-            64,
-            62
-          ]
-        ],
-        "step": 1,
-        "caption": "Weave up the boards, circle the fifth cone."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            66,
-            60
-          ],
-          [
-            78,
-            56
-          ],
-          [
-            88,
-            54
-          ],
-          [
-            90,
-            62
-          ],
-          [
-            84,
-            66
-          ]
-        ],
-        "step": 2,
-        "stepSide": "right",
-        "caption": "Glide turn at the last cone."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            82,
-            62
-          ],
-          [
-            74,
-            52
-          ],
-          [
-            58,
-            44
-          ],
-          [
-            40,
-            42
-          ],
-          [
-            26,
-            42
-          ]
-        ],
-        "step": 3,
-        "stepAt": 0.4,
-        "caption": "Come back down the middle and shoot."
-      },
-      {
-        "type": "pass",
-        "points": [
-          [
-            42,
-            25
-          ],
-          [
-            40,
-            40
-          ]
-        ],
-        "fromPlayer": false,
-        "stepWith": 3
-      },
-      {
-        "stepWith": 3,
-        "type": "shot",
-        "points": [
-          [
-            26,
-            42
-          ],
-          [
-            14,
-            42.5
-          ]
-        ],
-        "fromPlayer": false
-      }
-    ]
-  },
-  "status": "in_review",
+  "levelName": "Skate it, then a pass",
   "levels": [
     {
-      "level": "1.0",
-      "name": "Skate it, then a pass",
-      "adds": "No puck through the cones. The coach passes as you come back down; shoot.",
-      "groups": [
-        "Sharks"
-      ],
-      "diagram": {
-        "scope": "half",
-        "side": "left",
-        "cones": [
-          {
-            "x": 24,
-            "y": 64
-          },
-          {
-            "x": 34,
-            "y": 64
-          },
-          {
-            "x": 44,
-            "y": 64
-          },
-          {
-            "x": 54,
-            "y": 64
-          },
-          {
-            "x": 66,
-            "y": 64
-          },
-          {
-            "x": 84,
-            "y": 60
-          }
-        ],
-        "players": [
-          {
-            "role": "O",
-            "x": 12,
-            "y": 74
-          },
-          {
-            "role": "C",
-            "x": 42,
-            "y": 22
-          }
-        ],
-        "paths": [
-          {
-            "type": "skate",
-            "points": [
-              [
-                12,
-                74
-              ],
-              [
-                19,
-                68
-              ],
-              [
-                29,
-                60
-              ],
-              [
-                39,
-                68
-              ],
-              [
-                49,
-                60
-              ],
-              [
-                58,
-                66
-              ],
-              [
-                62,
-                58
-              ],
-              [
-                70,
-                58
-              ],
-              [
-                71,
-                69
-              ],
-              [
-                62,
-                70
-              ],
-              [
-                64,
-                62
-              ],
-              [
-                78,
-                56
-              ],
-              [
-                88,
-                54
-              ],
-              [
-                90,
-                62
-              ],
-              [
-                84,
-                66
-              ],
-              [
-                74,
-                52
-              ],
-              [
-                58,
-                44
-              ],
-              [
-                40,
-                42
-              ],
-              [
-                26,
-                42
-              ]
-            ]
-          },
-          {
-            "type": "pass",
-            "points": [
-              [
-                42,
-                25
-              ],
-              [
-                40,
-                40
-              ]
-            ],
-            "fromPlayer": false
-          },
-          {
-            "type": "shot",
-            "points": [
-              [
-                26,
-                42
-              ],
-              [
-                14,
-                42.5
-              ]
-            ],
-            "fromPlayer": false
-          }
-        ]
-      }
-    },
-    {
-      "level": "1.1",
       "name": "Puck the whole way",
       "adds": "Carry the puck through every cone, the circle and the glide turn, then shoot.",
-      "groups": [
-        "Bears"
-      ],
       "diagram": {
         "scope": "half",
         "side": "left",
-        "cones": [
-          {
-            "x": 24,
-            "y": 64
-          },
-          {
-            "x": 34,
-            "y": 64
-          },
-          {
-            "x": 44,
-            "y": 64
-          },
-          {
-            "x": 54,
-            "y": 64
-          },
-          {
-            "x": 66,
-            "y": 64
-          },
-          {
-            "x": 84,
-            "y": 60
-          }
-        ],
         "players": [
           {
-            "role": "O",
             "x": 12,
-            "y": 74
+            "y": 74,
+            "role": "O"
           }
         ],
         "paths": [
@@ -534,19 +152,7 @@
             ],
             "fromPlayer": false
           }
-        ]
-      }
-    },
-    {
-      "level": "1.2",
-      "name": "Give-and-go at the blue line",
-      "adds": "With the puck: pass to the coach as you enter the zone, get it back, shoot.",
-      "groups": [
-        "Eagles"
-      ],
-      "diagram": {
-        "scope": "half",
-        "side": "left",
+        ],
         "cones": [
           {
             "x": 24,
@@ -572,17 +178,25 @@
             "x": 84,
             "y": 60
           }
-        ],
+        ]
+      }
+    },
+    {
+      "name": "Give-and-go at the blue line",
+      "adds": "With the puck: pass to the coach as you enter the zone, get it back, shoot.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
         "players": [
           {
-            "role": "O",
             "x": 12,
-            "y": 74
+            "y": 74,
+            "role": "O"
           },
           {
-            "role": "C",
             "x": 62,
-            "y": 26
+            "y": 26,
+            "role": "C"
           }
         ],
         "paths": [
@@ -714,8 +328,226 @@
             ],
             "fromPlayer": false
           }
+        ],
+        "cones": [
+          {
+            "x": 24,
+            "y": 64
+          },
+          {
+            "x": 34,
+            "y": 64
+          },
+          {
+            "x": 44,
+            "y": 64
+          },
+          {
+            "x": 54,
+            "y": 64
+          },
+          {
+            "x": 66,
+            "y": 64
+          },
+          {
+            "x": 84,
+            "y": 60
+          }
         ]
       }
     }
-  ]
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Plan 15 · skill 2.2.08",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-15-e.pdf",
+    "note": "We had a plain slalom. The source adds a full circle around the fifth cone and a glide turn at the end. We kept those and changed the finish: out of the corner, up the boards, then back down to the net for a shot."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 12,
+        "y": 74,
+        "role": "O"
+      },
+      {
+        "x": 8,
+        "y": 78,
+        "role": "O"
+      },
+      {
+        "x": 42,
+        "y": 22,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            12,
+            74
+          ],
+          [
+            19,
+            68
+          ],
+          [
+            29,
+            60
+          ],
+          [
+            39,
+            68
+          ],
+          [
+            49,
+            60
+          ],
+          [
+            58,
+            66
+          ],
+          [
+            62,
+            58
+          ],
+          [
+            70,
+            58
+          ],
+          [
+            71,
+            69
+          ],
+          [
+            62,
+            70
+          ],
+          [
+            64,
+            62
+          ]
+        ],
+        "step": 1,
+        "caption": "Weave up the boards, circle the fifth cone."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            66,
+            60
+          ],
+          [
+            78,
+            56
+          ],
+          [
+            88,
+            54
+          ],
+          [
+            90,
+            62
+          ],
+          [
+            84,
+            66
+          ]
+        ],
+        "step": 2,
+        "caption": "Glide turn at the last cone.",
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            82,
+            62
+          ],
+          [
+            74,
+            52
+          ],
+          [
+            58,
+            44
+          ],
+          [
+            40,
+            42
+          ],
+          [
+            26,
+            42
+          ]
+        ],
+        "step": 3,
+        "caption": "Come back down the middle and shoot.",
+        "stepAt": 0.4
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            42,
+            25
+          ],
+          [
+            40,
+            40
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 3
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            26,
+            42
+          ],
+          [
+            14,
+            42.5
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      }
+    ],
+    "cones": [
+      {
+        "x": 24,
+        "y": 64
+      },
+      {
+        "x": 34,
+        "y": 64
+      },
+      {
+        "x": 44,
+        "y": 64
+      },
+      {
+        "x": 54,
+        "y": 64
+      },
+      {
+        "x": 66,
+        "y": 64
+      },
+      {
+        "x": 84,
+        "y": 60
+      }
+    ]
+  },
+  "status": "in_review"
 }

@@ -29,6 +29,8 @@
   "lessons": [
     4
   ],
+  "levelName": "",
+  "levels": [],
   "zones": [
     {
       "station": "A",
@@ -57,54 +59,46 @@
   "diagram": {
     "scope": "half",
     "side": "left",
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "Stop lights",
-        "Rocket glides",
-        "C-cut zigzag"
-      ]
-    },
     "players": [
       {
-        "role": "O",
         "x": 12,
-        "y": 16
+        "y": 16,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 12,
-        "y": 28
+        "y": 28,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 12,
-        "y": 40
+        "y": 40,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 12,
-        "y": 54
+        "y": 54,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 12,
-        "y": 66
+        "y": 66,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 12,
-        "y": 78
+        "y": 78,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 87,
-        "y": 17
+        "y": 17,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 94,
-        "y": 17
+        "y": 17,
+        "role": "O"
       }
     ],
     "paths": [
@@ -120,9 +114,9 @@
             16
           ]
         ],
-        "end": "stop",
         "step": 1,
-        "caption": "A: skate on green, glide on yellow, stop on red."
+        "caption": "A: skate on green, glide on yellow, stop on red.",
+        "end": "stop"
       },
       {
         "type": "skate",
@@ -186,7 +180,15 @@
         "caption": "C: push alternating C-cuts down the strip."
       }
     ],
-    "cones": []
+    "cones": [],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Stop lights",
+        "Rocket glides",
+        "C-cut zigzag"
+      ]
+    }
   },
   "status": "in_review"
 }

@@ -1,4 +1,4 @@
-import { PART_LABEL } from '@/lib/drills/schema';
+import { levelCount, levelOf, PART_LABEL } from '@/lib/drills/schema';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
@@ -28,19 +28,19 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6">
           <RinkStepper spec={d.diagram} title={d.funName} />
-          {d.groupModel === 'levels' && d.levels && (
-            <Section title="Levels by group">
+          {levelCount(d) > 1 && (
+            <Section title="Levels">
               <ol className="grid gap-4 sm:grid-cols-3">
-                {d.levels.map((l) => (
-                  <li key={l.level} className="flex flex-col gap-1.5">
-                    <Rink spec={l.diagram} title={`${d.funName} ${l.level}`} detail="thumb" className="rounded-sm border border-border-100" />
-                    <span className="font-mono text-sm font-medium text-rink-100">{l.level}</span>
+                {Array.from({ length: levelCount(d) }, (_, i) => levelOf(d, i + 1)).map((l) => (
+                  <li key={l.n} className="flex flex-col gap-1.5">
+                    <Rink spec={l.diagram} title={`${d.funName} level ${l.n}`} detail="thumb" className="rounded-sm border border-border-100" />
+                    <span className="font-mono text-sm font-medium text-rink-100">Level {l.n}</span>
                     <b className="text-sm">{l.name}</b>
-                    <span className="text-xs text-ink-200">{l.adds}</span>
-                    <span className="text-xs font-semibold">{l.groups.join(', ')}</span>
+                    <span className="text-xs text-ink-200">{l.n === 1 ? 'The drill as written.' : `Adds: ${l.adds}`}</span>
                   </li>
                 ))}
               </ol>
+              <p className="text-xs text-ink-200">In a plan, pick which levels are in play: one for everyone, or several spread over the groups.</p>
             </Section>
           )}
           {d.groupModel === 'rotation' && d.zones && (

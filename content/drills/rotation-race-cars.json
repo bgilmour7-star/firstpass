@@ -29,6 +29,8 @@
   "lessons": [
     3
   ],
+  "levelName": "",
+  "levels": [],
   "zones": [
     {
       "station": "A",
@@ -57,44 +59,36 @@
   "diagram": {
     "scope": "half",
     "side": "left",
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "Edge rides",
-        "Race track",
-        "Scooters"
-      ]
-    },
     "players": [
       {
-        "role": "O",
         "x": 56,
-        "y": 6
+        "y": 6,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 62,
-        "y": 6
+        "y": 6,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 26,
-        "y": 50
+        "y": 50,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 34,
-        "y": 50
+        "y": 50,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 87,
-        "y": 17
+        "y": 17,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 94,
-        "y": 17
+        "y": 17,
+        "role": "O"
       }
     ],
     "paths": [
@@ -106,7 +100,7 @@
             10.2
           ],
           [
-            39.0,
+            39,
             6.6
           ],
           [
@@ -118,7 +112,7 @@
             4.7
           ],
           [
-            23.0,
+            23,
             6.6
           ],
           [
@@ -126,16 +120,16 @@
             10.2
           ],
           [
-            16.0,
-            15.0
+            16,
+            15
           ],
           [
-            15.0,
+            15,
             20.5
           ],
           [
-            16.0,
-            26.0
+            16,
+            26
           ]
         ],
         "step": 1,
@@ -217,7 +211,15 @@
         "x": 18,
         "y": 78
       }
-    ]
+    ],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Edge rides",
+        "Race track",
+        "Scooters"
+      ]
+    }
   },
   "status": "in_review"
 }

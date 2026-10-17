@@ -2,7 +2,7 @@ import 'server-only';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { drillSchema, type DiagramRequest, type Drill, type ReviewNote, type Status } from './schema';
+import { drillSchema, levelCount, type DiagramRequest, type Drill, type ReviewNote, type Status } from './schema';
 import type { DrillDetail, DrillStore, DrillSummary } from './store';
 
 // Local development store: drills live in content/drills/*.json (the same files the
@@ -49,6 +49,7 @@ export class LocalDrillStore implements DrillStore {
       plainName: d.plainName,
       status: d.status,
       groupModel: d.groupModel,
+      levelCount: levelCount(d),
       minutes: d.minutes,
       diagram: d.diagram,
       openRequests: state.requests.filter((r) => r.drillId === d.id && !r.resolvedAt).length,

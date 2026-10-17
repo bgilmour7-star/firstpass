@@ -34,6 +34,8 @@
   "lessons": [
     11
   ],
+  "levelName": "",
+  "levels": [],
   "zones": [
     {
       "station": "A",
@@ -62,49 +64,41 @@
   "diagram": {
     "scope": "half",
     "side": "left",
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "Walk backwards",
-        "Backward glides",
-        "Clock stops"
-      ]
-    },
     "players": [
       {
-        "role": "O",
         "x": 14,
-        "y": 12
+        "y": 12,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 14,
-        "y": 22
+        "y": 22,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 14,
-        "y": 32
+        "y": 32,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 26,
-        "y": 80
+        "y": 80,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 42,
-        "y": 80
+        "y": 80,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 58,
-        "y": 80
+        "y": 80,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 87,
-        "y": 14
+        "y": 14,
+        "role": "O"
       }
     ],
     "paths": [
@@ -194,9 +188,9 @@
             25
           ]
         ],
-        "end": "stop",
         "step": 3,
-        "caption": "C: skate to each pylon and stop facing the next one."
+        "caption": "C: skate to each pylon and stop facing the next one.",
+        "end": "stop"
       },
       {
         "type": "skate",
@@ -231,7 +225,15 @@
         "x": 87,
         "y": 76
       }
-    ]
+    ],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Walk backwards",
+        "Backward glides",
+        "Clock stops"
+      ]
+    }
   },
   "status": "in_review"
 }

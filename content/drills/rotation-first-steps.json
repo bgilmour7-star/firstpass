@@ -34,6 +34,8 @@
   "lessons": [
     2
   ],
+  "levelName": "",
+  "levels": [],
   "zones": [
     {
       "station": "A",
@@ -62,49 +64,41 @@
   "diagram": {
     "scope": "half",
     "side": "left",
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "Get up!",
-        "C-cuts",
-        "Glide statues"
-      ]
-    },
     "players": [
       {
-        "role": "O",
         "x": 22,
-        "y": 18
+        "y": 18,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 34,
-        "y": 18
+        "y": 18,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 46,
-        "y": 18
+        "y": 18,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 14,
-        "y": 60
+        "y": 60,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 14,
-        "y": 72
+        "y": 72,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 84,
-        "y": 16
+        "y": 16,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 92,
-        "y": 16
+        "y": 16,
+        "role": "O"
       }
     ],
     "paths": [
@@ -184,7 +178,15 @@
         "caption": "C: a few strides, then glide on two feet, then one."
       }
     ],
-    "cones": []
+    "cones": [],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Get up!",
+        "C-cuts",
+        "Glide statues"
+      ]
+    }
   },
   "status": "in_review"
 }

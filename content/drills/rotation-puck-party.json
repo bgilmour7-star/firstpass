@@ -34,6 +34,8 @@
   "lessons": [
     9
   ],
+  "levelName": "",
+  "levels": [],
   "zones": [
     {
       "station": "A",
@@ -62,69 +64,61 @@
   "diagram": {
     "scope": "half",
     "side": "left",
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "Finger count",
-        "Push and chase",
-        "Knee-bend glides"
-      ]
-    },
     "players": [
       {
-        "role": "O",
         "x": 18,
-        "y": 14
+        "y": 14,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 32,
-        "y": 14
+        "y": 14,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 46,
-        "y": 14
+        "y": 14,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 25,
-        "y": 28
+        "y": 28,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 39,
-        "y": 28
+        "y": 28,
+        "role": "O"
       },
       {
-        "role": "C",
         "x": 62,
-        "y": 21
+        "y": 21,
+        "role": "C"
       },
       {
-        "role": "O",
         "x": 10,
-        "y": 56
+        "y": 56,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 10,
-        "y": 68
+        "y": 68,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 10,
-        "y": 78
+        "y": 78,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 82,
-        "y": 16
+        "y": 16,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 92,
-        "y": 16
+        "y": 16,
+        "role": "O"
       }
     ],
     "paths": [
@@ -227,6 +221,14 @@
       }
     ],
     "cones": [],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Finger count",
+        "Push and chase",
+        "Knee-bend glides"
+      ]
+    },
     "pucks": [
       {
         "x": 21,

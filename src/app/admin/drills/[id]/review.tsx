@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
-import { FOCUS_ATTRIBUTES, GROUPS, nextStatuses, PART_LABEL, PARTS, type Drill, type Status } from '@/lib/drills/schema';
+import { FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, nextStatuses, PART_LABEL, PARTS, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
@@ -75,29 +75,14 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
     });
   }
 
-  function applyModel(model: 'levels' | 'stations') {
-    const versionOf = (g: string) => draft.versions?.find((v) => v.group === g)?.version ?? '';
-    if (model === 'levels') {
-      const order = ['Sharks', 'Bears', 'Eagles'] as const;
-      setDraft((d) => ({
-        ...d,
-        groupModel: 'levels',
-        levels: order.map((g, i) => ({ level: `1.${i}`, name: '', adds: versionOf(g), groups: [g], diagram: d.diagram })),
-      }));
-      setRequestText('Redraw as a progression: one diagram per level (1.0, 1.1, 1.2), each adding one thing.');
-    } else {
-      setDraft((d) => ({
-        ...d,
-        groupModel: 'stations',
-        stations: [
-          { station: 'A', group: 'Eagles', version: versionOf('Eagles') },
-          { station: 'B', group: 'Bears', version: versionOf('Bears') },
-          { station: 'C', group: 'Sharks', version: versionOf('Sharks') },
-        ],
-      }));
-      setRequestText('Redraw as group stations: Eagles in A, Bears in B, Sharks in C, all at once on half ice.');
-    }
+  function addLevel() {
+    const n = draft.levels.length + 2;
+    // A new level starts from the diagram before it; the reviewer asks Claude to redraw what changes.
+    const from = draft.levels.length ? draft.levels[draft.levels.length - 1].diagram : draft.diagram;
+    setDraft((d) => ({ ...d, levels: [...d.levels, { name: '', adds: '', diagram: structuredClone(from) }] }));
+    if (!requestText.trim()) setRequestText(`Redraw level ${n} to show what it adds.`);
   }
+  const setLevel = (i: number, patch: Partial<Drill['levels'][number]>) => set('levels', draft.levels.map((x, j) => (j === i ? { ...x, ...patch } : x)));
 
   const moves = nextStatuses(draft.status);
 
@@ -155,52 +140,56 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
           <RinkStepper spec={detail.drill.diagram} title={draft.funName} />
 
           <Section
-            title={draft.groupModel === 'levels' ? 'Levels by group' : draft.groupModel === 'stations' ? 'Group stations' : draft.groupModel === 'rotation' ? 'Rotation zones' : draft.groupModel === 'together' ? 'Groups' : 'Groups'}
-            hint={draft.groupModel === 'levels' ? 'Same drill, one thing added each level.' : draft.groupModel === 'stations' ? 'One station per group, all at once.' : draft.groupModel === 'rotation' ? 'Every group does every zone, moving on the whistle.' : undefined}
+            title={draft.groupModel === 'basic' ? 'Levels' : draft.groupModel === 'stations' ? 'Group stations' : 'Rotation zones'}
+            hint={
+              draft.groupModel === 'basic'
+                ? 'Level 1 is the drill as written. Add a level when a group is ready for one more thing.'
+                : draft.groupModel === 'stations'
+                  ? 'One station per group, all at once.'
+                  : 'Every group does every zone, moving on the whistle.'
+            }
           >
-            {draft.groupModel === 'versions' && (
-              <div className="flex flex-col gap-3 rounded-md border border-whistle-100 p-4">
-                <p className="text-sm">
-                  <b>Pick how the groups use this drill.</b> Levels if it builds up (skate, then puck, then a pass). Stations if each group plays its own version at the same time.
-                </p>
-                <ul className="text-sm text-ink-200">
-                  {draft.versions?.map((v) => (
-                    <li key={v.group}>
-                      <b className="text-ink-100">{v.group}:</b> {v.version}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" onClick={() => applyModel('levels')} className="min-h-10 rounded-full border border-border-100 px-4 text-sm font-medium hover:bg-surface-200">
-                    Use levels
-                  </button>
-                  <button type="button" onClick={() => applyModel('stations')} className="min-h-10 rounded-full border border-border-100 px-4 text-sm font-medium hover:bg-surface-200">
-                    Use stations
-                  </button>
+            {draft.groupModel === 'basic' && (
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-3">
+                  <span className="mt-8 font-mono text-sm font-medium text-rink-100">Level 1</span>
+                  <Field label="Name" help={draft.levels.length ? 'A few words, e.g. “Skate the course”.' : 'Only needed once you add a level.'} error={errors.levelName}>
+                    <input className={input} maxLength={40} value={draft.levelName} placeholder="Basic" onChange={(e) => set('levelName', e.target.value)} />
+                  </Field>
                 </div>
+                {draft.levels.map((l, i) => (
+                  <div key={i} className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-3 border-t border-border-100 pt-3">
+                    <div className="flex flex-col gap-2">
+                      <span className="font-mono text-sm font-medium text-rink-100">Level {i + 2}</span>
+                      <Rink spec={l.diagram} title={`${draft.funName} level ${i + 2}`} detail="thumb" className="rounded-sm border border-border-100" />
+                    </div>
+                    <div className="flex min-w-0 flex-col gap-2">
+                      <Field label="Name" error={errors[`levels.${i}.name`]}>
+                        <input className={input} maxLength={40} value={l.name} placeholder="e.g. Puck the whole way" onChange={(e) => setLevel(i, { name: e.target.value })} />
+                      </Field>
+                      <Field label="What it adds" help="One thing, in one sentence." error={errors[`levels.${i}.adds`]}>
+                        <textarea rows={2} maxLength={200} className={input} value={l.adds} onChange={(e) => setLevel(i, { adds: e.target.value })} />
+                      </Field>
+                      <button
+                        type="button"
+                        onClick={() => set('levels', draft.levels.filter((_, j) => j !== i))}
+                        className="min-h-9 w-fit rounded-full px-3 text-sm text-flag-100 hover:bg-surface-200"
+                      >
+                        Remove level {i + 2}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {draft.levels.length < MAX_LEVELS - 1 ? (
+                  <button type="button" onClick={addLevel} className="min-h-10 w-fit rounded-full border border-border-100 px-4 text-sm font-medium hover:bg-surface-200">
+                    + Add level {draft.levels.length + 2}
+                  </button>
+                ) : (
+                  <p className="text-xs text-ink-200">Three levels is the most: one for each group.</p>
+                )}
+                {draft.levels.length > 0 && <p className="text-xs text-ink-200">A new level starts with a copy of the diagram before it. Ask Claude below to redraw what changes.</p>}
               </div>
             )}
-            {draft.groupModel === 'levels' && (
-              <ol className="grid gap-4 sm:grid-cols-3">
-                {draft.levels?.map((l, i) => (
-                  <li key={i} className="flex min-w-0 flex-col gap-2">
-                    <Rink spec={l.diagram} title={`${draft.funName} ${l.level}`} detail="thumb" className="rounded-sm border border-border-100" />
-                    <span className="font-mono text-sm font-medium text-rink-100">{l.level}</span>
-                    <Field label="Level name" error={errors[`levels.${i}.name`]}>
-                      <input className={input} value={l.name} onChange={(e) => set('levels', draft.levels!.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
-                    </Field>
-                    <Field label="What it adds">
-                      <textarea rows={3} className={input} value={l.adds} onChange={(e) => set('levels', draft.levels!.map((x, j) => (j === i ? { ...x, adds: e.target.value } : x)))} />
-                    </Field>
-                    <GroupPicker
-                      value={l.groups}
-                      onChange={(groups) => set('levels', draft.levels!.map((x, j) => (j === i ? { ...x, groups } : x)))}
-                    />
-                  </li>
-                ))}
-              </ol>
-            )}
-            {draft.groupModel === 'together' && <p className="text-sm text-ink-200">Everyone together: the whole team does this at once, so there are no groups to set.</p>}
             {draft.groupModel === 'rotation' && (
               <ul className="flex flex-col">
                 {draft.zones?.map((z, i) => (
@@ -443,28 +432,6 @@ function ListEditor({ items, onChange, max, numbered, error, addLabel }: { items
       )}
       {error && <span className="text-xs font-medium text-flag-100">{error}</span>}
     </div>
-  );
-}
-
-function GroupPicker({ value, onChange }: { value: string[]; onChange: (v: (typeof GROUPS)[number][]) => void }) {
-  return (
-    <fieldset className="flex flex-wrap gap-1.5">
-      <legend className="sr-only">Groups at this level</legend>
-      {GROUPS.map((g) => {
-        const on = value.includes(g);
-        return (
-          <button
-            key={g}
-            type="button"
-            aria-pressed={on}
-            onClick={() => onChange((on ? value.filter((x) => x !== g) : [...value, g]) as (typeof GROUPS)[number][])}
-            className={`min-h-8 rounded-full border px-2.5 text-xs font-medium ${on ? 'border-ink-100 bg-ink-100 text-surface-100' : 'border-border-100 text-ink-200'}`}
-          >
-            {g}
-          </button>
-        );
-      })}
-    </fieldset>
   );
 }
 

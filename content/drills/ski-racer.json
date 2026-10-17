@@ -22,270 +22,27 @@
       "why": "Turning on both edges."
     }
   ],
-  "groupModel": "levels",
+  "groupModel": "basic",
   "part": "skill",
   "lessons": [],
-  "source": {
-    "label": "Hockey Canada U7 Plans 15, 30 · skill 1.6.02",
-    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-15-e.pdf",
-    "note": "Right idea. The source adds a zig-zag course and a staggered start, so the line keeps moving."
-  },
-  "diagram": {
-    "scope": "half",
-    "side": "left",
-    "cones": [
-      {
-        "x": 77,
-        "y": 30
-      },
-      {
-        "x": 65,
-        "y": 52
-      },
-      {
-        "x": 53,
-        "y": 30
-      },
-      {
-        "x": 41,
-        "y": 52
-      },
-      {
-        "x": 29,
-        "y": 30
-      }
-    ],
-    "players": [
-      {
-        "role": "O",
-        "x": 89,
-        "y": 42
-      },
-      {
-        "role": "O",
-        "x": 92,
-        "y": 49
-      },
-      {
-        "role": "O",
-        "x": 95,
-        "y": 56
-      }
-    ],
-    "paths": [
-      {
-        "type": "skate",
-        "points": [
-          [
-            89,
-            42
-          ],
-          [
-            80,
-            26
-          ],
-          [
-            73,
-            32
-          ],
-          [
-            68,
-            56
-          ],
-          [
-            61,
-            50
-          ],
-          [
-            56,
-            26
-          ],
-          [
-            49,
-            32
-          ],
-          [
-            44,
-            56
-          ],
-          [
-            37,
-            50
-          ],
-          [
-            32,
-            26
-          ],
-          [
-            25,
-            32
-          ],
-          [
-            21,
-            42
-          ]
-        ],
-        "step": 1,
-        "caption": "Turn tight around every cone."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            92,
-            49
-          ],
-          [
-            84,
-            36
-          ]
-        ],
-        "step": 2,
-        "stepSide": "right",
-        "caption": "Next skater goes at the second cone."
-      }
-    ]
-  },
-  "status": "in_review",
+  "levelName": "Skate the course",
   "levels": [
     {
-      "level": "1.0",
-      "name": "Skate the course",
-      "adds": "Tight turns, no puck.",
-      "groups": [
-        "Sharks"
-      ],
-      "diagram": {
-        "scope": "half",
-        "side": "left",
-        "cones": [
-          {
-            "x": 77,
-            "y": 30
-          },
-          {
-            "x": 65,
-            "y": 52
-          },
-          {
-            "x": 53,
-            "y": 30
-          },
-          {
-            "x": 41,
-            "y": 52
-          },
-          {
-            "x": 29,
-            "y": 30
-          }
-        ],
-        "players": [
-          {
-            "role": "O",
-            "x": 89,
-            "y": 42
-          }
-        ],
-        "paths": [
-          {
-            "type": "skate",
-            "points": [
-              [
-                89,
-                42
-              ],
-              [
-                80,
-                26
-              ],
-              [
-                73,
-                32
-              ],
-              [
-                68,
-                56
-              ],
-              [
-                61,
-                50
-              ],
-              [
-                56,
-                26
-              ],
-              [
-                49,
-                32
-              ],
-              [
-                44,
-                56
-              ],
-              [
-                37,
-                50
-              ],
-              [
-                32,
-                26
-              ],
-              [
-                25,
-                32
-              ],
-              [
-                21,
-                42
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "level": "1.1",
       "name": "Pass and shoot at the end",
       "adds": "A coach passes as you come off the last cone. Shoot on the net.",
-      "groups": [
-        "Bears"
-      ],
       "diagram": {
         "scope": "half",
         "side": "left",
-        "cones": [
-          {
-            "x": 77,
-            "y": 30
-          },
-          {
-            "x": 65,
-            "y": 52
-          },
-          {
-            "x": 53,
-            "y": 30
-          },
-          {
-            "x": 41,
-            "y": 52
-          },
-          {
-            "x": 29,
-            "y": 30
-          }
-        ],
         "players": [
           {
-            "role": "O",
             "x": 89,
-            "y": 42
+            "y": 42,
+            "role": "O"
           },
           {
-            "role": "C",
             "x": 20,
-            "y": 72
+            "y": 72,
+            "role": "C"
           }
         ],
         "paths": [
@@ -370,19 +127,7 @@
             ],
             "fromPlayer": false
           }
-        ]
-      }
-    },
-    {
-      "level": "1.2",
-      "name": "Carry it all the way",
-      "adds": "Puck on your stick through every turn, then shoot.",
-      "groups": [
-        "Eagles"
-      ],
-      "diagram": {
-        "scope": "half",
-        "side": "left",
+        ],
         "cones": [
           {
             "x": 77,
@@ -404,12 +149,20 @@
             "x": 29,
             "y": 30
           }
-        ],
+        ]
+      }
+    },
+    {
+      "name": "Carry it all the way",
+      "adds": "Puck on your stick through every turn, then shoot.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
         "players": [
           {
-            "role": "O",
             "x": 89,
-            "y": 42
+            "y": 42,
+            "role": "O"
           }
         ],
         "paths": [
@@ -480,8 +233,152 @@
             ],
             "fromPlayer": false
           }
+        ],
+        "cones": [
+          {
+            "x": 77,
+            "y": 30
+          },
+          {
+            "x": 65,
+            "y": 52
+          },
+          {
+            "x": 53,
+            "y": 30
+          },
+          {
+            "x": 41,
+            "y": 52
+          },
+          {
+            "x": 29,
+            "y": 30
+          }
         ]
       }
     }
-  ]
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Plans 15, 30 · skill 1.6.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-15-e.pdf",
+    "note": "Right idea. The source adds a zig-zag course and a staggered start, so the line keeps moving."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 89,
+        "y": 42,
+        "role": "O"
+      },
+      {
+        "x": 92,
+        "y": 49,
+        "role": "O"
+      },
+      {
+        "x": 95,
+        "y": 56,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            89,
+            42
+          ],
+          [
+            80,
+            26
+          ],
+          [
+            73,
+            32
+          ],
+          [
+            68,
+            56
+          ],
+          [
+            61,
+            50
+          ],
+          [
+            56,
+            26
+          ],
+          [
+            49,
+            32
+          ],
+          [
+            44,
+            56
+          ],
+          [
+            37,
+            50
+          ],
+          [
+            32,
+            26
+          ],
+          [
+            25,
+            32
+          ],
+          [
+            21,
+            42
+          ]
+        ],
+        "step": 1,
+        "caption": "Turn tight around every cone."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            92,
+            49
+          ],
+          [
+            84,
+            36
+          ]
+        ],
+        "step": 2,
+        "caption": "Next skater goes at the second cone.",
+        "stepSide": "right"
+      }
+    ],
+    "cones": [
+      {
+        "x": 77,
+        "y": 30
+      },
+      {
+        "x": 65,
+        "y": 52
+      },
+      {
+        "x": 53,
+        "y": 30
+      },
+      {
+        "x": 41,
+        "y": 52
+      },
+      {
+        "x": 29,
+        "y": 30
+      }
+    ]
+  },
+  "status": "in_review"
 }

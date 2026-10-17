@@ -27,12 +27,14 @@
       "why": "Fast changes keep everyone moving."
     }
   ],
-  "groupModel": "together",
+  "groupModel": "basic",
   "part": "warmup",
   "lessons": [
     3,
     5
   ],
+  "levelName": "",
+  "levels": [],
   "source": {
     "label": "Hockey Canada U7 Lessons 3, 5 · 1.1.02, 1.1.07, 1.1.04, 1.4.02",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
@@ -42,34 +44,34 @@
     "scope": "full",
     "players": [
       {
-        "role": "O",
         "x": 84,
-        "y": 14
+        "y": 14,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 110,
-        "y": 12
+        "y": 12,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 122,
-        "y": 40
+        "y": 40,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 112,
-        "y": 72
+        "y": 72,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 86,
-        "y": 70
+        "y": 70,
+        "role": "O"
       },
       {
-        "role": "C",
         "x": 100,
-        "y": 42
+        "y": 42,
+        "role": "C"
       }
     ],
     "paths": [
@@ -128,9 +130,9 @@
             74
           ]
         ],
-        "end": "stop",
         "step": 2,
-        "caption": "On the call: knees and up, one-foot glide, jump the lines, C-cuts, speed up."
+        "caption": "On the call: knees and up, one-foot glide, jump the lines, C-cuts, speed up.",
+        "end": "stop"
       }
     ],
     "cones": []

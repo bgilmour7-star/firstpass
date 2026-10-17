@@ -27,11 +27,13 @@
       "why": "Starts, stops and dodging."
     }
   ],
-  "groupModel": "together",
+  "groupModel": "basic",
   "part": "game",
   "lessons": [
     5
   ],
+  "levelName": "",
+  "levels": [],
   "source": {
     "label": "Hockey Canada U7 Lesson 5 · fun game",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
@@ -41,38 +43,31 @@
     "scope": "full",
     "players": [
       {
-        "role": "O",
         "x": 30,
-        "y": 30
+        "y": 30,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 30,
-        "y": 50
+        "y": 50,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 80,
-        "y": 40
+        "y": 40,
+        "role": "O"
       },
       {
-        "role": "C",
         "x": 100,
-        "y": 25
+        "y": 25,
+        "role": "C"
       },
       {
-        "role": "C",
         "x": 120,
-        "y": 60
+        "y": 60,
+        "role": "C"
       }
     ],
-    "piles": [
-      {
-        "x": 16,
-        "y": 42
-      }
-    ],
-    "nets": [],
     "paths": [
       {
         "type": "skate",
@@ -118,7 +113,14 @@
         "x": 170,
         "y": 42
       }
-    ]
+    ],
+    "piles": [
+      {
+        "x": 16,
+        "y": 42
+      }
+    ],
+    "nets": []
   },
   "status": "in_review"
 }

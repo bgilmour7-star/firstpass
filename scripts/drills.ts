@@ -81,7 +81,7 @@ const commands: Record<string, (args: string[]) => Promise<void> | void> = {
     const block = (title: string, spec: object) => `<figure><figcaption>${title}</figcaption>${RD.render({ ...spec, title })}</figure>`;
     const steps = RD.steps(d.diagram) as { step: number }[];
     const figs = [block(`${d.funName} · All`, d.diagram), ...steps.map((s) => block(`Step ${s.step}`, { ...d.diagram, activeStep: s.step }))];
-    for (const l of d.levels ?? []) figs.push(block(`Level ${l.level} · ${l.name} · ${l.groups.join(', ')}`, l.diagram));
+    if (d.levels.length) d.levels.forEach((l, i) => figs.push(block(`Level ${i + 2} · ${l.name} · adds: ${l.adds}`, l.diagram)));
     const html = `<!doctype html><meta charset="utf-8"><title>${d.funName}</title><style>${css}
 body{font-family:system-ui;margin:24px;background:#fff}main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}figure{margin:0}figcaption{font-weight:600;margin-bottom:6px}svg{width:100%;height:auto}</style><main>${figs.join('')}</main>`;
     mkdirSync(join(ROOT, '.local', 'preview'), { recursive: true });

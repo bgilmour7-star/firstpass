@@ -1,6 +1,7 @@
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
-import { blockMinutes, clock, levelFor, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
+import { levelCount, levelOf } from '@/lib/drills/schema';
+import { blockMinutes, clock, levelsToday, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../design-system/index';
 
 // Read-only plan in time order, for the printout and the parent link, adapted to today's groups.
@@ -26,16 +27,15 @@ export function PlanView({ blocks, startTime, units, drills, mode }: { blocks: B
               </div>
             )}
             {b.kind === 'drill' && <DrillBlock drill={drills.get(b.drillId)} mode={mode} />}
-            {b.kind === 'drill' && mode === 'print' && drills.get(b.drillId)?.levels?.length ? (
+            {b.kind === 'drill' && mode === 'print' && drills.get(b.drillId) && levelCount(drills.get(b.drillId)!) > 1 ? (
               <ul className="mt-2 flex flex-col text-[15px]">
                 {units.map((u) => {
                   const d = drills.get(b.drillId)!;
-                  const lv = levelFor(d, u, b.levels);
-                  const l = d.levels!.find((x) => x.level === lv);
+                  const l = levelOf(d, levelsToday(d, b, units).get(u.key) ?? 1);
                   return (
                     <li key={u.key} className="border-t border-border-100 py-1">
-                      <b>{u.label}</b> · <span className="font-mono">{lv}</span> {l?.name}
-                      {l?.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
+                      <b>{u.label}</b> · <span className="font-mono">Level {l.n}</span> {l.name}
+                      {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
                     </li>
                   );
                 })}

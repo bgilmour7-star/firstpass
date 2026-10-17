@@ -16,7 +16,7 @@ import {
   drillIds,
   isOldRotation,
   isAdapted,
-  levelFor,
+  levelsToday,
   newActivity,
   newId,
   practiceFocus,
@@ -171,7 +171,10 @@ export function Builder({
           if (n !== rotationToday(b, gc).active.length) lines.push(`The rotation runs ${n} station${n === 1 ? '' : 's'} of ${b.minutes} min.`);
         }
         const d = b.kind === 'drill' || b.kind === 'stations' ? byId.get(b.drillId) : undefined;
-        if (b.kind === 'drill' && d?.levels?.length) u2.filter((u) => u.groups.length > 1).forEach((u) => lines.push(`In ${d.funName}, ${u.label} do level ${levelFor(d, u, b.levels)}.`));
+        if (b.kind === 'drill' && d?.levels.length) {
+          const lv = levelsToday(d, b, u2);
+          u2.filter((u) => u.groups.length > 1).forEach((u) => lines.push(`In ${d.funName}, ${u.label} do level ${lv.get(u.key)}.`));
+        }
         if (b.kind === 'stations' && d) {
           const off = unusedZones(d, u2, b.zones);
           const on = ZONES.filter((z) => !off.includes(z) && d.stations?.some((s) => s.station === z));
@@ -572,7 +575,8 @@ function BlockBody({
   let tag = 'ACTIVITY';
   let tone = 'text-ink-200';
   if (b.kind === 'drill') {
-    tag = `DRILL${d?.levels?.length ? ` · ${d.levels.length} LEVELS` : ''}${fewer && d?.levels?.length ? ` · ${gc} GROUP${gc === 1 ? '' : 'S'} TODAY` : ''}`;
+    const inPlay = b.use.length && d?.levels.length ? b.use.length : (d?.levels.length ?? 0) + 1;
+    tag = `DRILL${d?.levels.length ? ` · ${inPlay === 1 ? `LEVEL ${b.use[0] ?? 1}` : `${inPlay} LEVELS`}` : ''}${fewer && d?.levels.length && inPlay > 1 ? ` · ${gc} GROUP${gc === 1 ? '' : 'S'} TODAY` : ''}`;
     tone = 'text-rink-100';
   }
   if (b.kind === 'stations') {
@@ -633,8 +637,14 @@ function BlockBody({
       </div>
       {b.kind === 'drill' &&
         d &&
-        (d.levels?.length ? (
-          <Ladder block={b} drill={d} units={units} onLevel={(k, lv) => update((x) => (x.kind === 'drill' ? { ...x, levels: { ...x.levels, [k]: lv } } : x))} />
+        (d.levels.length ? (
+          <Ladder
+            block={b}
+            drill={d}
+            units={units}
+            onLevel={(k, lv) => update((x) => (x.kind === 'drill' ? { ...x, levels: { ...x.levels, [k]: lv } } : x))}
+            onUse={(use) => update((x) => (x.kind === 'drill' ? { ...x, use } : x))}
+          />
         ) : (
           <DrillCard drill={d} isNew={!known.has(d.id)} />
         ))}

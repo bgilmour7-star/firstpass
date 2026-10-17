@@ -27,12 +27,14 @@
       "why": "Agility, balance and quick starts."
     }
   ],
-  "groupModel": "together",
+  "groupModel": "basic",
   "part": "warmup",
   "lessons": [
     4,
     6
   ],
+  "levelName": "",
+  "levels": [],
   "source": {
     "label": "Hockey Canada U7 Lessons 4, 6 · 1.1.02–1.1.04, 1.4.03",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
@@ -42,44 +44,44 @@
     "scope": "full",
     "players": [
       {
-        "role": "O",
         "x": 50,
-        "y": 20
+        "y": 20,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 70,
-        "y": 60
+        "y": 60,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 130,
-        "y": 24
+        "y": 24,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 150,
-        "y": 58
+        "y": 58,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 96,
-        "y": 30
+        "y": 30,
+        "role": "O"
       },
       {
-        "role": "C",
         "x": 60,
-        "y": 40
+        "y": 40,
+        "role": "C"
       },
       {
-        "role": "C",
         "x": 140,
-        "y": 40
+        "y": 40,
+        "role": "C"
       },
       {
-        "role": "C",
         "x": 100,
-        "y": 79
+        "y": 79,
+        "role": "C"
       }
     ],
     "paths": [

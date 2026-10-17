@@ -27,11 +27,13 @@
       "why": "A real game, no sticks needed."
     }
   ],
-  "groupModel": "together",
+  "groupModel": "basic",
   "part": "game",
   "lessons": [
     3
   ],
+  "levelName": "",
+  "levels": [],
   "source": {
     "label": "Hockey Canada U7 Lesson 3 · fun game",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
@@ -42,29 +44,29 @@
     "side": "left",
     "players": [
       {
-        "role": "O",
         "x": 30,
-        "y": 30
+        "y": 30,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 45,
-        "y": 48
+        "y": 48,
+        "role": "O"
       },
       {
-        "role": "X",
         "x": 38,
-        "y": 40
+        "y": 40,
+        "role": "X"
       },
       {
-        "role": "X",
         "x": 52,
-        "y": 58
+        "y": 58,
+        "role": "X"
       },
       {
-        "role": "C",
         "x": 70,
-        "y": 42
+        "y": 42,
+        "role": "C"
       }
     ],
     "paths": [
@@ -99,9 +101,9 @@
             42
           ]
         ],
-        "fromPlayer": false,
         "step": 2,
-        "caption": "Goal? The coach rolls the ball back in."
+        "caption": "Goal? The coach rolls the ball back in.",
+        "fromPlayer": false
       }
     ],
     "cones": [

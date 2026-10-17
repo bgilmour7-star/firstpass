@@ -32,9 +32,296 @@
       "why": "Settling a moving puck."
     }
   ],
-  "groupModel": "versions",
+  "groupModel": "basic",
   "part": "skill",
   "lessons": [],
+  "levelName": "Stand still and pass with a coach",
+  "levels": [
+    {
+      "name": "Skate slowly, pass on the forehand",
+      "adds": "Skate slowly, pass on the forehand.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 22,
+            "y": 22,
+            "role": "O"
+          },
+          {
+            "x": 22,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 58,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 70,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                24,
+                22
+              ],
+              [
+                45,
+                20
+              ],
+              [
+                64,
+                24
+              ],
+              [
+                74,
+                38
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate side by side around the zone."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                24,
+                34
+              ],
+              [
+                45,
+                34
+              ],
+              [
+                60,
+                38
+              ],
+              [
+                66,
+                48
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                40,
+                21
+              ],
+              [
+                50,
+                34
+              ]
+            ],
+            "step": 2,
+            "caption": "Pass back and forth as you go.",
+            "fromPlayer": false,
+            "stepSide": "right"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                58,
+                58
+              ],
+              [
+                38,
+                60
+              ],
+              [
+                22,
+                52
+              ]
+            ]
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                58,
+                70
+              ],
+              [
+                36,
+                72
+              ],
+              [
+                18,
+                64
+              ]
+            ]
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                42,
+                72
+              ],
+              [
+                32,
+                60
+              ]
+            ],
+            "fromPlayer": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Full speed, backhand passes too",
+      "adds": "Full speed, backhand passes too.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 22,
+            "y": 22,
+            "role": "O"
+          },
+          {
+            "x": 22,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 58,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 70,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                24,
+                22
+              ],
+              [
+                45,
+                20
+              ],
+              [
+                64,
+                24
+              ],
+              [
+                74,
+                38
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate side by side around the zone."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                24,
+                34
+              ],
+              [
+                45,
+                34
+              ],
+              [
+                60,
+                38
+              ],
+              [
+                66,
+                48
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                40,
+                21
+              ],
+              [
+                50,
+                34
+              ]
+            ],
+            "step": 2,
+            "caption": "Pass back and forth as you go.",
+            "fromPlayer": false,
+            "stepSide": "right"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                58,
+                58
+              ],
+              [
+                38,
+                60
+              ],
+              [
+                22,
+                52
+              ]
+            ]
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                58,
+                70
+              ],
+              [
+                36,
+                72
+              ],
+              [
+                18,
+                64
+              ]
+            ]
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                42,
+                72
+              ],
+              [
+                32,
+                60
+              ]
+            ],
+            "fromPlayer": false
+          }
+        ]
+      }
+    }
+  ],
   "source": {
     "label": "Hockey Canada U7 Plans 23, 30 · skills 2.4.01–2.4.02",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-23-e.pdf",
@@ -45,24 +332,24 @@
     "side": "left",
     "players": [
       {
-        "role": "O",
         "x": 22,
-        "y": 22
+        "y": 22,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 22,
-        "y": 34
+        "y": 34,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 60,
-        "y": 58
+        "y": 58,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 60,
-        "y": 70
+        "y": 70,
+        "role": "O"
       }
     ],
     "paths": [
@@ -123,10 +410,10 @@
             34
           ]
         ],
-        "fromPlayer": false,
         "step": 2,
-        "stepSide": "right",
-        "caption": "Pass back and forth as you go."
+        "caption": "Pass back and forth as you go.",
+        "fromPlayer": false,
+        "stepSide": "right"
       },
       {
         "type": "skate",
@@ -178,19 +465,5 @@
       }
     ]
   },
-  "status": "in_review",
-  "versions": [
-    {
-      "group": "Sharks",
-      "version": "Stand still and pass with a coach."
-    },
-    {
-      "group": "Bears",
-      "version": "Skate slowly, pass on the forehand."
-    },
-    {
-      "group": "Eagles",
-      "version": "Full speed, backhand passes too."
-    }
-  ]
+  "status": "in_review"
 }

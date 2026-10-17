@@ -28,9 +28,288 @@
       "why": "“Bet you can’t do this one!”"
     }
   ],
-  "groupModel": "versions",
+  "groupModel": "basic",
   "part": "skill",
   "lessons": [],
+  "levelName": "Two-skate glides",
+  "levels": [
+    {
+      "name": "One-skate glides, both feet",
+      "adds": "One-skate glides, both feet.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 30,
+            "y": 6,
+            "role": "C"
+          },
+          {
+            "x": 20,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 36,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 52,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 68,
+            "y": 10,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                20,
+                13
+              ],
+              [
+                20,
+                40
+              ],
+              [
+                20,
+                72
+              ]
+            ],
+            "step": 2,
+            "caption": "Glide across: two skates, then one."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                36,
+                13
+              ],
+              [
+                36,
+                40
+              ],
+              [
+                36,
+                72
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                52,
+                13
+              ],
+              [
+                52,
+                40
+              ],
+              [
+                52,
+                72
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                68,
+                13
+              ],
+              [
+                68,
+                40
+              ],
+              [
+                68,
+                72
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                84,
+                74
+              ],
+              [
+                84,
+                45
+              ],
+              [
+                84,
+                16
+              ]
+            ],
+            "step": 3,
+            "caption": "Backward glides on the way back.",
+            "stepSide": "right"
+          }
+        ],
+        "labels": [
+          {
+            "x": 44,
+            "y": 3,
+            "text": "pivot",
+            "size": 2.6
+          }
+        ]
+      }
+    },
+    {
+      "name": "Leg stretched out, then backward glides",
+      "adds": "Leg stretched out, then backward glides.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 30,
+            "y": 6,
+            "role": "C"
+          },
+          {
+            "x": 20,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 36,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 52,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 68,
+            "y": 10,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                20,
+                13
+              ],
+              [
+                20,
+                40
+              ],
+              [
+                20,
+                72
+              ]
+            ],
+            "step": 2,
+            "caption": "Glide across: two skates, then one."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                36,
+                13
+              ],
+              [
+                36,
+                40
+              ],
+              [
+                36,
+                72
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                52,
+                13
+              ],
+              [
+                52,
+                40
+              ],
+              [
+                52,
+                72
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                68,
+                13
+              ],
+              [
+                68,
+                40
+              ],
+              [
+                68,
+                72
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                84,
+                74
+              ],
+              [
+                84,
+                45
+              ],
+              [
+                84,
+                16
+              ]
+            ],
+            "step": 3,
+            "caption": "Backward glides on the way back.",
+            "stepSide": "right"
+          }
+        ],
+        "labels": [
+          {
+            "x": 44,
+            "y": 3,
+            "text": "pivot",
+            "size": 2.6
+          }
+        ]
+      }
+    }
+  ],
   "source": {
     "label": "Hockey Canada U7 Plan 23 · no skill code",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-23-e.pdf",
@@ -41,29 +320,29 @@
     "side": "left",
     "players": [
       {
-        "role": "C",
         "x": 30,
-        "y": 6
+        "y": 6,
+        "role": "C"
       },
       {
-        "role": "O",
         "x": 20,
-        "y": 10
+        "y": 10,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 36,
-        "y": 10
+        "y": 10,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 52,
-        "y": 10
+        "y": 10,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 68,
-        "y": 10
+        "y": 10,
+        "role": "O"
       }
     ],
     "paths": [
@@ -157,8 +436,8 @@
           ]
         ],
         "step": 3,
-        "stepSide": "right",
-        "caption": "Backward glides on the way back."
+        "caption": "Backward glides on the way back.",
+        "stepSide": "right"
       }
     ],
     "labels": [
@@ -170,19 +449,5 @@
       }
     ]
   },
-  "status": "in_review",
-  "versions": [
-    {
-      "group": "Sharks",
-      "version": "Two-skate glides. Hold a coach’s hand if needed."
-    },
-    {
-      "group": "Bears",
-      "version": "One-skate glides, both feet."
-    },
-    {
-      "group": "Eagles",
-      "version": "Leg stretched out, then backward glides."
-    }
-  ]
+  "status": "in_review"
 }

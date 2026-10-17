@@ -12,6 +12,7 @@ export type DrillSummary = {
   plainName: string;
   status: Status;
   groupModel: Drill['groupModel'];
+  levelCount: number;
   minutes: number;
   diagram: Drill['diagram'];
   openRequests: number;

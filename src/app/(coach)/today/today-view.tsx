@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
-import { addMinutes, blockMinutes, clock, levelFor, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import { levelCount, levelOf } from '@/lib/drills/schema';
+import { addMinutes, blockMinutes, clock, levelsToday, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../design-system/index';
 
 // The practice timeline on a phone at the rink: done blocks greyed, the current block open with a
@@ -133,19 +134,25 @@ function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; b
     if (!d) return null;
     let spec = d.diagram as RinkDiagramProps;
     let groups: React.ReactNode = null;
-    if (block.kind === 'drill' && d.levels?.length)
+    if (block.kind === 'drill' && levelCount(d) > 1) {
+      const today = levelsToday(d, block, units);
+      const used = [...new Set(today.values())];
+      // One level for everyone: show that level's diagram.
+      if (used.length === 1) spec = levelOf(d, used[0]).diagram as RinkDiagramProps;
       groups = (
         <ul className="flex flex-col text-[15px]">
           {units.map((u) => {
-            const lv = levelFor(d, u, block.levels);
+            const l = levelOf(d, today.get(u.key) ?? 1);
             return (
               <li key={u.key} className="border-t border-border-100 py-1">
-                <b>{u.label}</b> · <span className="font-mono">{lv}</span> {d.levels!.find((l) => l.level === lv)?.name}
+                <b>{u.label}</b> · <span className="font-mono">Level {l.n}</span> {l.name}
+                {l.adds ? <span className="text-ink-200"> ({l.adds})</span> : null}
               </li>
             );
           })}
         </ul>
       );
+    }
     if (block.kind === 'stations') {
       const who = (z: string) => units.filter((u, i) => zoneFor(d, u, block.zones, i) === z).map((u) => u.label).join(', ');
       if (d.diagram.stations?.layout === 'halfice') spec = { ...spec, unused: unusedZones(d, units, block.zones), stations: { ...d.diagram.stations, layout: 'halfice', groups: ZONES.map((z) => who(z) || '—') } };

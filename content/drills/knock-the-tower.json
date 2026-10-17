@@ -43,6 +43,25 @@
     4,
     6
   ],
+  "levelName": "",
+  "levels": [],
+  "stations": [
+    {
+      "station": "A",
+      "group": "Eagles",
+      "version": "3 on 3 with a second puck when one team hogs it."
+    },
+    {
+      "station": "B",
+      "group": "Bears",
+      "version": "3 on 3."
+    },
+    {
+      "station": "C",
+      "group": "Sharks",
+      "version": "2 on 2 with a coach helping both teams."
+    }
+  ],
   "source": {
     "label": "Hockey Canada U7 Plans 15, 23 · no skill code",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-15-e.pdf",
@@ -51,123 +70,96 @@
   "diagram": {
     "scope": "half",
     "side": "left",
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "3 on 3, two pucks",
-        "3 on 3",
-        "2 on 2 + coach"
-      ],
-      "groups": [
-        "Eagles",
-        "Bears",
-        "Sharks"
-      ]
-    },
-    "cones": [
-      {
-        "x": 36,
-        "y": 26
-      },
-      {
-        "x": 36,
-        "y": 66
-      },
-      {
-        "x": 87,
-        "y": 50
-      }
-    ],
     "players": [
       {
-        "role": "O",
         "x": 20,
-        "y": 18
+        "y": 18,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 24,
-        "y": 34
+        "y": 34,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 48,
-        "y": 16
+        "y": 16,
+        "role": "O"
       },
       {
-        "role": "X",
         "x": 52,
-        "y": 32
+        "y": 32,
+        "role": "X"
       },
       {
-        "role": "X",
         "x": 30,
-        "y": 16
+        "y": 16,
+        "role": "X"
       },
       {
-        "role": "X",
         "x": 16,
-        "y": 28
+        "y": 28,
+        "role": "X"
       },
       {
-        "role": "O",
         "x": 20,
-        "y": 58
+        "y": 58,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 26,
-        "y": 74
+        "y": 74,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 48,
-        "y": 58
+        "y": 58,
+        "role": "O"
       },
       {
-        "role": "X",
         "x": 50,
-        "y": 72
+        "y": 72,
+        "role": "X"
       },
       {
-        "role": "X",
         "x": 40,
-        "y": 76
+        "y": 76,
+        "role": "X"
       },
       {
-        "role": "X",
         "x": 16,
-        "y": 68
+        "y": 68,
+        "role": "X"
       },
       {
-        "role": "C",
         "x": 58,
-        "y": 78
+        "y": 78,
+        "role": "C"
       },
       {
-        "role": "O",
         "x": 82,
-        "y": 38
+        "y": 38,
+        "role": "O"
       },
       {
-        "role": "O",
         "x": 92,
-        "y": 66
+        "y": 66,
+        "role": "O"
       },
       {
-        "role": "X",
         "x": 82,
-        "y": 66
+        "y": 66,
+        "role": "X"
       },
       {
-        "role": "X",
         "x": 92,
-        "y": 40
+        "y": 40,
+        "role": "X"
       },
       {
-        "role": "C",
         "x": 93,
-        "y": 52
+        "y": 52,
+        "role": "C"
       }
     ],
     "paths": [
@@ -249,29 +241,39 @@
             70
           ]
         ],
-        "fromPlayer": false,
         "step": 2,
-        "stepSide": "right",
-        "caption": "Goal? Puck to the coach, who sends it back in."
+        "caption": "Goal? Puck to the coach, who sends it back in.",
+        "fromPlayer": false,
+        "stepSide": "right"
       }
-    ]
-  },
-  "status": "in_review",
-  "stations": [
-    {
-      "station": "A",
-      "group": "Eagles",
-      "version": "3 on 3 with a second puck when one team hogs it."
-    },
-    {
-      "station": "B",
-      "group": "Bears",
-      "version": "3 on 3."
-    },
-    {
-      "station": "C",
-      "group": "Sharks",
-      "version": "2 on 2 with a coach helping both teams."
+    ],
+    "cones": [
+      {
+        "x": 36,
+        "y": 26
+      },
+      {
+        "x": 36,
+        "y": 66
+      },
+      {
+        "x": 87,
+        "y": 50
+      }
+    ],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "3 on 3, two pucks",
+        "3 on 3",
+        "2 on 2 + coach"
+      ],
+      "groups": [
+        "Eagles",
+        "Bears",
+        "Sharks"
+      ]
     }
-  ]
+  },
+  "status": "in_review"
 }

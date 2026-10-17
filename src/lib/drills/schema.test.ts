@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { canMove, drillSchema, groupModelProblem, type Drill } from './schema';
+import { canMove, drillSchema, groupModelProblem, levelCount, levelOf, type Drill } from './schema';
 
 const dir = join(__dirname, '../../../content/drills');
 const drills: Drill[] = readdirSync(dir)
@@ -41,14 +41,31 @@ describe('status moves', () => {
 });
 
 describe('group model', () => {
-  const base = drills.find((d) => d.groupModel === 'levels')!;
-  it('needs every group placed on a level', () => {
+  const base = drills.find((d) => d.id === 'snake-in-the-forest')!;
+  it('added levels need a name and what they add', () => {
     expect(groupModelProblem(base)).toBeNull();
-    const missing = { ...base, levels: base.levels!.slice(0, 2) };
-    expect(groupModelProblem(missing)).toMatch(/Eagles/);
+    expect(groupModelProblem({ ...base, levelName: '' })).toMatch(/Level 1/);
+    expect(groupModelProblem({ ...base, levels: [{ ...base.levels[0], adds: '' }] })).toMatch(/Level 2/);
   });
-  it('legacy versions must be converted before approval', () => {
-    expect(groupModelProblem({ ...base, groupModel: 'versions' })).toMatch(/levels or stations/);
+  it('a basic drill with nothing added needs nothing more', () => {
+    expect(groupModelProblem({ ...base, levels: [], levelName: '' })).toBeNull();
+  });
+  it('reads drills saved before levels were an add-on', () => {
+    const old = { ...base, groupModel: 'levels', levelName: undefined, levels: [
+      { level: '1.0', name: 'Skate it', adds: 'No puck.', groups: ['Sharks'], diagram: base.diagram },
+      { level: '1.1', name: 'Puck', adds: 'Carry the puck.', groups: ['Bears'], diagram: base.diagram },
+    ] };
+    const d = drillSchema.parse(old);
+    expect(d).toMatchObject({ groupModel: 'basic', levelName: 'Skate it', levels: [{ name: 'Puck', adds: 'Carry the puck.' }] });
+    expect(levelCount(d)).toBe(2);
+    expect(levelOf(d, 1).name).toBe('Skate it');
+    expect(drillSchema.parse({ ...base, groupModel: 'together', levels: undefined })).toMatchObject({ groupModel: 'basic', levels: [] });
+    const v = drillSchema.parse({ ...base, groupModel: 'versions', levels: undefined, versions: [
+      { group: 'Eagles', version: 'Full speed. Backhands too.' },
+      { group: 'Sharks', version: 'Stand and pass.' },
+      { group: 'Bears', version: 'Skate slowly.' },
+    ] });
+    expect(v).toMatchObject({ levelName: 'Stand and pass', levels: [{ name: 'Skate slowly' }, { name: 'Full speed' }] });
   });
   it('allows at most two Main focus attributes', () => {
     const r = drillSchema.safeParse({

@@ -1,6 +1,6 @@
 import 'server-only';
 import { supabaseServer } from '../supabase/server';
-import { drillSchema, type DiagramRequest, type Drill, type ReviewNote, type Status } from './schema';
+import { drillSchema, levelCount, type DiagramRequest, type Drill, type ReviewNote, type Status } from './schema';
 import type { DrillDetail, DrillStore, DrillSummary } from './store';
 
 // Supabase store. Queries run as the signed-in user, so RLS (admins only) applies to each one.
@@ -30,6 +30,7 @@ export class SupabaseDrillStore implements DrillStore {
         plainName: d.plainName,
         status: d.status,
         groupModel: d.groupModel,
+      levelCount: levelCount(d),
         minutes: d.minutes,
         diagram: d.diagram,
         openRequests: (open ?? []).filter((o) => o.drill_id === d.id).length,
