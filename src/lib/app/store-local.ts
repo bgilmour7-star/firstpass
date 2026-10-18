@@ -11,7 +11,7 @@ import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPr
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
 type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
-type State = { checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type State = { emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -197,5 +197,15 @@ export class LocalAppStore implements AppStore {
   }
   async coachCount(teamId: string) {
     return Math.max(1, (await read()).members.filter((m) => m.teamId === teamId).length);
+  }
+
+  async checkinEmails(teamId: string, userId: string) {
+    return !((await read()).emailsOff ?? []).includes(`${teamId}:${userId}`);
+  }
+  async setCheckinEmails(teamId: string, userId: string, on: boolean) {
+    const s = await read();
+    const key = `${teamId}:${userId}`;
+    s.emailsOff = (s.emailsOff ?? []).filter((k) => k !== key).concat(on ? [] : [key]);
+    await write(s);
   }
 }

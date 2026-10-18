@@ -269,4 +269,16 @@ export class SupabaseAppStore implements AppStore {
     const { count } = await db.from('team_members').select('user_id', { count: 'exact', head: true }).eq('team_id', teamId);
     return Math.max(1, count ?? 1);
   }
+
+  async checkinEmails(teamId: string, userId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('team_members').select('checkin_emails').eq('team_id', teamId).eq('user_id', userId).maybeSingle();
+    if (error || !data) return true; // also before the email migration has run
+    return (data as { checkin_emails: boolean }).checkin_emails;
+  }
+  async setCheckinEmails(teamId: string, _userId: string, on: boolean) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('set_checkin_emails', { team: teamId, wanted: on });
+    if (error) throw new Error(/set_checkin_emails|function|schema cache/i.test(error.message) ? 'email-migration-missing' : error.message);
+  }
 }

@@ -72,3 +72,17 @@ function calendarError(e: unknown): string {
   console.error('[calendar] saving the link failed:', m);
   return 'Couldn’t save the link. Try again in a minute.';
 }
+
+/** The coach's own after-practice email setting (decision 0010). Each coach decides for themselves. */
+export async function setCheckinEmails(on: boolean): Promise<{ ok: boolean; error?: string }> {
+  const { coach, team } = await requireTeam('/team');
+  try {
+    await (await getAppStore()).setCheckinEmails(team.id, coach.id, on);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : '';
+    if (m === 'email-migration-missing') return { ok: false, error: 'Emails aren’t set up in the database yet. Run supabase/migrations/20261021000000_checkin_emails.sql in the Supabase SQL editor.' };
+    console.error('[checkin-email] saving the setting failed:', m);
+    return { ok: false, error: 'Couldn’t save that. Try again in a minute.' };
+  }
+  return { ok: true };
+}

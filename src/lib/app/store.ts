@@ -56,6 +56,10 @@ export interface AppStore {
   saveCheckin(c: Checkin): Promise<void>;
   /** How many coaches are on the team, for "2 of 3 checked in". */
   coachCount(teamId: string): Promise<number>;
+
+  /** The after-practice email (decision 0010): on unless this coach turned it off. */
+  checkinEmails(teamId: string, userId: string): Promise<boolean>;
+  setCheckinEmails(teamId: string, userId: string, on: boolean): Promise<void>;
 }
 
 export function newShareToken(): string {

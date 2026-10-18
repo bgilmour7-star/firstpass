@@ -50,7 +50,7 @@ Design: canvas "Key screens" and "Plan next practice".
 
 ## Milestone 5 — Check-in and the next plan
 - [x] **5.1 Check-in, Strava style (decision 0007, 2026-10-18):** overall answer, lost steam and from when, standouts only (OK by default, per zone in rotations), groups ready, note; co-coaches' choices shown as initials; summary after Save; asked on Today, in Plans (last 14 days) and when opening the next plan. **Brett: run `supabase/migrations/20261019000000_checkins.sql`.**
-- [ ] Email 30 min after practice (needs an email-sending service).
+- [x] **5.3 Email 30 min after practice (decision 0010, 2026-10-18):** a database timer every 10 minutes asks the app to send what's due; one email per coach per practice from hello@firstpass.coach through Resend, linking to the check-in; skipped for coaches who already checked in or turned it off on the Team page. **Brett: add `RESEND_API_KEY` in Vercel, then run `supabase/migrations/20261021000000_checkin_emails.sql`.**
 - [x] If skipped, ask when the coach opens the next practice (with Skip).
 - [x] **5.2 Feedback on the drill and the variety check (decision 0008, 2026-10-18):** Effort and Format tags on every drill (set in drill review); what coaches said last time shown on plan blocks and drawer cards (flops and lost steam warn, Big hits get a heart and a "Kids loved it" filter, older than six weeks fades); the variety check warns inside the third block in a row that's Hard, skill-with-no-game, or the same Main skill, with Swap / Add a break / Keep as is.
 - [ ] Suggestions on the next plan from check-in data, **rules first** (too much waiting → swap for a station drill; group ready → move up a level).

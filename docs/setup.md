@@ -12,7 +12,8 @@ Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace 
    ```
    This link works even when it's opened in a different browser from the one that asked for it (e.g. inside the Gmail app).
 5. **Authentication → Emails → SMTP Settings:** sign-in emails go out through Resend (free: 3,000 a month, 100 a day), with `firstpass.coach` verified there. Host `smtp.resend.com`, port `465`, username `resend`, password a Resend API key with sending access, sender email `hello@firstpass.coach`, sender name `Firstpass`. Then **Authentication → Rate Limits:** emails per hour 30.
-6. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.
+6. **Check-in emails (decision 0010):** in Vercel, add the environment variable `RESEND_API_KEY` (a Resend key with sending access) and redeploy. Then run `supabase/migrations/20261021000000_checkin_emails.sql` in the SQL editor: it adds the email tables and starts a 10-minute timer that calls `https://firstpass.coach/api/cron/checkin-emails`. To stop the timer: `select cron.unschedule('firstpass-checkin-emails');`.
+7. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.
 
 ## Make yourself an admin
 1. Open the production URL, enter your email, click the link in the email.

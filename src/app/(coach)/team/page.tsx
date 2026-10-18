@@ -2,13 +2,15 @@ import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { TeamForm } from './form';
 import { CalendarSettings } from './calendar';
+import { EmailSettings } from './emails';
 
 export const dynamic = 'force-dynamic';
 
 export default async function TeamPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
-  const { team } = await requireTeam('/team');
+  const { coach, team } = await requireTeam('/team');
   const { welcome } = await searchParams;
-  const cal = await (await getAppStore()).calendar(team.id);
+  const store = await getAppStore();
+  const [cal, emails] = await Promise.all([store.calendar(team.id), store.checkinEmails(team.id, coach.id)]);
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="flex flex-col gap-1">
@@ -19,6 +21,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
       </div>
       <TeamForm team={team} welcome={Boolean(welcome)} />
       <CalendarSettings initial={cal?.url ?? null} syncedAt={cal?.syncedAt ?? null} />
+      {!coach.local && <EmailSettings initial={emails} email={coach.email} />}
     </div>
   );
 }
