@@ -24,6 +24,8 @@
   ],
   "groupModel": "basic",
   "part": "skill",
+  "effort": "hard",
+  "format": "line",
   "lessons": [],
   "levelName": "Skate the course",
   "levels": [

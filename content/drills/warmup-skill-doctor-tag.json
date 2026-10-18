@@ -29,6 +29,8 @@
   ],
   "groupModel": "basic",
   "part": "warmup",
+  "effort": "hard",
+  "format": "everyone",
   "lessons": [
     4,
     6

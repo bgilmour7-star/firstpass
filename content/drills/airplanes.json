@@ -30,6 +30,8 @@
   ],
   "groupModel": "basic",
   "part": "skill",
+  "effort": "medium",
+  "format": "everyone",
   "lessons": [],
   "levelName": "Two-skate glides",
   "levels": [

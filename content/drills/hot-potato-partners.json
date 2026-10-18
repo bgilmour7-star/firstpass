@@ -34,6 +34,8 @@
   ],
   "groupModel": "basic",
   "part": "skill",
+  "effort": "medium",
+  "format": "groups",
   "lessons": [],
   "levelName": "Stand still and pass with a coach",
   "levels": [

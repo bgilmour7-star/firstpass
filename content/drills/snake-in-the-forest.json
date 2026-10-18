@@ -40,6 +40,8 @@
   ],
   "groupModel": "basic",
   "part": "skill",
+  "effort": "medium",
+  "format": "line",
   "lessons": [],
   "levelName": "Skate it, then a pass",
   "levels": [

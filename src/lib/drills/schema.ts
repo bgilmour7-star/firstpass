@@ -9,6 +9,10 @@ export const FOCUS_ATTRIBUTES = ['Skating', 'Puck control', 'Passing', 'Shooting
 export const STATUSES = ['draft', 'in_review', 'approved', 'live'] as const;
 /** Which slot of a practice a drill fills (the Hockey Canada practice shape; see the season plan decision). */
 export const PARTS = ['warmup', 'skill', 'game'] as const;
+export const EFFORTS = ['easy', 'medium', 'hard'] as const;
+export const EFFORT_LABEL: Record<(typeof EFFORTS)[number], string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+export const FORMATS = ['everyone', 'groups', 'line'] as const;
+export const FORMAT_LABEL: Record<(typeof FORMATS)[number], string> = { everyone: 'Everyone moves', groups: 'Small groups', line: 'One at a time' };
 export const PART_LABEL: Record<(typeof PARTS)[number], string> = { warmup: 'Warm-up', skill: 'Skill', game: 'Fun game' };
 
 export const STATUS_LABEL: Record<Status, string> = {
@@ -71,6 +75,10 @@ const drillObject = z.object({
   // 'rotation': 2-3 zones with their own activity; every group does every zone (decision 0004).
   groupModel: z.enum(GROUP_MODELS),
   part: z.enum(PARTS).default('skill'),
+  /** How hard the kids work physically (decision 0008). Drives the variety check: a third Hard drill in a row is flagged. */
+  effort: z.enum(EFFORTS).optional(),
+  /** How the group is organised. "line" (one at a time) is the main cause of too much waiting. */
+  format: z.enum(FORMATS).optional(),
   /** The Hockey Canada U7 lessons this drill comes from, e.g. [3, 4]. Lets the season plan find it. */
   lessons: z.array(z.number().int().min(1).max(32)).default([]),
   /** A basic drill's own level (Level 1) in a few words, e.g. "Skate the course". */

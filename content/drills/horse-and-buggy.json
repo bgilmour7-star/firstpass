@@ -29,6 +29,8 @@
   ],
   "groupModel": "stations",
   "part": "skill",
+  "effort": "hard",
+  "format": "groups",
   "lessons": [
     5,
     6

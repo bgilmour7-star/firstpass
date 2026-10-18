@@ -36,14 +36,16 @@ import {
 } from '@/lib/plans/schema';
 import { deletePractice, savePractice } from '../actions';
 import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
-import { AttendanceDialog, BLOCK_TYPES, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
+import { AttendanceDialog, BLOCK_TYPES, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
+import type { DrillFeedback } from '@/lib/plans/feedback';
+import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
 import { partForSlot } from '@/lib/plans/drawer';
 
 // The plan builder (decision 0004). A sticky plan bar keeps the key actions in reach on long plans
 // (a bottom bar on phones); blocks can be added at any gap and changed to another kind in place;
 // "Who's here today" adapts every block to the groups on the ice.
 
-type Picker = { mode: 'add'; at: number; filter: DrawerFilter } | { mode: 'fill'; blockId: string; filter: DrawerFilter };
+type Picker = { mode: 'add'; at: number; filter: DrawerFilter; part?: Drill['part']; why?: string } | { mode: 'fill'; blockId: string; filter: DrawerFilter };
 type AddChoice = 'drill' | 'stations' | 'rotation' | ActivityKind | { drillId: string };
 
 const day = (iso: string) =>
@@ -65,6 +67,7 @@ export function Builder({
   known,
   lastRun,
   recent,
+  feedback,
   copiedFrom,
   initialShare,
 }: {
@@ -74,6 +77,7 @@ export function Builder({
   known: string[];
   lastRun: Record<string, string>;
   recent: string[];
+  feedback: Record<string, DrillFeedback>;
   copiedFrom: string | null;
   initialShare: { token: string; expiresAt: string } | null;
 }) {
@@ -91,6 +95,26 @@ export function Builder({
   const byId = useMemo(() => new Map(drills.map((d) => [d.id, d])), [drills]);
   const knownSet = useMemo(() => new Set(known), [known]);
   const recentSet = useMemo(() => new Set(recent), [recent]);
+  // "Keep as is" on a variety warning, remembered on this device for this plan.
+  const keepKey = `firstpass:keep:${initial.id}`;
+  const [kept, setKept] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    try {
+      setKept(new Set(JSON.parse(localStorage.getItem(keepKey) ?? '[]')));
+    } catch {
+      /* storage blocked: warnings just show again */
+    }
+  }, [keepKey]);
+  const keep = (k: string) =>
+    setKept((prev) => {
+      const next = new Set(prev).add(k);
+      try {
+        localStorage.setItem(keepKey, JSON.stringify([...next]));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
 
   // Autosave, debounced: a coach never loses a plan to a forgotten Save button.
   const first = useRef(true);
@@ -124,6 +148,7 @@ export function Builder({
   const inPlan = new Set(blocks.flatMap(drillIds));
   const fresh = [...inPlan].filter((d) => !knownSet.has(d));
   const gear = [...new Set([...inPlan].map((d) => byId.get(d)?.gear).filter((g): g is string => !!g && g !== 'None'))];
+  const variety = varietyWarnings(blocks, byId);
   const name = (b: Block) => (b.kind === 'activity' ? b.title : b.kind === 'rotation' ? ((b.drillId && byId.get(b.drillId)?.funName) ?? 'Rotation') : (byId.get(b.drillId)?.funName ?? 'Drill'));
 
   // What the drawer knows about the spot it was opened from, so it can open pre-filtered for it.
@@ -131,9 +156,10 @@ export function Builder({
     if (p.mode === 'add') {
       const left = plan.minutes - used;
       return {
-        label: `Into ${clock(p.at < blocks.length ? times[p.at] : endTime)}${p.at > 0 ? `, after ${name(blocks[p.at - 1])}` : ', at the start'}`,
-        fitsMinutes: left > 0 ? left : null,
-        part: p.filter === 'basic' ? partForSlot(p.at, blocks.length) : null,
+        label: p.why ?? `Into ${clock(p.at < blocks.length ? times[p.at] : endTime)}${p.at > 0 ? `, after ${name(blocks[p.at - 1])}` : ', at the start'}`,
+        // A break is extra time on purpose, so it isn't held to the gap.
+        fitsMinutes: left > 0 && !p.why ? left : null,
+        part: p.part ?? (p.filter === 'basic' ? partForSlot(p.at, blocks.length) : null),
       };
     }
     const b = blocks.find((x) => x.id === p.blockId);
@@ -388,6 +414,15 @@ export function Builder({
                   gc={gc}
                   byId={byId}
                   known={knownSet}
+                  feedback={b.kind !== 'activity' && b.drillId ? feedback[b.drillId] : undefined}
+                  variety={(variety.get(b.id) ?? []).filter((w) => !kept.has(`${b.id}:${w.rule}`))}
+                  onSwap={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
+                  onBreak={(rule) =>
+                    rule === 'hard'
+                      ? insert(i, newActivity('water'))
+                      : setPicker({ mode: 'add', at: i, filter: 'basic', part: 'game', why: `A fun break before ${name(b)}` })
+                  }
+                  onKeep={(rule) => keep(`${b.id}:${rule}`)}
                   update={(f) => update(b.id, f)}
                   menu={[
                     {
@@ -559,6 +594,7 @@ export function Builder({
           slot={pickerSlot(picker)}
           lastRun={lastRun}
           recent={recentSet}
+          feedback={feedback}
           onPick={pick}
           onClose={() => setPicker(null)}
         />
@@ -577,6 +613,11 @@ function BlockBody({
   gc,
   byId,
   known,
+  feedback,
+  variety,
+  onSwap,
+  onBreak,
+  onKeep,
   update,
   menu,
   onChooseDrill,
@@ -588,6 +629,11 @@ function BlockBody({
   gc: number;
   byId: Map<string, Drill>;
   known: Set<string>;
+  feedback?: DrillFeedback;
+  variety: VarietyWarning[];
+  onSwap: () => void;
+  onBreak: (rule: VarietyRule) => void;
+  onKeep: (rule: VarietyRule) => void;
   update: (f: (b: Block) => Block) => void;
   menu: Parameters<typeof Menu>[0]['items'];
   onChooseDrill: () => void;
@@ -659,6 +705,10 @@ function BlockBody({
         />
         <Menu items={menu} />
       </div>
+      {feedback && <FeedbackLine fb={feedback} />}
+      {variety.map((w) => (
+        <VarietyBox key={w.rule} w={w} onSwap={onSwap} onBreak={() => onBreak(w.rule)} onKeep={() => onKeep(w.rule)} />
+      ))}
       {b.kind === 'drill' &&
         d &&
         (d.levels.length ? (
@@ -1066,5 +1116,30 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs font-semibold text-ink-200">{label}</span>
       {children}
     </label>
+  );
+}
+
+/** A variety warning, inside the block that breaks the streak. Suggests; never changes the plan on its own. */
+function VarietyBox({ w, onSwap, onBreak, onKeep }: { w: VarietyWarning; onSwap: () => void; onBreak: () => void; onKeep: () => void }) {
+  const breakLabel = w.rule === 'hard' ? 'Add a water break before it' : w.rule === 'skill' ? 'Add a fun game before it' : null;
+  return (
+    <div role="note" className="flex flex-col gap-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 bg-surface-200 px-3.5 pb-3.5 pt-3">
+      <p className="text-sm">
+        <b className="font-semibold">{w.text}</b> <span className="text-ink-200">{w.fix}</span>
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={onSwap} className="min-h-9 rounded-full bg-ink-100 px-4 text-sm font-semibold text-surface-100 hover:opacity-90">
+          Swap
+        </button>
+        {breakLabel && (
+          <button type="button" onClick={onBreak} className="min-h-9 rounded-full border border-border-100 bg-surface-100 px-4 text-sm font-medium hover:bg-surface-300">
+            {breakLabel}
+          </button>
+        )}
+        <button type="button" onClick={onKeep} className="min-h-9 px-2 text-sm text-ink-200 hover:text-ink-100">
+          Keep as is
+        </button>
+      </div>
+    </div>
   );
 }

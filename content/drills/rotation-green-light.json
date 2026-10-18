@@ -26,6 +26,8 @@
   ],
   "groupModel": "rotation",
   "part": "skill",
+  "effort": "medium",
+  "format": "groups",
   "lessons": [
     4
   ],

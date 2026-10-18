@@ -35,6 +35,8 @@
   ],
   "groupModel": "stations",
   "part": "skill",
+  "effort": "medium",
+  "format": "groups",
   "lessons": [],
   "levelName": "",
   "levels": [],

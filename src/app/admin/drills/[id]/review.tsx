@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
-import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
+import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, EFFORTS, EFFORT_LABEL, FORMATS, FORMAT_LABEL, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
@@ -289,23 +289,22 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
             </div>
           </Section>
 
-          <Section title="Where it goes in a practice">
-            <div className="flex flex-wrap items-center gap-2">
-              <div role="radiogroup" aria-label="Part of the practice" className="inline-flex rounded-full bg-surface-300 p-[3px]">
-                {PARTS.map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    role="radio"
-                    aria-checked={draft.part === p}
-                    onClick={() => set('part', p)}
-                    className={`min-h-9 rounded-full px-4 text-sm ${draft.part === p ? 'bg-surface-100 font-semibold shadow-sm' : 'text-ink-200 hover:text-ink-100'}`}
-                  >
-                    {PART_LABEL[p]}
-                  </button>
-                ))}
+          <Section title="Where it goes in a practice" hint="Effort and format drive the variety check in the plan builder.">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Segmented label="Part of the practice" options={PARTS} labels={PART_LABEL} value={draft.part} onChange={(p) => set('part', p)} />
+                {draft.lessons.length > 0 && <span className="text-sm text-ink-200">Hockey Canada U7 Lesson {draft.lessons.join(', ')}</span>}
               </div>
-              {draft.lessons.length > 0 && <span className="text-sm text-ink-200">Hockey Canada U7 Lesson {draft.lessons.join(', ')}</span>}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <span className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">Effort</span>
+                  <Segmented label="Effort" options={EFFORTS} labels={EFFORT_LABEL} value={draft.effort} onChange={(v) => set('effort', v)} />
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">Format</span>
+                  <Segmented label="Format" options={FORMATS} labels={FORMAT_LABEL} value={draft.format} onChange={(v) => set('format', v)} />
+                </span>
+              </div>
             </div>
           </Section>
 
@@ -396,6 +395,25 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
       </div>
       {children}
     </section>
+  );
+}
+
+function Segmented<T extends string>({ label, options, labels, value, onChange }: { label: string; options: readonly T[]; labels: Record<T, string>; value: T | undefined; onChange: (v: T) => void }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="inline-flex rounded-full bg-surface-300 p-[3px]">
+      {options.map((o) => (
+        <button
+          key={o}
+          type="button"
+          role="radio"
+          aria-checked={value === o}
+          onClick={() => onChange(o)}
+          className={`min-h-9 rounded-full px-4 text-sm ${value === o ? 'bg-surface-100 font-semibold shadow-sm' : 'text-ink-200 hover:text-ink-100'}`}
+        >
+          {labels[o]}
+        </button>
+      ))}
+    </div>
   );
 }
 

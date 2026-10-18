@@ -29,6 +29,8 @@
   ],
   "groupModel": "basic",
   "part": "game",
+  "effort": "hard",
+  "format": "everyone",
   "lessons": [
     5
   ],

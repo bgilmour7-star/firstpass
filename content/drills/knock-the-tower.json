@@ -39,6 +39,8 @@
   ],
   "groupModel": "stations",
   "part": "game",
+  "effort": "hard",
+  "format": "groups",
   "lessons": [
     4,
     6

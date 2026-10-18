@@ -5,6 +5,7 @@ import { Rink } from '@/components/ds';
 import { FOCUS_ATTRIBUTES, GROUPS, type Drill, type Group } from '@/lib/drills/schema';
 import { usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
+import type { DrillFeedback } from '@/lib/plans/feedback';
 import { shareWithParents, stopSharing } from '../actions';
 
 // Small pieces of the plan builder: icons, menus, steppers, the drill drawer, sharing and
@@ -162,8 +163,8 @@ export type DrawerFilter = 'basic' | 'stations' | 'rotation';
 export type DrawerSlot = { label: string; fitsMinutes: number | null; part: Drill['part'] | null };
 
 const PART_OPTIONS: [Drill['part'] | null, string][] = [[null, 'Any part'], ['warmup', 'Warm-up'], ['skill', 'Skill'], ['game', 'Fun game']];
-const TOGGLES: [Exclude<FilterKey, 'part' | 'fits' | 'focus'>, string][] = [['known', 'Known to them'], ['isNew', 'New'], ['fresh', 'Not used lately'], ['levels', 'Has levels']];
-const LABEL: Record<FilterKey, string> = { part: 'Any part', fits: 'Fits the time', focus: 'Any skill', known: 'Known to them', isNew: 'New', fresh: 'Not used lately', levels: 'Has levels' };
+const TOGGLES: [Exclude<FilterKey, 'part' | 'fits' | 'focus'>, string][] = [['known', 'Known to them'], ['isNew', 'New'], ['fresh', 'Not used lately'], ['levels', 'Has levels'], ['loved', 'Kids loved it']];
+const LABEL: Record<FilterKey, string> = { part: 'Any part', fits: 'Fits the time', focus: 'Any skill', known: 'Known to them', isNew: 'New', fresh: 'Not used lately', levels: 'Has levels', loved: 'Kids loved it' };
 const lastDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
 
 export function LibraryDrawer({
@@ -175,6 +176,7 @@ export function LibraryDrawer({
   slot,
   lastRun,
   recent,
+  feedback = {},
   onPick,
   onClose,
 }: {
@@ -186,6 +188,7 @@ export function LibraryDrawer({
   slot: DrawerSlot;
   lastRun: Record<string, string>;
   recent: Set<string>;
+  feedback?: Record<string, DrillFeedback>;
   onPick: (id: string) => void;
   onClose: () => void;
 }) {
@@ -201,9 +204,12 @@ export function LibraryDrawer({
   }, [onClose, menu]);
 
   const pool = drills.filter((d) => d.groupModel === filter);
-  const ctx: DrawerContext = { fitsMinutes: slot.fitsMinutes, known, recent };
+  const loved = new Set(Object.entries(feedback).filter(([, f]) => f.loved).map(([id]) => id));
+  const ctx: DrawerContext = { fitsMinutes: slot.fitsMinutes, known, recent, loved };
+  // Already in the plan last, then drills that flopped or lost them last time; Big hits first.
+  const rank = (id: string) => (inPlan.has(id) ? 3 : feedback[id]?.warn ? 2 : feedback[id]?.loved ? 0 : 1);
   const list = filterDrills(pool, s, ctx).sort(
-    (a, b) => Number(inPlan.has(a.id)) - Number(inPlan.has(b.id)) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName),
+    (a, b) => rank(a.id) - rank(b.id) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName),
   );
   const widen = list.length <= 2 ? widenOptions(pool, s, ctx) : [];
   const set = (patch: Partial<DrawerState>) => {
@@ -211,7 +217,7 @@ export function LibraryDrawer({
     setMenu(null);
   };
   const toggle = (k: (typeof TOGGLES)[number][0]) => set({ [k]: !s[k], ...(k === 'known' && !s.known ? { isNew: false } : {}), ...(k === 'isNew' && !s.isNew ? { known: false } : {}) });
-  const anyOn = Boolean(s.part || s.fits || s.focus || s.known || s.isNew || s.fresh || s.levels);
+  const anyOn = Boolean(s.part || s.fits || s.focus || s.known || s.isNew || s.fresh || s.levels || s.loved);
   const isPreset = s.part === preset.part && s.fits === preset.fits && Boolean(preset.part || preset.fits);
   const hint =
     filter === 'stations'
@@ -259,7 +265,7 @@ export function LibraryDrawer({
             <button type="button" aria-haspopup="menu" aria-expanded={menu === 'focus'} onMouseDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === 'focus' ? null : 'focus')} className={chip(Boolean(s.focus))}>
               {s.focus ?? 'Any skill'} <span aria-hidden="true" className="text-[10px] opacity-70">▾</span>
             </button>
-            {TOGGLES.map(([k, label]) => {
+            {TOGGLES.filter(([k]) => k !== 'loved' || loved.size > 0 || s.loved).map(([k, label]) => {
               const n = s[k] ? null : countWith(pool, s, ctx, { [k]: true, ...(k === 'known' ? { isNew: false } : k === 'isNew' ? { known: false } : {}) });
               return (
                 <button key={k} type="button" aria-pressed={s[k]} disabled={n === 0} title={n === 0 ? 'None with your other filters' : undefined} onClick={() => toggle(k)} className={chip(s[k])}>
@@ -327,6 +333,7 @@ export function LibraryDrawer({
                         {d.lessons.length > 0 && <span>Lesson {d.lessons.join(', ')}</span>}
                       </span>
                       <span className="text-xs font-medium">{d.focus.filter((f) => f.level === 2).map((f) => f.attribute).join(' · ')}</span>
+                      {feedback[d.id] && <FeedbackLine fb={feedback[d.id]} compact />}
                       {inPlan.has(d.id) ? (
                         <span className="text-xs text-whistle-100">Already in this plan</span>
                       ) : over > 0 ? (
@@ -523,5 +530,24 @@ export function AttendanceDialog({
         </div>
       </div>
     </div>
+  );
+}
+
+/** What coaches said last time, on the drill itself (decision 0008). Older feedback fades. */
+export function FeedbackLine({ fb, compact = false }: { fb: DrillFeedback; compact?: boolean }) {
+  const tone = fb.warn ? 'text-whistle-100' : fb.loved ? 'text-good-100' : 'text-ink-200';
+  return (
+    <span className={`flex items-start gap-1.5 ${compact ? 'text-xs' : 'text-[13px]'} ${tone} ${fb.stale ? 'opacity-60' : ''}`}>
+      <svg viewBox="0 0 20 20" width="14" height="14" className="mt-[1px] shrink-0" aria-hidden="true">
+        {fb.warn ? (
+          <path d="M10 2.5 L18 16.5 H2 Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        ) : fb.loved ? (
+          <path d="M10 17s-6.5-4-6.5-8.5A3.5 3.5 0 0 1 10 6a3.5 3.5 0 0 1 6.5 2.5C16.5 13 10 17 10 17z" fill="currentColor" />
+        ) : (
+          <path d="M4 10h12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        )}
+      </svg>
+      <span className={fb.warn ? 'font-medium' : ''}>{fb.line}</span>
+    </span>
   );
 }
