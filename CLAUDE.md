@@ -7,6 +7,7 @@ U7 hockey practice planner. Coaches arrange curated drills into practice plans a
 - `docs/setup.md` — Supabase, Vercel and environment variables.
 - `docs/decisions/` — one-way-door decisions. Don't reverse one without writing a new record.
 - Product and design decisions live outside the repo: the Technical Design doc and the design-decisions log in the Firstpass Design System (see `docs/build-plan.md` → Links).
+- UX patterns every screen follows (warnings on the item, one filter row pre-set from context, suggest never apply, Strava-style capture, plain-word progress) are in the Practice Plan project doc "Firstpass UX patterns".
 
 ## Stack
 Next.js 15 (App Router, TypeScript) on Vercel · Supabase (Postgres, Auth, RLS) in `ca-central-1` · Tailwind v4 with design-system tokens · zod for validation · vitest.
