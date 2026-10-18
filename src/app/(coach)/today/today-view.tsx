@@ -82,9 +82,14 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
         )}
         {before && <p className="pt-1 font-display text-lg font-bold">Starts in {left(start)}</p>}
         {after && (
-          <p className="pt-1 text-[15px]">
-            <b>That&apos;s practice.</b> How did it go? Check-in is coming soon.
-          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-3 rounded-md bg-surface-200 px-4 py-3">
+            <p className="text-[15px]">
+              <b>That&apos;s practice.</b> How did it go?
+            </p>
+            <Link href={`/plans/${practice.id}/check-in`} className="ml-auto min-h-11 rounded-full bg-rink-100 px-5 py-2.5 text-sm font-semibold text-surface-100 hover:bg-rink-200">
+              Check in
+            </Link>
+          </div>
         )}
       </div>
 

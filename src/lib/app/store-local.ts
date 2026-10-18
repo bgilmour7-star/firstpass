@@ -5,12 +5,13 @@ import { randomUUID } from 'node:crypto';
 import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
+import type { Checkin } from '../plans/checkin';
 import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
 type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
-type State = { edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type State = { checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -184,5 +185,17 @@ export class LocalAppStore implements AppStore {
     for (const e of (s.edits ?? []).filter((x) => x.teamId === teamId).sort((a, b) => b.at.localeCompare(a.at)))
       (out[e.practiceId] ??= { edits: [], viewedAt: s.views?.[`${e.practiceId}:${userId}`] ?? null }).edits.push({ userId: e.userId, editor: e.editor, summary: e.summary, at: e.at });
     return out;
+  }
+
+  async teamCheckins(teamId: string) {
+    return ((await read()).checkins ?? []).filter((c) => c.teamId === teamId);
+  }
+  async saveCheckin(c: Checkin) {
+    const s = await read();
+    s.checkins = [...(s.checkins ?? []).filter((x) => !(x.practiceId === c.practiceId && x.userId === c.userId)), c];
+    await write(s);
+  }
+  async coachCount(teamId: string) {
+    return Math.max(1, (await read()).members.filter((m) => m.teamId === teamId).length);
   }
 }

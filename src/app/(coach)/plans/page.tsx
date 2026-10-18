@@ -4,6 +4,7 @@ import { getAppStore } from '@/lib/app/store';
 import { clock, drillIds, newDrillIds, todayUnits, totalMinutes } from '@/lib/plans/schema';
 import { syncCalendar } from '@/lib/calendar/sync';
 import { activityLine, initials } from '@/lib/plans/activity';
+import { practiceOver } from '@/lib/plans/checkin';
 import type { IceTime } from '@/lib/app/store';
 import { createPractice, ignoreIceTime, planIceTime } from './actions';
 
@@ -20,6 +21,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans.
   const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
   const [plans, drills, ice, activity] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.iceTimes(team.id), store.teamActivity(team.id, coach.id).catch(() => ({}) as Awaited<ReturnType<typeof store.teamActivity>>)]);
+  const [checkins, coachCount] = await Promise.all([store.teamCheckins(team.id).catch(() => []), store.coachCount(team.id).catch(() => 1)]);
   const names = new Map(drills.map((d) => [d.id, d.funName]));
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const upcoming = plans.filter((p) => p.date >= today).reverse();
@@ -41,13 +43,18 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const row = (p: (typeof plans)[number]) => {
     const fresh = newDrillIds(p, plans);
     const ids = [...new Set(p.blocks.flatMap(drillIds))];
-    const over = totalMinutes(p.blocks, todayUnits(team, p.attendance).length) - p.minutes;
+    const overrun = totalMinutes(p.blocks, todayUnits(team, p.attendance).length) - p.minutes;
     const it = iceFor.get(p.id);
     const empty = p.blocks.filter((b) => b.kind !== 'activity' && !b.drillId).length;
     const act = activityLine(activity[p.id], coach.id);
+    // After the ice time: invite a check-in until you've done yours, then show how many coaches have.
+    const over = practiceOver(p);
+    const here = checkins.filter((c) => c.practiceId === p.id);
+    // Only recent practices ask: a check-in from weeks ago is guesswork.
+    const needsMine = over && (Date.parse(today) - Date.parse(p.date)) / 864e5 <= 14 && !here.some((c) => c.userId === coach.id);
     return (
       <li key={p.id}>
-        <Link href={`/plans/${p.id}`} className="grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
+        <Link href={needsMine ? `/plans/${p.id}/check-in` : `/plans/${p.id}`} className="grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
           <span className="flex flex-col">
             <b className="font-display">{day(p.date)}</b>
             <span className="whitespace-nowrap font-mono text-xs text-ink-200">{clock(p.startTime)} · {p.minutes} min</span>
@@ -61,7 +68,13 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
             {fresh.size > 0 && <span className="rounded-full border border-whistle-100 px-2 py-0.5 text-xs font-semibold text-whistle-100">{fresh.size} new</span>}
             {it?.cancelled && p.date >= today && <span className="text-xs font-semibold text-flag-100">Cancelled in the calendar</span>}
             {it?.movedFrom && !it.cancelled && <span className="text-xs font-semibold text-whistle-100">Moved from {it.movedFrom}</span>}
-            {over > 0 && <span className="text-xs font-semibold text-flag-100">{over} min over</span>}
+            {overrun > 0 && !over && <span className="text-xs font-semibold text-flag-100">{overrun} min over</span>}
+            {needsMine && <span className="rounded-full bg-rink-100 px-2.5 py-0.5 text-xs font-semibold text-surface-100">Check in</span>}
+            {over && !needsMine && here.length > 0 && (
+              <span className="text-xs text-ink-200">
+                Checked in {here.length} of {Math.max(coachCount, here.length)}
+              </span>
+            )}
             <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${p.status === 'ready' ? 'border-rink-100 text-rink-100' : p.status === 'done' ? 'border-border-100 text-ink-200' : 'border-dashed border-border-100 text-ink-200'}`}>
               {STATUS[p.status]}
             </span>

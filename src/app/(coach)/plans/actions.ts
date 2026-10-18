@@ -7,6 +7,7 @@ import { getAppStore } from '@/lib/app/store';
 import { copyBlocks, practiceSchema, starterBlocks, type Practice, type Team } from '@/lib/plans/schema';
 import { SESSION_MS, describeChange, editorLabel, type Snapshot } from '@/lib/plans/activity';
 import type { AppStore } from '@/lib/app/store';
+import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
 
 const snap = (p: Practice): Snapshot => ({ blocks: p.blocks, status: p.status, attendance: p.attendance, minutes: p.minutes, startTime: p.startTime, date: p.date });
 const shortDay = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -132,5 +133,38 @@ export async function stopSharing(practiceId: string): Promise<{ ok: boolean }> 
   const p = await store.getPractice(practiceId);
   if (!p || p.teamId !== team.id) return { ok: false };
   await store.revokeShares(practiceId);
+  return { ok: true };
+}
+
+/** A coach's after-practice check-in. One per coach per practice; saving again replaces it. */
+export async function saveCheckin(practiceId: string, input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { coach, team } = await requireTeam('/plans');
+  const parsed = checkinInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: 'Something in the check-in didn’t look right. Try again.' };
+  const store = await getAppStore();
+  const p = await store.getPractice(practiceId);
+  if (!p || p.teamId !== team.id) return { ok: false, error: 'This practice belongs to another team.' };
+  const byId = new Map((await store.libraryDrills()).map((d) => [d.id, d]));
+  const units = rateUnits(p, team, byId);
+  const c = parsed.data;
+  const lost = c.steam === 'bored' || c.steam === 'tired';
+  try {
+    await store.saveCheckin({
+      ...c,
+      marks: cleanMarks(c.marks, units),
+      steamFrom: lost && c.steamFrom && units.some((u) => u.key === c.steamFrom) ? c.steamFrom : null,
+      practiceId: p.id,
+      teamId: team.id,
+      userId: coach.id,
+      editor: editorLabel(coach.email),
+      savedAt: new Date().toISOString(),
+    });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Couldn’t save the check-in.' };
+  }
+  // A practice someone has checked in on has happened.
+  if (p.status !== 'done' && practiceOver(p)) await store.savePractice({ ...p, status: 'done' });
+  revalidatePath('/plans');
+  revalidatePath(`/plans/${p.id}/check-in`);
   return { ok: true };
 }

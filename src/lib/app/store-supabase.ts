@@ -4,6 +4,7 @@ import { supabaseServer } from '../supabase/server';
 import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
+import { checkinInput, type Checkin } from '../plans/checkin';
 import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
@@ -243,5 +244,29 @@ export class SupabaseAppStore implements AppStore {
     for (const e of edits ?? [])
       (out[e.practice_id] ??= { edits: [], viewedAt: seen.get(e.practice_id) ?? null }).edits.push({ userId: e.user_id, editor: e.editor, summary: e.summary, at: e.at });
     return out;
+  }
+
+  // Check-ins: if the migration hasn't run, reads come back empty and a save explains what to run.
+  async teamCheckins(teamId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('practice_checkins').select('*').eq('team_id', teamId);
+    if (error || !data) return [];
+    return data.map((r): Checkin => ({
+      ...checkinInput.parse({ overall: r.overall, steam: r.steam, steamFrom: r.steam_from, ready: r.ready ?? [], note: r.note ?? '', marks: r.marks ?? [] }),
+      practiceId: r.practice_id, teamId: r.team_id, userId: r.user_id, editor: r.editor, savedAt: r.saved_at,
+    }));
+  }
+  async saveCheckin(c: Checkin) {
+    const db = await supabaseServer();
+    const { error } = await db.from('practice_checkins').upsert({
+      practice_id: c.practiceId, team_id: c.teamId, user_id: c.userId, editor: c.editor,
+      overall: c.overall, steam: c.steam, steam_from: c.steamFrom, ready: c.ready, note: c.note, marks: c.marks, saved_at: c.savedAt,
+    });
+    if (error) throw new Error(/practice_checkins/.test(error.message) ? 'Check-ins need a one-time database update (supabase/migrations/20261019000000_checkins.sql).' : error.message);
+  }
+  async coachCount(teamId: string) {
+    const db = await supabaseServer();
+    const { count } = await db.from('team_members').select('user_id', { count: 'exact', head: true }).eq('team_id', teamId);
+    return Math.max(1, count ?? 1);
   }
 }

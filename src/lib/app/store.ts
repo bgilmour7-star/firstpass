@@ -4,6 +4,7 @@ import { usingSupabase } from '../drills/store';
 import type { Practice, Team } from '../plans/schema';
 import type { IceEvent } from '../calendar/ics';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
+import type { Checkin } from '../plans/checkin';
 
 // The seam between coach screens and storage (teams, practices, the live drill library).
 // Supabase in production (RLS by team membership); a JSON file in .local/ in local mode.
@@ -50,6 +51,11 @@ export interface AppStore {
   markViewed(practiceId: string, userId: string): Promise<void>;
   /** Each practice's edits (newest first) and when this coach last looked at it. */
   teamActivity(teamId: string, userId: string): Promise<Record<string, PracticeActivity>>;
+  /** Every coach's check-ins for the team (small: a few rows per practice). */
+  teamCheckins(teamId: string): Promise<Checkin[]>;
+  saveCheckin(c: Checkin): Promise<void>;
+  /** How many coaches are on the team, for "2 of 3 checked in". */
+  coachCount(teamId: string): Promise<number>;
 }
 
 export function newShareToken(): string {

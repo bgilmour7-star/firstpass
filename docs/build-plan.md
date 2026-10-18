@@ -48,8 +48,9 @@ Design: canvas "Key screens" and "Plan next practice".
 - [x] Printout: letter pages, black and white, print diagrams, rotation table with whistle times.
 
 ## Milestone 5 — Check-in and the next plan
-- [ ] Push/email 30 min after practice; one tap per drill (Flopped / OK / Big hit), reasons, "Ready for harder?" by group.
-- [ ] If skipped, ask when the coach opens the next practice.
+- [x] **5.1 Check-in, Strava style (decision 0007, 2026-10-18):** overall answer, lost steam and from when, standouts only (OK by default, per zone in rotations), groups ready, note; co-coaches' choices shown as initials; summary after Save; asked on Today, in Plans (last 14 days) and when opening the next plan. **Brett: run `supabase/migrations/20261019000000_checkins.sql`.**
+- [ ] Email 30 min after practice (needs an email-sending service).
+- [x] If skipped, ask when the coach opens the next practice (with Skip).
 - [ ] Suggestions on the next plan from check-in data, **rules first** (too much waiting → swap for a station drill; group ready → move up a level).
 - [ ] Only then: AI suggestions through one module (Vercel AI SDK, default Claude Haiku, model in config), validated against the live library, with a 20-case eval set and a per-team monthly cap.
 
