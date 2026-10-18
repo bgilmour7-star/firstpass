@@ -15,7 +15,7 @@ const STATUS = { draft: 'Draft', ready: 'Ready', done: 'Done' } as const;
 export default async function Plans({ searchParams }: { searchParams: Promise<{ error?: string; hidden?: string; all?: string }> }) {
   const { coach, team } = await requireTeam('/plans');
   const { error, hidden, all } = await searchParams;
-  const limit = all ? 200 : 6;
+  const limit = all ? 200 : 10;
   const store = await getAppStore();
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans.
   const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
@@ -31,6 +31,12 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const toPlan = ice.filter((x) => x.date >= today && !x.cancelled && !(x.practiceId && planIds.has(x.practiceId)) && x.kind !== 'other');
   const shown = toPlan.filter((x) => (hidden ? x.ignored : !x.ignored));
   const hiddenCount = toPlan.filter((x) => x.ignored).length;
+  type Coming = { kind: 'plan'; at: string; p: (typeof plans)[number] } | { kind: 'ice'; at: string; x: IceTime };
+  const coming: Coming[] = (
+    hidden
+      ? shown.map((x): Coming => ({ kind: 'ice', at: `${x.date} ${x.startTime}`, x }))
+      : [...upcoming.map((p): Coming => ({ kind: 'plan', at: `${p.date} ${p.startTime}`, p })), ...shown.map((x): Coming => ({ kind: 'ice', at: `${x.date} ${x.startTime}`, x }))]
+  ).sort((a, b) => a.at.localeCompare(b.at));
 
   const row = (p: (typeof plans)[number]) => {
     const fresh = newDrillIds(p, plans);
@@ -117,7 +123,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
           </Link>
         </p>
       )}
-      {sync.status === 'none' && !ice.length ? (
+      {sync.status === 'none' && !ice.length && (
         <p className="rounded-md bg-surface-200 px-4 py-3 text-sm">
           Add your team&apos;s calendar link in{' '}
           <Link href="/team" className="font-medium text-rink-100 hover:underline">
@@ -125,38 +131,30 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
           </Link>{' '}
           and your ice times show up here, ready to plan.
         </p>
-      ) : (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-[17px] font-extrabold">{hidden ? 'Hidden ice times' : 'Ice times to plan'}</h2>
-            {(hiddenCount > 0 || hidden) && (
-              <Link href={hidden ? '/plans' : '/plans?hidden=1'} className="text-sm text-rink-100 hover:underline">
-                {hidden ? 'Back' : `${hiddenCount} hidden`}
-              </Link>
-            )}
-          </div>
-          {shown.length ? (
-            <ul className="grid gap-2">
-              {shown.slice(0, limit).map((x) => (
-                <IceRow key={x.id} x={x} />
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-ink-200">{hidden ? 'Nothing hidden.' : 'Every upcoming ice time has a plan.'}</p>
-          )}
-          {shown.length > limit && (
-            <Link href={hidden ? '/plans?hidden=1&all=1' : '/plans?all=1'} className="w-fit text-sm text-rink-100 hover:underline">
-              Show {shown.length - limit} more this season
-            </Link>
-          )}
-        </section>
       )}
 
+      {/* One list in date and time order: planned practices and ice times still to plan, side by side. */}
       <section className="flex flex-col gap-3">
-        <h2 className="text-[17px] font-extrabold">Coming up</h2>
-        {upcoming.length ? <ul className="grid gap-2">{upcoming.map(row)}</ul> : <p className="text-sm text-ink-200">Nothing planned yet.</p>}
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-[17px] font-extrabold">{hidden ? 'Hidden ice times' : 'Coming up'}</h2>
+          {(hiddenCount > 0 || hidden) && (
+            <Link href={hidden ? '/plans' : '/plans?hidden=1'} className="text-sm text-rink-100 hover:underline">
+              {hidden ? 'Back' : `${hiddenCount} hidden`}
+            </Link>
+          )}
+        </div>
+        {coming.length ? (
+          <ul className="grid gap-2">{coming.slice(0, limit).map((c) => (c.kind === 'plan' ? row(c.p) : <IceRow key={c.x.id} x={c.x} />))}</ul>
+        ) : (
+          <p className="text-sm text-ink-200">{hidden ? 'Nothing hidden.' : 'Nothing coming up. Plan a practice above.'}</p>
+        )}
+        {coming.length > limit && (
+          <Link href={hidden ? '/plans?hidden=1&all=1' : '/plans?all=1'} className="w-fit text-sm text-rink-100 hover:underline">
+            Show {coming.length - limit} more this season
+          </Link>
+        )}
       </section>
-      {past.length > 0 && (
+      {!hidden && past.length > 0 && (
         <section className="flex flex-col gap-3">
           <h2 className="text-[17px] font-extrabold">Earlier</h2>
           <ul className="grid gap-2">{past.map(row)}</ul>
