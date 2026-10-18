@@ -36,7 +36,8 @@ import {
 } from '@/lib/plans/schema';
 import { deletePractice, savePractice } from '../actions';
 import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
-import { AttendanceDialog, BLOCK_TYPES, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter } from './parts';
+import { AttendanceDialog, BLOCK_TYPES, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
+import { partForSlot } from '@/lib/plans/drawer';
 
 // The plan builder (decision 0004). A sticky plan bar keeps the key actions in reach on long plans
 // (a bottom bar on phones); blocks can be added at any gap and changed to another kind in place;
@@ -62,6 +63,8 @@ export function Builder({
   team,
   drills,
   known,
+  lastRun,
+  recent,
   copiedFrom,
   initialShare,
 }: {
@@ -69,6 +72,8 @@ export function Builder({
   team: Team;
   drills: Drill[];
   known: string[];
+  lastRun: Record<string, string>;
+  recent: string[];
   copiedFrom: string | null;
   initialShare: { token: string; expiresAt: string } | null;
 }) {
@@ -85,6 +90,7 @@ export function Builder({
   const [, start] = useTransition();
   const byId = useMemo(() => new Map(drills.map((d) => [d.id, d])), [drills]);
   const knownSet = useMemo(() => new Set(known), [known]);
+  const recentSet = useMemo(() => new Set(recent), [recent]);
 
   // Autosave, debounced: a coach never loses a plan to a forgotten Save button.
   const first = useRef(true);
@@ -119,6 +125,25 @@ export function Builder({
   const fresh = [...inPlan].filter((d) => !knownSet.has(d));
   const gear = [...new Set([...inPlan].map((d) => byId.get(d)?.gear).filter((g): g is string => !!g && g !== 'None'))];
   const name = (b: Block) => (b.kind === 'activity' ? b.title : b.kind === 'rotation' ? ((b.drillId && byId.get(b.drillId)?.funName) ?? 'Rotation') : (byId.get(b.drillId)?.funName ?? 'Drill'));
+
+  // What the drawer knows about the spot it was opened from, so it can open pre-filtered for it.
+  function pickerSlot(p: Picker): DrawerSlot {
+    if (p.mode === 'add') {
+      const left = plan.minutes - used;
+      return {
+        label: `Into ${clock(p.at < blocks.length ? times[p.at] : endTime)}${p.at > 0 ? `, after ${name(blocks[p.at - 1])}` : ', at the start'}`,
+        fitsMinutes: left > 0 ? left : null,
+        part: p.filter === 'basic' ? partForSlot(p.at, blocks.length) : null,
+      };
+    }
+    const b = blocks.find((x) => x.id === p.blockId);
+    const current = b && b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
+    return {
+      label: b ? `For the ${b.minutes}-min ${b.kind === 'activity' ? 'block' : b.kind} block${current ? `, instead of ${current.funName}` : ''}` : '',
+      fitsMinutes: b ? b.minutes : null,
+      part: p.filter === 'basic' && current ? current.part : null,
+    };
+  }
 
   const setBlocks = (f: (b: Block[]) => Block[]) => setPlan((p) => ({ ...p, blocks: f(p.blocks) }));
   const update = (id: string, f: (b: Block) => Block) => setBlocks((bs) => bs.map((b) => (b.id === id ? f(b) : b)));
@@ -531,6 +556,9 @@ export function Builder({
           inPlan={inPlan}
           title={picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a stations drill' : picker.mode === 'fill' ? 'Choose a drill' : 'Add a drill'}
           filter={picker.filter}
+          slot={pickerSlot(picker)}
+          lastRun={lastRun}
+          recent={recentSet}
           onPick={pick}
           onClose={() => setPicker(null)}
         />

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Rink } from '@/components/ds';
 import { FOCUS_ATTRIBUTES, GROUPS, type Drill, type Group } from '@/lib/drills/schema';
 import { usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
+import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
 import { shareWithParents, stopSharing } from '../actions';
 
 // Small pieces of the plan builder: icons, menus, steppers, the drill drawer, sharing and
@@ -23,7 +24,8 @@ export const Icon = {
   activity: (s?: number) => svg(<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z" />, s),
   print: (s?: number) => svg(<><path d="M6 9V3h12v6" /><rect x="3" y="9" width="18" height="8" rx="2" /><path d="M6 14h12v7H6z" /></>, s),
   share: (s?: number) => svg(<><path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" /></>, s),
-  rinkside: (s?: number) => svg(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>, s),
+  // Rink-side is the phone view used on the bench: a phone, not a calendar.
+  rinkside: (s?: number) => svg(<><rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M10.5 18.5h3" /></>, s),
   plus: (s?: number) => svg(<path d="M12 5v14M5 12h14" />, s),
   grip: (s?: number) => svg(<><circle cx="9" cy="6" r="1" /><circle cx="15" cy="6" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="18" r="1" /><circle cx="15" cy="18" r="1" /></>, s),
 };
@@ -61,7 +63,8 @@ export function useDismiss(open: boolean, close: () => void) {
   useEffect(() => {
     if (!open) return;
     const key = (e: KeyboardEvent) => e.key === 'Escape' && close();
-    const click = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && close();
+    // A hidden popover (the desktop add-picker on a phone, say) ignores taps, or it would close the sheet the tap was meant for.
+    const click = (e: MouseEvent) => ref.current && ref.current.getClientRects().length > 0 && !ref.current.contains(e.target as Node) && close();
     window.addEventListener('keydown', key);
     window.addEventListener('mousedown', click);
     return () => {
@@ -155,6 +158,13 @@ export function PanelSec({ title, right, children }: { title: string; right?: st
 
 /** Each block kind lists only its own kind of drill (decision 0006). */
 export type DrawerFilter = 'basic' | 'stations' | 'rotation';
+/** The spot the drawer was opened for: where it is, the minutes it has and the part of practice it suggests. */
+export type DrawerSlot = { label: string; fitsMinutes: number | null; part: Drill['part'] | null };
+
+const PART_OPTIONS: [Drill['part'] | null, string][] = [[null, 'Any part'], ['warmup', 'Warm-up'], ['skill', 'Skill'], ['game', 'Fun game']];
+const TOGGLES: [Exclude<FilterKey, 'part' | 'fits' | 'focus'>, string][] = [['known', 'Known to them'], ['isNew', 'New'], ['fresh', 'Not used lately'], ['levels', 'Has levels']];
+const LABEL: Record<FilterKey, string> = { part: 'Any part', fits: 'Fits the time', focus: 'Any skill', known: 'Known to them', isNew: 'New', fresh: 'Not used lately', levels: 'Has levels' };
+const lastDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
 
 export function LibraryDrawer({
   drills,
@@ -162,6 +172,9 @@ export function LibraryDrawer({
   inPlan,
   title,
   filter,
+  slot,
+  lastRun,
+  recent,
   onPick,
   onClose,
 }: {
@@ -170,67 +183,184 @@ export function LibraryDrawer({
   inPlan: Set<string>;
   title: string;
   filter: DrawerFilter;
+  slot: DrawerSlot;
+  lastRun: Record<string, string>;
+  recent: Set<string>;
   onPick: (id: string) => void;
   onClose: () => void;
 }) {
-  const [q, setQ] = useState('');
-  const [focus, setFocus] = useState<string | null>(null);
+  // Opens pre-set from the slot: its part of practice and the minutes it has.
+  const preset: DrawerState = { ...EMPTY, part: slot.part, fits: slot.fitsMinutes != null };
+  const [s, setS] = useState<DrawerState>(preset);
+  const [menu, setMenu] = useState<'part' | 'focus' | null>(null);
+  const menuRef = useDismiss(menu !== null, () => setMenu(null));
   useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && (menu ? setMenu(null) : onClose());
     window.addEventListener('keydown', esc);
     return () => window.removeEventListener('keydown', esc);
-  }, [onClose]);
-  const list = drills
-    .filter((d) => d.groupModel === filter)
-    .filter((d) => !focus || d.focus.some((f) => f.attribute === focus && f.level === 2))
-    .filter((d) => !q || `${d.funName} ${d.plainName}`.toLowerCase().includes(q.toLowerCase()))
-    .sort((a, b) => Number(inPlan.has(a.id)) - Number(inPlan.has(b.id)) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName));
+  }, [onClose, menu]);
+
+  const pool = drills.filter((d) => d.groupModel === filter);
+  const ctx: DrawerContext = { fitsMinutes: slot.fitsMinutes, known, recent };
+  const list = filterDrills(pool, s, ctx).sort(
+    (a, b) => Number(inPlan.has(a.id)) - Number(inPlan.has(b.id)) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName),
+  );
+  const widen = list.length <= 2 ? widenOptions(pool, s, ctx) : [];
+  const set = (patch: Partial<DrawerState>) => {
+    setS((x) => ({ ...x, ...patch }));
+    setMenu(null);
+  };
+  const toggle = (k: (typeof TOGGLES)[number][0]) => set({ [k]: !s[k], ...(k === 'known' && !s.known ? { isNew: false } : {}), ...(k === 'isNew' && !s.isNew ? { known: false } : {}) });
+  const anyOn = Boolean(s.part || s.fits || s.focus || s.known || s.isNew || s.fresh || s.levels);
+  const isPreset = s.part === preset.part && s.fits === preset.fits && Boolean(preset.part || preset.fits);
   const hint =
     filter === 'stations'
       ? 'Each group plays its own version at its own spot, all at once.'
       : filter === 'rotation'
         ? 'Zones and activities ready to go. Everyone does every zone.'
-        : 'Drills the whole group does together. Some have levels you can run one after another.';
+        : '';
+  const chip = (on: boolean) => `inline-flex min-h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[13px] disabled:cursor-default disabled:opacity-[var(--opacity-disabled)] ${on ? 'border-ink-100 bg-ink-100 text-surface-100' : 'border-border-100 hover:bg-surface-200 disabled:hover:bg-transparent'}`;
+  const menuItems: [string | null, string][] = menu === 'part' ? PART_OPTIONS : [[null, 'Any skill'], ...FOCUS_ATTRIBUTES.map((f): [string, string] => [f, f])];
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" aria-label="Close" className="absolute inset-0 bg-ink-100/40" onClick={onClose} />
-      <div className="relative flex h-full w-full max-w-md flex-col gap-3 overflow-y-auto bg-surface-100 p-4 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold">{title}</h2>
-          <button type="button" onClick={onClose} className="min-h-9 rounded-full px-3 text-sm hover:bg-surface-200">
-            Close
-          </button>
-        </div>
-        <input autoFocus placeholder="Search drills" className={input} value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
-          {[null, ...FOCUS_ATTRIBUTES].map((a) => (
-            <button key={a ?? 'all'} type="button" aria-pressed={focus === a} onClick={() => setFocus(a)} className={`min-h-8 whitespace-nowrap rounded-full px-3 text-xs ${focus === a ? 'bg-ink-100 text-surface-100' : 'border border-border-100'}`}>
-              {a ?? 'All'}
+      <div className="relative flex h-full w-full max-w-md flex-col bg-surface-100 shadow-xl">
+        <div className="relative flex flex-col gap-3 border-b border-border-100 p-4 pb-3">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0">
+              <h2 className="text-lg font-extrabold">{title}</h2>
+              {slot.label && (
+                <p className="text-[13px] text-ink-200">
+                  {slot.label}
+                  {isPreset && ' · filtered for this spot'}
+                </p>
+              )}
+            </div>
+            <button type="button" onClick={onClose} className="ml-auto min-h-11 rounded-full px-3 text-sm hover:bg-surface-200">
+              Close
             </button>
-          ))}
-        </div>
-        <p className="text-xs text-ink-200">Known to the kids first. {hint}</p>
-        <ul className="flex flex-col gap-2">
-          {list.map((d) => (
-            <li key={d.id}>
-              <button type="button" onClick={() => onPick(d.id)} className={`grid w-full grid-cols-[110px_minmax(0,1fr)] items-start gap-3 rounded-md border border-border-100 p-2 text-left hover:border-ink-200 ${inPlan.has(d.id) ? 'opacity-50' : ''}`}>
-                <Rink spec={d.diagram} title={d.funName} detail="thumb" />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <b className="font-display">{d.funName}</b>
-                    {!known.has(d.id) && <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>}
-                  </span>
-                  <span className="text-xs text-ink-200">
-                    {d.plainName} · {d.minutes} min{d.groupModel === 'rotation' ? ' a zone' : ''}{d.groupModel === 'basic' && d.levels.length ? ` · ${d.levels.length + 1} levels` : d.groupModel === 'rotation' ? ` · ${d.zones?.length ?? 0} zones` : ''}
-                  </span>
-                  <span className="text-xs">{d.focus.filter((f) => f.level === 2).map((f) => f.attribute).join(' · ')}</span>
-                  {inPlan.has(d.id) && <span className="text-xs text-ink-200">Already in this plan</span>}
-                </span>
+          </div>
+          <input autoFocus type="search" aria-label="Search drills" placeholder="Search drills" className={input} value={s.q} onChange={(e) => setS((x) => ({ ...x, q: e.target.value }))} />
+          {/* All filters on one row, scrolling sideways when it doesn't fit. */}
+          <div
+            role="group"
+            aria-label="Filters"
+            className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5 [mask-image:linear-gradient(90deg,transparent,#000_16px,#000_calc(100%-28px),transparent)] [scrollbar-width:none]"
+          >
+            <button type="button" aria-haspopup="menu" aria-expanded={menu === 'part'} onMouseDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === 'part' ? null : 'part')} className={chip(Boolean(s.part))}>
+              {PART_OPTIONS.find(([k]) => k === s.part)?.[1]} <span aria-hidden="true" className="text-[10px] opacity-70">▾</span>
+            </button>
+            {slot.fitsMinutes != null && (
+              <button type="button" aria-pressed={s.fits} onClick={() => set({ fits: !s.fits })} className={chip(s.fits)}>
+                Fits {slot.fitsMinutes} min{s.fits && <span aria-hidden="true">×</span>}
               </button>
-            </li>
-          ))}
-          {list.length === 0 && <li className="text-sm text-ink-200">{filter === 'rotation' ? 'No rotations in the library yet. Admins add them in drill review.' : 'No drills match.'}</li>}
-        </ul>
+            )}
+            <button type="button" aria-haspopup="menu" aria-expanded={menu === 'focus'} onMouseDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === 'focus' ? null : 'focus')} className={chip(Boolean(s.focus))}>
+              {s.focus ?? 'Any skill'} <span aria-hidden="true" className="text-[10px] opacity-70">▾</span>
+            </button>
+            {TOGGLES.map(([k, label]) => {
+              const n = s[k] ? null : countWith(pool, s, ctx, { [k]: true, ...(k === 'known' ? { isNew: false } : k === 'isNew' ? { known: false } : {}) });
+              return (
+                <button key={k} type="button" aria-pressed={s[k]} disabled={n === 0} title={n === 0 ? 'None with your other filters' : undefined} onClick={() => toggle(k)} className={chip(s[k])}>
+                  {label}
+                  {s[k] ? <span aria-hidden="true">×</span> : <span className="font-mono text-xs opacity-70">{n}</span>}
+                </button>
+              );
+            })}
+            {anyOn && (
+              <button type="button" onClick={() => set({ ...EMPTY, q: s.q })} className={`${chip(false)} border-dashed text-ink-200`}>
+                Clear
+              </button>
+            )}
+          </div>
+          {menu && (
+            <div ref={menuRef} role="menu" className="absolute left-4 top-full z-10 -mt-1 flex min-w-48 flex-col rounded-md border border-border-100 bg-surface-100 p-1 shadow-md">
+              {menuItems.map(([k, label]) => {
+                const on = (menu === 'part' ? s.part : s.focus) === k;
+                const n = countWith(pool, s, ctx, { [menu]: k });
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={on}
+                    disabled={n === 0 && !on}
+                    onClick={() => set({ [menu]: k } as Partial<DrawerState>)}
+                    className={`flex min-h-10 items-center justify-between gap-4 rounded-sm px-3 text-left text-sm hover:bg-surface-200 disabled:opacity-[var(--opacity-disabled)] disabled:hover:bg-transparent ${on ? 'font-semibold' : ''}`}
+                  >
+                    {label}
+                    <span className="font-mono text-xs text-ink-200">{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4 pt-3" aria-live="polite">
+          <p className="text-[13px] text-ink-200">
+            <b className="text-ink-100">{list.length}</b> of {pool.length} {filter === 'rotation' ? 'rotations' : filter === 'stations' ? 'stations drills' : 'drills'}
+            {hint && ` · ${hint}`}
+          </p>
+          <ul className="flex flex-col">
+            {list.map((d) => {
+              const over = slot.fitsMinutes != null ? blockMinutes(d) - slot.fitsMinutes : 0;
+              return (
+                <li key={d.id} className="border-t border-border-100">
+                  <button type="button" onClick={() => onPick(d.id)} className={`grid w-full grid-cols-[120px_minmax(0,1fr)] items-start gap-3 rounded-md py-3 text-left hover:bg-surface-200/60 ${inPlan.has(d.id) ? 'opacity-60' : ''}`}>
+                    <Rink spec={d.diagram} title={d.funName} detail="thumb" />
+                    <span className="flex min-w-0 flex-col gap-1">
+                      <b className="font-display text-base leading-5">{d.funName}</b>
+                      <span className="text-xs text-ink-200">{d.plainName}</span>
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-200">
+                        <span className="font-mono text-ink-100">
+                          {d.minutes} min{d.groupModel === 'rotation' ? ' a zone' : ''}
+                        </span>
+                        {known.has(d.id) ? (
+                          <span className="rounded-full bg-surface-300 px-1.5 text-[11px] font-semibold text-ink-100">Known{lastRun[d.id] ? ` · last ${lastDate(lastRun[d.id])}` : ''}</span>
+                        ) : (
+                          <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>
+                        )}
+                        {d.groupModel === 'basic' && d.levels.length > 0 && <span>{d.levels.length + 1} levels</span>}
+                        {d.groupModel === 'rotation' && <span>{d.zones?.length ?? 0} zones</span>}
+                        {d.lessons.length > 0 && <span>Lesson {d.lessons.join(', ')}</span>}
+                      </span>
+                      <span className="text-xs font-medium">{d.focus.filter((f) => f.level === 2).map((f) => f.attribute).join(' · ')}</span>
+                      {inPlan.has(d.id) ? (
+                        <span className="text-xs text-whistle-100">Already in this plan</span>
+                      ) : over > 0 ? (
+                        <span className="text-xs text-whistle-100">{over} min longer than the gap. You can shorten it once it’s in.</span>
+                      ) : null}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {pool.length === 0 && <p className="text-sm text-ink-200">{filter === 'rotation' ? 'No rotations in the library yet. Admins add them in drill review.' : 'No drills in the library yet.'}</p>}
+          {/* Never a dead end: say which filter is hiding the rest and offer to turn it off. */}
+          {pool.length > 0 && widen.length > 0 && (
+            <div className="mt-2 flex flex-col gap-2 rounded-md bg-surface-200 p-3">
+              <p className="text-[13px]">
+                {list.length === 0 ? 'Nothing matches all of these.' : list.length === 1 ? 'Only one matches.' : 'Only two match.'}{' '}
+                {widen[0].key === 'fits' ? `${widen[0].more} more if they run longer than ${slot.fitsMinutes} min.` : `${widen[0].more} more without “${s[widen[0].key] && widen[0].key === 'part' ? PART_OPTIONS.find(([k]) => k === s.part)?.[1] : widen[0].key === 'focus' ? s.focus : LABEL[widen[0].key]}”.`}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {widen.map((w) => (
+                  <button
+                    key={w.key}
+                    type="button"
+                    onClick={() => set({ [w.key]: w.key === 'part' || w.key === 'focus' ? null : false } as Partial<DrawerState>)}
+                    className="min-h-9 rounded-full border border-border-100 bg-surface-100 px-3 text-[13px] font-medium hover:border-ink-200"
+                  >
+                    {w.key === 'fits' ? 'Show longer ones' : w.key === 'part' ? 'Any part' : w.key === 'focus' ? 'Any skill' : `Turn off “${LABEL[w.key]}”`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

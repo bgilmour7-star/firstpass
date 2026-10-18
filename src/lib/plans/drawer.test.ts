@@ -1,0 +1,44 @@
+import { describe, expect, it } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { drillSchema, type Drill } from '../drills/schema';
+import { EMPTY, blockMinutes, countWith, filterDrills, partForSlot, widenOptions, type DrawerContext } from './drawer';
+
+const dir = join(__dirname, '../../../content/drills');
+const all: Drill[] = readdirSync(dir).map((f) => drillSchema.parse(JSON.parse(readFileSync(join(dir, f), 'utf8'))));
+const basic = all.filter((d) => d.groupModel === 'basic');
+const ctx: DrawerContext = { fitsMinutes: 8, known: new Set(['game-garbage-trucks', 'airplanes']), recent: new Set(['airplanes']) };
+
+describe('add-a-drill drawer filters', () => {
+  it('suggests a part from the slot', () => {
+    expect(partForSlot(0, 6)).toBe('warmup');
+    expect(partForSlot(3, 6)).toBe('skill');
+    expect(partForSlot(5, 6)).toBe('game');
+    expect(partForSlot(6, 6)).toBe('game');
+  });
+
+  it('opens on a fun game that fits 8 minutes', () => {
+    const list = filterDrills(basic, { ...EMPTY, part: 'game', fits: true }, ctx);
+    expect(list.map((d) => d.id)).toEqual(['game-garbage-trucks']);
+  });
+
+  it('says which filter is hiding the rest', () => {
+    const w = widenOptions(basic, { ...EMPTY, part: 'game', fits: true }, ctx);
+    expect(w[0]).toEqual({ key: 'fits', more: 2 });
+  });
+
+  it('known and new split the library', () => {
+    const k = countWith(basic, EMPTY, ctx, { known: true });
+    const n = countWith(basic, EMPTY, ctx, { isNew: true });
+    expect(k + n).toBe(basic.length);
+  });
+
+  it('not used lately leaves out the last two practices', () => {
+    expect(filterDrills(basic, { ...EMPTY, fresh: true }, ctx).some((d) => d.id === 'airplanes')).toBe(false);
+  });
+
+  it('a rotation fits by its total time', () => {
+    const r = all.find((d) => d.groupModel === 'rotation')!;
+    expect(blockMinutes(r)).toBe(r.minutes * r.zones!.length);
+  });
+});

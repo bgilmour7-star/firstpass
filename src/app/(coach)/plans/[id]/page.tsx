@@ -15,7 +15,12 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   if (!practice || practice.teamId !== team.id) notFound();
   const [all, drills, share] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.activeShare(practice.id)]);
   // Drills the kids have done before this practice ("known"), for the New tag and the library drawer.
-  const known = [...new Set(all.filter((p) => p.id !== practice.id && p.date < practice.date).flatMap((p) => p.blocks.flatMap(drillIds)))];
+  const earlier = all.filter((p) => p.id !== practice.id && p.date < practice.date).sort((a, b) => b.date.localeCompare(a.date));
+  const known = [...new Set(earlier.flatMap((p) => p.blocks.flatMap(drillIds)))];
+  // For the drawer: when each drill last ran, and what ran in the last two practices ("not used lately").
+  const lastRun: Record<string, string> = {};
+  for (const p of earlier) for (const d of p.blocks.flatMap(drillIds)) lastRun[d] ??= p.date;
+  const recent = [...new Set(earlier.slice(0, 2).flatMap((p) => p.blocks.flatMap(drillIds)))];
   const byId = new Map(drills.map((d) => [d.id, d]));
-  return <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} copiedFrom={copied ?? null} initialShare={share} />;
+  return <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} lastRun={lastRun} recent={recent} copiedFrom={copied ?? null} initialShare={share} />;
 }
