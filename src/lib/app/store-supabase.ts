@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { supabaseServer } from '../supabase/server';
 import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
+import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
@@ -206,5 +207,41 @@ export class SupabaseAppStore implements AppStore {
     if (patch.practiceId !== undefined) row.practice_id = patch.practiceId;
     const { error } = await db.from('ice_times').update(row).eq('id', id);
     if (error) throw error;
+  }
+
+  // The activity log is extra: if its migration hasn't run, plans still save and the list still shows.
+  async latestEdit(practiceId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('practice_edits').select('id, user_id, at, base').eq('practice_id', practiceId).order('at', { ascending: false }).limit(1).maybeSingle();
+    if (error || !data) return null;
+    return { id: data.id as string, userId: data.user_id as string | null, at: data.at as string, base: (data.base as Snapshot | null) ?? null };
+  }
+  async addEdit(e: { practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null }) {
+    const db = await supabaseServer();
+    const { error } = await db.from('practice_edits').insert({ practice_id: e.practiceId, team_id: e.teamId, user_id: e.userId, editor: e.editor, summary: e.summary, base: e.base });
+    if (error) console.error('[store] practice_edits:', error.message);
+  }
+  async updateEdit(id: string, patch: { summary: string; at: string }) {
+    const db = await supabaseServer();
+    const { error } = await db.from('practice_edits').update(patch).eq('id', id);
+    if (error) console.error('[store] practice_edits:', error.message);
+  }
+  async markViewed(practiceId: string, userId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.from('practice_views').upsert({ practice_id: practiceId, user_id: userId, viewed_at: new Date().toISOString() });
+    if (error) console.error('[store] practice_views:', error.message);
+  }
+  async teamActivity(teamId: string, userId: string) {
+    const db = await supabaseServer();
+    const [{ data: edits, error }, { data: views }] = await Promise.all([
+      db.from('practice_edits').select('practice_id, user_id, editor, summary, at').eq('team_id', teamId).order('at', { ascending: false }).limit(500),
+      db.from('practice_views').select('practice_id, viewed_at').eq('user_id', userId),
+    ]);
+    const out: Record<string, PracticeActivity> = {};
+    if (error) return out;
+    const seen = new Map((views ?? []).map((v) => [v.practice_id as string, v.viewed_at as string]));
+    for (const e of edits ?? [])
+      (out[e.practice_id] ??= { edits: [], viewedAt: seen.get(e.practice_id) ?? null }).edits.push({ userId: e.user_id, editor: e.editor, summary: e.summary, at: e.at });
+    return out;
   }
 }

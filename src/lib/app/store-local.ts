@@ -4,11 +4,13 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '../plans/schema';
 import { drillSchema, type Drill } from '../drills/schema';
+import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
-type State = { teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
+type State = { edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -155,5 +157,32 @@ export class LocalAppStore implements AppStore {
     const s = await read();
     s.iceTimes = (s.iceTimes ?? []).map((x) => (x.id === id ? { ...x, ...patch } : x));
     await write(s);
+  }
+
+  async latestEdit(practiceId: string) {
+    const e = ((await read()).edits ?? []).filter((x) => x.practiceId === practiceId).sort((a, b) => b.at.localeCompare(a.at))[0];
+    return e ? { id: e.id, userId: e.userId, at: e.at, base: e.base } : null;
+  }
+  async addEdit(e: { practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null }) {
+    const s = await read();
+    (s.edits ??= []).push({ ...e, id: randomUUID(), at: new Date().toISOString() });
+    await write(s);
+  }
+  async updateEdit(id: string, patch: { summary: string; at: string }) {
+    const s = await read();
+    s.edits = (s.edits ?? []).map((x) => (x.id === id ? { ...x, ...patch } : x));
+    await write(s);
+  }
+  async markViewed(practiceId: string, userId: string) {
+    const s = await read();
+    (s.views ??= {})[`${practiceId}:${userId}`] = new Date().toISOString();
+    await write(s);
+  }
+  async teamActivity(teamId: string, userId: string) {
+    const s = await read();
+    const out: Record<string, PracticeActivity> = {};
+    for (const e of (s.edits ?? []).filter((x) => x.teamId === teamId).sort((a, b) => b.at.localeCompare(a.at)))
+      (out[e.practiceId] ??= { edits: [], viewedAt: s.views?.[`${e.practiceId}:${userId}`] ?? null }).edits.push({ userId: e.userId, editor: e.editor, summary: e.summary, at: e.at });
+    return out;
   }
 }

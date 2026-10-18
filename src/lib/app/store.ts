@@ -3,6 +3,7 @@ import type { Drill } from '../drills/schema';
 import { usingSupabase } from '../drills/store';
 import type { Practice, Team } from '../plans/schema';
 import type { IceEvent } from '../calendar/ics';
+import type { PracticeActivity, Snapshot } from '../plans/activity';
 
 // The seam between coach screens and storage (teams, practices, the live drill library).
 // Supabase in production (RLS by team membership); a JSON file in .local/ in local mode.
@@ -41,6 +42,14 @@ export interface AppStore {
   /** Insert or update by calendar UID. */
   upsertIceTimes(teamId: string, rows: IceTimeRow[]): Promise<void>;
   setIceTime(id: string, patch: { ignored?: boolean; practiceId?: string | null }): Promise<void>;
+  /** The latest entry in a practice's edit log, to merge saves from one editing session. */
+  latestEdit(practiceId: string): Promise<{ id: string; userId: string | null; at: string; base: Snapshot | null } | null>;
+  addEdit(e: { practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null }): Promise<void>;
+  updateEdit(id: string, patch: { summary: string; at: string }): Promise<void>;
+  /** When this coach opened the practice, for the "changed since you last looked" dot. */
+  markViewed(practiceId: string, userId: string): Promise<void>;
+  /** Each practice's edits (newest first) and when this coach last looked at it. */
+  teamActivity(teamId: string, userId: string): Promise<Record<string, PracticeActivity>>;
 }
 
 export function newShareToken(): string {

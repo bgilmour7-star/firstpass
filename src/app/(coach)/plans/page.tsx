@@ -3,6 +3,7 @@ import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { clock, drillIds, newDrillIds, todayUnits, totalMinutes } from '@/lib/plans/schema';
 import { syncCalendar } from '@/lib/calendar/sync';
+import { activityLine, initials } from '@/lib/plans/activity';
 import type { IceTime } from '@/lib/app/store';
 import { createPractice, ignoreIceTime, planIceTime } from './actions';
 
@@ -12,13 +13,13 @@ const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-
 const STATUS = { draft: 'Draft', ready: 'Ready', done: 'Done' } as const;
 
 export default async function Plans({ searchParams }: { searchParams: Promise<{ error?: string; hidden?: string; all?: string }> }) {
-  const { team } = await requireTeam('/plans');
+  const { coach, team } = await requireTeam('/plans');
   const { error, hidden, all } = await searchParams;
   const limit = all ? 200 : 6;
   const store = await getAppStore();
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans.
   const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
-  const [plans, drills, ice] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.iceTimes(team.id)]);
+  const [plans, drills, ice, activity] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.iceTimes(team.id), store.teamActivity(team.id, coach.id).catch(() => ({}) as Awaited<ReturnType<typeof store.teamActivity>>)]);
   const names = new Map(drills.map((d) => [d.id, d.funName]));
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const upcoming = plans.filter((p) => p.date >= today).reverse();
@@ -36,6 +37,8 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
     const ids = [...new Set(p.blocks.flatMap(drillIds))];
     const over = totalMinutes(p.blocks, todayUnits(team, p.attendance).length) - p.minutes;
     const it = iceFor.get(p.id);
+    const empty = p.blocks.filter((b) => b.kind !== 'activity' && !b.drillId).length;
+    const act = activityLine(activity[p.id], coach.id);
     return (
       <li key={p.id}>
         <Link href={`/plans/${p.id}`} className="grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
@@ -45,7 +48,9 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
           </span>
           <span className="min-w-0 truncate text-sm text-ink-200">
             {ids.length ? ids.map((i) => names.get(i) ?? 'Drill not live').join(' · ') : 'No drills yet'}
+            {empty > 0 && <b className="font-semibold text-ink-100"> · {empty} empty block{empty === 1 ? '' : 's'}</b>}
           </span>
+          <span className="flex flex-col items-end gap-1.5">
           <span className="flex items-center gap-2">
             {fresh.size > 0 && <span className="rounded-full border border-whistle-100 px-2 py-0.5 text-xs font-semibold text-whistle-100">{fresh.size} new</span>}
             {it?.cancelled && p.date >= today && <span className="text-xs font-semibold text-flag-100">Cancelled in the calendar</span>}
@@ -54,6 +59,27 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
             <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${p.status === 'ready' ? 'border-rink-100 text-rink-100' : p.status === 'done' ? 'border-border-100 text-ink-200' : 'border-dashed border-border-100 text-ink-200'}`}>
               {STATUS[p.status]}
             </span>
+          </span>
+          {act && (
+            <span className="flex items-center gap-2 text-xs text-ink-200">
+              {act.unseen && <span className="h-2 w-2 flex-none rounded-full bg-whistle-100" title="Changed since you last looked" />}
+              <span className={`text-right ${act.unseen ? 'text-ink-100' : ''}`}>
+                {act.unseen && <span className="sr-only">Changed since you last looked: </span>}
+                {act.text}
+              </span>
+              <span className="flex" aria-label={`Worked on by ${act.editors.map((e) => (e.you ? 'you' : e.label)).join(', ')}`}>
+                {act.editors.map((e, i) => (
+                  <span
+                    key={e.label + i}
+                    title={e.you ? 'You' : e.label}
+                    className={`grid h-6 w-6 place-items-center rounded-full border-2 border-surface-100 text-[11px] font-semibold ${i ? '-ml-1.5' : ''} ${e.you ? 'bg-ink-100 text-surface-100' : 'bg-surface-300 text-ink-100'}`}
+                  >
+                    {initials(e.label)}
+                  </span>
+                ))}
+              </span>
+            </span>
+          )}
           </span>
         </Link>
       </li>

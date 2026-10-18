@@ -7,12 +7,14 @@ import { Builder } from './builder';
 export const dynamic = 'force-dynamic';
 
 export default async function PlanPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ copied?: string }> }) {
-  const { team } = await requireTeam('/plans');
+  const { coach, team } = await requireTeam('/plans');
   const { id } = await params;
   const { copied } = await searchParams;
   const store = await getAppStore();
   const practice = await store.getPractice(id);
   if (!practice || practice.teamId !== team.id) notFound();
+  // Opening the plan clears its "changed since you last looked" dot on the Plans list.
+  await store.markViewed(practice.id, coach.id).catch(() => undefined);
   const [all, drills, share] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.activeShare(practice.id)]);
   // Drills the kids have done before this practice ("known"), for the New tag and the library drawer.
   const earlier = all.filter((p) => p.id !== practice.id && p.date < practice.date).sort((a, b) => b.date.localeCompare(a.date));
