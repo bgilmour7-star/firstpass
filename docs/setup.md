@@ -1,17 +1,18 @@
 # Setup
 
-Production: https://firstpass-jet.vercel.app (Vercel project `firstpass`, Supabase connected through the Vercel Marketplace integration, which sets the env vars). Every push to `main` deploys.
+Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace Domains; the old https://firstpass-jet.vercel.app still works). Vercel project `firstpass`; Supabase is connected through the Vercel Marketplace integration, which sets the env vars. Every push to `main` deploys.
 
 ## Once, in Supabase (open it from Vercel → Storage → the Supabase store → Open in Supabase)
 1. **SQL editor →** paste and run `supabase/migrations/20261013000000_drill_review.sql` (tables, admin check, RLS).
 2. **SQL editor →** paste and run `supabase/seed/drills.sql` (the drills in `content/drills`; regenerate with `npm run seed:sql`). It skips drills that are already there.
-3. **Authentication → URL configuration:** Site URL = the production URL above. Redirect URLs: `https://firstpass-jet.vercel.app/**` and `http://localhost:3000/**`.
+3. **Authentication → URL configuration:** Site URL = `https://firstpass.coach`. Redirect URLs: `https://firstpass.coach/**`, `https://firstpass-jet.vercel.app/**` and `http://localhost:3000/**`.
 4. **Authentication → Emails → Templates:** in both **Magic Link** and **Confirm signup**, replace the link with
    ```html
    <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/admin/drills">Sign in to Firstpass</a>
    ```
    This link works even when it's opened in a different browser from the one that asked for it (e.g. inside the Gmail app).
-5. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.
+5. **Authentication → Emails → SMTP Settings:** sign-in emails go out through Resend (free: 3,000 a month, 100 a day), with `firstpass.coach` verified there. Host `smtp.resend.com`, port `465`, username `resend`, password a Resend API key with sending access, sender email `hello@firstpass.coach`, sender name `Firstpass`. Then **Authentication → Rate Limits:** emails per hour 30.
+6. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.
 
 ## Make yourself an admin
 1. Open the production URL, enter your email, click the link in the email.

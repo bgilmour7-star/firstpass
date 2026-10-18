@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { signOut } from '@/app/auth/actions';
 
 // One header for coach and admin screens. Desktop nav per the navigation map: Plans · Drills · Team,
 // plus Drill review for admins. On phones the same links sit in a row under the logo.
@@ -47,11 +49,56 @@ export function AppHeader({ email, isAdmin, local, teamName }: { email: string; 
           </Link>
           {teamName && <span className="hidden truncate text-sm text-ink-200 sm:inline">{teamName}</span>}
           <div className="ml-4 hidden md:block">{nav}</div>
-          <span className="ml-auto truncate text-sm text-ink-200">{email}</span>
+          <AccountMenu email={email} local={local} />
         </div>
         <div className="mx-auto max-w-6xl px-4 pb-2 md:hidden">{nav}</div>
       </header>
     </>
+  );
+}
+
+// Who's signed in, and Sign out. A <details> menu that closes on an outside click, Escape or navigation.
+function AccountMenu({ email, local }: { email: string; local: boolean }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  const path = usePathname();
+  useEffect(() => {
+    ref.current?.removeAttribute('open');
+  }, [path]);
+  useEffect(() => {
+    const close = (e: Event) => {
+      const el = ref.current;
+      if (!el?.open) return;
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !el.contains(e.target as Node)) el.removeAttribute('open');
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('pointerdown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, []);
+  if (local) return <span className="ml-auto truncate text-sm text-ink-200">{email}</span>;
+  const initial = email.trim().charAt(0).toUpperCase() || '?';
+  return (
+    <details ref={ref} className="group relative ml-auto">
+      <summary
+        aria-label={`Account: ${email}`}
+        className="flex min-h-9 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2 text-sm text-ink-100 hover:bg-surface-200 [&::-webkit-details-marker]:hidden"
+      >
+        <span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-ink-100 font-display text-xs font-bold text-surface-100">
+          {initial}
+        </span>
+        <span className="hidden max-w-48 truncate text-ink-200 sm:inline">{email}</span>
+      </summary>
+      <div className="absolute right-0 top-full z-30 mt-1 w-60 rounded-lg border border-border-100 bg-surface-100 p-1 shadow-lg">
+        <p className="truncate px-3 py-2 text-xs text-ink-200">Signed in as {email}</p>
+        <form action={signOut}>
+          <button type="submit" className="w-full rounded-md px-3 py-2 text-left text-sm text-ink-100 hover:bg-surface-200">
+            Sign out
+          </button>
+        </form>
+      </div>
+    </details>
   );
 }
 
