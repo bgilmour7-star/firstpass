@@ -1,0 +1,145 @@
+{
+  "id": "cops-and-robbers",
+  "funName": "Cops and Robbers",
+  "plainName": "Tag with a jail break",
+  "sourceTitle": "Cops and Robbers",
+  "minutes": 8,
+  "gear": "None (no sticks)",
+  "worksAsStation": false,
+  "description": "Coaches are the cops. Skaters are robbers, scattered around the zone with no sticks. A tagged robber goes to jail at the net. A free robber can break them out by tagging them. The cops try to get everyone in jail before time’s up.",
+  "steps": [
+    "A cop tags a robber.",
+    "Tagged? Skate to jail at the net.",
+    "Free robbers tag jailed friends to break them out."
+  ],
+  "cues": [
+    "Look for the cops!",
+    "Jail break!"
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "Chasing, escaping and rescuing friends."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Quick starts, stops and turns."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Heads up to see the cops and the jail."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "everyone",
+  "lessons": [
+    3
+  ],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 3 · fun game (also Phase II Lesson 16)",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source allows the net or the referee’s circle as the jail; on half ice we use the net."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 56,
+        "y": 24,
+        "role": "C"
+      },
+      {
+        "x": 42,
+        "y": 16,
+        "role": "O"
+      },
+      {
+        "x": 62,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 40,
+        "y": 70,
+        "role": "O"
+      },
+      {
+        "x": 16,
+        "y": 40,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            56,
+            24
+          ],
+          [
+            45,
+            18
+          ]
+        ],
+        "step": 1,
+        "caption": "A cop tags a robber."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            42,
+            16
+          ],
+          [
+            28,
+            30
+          ],
+          [
+            18,
+            37
+          ]
+        ],
+        "step": 2,
+        "caption": "Tagged? Skate to jail at the net."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            40,
+            70
+          ],
+          [
+            26,
+            56
+          ],
+          [
+            18,
+            44
+          ]
+        ],
+        "step": 3,
+        "caption": "Free robbers tag jailed friends to break them out."
+      }
+    ],
+    "labels": [
+      {
+        "x": 10,
+        "y": 30,
+        "text": "Jail"
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

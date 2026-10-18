@@ -1,0 +1,257 @@
+{
+  "id": "rotation-reverse-gear",
+  "funName": "Reverse Gear",
+  "plainName": "Backward C-cuts, stickhandling, backward striding",
+  "sourceTitle": "Phase II Lesson 12 skill stations",
+  "minutes": 6,
+  "gear": "1 puck each",
+  "worksAsStation": false,
+  "description": "Two backward-skating zones and a stickhandling zone. Groups move to the next zone on the whistle.",
+  "steps": [
+    "Boards C-cuts: Hold the boards and push backward C-cuts out with one skate, then the other.",
+    "Side, front, side: Stickhandle on your forehand side, then in front, then on your backhand side.",
+    "Backward stride: Skate backwards across the strip with C-cuts, one foot there and the other foot back."
+  ],
+  "cues": [
+    "Toe in, push, bring it home.",
+    "Side, front, side.",
+    "Sit low, push to the side."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Backward C-cuts and backward striding."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Stickhandling side, front, side."
+    }
+  ],
+  "groupModel": "rotation",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [
+    12
+  ],
+  "levelName": "",
+  "levels": [],
+  "zones": [
+    {
+      "station": "A",
+      "name": "Boards C-cuts",
+      "how": "Hold the boards and push backward C-cuts out with one skate, then the other. Hands shoulder-width apart; bring each skate home.",
+      "cue": "Toe in, push, bring it home."
+    },
+    {
+      "station": "B",
+      "name": "Side, front, side",
+      "how": "Stickhandle on your forehand side, then in front, then on your backhand side. Look up at the coach when you can.",
+      "cue": "Side, front, side."
+    },
+    {
+      "station": "C",
+      "name": "Backward stride",
+      "how": "Skate backwards across the strip with C-cuts, one foot there and the other foot back. Start facing the boards. Then alternate feet and glide.",
+      "cue": "Sit low, push to the side."
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Phase II Lesson 12 · 1.5.01–1.5.02, 2.1.05",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-2-e.pdf",
+    "note": "The source runs six stations. We kept C-cuts at the boards, side-front-side stickhandling and backward striding; Stick Checks, A Bug’s Life and C-cuts around the circle are left for other plans. Backward striding runs across the neutral strip instead of goal line to blue line."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 48,
+        "y": 6,
+        "role": "O"
+      },
+      {
+        "x": 59,
+        "y": 6,
+        "role": "O"
+      },
+      {
+        "x": 70,
+        "y": 6,
+        "role": "O"
+      },
+      {
+        "x": 26,
+        "y": 66,
+        "role": "O"
+      },
+      {
+        "x": 46,
+        "y": 66,
+        "role": "O"
+      },
+      {
+        "x": 62,
+        "y": 76,
+        "role": "C"
+      },
+      {
+        "x": 83,
+        "y": 22,
+        "role": "O"
+      },
+      {
+        "x": 93,
+        "y": 22,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "backward",
+        "points": [
+          [
+            48,
+            6
+          ],
+          [
+            46,
+            20
+          ]
+        ],
+        "step": 1,
+        "stepSide": "right",
+        "caption": "Boards C-cuts: Hold the boards and push backward C-cuts out with one skate, then the other.",
+        "stepLabel": "A"
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            59,
+            6
+          ],
+          [
+            57,
+            20
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            70,
+            6
+          ],
+          [
+            68,
+            20
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            20,
+            60
+          ],
+          [
+            26,
+            56
+          ],
+          [
+            32,
+            60
+          ]
+        ],
+        "fromPlayer": false,
+        "step": 2,
+        "caption": "Side, front, side: Stickhandle on your forehand side, then in front, then on your backhand side.",
+        "stepLabel": "B"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            40,
+            60
+          ],
+          [
+            46,
+            56
+          ],
+          [
+            52,
+            60
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 2
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            83,
+            22
+          ],
+          [
+            85,
+            50
+          ],
+          [
+            83,
+            78
+          ]
+        ],
+        "step": 3,
+        "caption": "Backward stride: Skate backwards across the strip with C-cuts, one foot there and the other foot back.",
+        "stepLabel": "C"
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            93,
+            22
+          ],
+          [
+            93,
+            48
+          ],
+          [
+            93,
+            72
+          ]
+        ],
+        "stepWith": 3
+      }
+    ],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Boards C-cuts",
+        "Side, front, side",
+        "Backward stride"
+      ]
+    },
+    "pucks": [
+      {
+        "x": 26,
+        "y": 61
+      },
+      {
+        "x": 46,
+        "y": 61
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

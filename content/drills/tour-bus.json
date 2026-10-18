@@ -1,0 +1,131 @@
+{
+  "id": "tour-bus",
+  "funName": "Tour Bus",
+  "plainName": "Follow the coach and learn the rink",
+  "sourceTitle": "Tour Bus",
+  "minutes": 6,
+  "gear": "None",
+  "worksAsStation": true,
+  "description": "One bus per coach. The coach is the driver and the skaters are passengers who follow close behind. Drive slowly, change direction often, and stop at the face-off dot, the circle, the net, the crease and the lines. Come back to a spot and ask the kids to name it.",
+  "steps": [
+    "Follow your bus driver, slow and close.",
+    "Stop at each spot and shout its name."
+  ],
+  "cues": [
+    "Stay behind the bus!",
+    "What’s this one called?"
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Skating in a line, turning and stopping."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Learning the names of the rink’s lines and spots."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "A calm, playful first-practice game."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "easy",
+  "format": "groups",
+  "lessons": [
+    1
+  ],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 1 · fun game",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source tours the whole rink. We draw one bus on half ice; with three coaches, run three buses."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 66,
+        "y": 30,
+        "role": "C"
+      },
+      {
+        "x": 72,
+        "y": 22,
+        "role": "O"
+      },
+      {
+        "x": 74,
+        "y": 15,
+        "role": "O"
+      },
+      {
+        "x": 72,
+        "y": 8,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            66,
+            30
+          ],
+          [
+            44,
+            30
+          ],
+          [
+            31,
+            22
+          ],
+          [
+            18,
+            34
+          ],
+          [
+            16,
+            48
+          ],
+          [
+            31,
+            64
+          ],
+          [
+            52,
+            66
+          ]
+        ],
+        "step": 1,
+        "caption": "Follow your bus driver, slow and close."
+      }
+    ],
+    "labels": [
+      {
+        "x": 31,
+        "y": 15,
+        "text": "Dot"
+      },
+      {
+        "x": 22,
+        "y": 42.5,
+        "text": "Crease"
+      },
+      {
+        "x": 75,
+        "y": 80,
+        "text": "Blue line"
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

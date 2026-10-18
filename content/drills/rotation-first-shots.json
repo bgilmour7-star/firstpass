@@ -1,0 +1,253 @@
+{
+  "id": "rotation-first-shots",
+  "funName": "First Shots",
+  "plainName": "Forehand shot, outside edges, skating with the puck",
+  "sourceTitle": "Lesson 8 skill stations",
+  "minutes": 6,
+  "gear": "1 puck each",
+  "worksAsStation": false,
+  "description": "One shooting zone, one edges zone and one puck zone. Groups move to the next zone on the whistle.",
+  "steps": [
+    "Hit the spot: Sweep the puck at a spot on the boards from three or four metres out.",
+    "Outside-edge circles: Glide around the circle on the outside edge of your left skate.",
+    "Carry the puck: Stickhandle anywhere in the strip, every direction, keeping the puck close."
+  ],
+  "cues": [
+    "Sweep it, point at the spot.",
+    "Bend, lean, chest up.",
+    "Little taps, eyes up."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "The first forehand sweep shot."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Skating with the puck."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Outside-edge control."
+    }
+  ],
+  "groupModel": "rotation",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [
+    7,
+    8
+  ],
+  "levelName": "",
+  "levels": [],
+  "zones": [
+    {
+      "station": "A",
+      "name": "Hit the spot",
+      "how": "Sweep the puck at a spot on the boards from three or four metres out. Pull it back, sweep it through and point your stick at the spot. Try it without a puck first.",
+      "cue": "Sweep it, point at the spot."
+    },
+    {
+      "station": "B",
+      "name": "Outside-edge circles",
+      "how": "Glide around the circle on the outside edge of your left skate. Next time round, the right skate. Bend your knees and keep your chest up.",
+      "cue": "Bend, lean, chest up."
+    },
+    {
+      "station": "C",
+      "name": "Carry the puck",
+      "how": "Stickhandle anywhere in the strip, every direction, keeping the puck close. Coaches skate around and help.",
+      "cue": "Little taps, eyes up."
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 7, 8 · 3.1.01, 1.2.02, 2.2.01",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "Lesson 8 runs six stations. We kept the sweep shot, outside-edge figure 8s and skating with the puck. The source draws figure 8s across two circles; on half ice zone B uses one circle per pass."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 46,
+        "y": 30,
+        "role": "O"
+      },
+      {
+        "x": 58,
+        "y": 30,
+        "role": "O"
+      },
+      {
+        "x": 70,
+        "y": 30,
+        "role": "O"
+      },
+      {
+        "x": 48,
+        "y": 64,
+        "role": "O"
+      },
+      {
+        "x": 84,
+        "y": 24,
+        "role": "O"
+      },
+      {
+        "x": 92,
+        "y": 54,
+        "role": "O"
+      },
+      {
+        "x": 22,
+        "y": 30,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "shot",
+        "points": [
+          [
+            46,
+            30
+          ],
+          [
+            46,
+            12
+          ]
+        ],
+        "step": 1,
+        "stepSide": "right",
+        "caption": "Hit the spot: Sweep the puck at a spot on the boards from three or four metres out.",
+        "stepLabel": "A"
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            58,
+            30
+          ],
+          [
+            58,
+            12
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            70,
+            30
+          ],
+          [
+            70,
+            12
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            48,
+            64
+          ],
+          [
+            40,
+            52
+          ],
+          [
+            28,
+            50
+          ],
+          [
+            18,
+            58
+          ],
+          [
+            18,
+            70
+          ],
+          [
+            28,
+            79
+          ],
+          [
+            40,
+            77
+          ],
+          [
+            46,
+            68
+          ]
+        ],
+        "step": 2,
+        "caption": "Outside-edge circles: Glide around the circle on the outside edge of your left skate.",
+        "stepLabel": "B"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            84,
+            24
+          ],
+          [
+            90,
+            32
+          ],
+          [
+            84,
+            42
+          ],
+          [
+            90,
+            48
+          ]
+        ],
+        "step": 3,
+        "stepSide": "right",
+        "caption": "Carry the puck: Stickhandle anywhere in the strip, every direction, keeping the puck close.",
+        "stepLabel": "C"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            92,
+            54
+          ],
+          [
+            86,
+            66
+          ],
+          [
+            92,
+            76
+          ]
+        ],
+        "stepWith": 3
+      }
+    ],
+    "stations": {
+      "layout": "halfice",
+      "labels": [
+        "Hit the spot",
+        "Outside-edge circles",
+        "Carry the puck"
+      ]
+    },
+    "cones": []
+  },
+  "status": "in_review"
+}

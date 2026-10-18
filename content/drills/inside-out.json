@@ -1,0 +1,154 @@
+{
+  "id": "inside-out",
+  "funName": "Inside Out",
+  "plainName": "Stickhandle with eyes up",
+  "sourceTitle": "Inside Out",
+  "minutes": 6,
+  "gear": "1 puck each",
+  "worksAsStation": true,
+  "description": "Everyone stickhandles anywhere inside the blue line. When the coach calls “Inside!”, get into one of the face-off circles. On “Out!”, go anywhere except the circles. Move quickly and look up often so you don’t bump into anyone.",
+  "steps": [
+    "Stickhandle anywhere inside the blue line.",
+    "“Inside!” Get into a circle.",
+    "“Out!” Get out of the circles."
+  ],
+  "cues": [
+    "Eyes up, find space.",
+    "Little taps, keep it close."
+  ],
+  "focus": [
+    {
+      "attribute": "Puck control",
+      "level": 2,
+      "why": "Stickhandling in traffic."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Heads up to find open ice."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "everyone",
+  "lessons": [
+    9
+  ],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U7 Phase II Lesson 9 · skill station",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-2-e.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 58,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 62,
+        "y": 42,
+        "role": "O"
+      },
+      {
+        "x": 50,
+        "y": 72,
+        "role": "O"
+      },
+      {
+        "x": 24,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 70,
+        "y": 42,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            62,
+            42
+          ],
+          [
+            52,
+            50
+          ],
+          [
+            56,
+            56
+          ]
+        ],
+        "step": 1,
+        "caption": "Stickhandle anywhere inside the blue line."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            58,
+            14
+          ],
+          [
+            44,
+            18
+          ],
+          [
+            36,
+            21
+          ]
+        ],
+        "step": 2,
+        "caption": "“Inside!” Get into a circle."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            50,
+            72
+          ],
+          [
+            40,
+            68
+          ],
+          [
+            34,
+            65
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            24,
+            56
+          ],
+          [
+            36,
+            46
+          ],
+          [
+            48,
+            38
+          ]
+        ],
+        "step": 3,
+        "caption": "“Out!” Get out of the circles."
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

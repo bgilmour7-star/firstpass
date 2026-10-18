@@ -19,12 +19,15 @@ describe('add-a-drill drawer filters', () => {
 
   it('opens on a fun game that fits 8 minutes', () => {
     const list = filterDrills(basic, { ...EMPTY, part: 'game', fits: true }, ctx);
-    expect(list.map((d) => d.id)).toEqual(['game-garbage-trucks']);
+    expect(list.map((d) => d.id)).toContain('game-garbage-trucks');
+    expect(list.every((d) => d.part === 'game' && d.minutes <= 8)).toBe(true);
   });
 
   it('says which filter is hiding the rest', () => {
     const w = widenOptions(basic, { ...EMPTY, part: 'game', fits: true }, ctx);
-    expect(w[0]).toEqual({ key: 'fits', more: 2 });
+    const longer = basic.filter((d) => d.part === 'game' && d.minutes > 8).length;
+    expect(longer).toBeGreaterThan(0);
+    expect(w[0]).toEqual({ key: 'fits', more: longer });
   });
 
   it('known and new split the library', () => {

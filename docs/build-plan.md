@@ -16,7 +16,7 @@
 - [x] 1.4 Review queue and one-drill screen: edit text, focus pips, levels or stations, diagram requests, review notes, status.
 - [x] **1.5 Go live:** live at https://firstpass-jet.vercel.app (2026-10-13). Brett signed in, reviewed and approved a drill. Head coach still to be added.
 - [x] **1.6 Diagram loop in practice:** done 2026-10-17 through the Supabase connector: three requests (Hot Potato Partners levels, Keep Away circles) went Open → Done with redrawn diagrams. Big multi-step writes through the connector can be cancelled at its confirmation prompt; small single-statement writes work.
-- [ ] **1.7 Pilot library:** encode ~30 drills for the first six weeks (Hockey Canada U7 plans 1–12 first), each from its source. Done when 30 drills are In review and `npm run drills -- validate` passes.
+- [x] **1.7 Pilot library:** done 2026-10-18: 30 drills, every Hockey Canada U7 lesson 1–12 covered by at least one. The 11 new ones (Tour Bus, Don’t Wake the Giant, British Bulldog, Cops and Robbers, Ninja Course, A Bug’s Life, Toilet Bowl Tag, Scatter Puck, Inside Out, First Shots, Reverse Gear) went into Supabase In review through the connector with Effort and Format set; `npm run drills -- validate` passes.
 
 ## Order (agreed 2026-10-13)
 Pilot first: Brett's own team plans real practices before anything for other coaches. So: **3 → 4 → 5 → 2 → 6**. Onboarding (2) waits until a second team is ready. Drills for the pilot library (1.7) are written in parallel; review pace is the real constraint.

@@ -1,0 +1,136 @@
+{
+  "id": "dont-wake-the-giant",
+  "funName": "Don’t Wake the Giant",
+  "plainName": "Sneak in, grab a puck, race back",
+  "sourceTitle": "Don’t Wake the Giant",
+  "minutes": 6,
+  "gear": "A pile of pucks",
+  "worksAsStation": true,
+  "description": "The pucks are the giant’s treasure, piled in the middle. A coach is the giant, guarding the pile and falling asleep. Skaters tiptoe in from the boards and each take one puck. When the giant wakes up, everyone races back to the boards. Play until the pile is empty.",
+  "steps": [
+    "Tiptoe in from the boards and take one puck.",
+    "The giant wakes up: race back to the boards!"
+  ],
+  "cues": [
+    "Quiet feet…",
+    "Go, go, go!"
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Balance on tiptoes, quick starts and stops."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "Sneaking and racing away from the giant."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "everyone",
+  "lessons": [
+    1
+  ],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 1 · skill station",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source doesn’t say how it ends; we end it when the pile is empty."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 46,
+        "y": 36,
+        "role": "C"
+      },
+      {
+        "x": 22,
+        "y": 80,
+        "role": "O"
+      },
+      {
+        "x": 40,
+        "y": 80,
+        "role": "O"
+      },
+      {
+        "x": 48,
+        "y": 48,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            22,
+            80
+          ],
+          [
+            30,
+            60
+          ],
+          [
+            37,
+            46
+          ]
+        ],
+        "step": 1,
+        "caption": "Tiptoe in from the boards and take one puck."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            40,
+            80
+          ],
+          [
+            40,
+            60
+          ],
+          [
+            40,
+            49
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            48,
+            48
+          ],
+          [
+            54,
+            62
+          ],
+          [
+            58,
+            78
+          ]
+        ],
+        "step": 2,
+        "caption": "The giant wakes up: race back to the boards!"
+      }
+    ],
+    "piles": [
+      {
+        "x": 40,
+        "y": 44
+      }
+    ],
+    "cones": []
+  },
+  "status": "in_review"
+}

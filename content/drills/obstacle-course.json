@@ -1,0 +1,324 @@
+{
+  "id": "obstacle-course",
+  "funName": "Ninja Course",
+  "plainName": "Step over, spread out, slide under",
+  "sourceTitle": "Obstacle Course",
+  "minutes": 8,
+  "gear": "4 sticks, 5 pylons",
+  "worksAsStation": true,
+  "description": "Lay sticks and pylons in a line. Skaters step over the first stick, spread their skates over the second, step over the third, then slide on their stomach under the stick across two pylons: hands out, head up. Come back weaving through the pylons. Start the next skater when the one ahead reaches the second stick.",
+  "steps": [
+    "Step over, spread out, step over, then slide under the stick.",
+    "Get up and weave back through the pylons."
+  ],
+  "cues": [
+    "Hands out, head up!",
+    "Little steps over the sticks."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Balance, falling safely and getting up."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "An obstacle course feels like a playground."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [
+    3,
+    8
+  ],
+  "levelName": "Over, under and weave",
+  "levels": [
+    {
+      "name": "Add side steps",
+      "adds": "After the slide, side-step toward the goal line and back out, always facing the same way, then weave home.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 70,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 70,
+            "y": 24,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                70,
+                14
+              ],
+              [
+                46,
+                14
+              ],
+              [
+                22,
+                14
+              ],
+              [
+                12,
+                18
+              ]
+            ],
+            "stepAt": 0.3,
+            "step": 1,
+            "caption": "Step over, spread out, step over, then slide under the stick."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                14,
+                22
+              ],
+              [
+                12,
+                30
+              ],
+              [
+                20,
+                34
+              ]
+            ],
+            "step": 2,
+            "caption": "Side-step toward the goal line and back out."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                18,
+                38
+              ],
+              [
+                28,
+                46
+              ],
+              [
+                34,
+                38
+              ],
+              [
+                40,
+                46
+              ],
+              [
+                46,
+                38
+              ],
+              [
+                52,
+                46
+              ],
+              [
+                60,
+                40
+              ],
+              [
+                68,
+                30
+              ]
+            ],
+            "step": 3,
+            "caption": "Weave back through the pylons."
+          }
+        ],
+        "labels": [
+          {
+            "x": 60,
+            "y": 6,
+            "text": "Over"
+          },
+          {
+            "x": 47,
+            "y": 6,
+            "text": "Spread"
+          },
+          {
+            "x": 34,
+            "y": 6,
+            "text": "Over"
+          },
+          {
+            "x": 34,
+            "y": 22,
+            "text": "Under"
+          }
+        ],
+        "cones": [
+          {
+            "x": 22,
+            "y": 9
+          },
+          {
+            "x": 22,
+            "y": 19
+          },
+          {
+            "x": 34,
+            "y": 42
+          },
+          {
+            "x": 46,
+            "y": 42
+          },
+          {
+            "x": 58,
+            "y": 42
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 3, 8 · 1.1.12",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
+    "note": "The source diagram isn’t in the text; we lay the course along the top boards. Lesson 8 adds side steps, which is Level 2."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 70,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 70,
+        "y": 24,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            70,
+            14
+          ],
+          [
+            46,
+            14
+          ],
+          [
+            22,
+            14
+          ],
+          [
+            12,
+            18
+          ]
+        ],
+        "stepAt": 0.3,
+        "step": 1,
+        "caption": "Step over, spread out, step over, then slide under the stick."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            24
+          ],
+          [
+            22,
+            30
+          ],
+          [
+            28,
+            39
+          ],
+          [
+            34,
+            30
+          ],
+          [
+            40,
+            39
+          ],
+          [
+            46,
+            30
+          ],
+          [
+            52,
+            39
+          ],
+          [
+            60,
+            32
+          ],
+          [
+            68,
+            26
+          ]
+        ],
+        "step": 2,
+        "caption": "Get up and weave back through the pylons."
+      }
+    ],
+    "labels": [
+      {
+        "x": 60,
+        "y": 6,
+        "text": "Over"
+      },
+      {
+        "x": 47,
+        "y": 6,
+        "text": "Spread"
+      },
+      {
+        "x": 34,
+        "y": 6,
+        "text": "Over"
+      },
+      {
+        "x": 34,
+        "y": 22,
+        "text": "Under"
+      }
+    ],
+    "cones": [
+      {
+        "x": 22,
+        "y": 9
+      },
+      {
+        "x": 22,
+        "y": 19
+      },
+      {
+        "x": 28,
+        "y": 34
+      },
+      {
+        "x": 40,
+        "y": 34
+      },
+      {
+        "x": 52,
+        "y": 34
+      }
+    ]
+  },
+  "status": "in_review"
+}
