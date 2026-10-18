@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
-import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, shapeLabel, nextStatuses, PART_LABEL, PARTS, type Drill, type Status } from '@/lib/drills/schema';
+import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
@@ -37,6 +37,12 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
   }, [detail.drill]);
   const open = detail.requests.filter((r) => !r.resolvedAt);
   const [requestText, setRequestText] = useState('');
+  // Feedback for a diagram request sits beside the request box, where the reviewer is looking.
+  const [requestMsg, setRequestMsg] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
+  const rotation = draft.groupModel === 'rotation';
+  // A rotation's steps, cues and captions come from its zones; derive them live so the
+  // diagram caption and the coach preview follow every keystroke.
+  const shownDrill = useMemo(() => (rotation ? (fromZones(draft) as Drill) : draft), [draft, rotation]);
 
   const set = <K extends keyof Drill>(k: K, v: Drill[K]) => setDraft((d) => ({ ...d, [k]: v }));
 
@@ -69,9 +75,9 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
       const r = await requestDiagramChange(draft.id, requestText);
       if (r.ok) {
         setRequestText('');
-        setMessage({ kind: 'ok', text: 'Sent. Claude will redraw it and mark the request done.' });
+        setRequestMsg({ kind: 'ok', text: 'Sent. It’s at the top of the list below, waiting for Claude.' });
         router.refresh();
-      } else setMessage({ kind: 'error', text: r.error });
+      } else setRequestMsg({ kind: 'error', text: r.error });
     });
   }
 
@@ -137,7 +143,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         {/* Left: what the drill looks like on the ice */}
         <div className="flex min-w-0 flex-col gap-6">
-          <RinkStepper spec={detail.drill.diagram} title={draft.funName} />
+          <RinkStepper spec={shownDrill.diagram} title={draft.funName} labels={rotation ? draft.zones?.map((z) => z.station) : undefined} noun={rotation ? 'zones' : 'steps'} />
 
           <Section
             title={`${shapeLabel(draft)} · goes in a ${BLOCK_FOR[draft.groupModel]} block`}
@@ -146,7 +152,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
                 ? 'Level 1 is the drill as written. Add a level when a group is ready for one more thing.'
                 : draft.groupModel === 'stations'
                   ? 'One station per group, all at once.'
-                  : 'Every group does every zone, moving on the whistle.'
+                  : 'Every group does every zone, moving on the whistle. This is the only place each zone is written.'
             }
           >
             {draft.groupModel === 'basic' && (
@@ -199,12 +205,13 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
                       <Field label="Activity">
                         <input className={input} maxLength={40} value={z.name} onChange={(e) => set('zones', draft.zones!.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
                       </Field>
-                      <Field label="How it works">
+                      <Field label="How it works" help="The first sentence is this zone’s diagram caption.">
                         <textarea rows={2} className={input} maxLength={240} value={z.how} onChange={(e) => set('zones', draft.zones!.map((x, j) => (j === i ? { ...x, how: e.target.value } : x)))} />
                       </Field>
-                      <Field label="Say this">
+                      <Field label="Say this" help="One cue, said on the ice.">
                         <input className={input} maxLength={80} value={z.cue} onChange={(e) => set('zones', draft.zones!.map((x, j) => (j === i ? { ...x, cue: e.target.value } : x)))} />
                       </Field>
+                      <ShowsIn items={[`Diagram ${z.station}`, 'Rink-side phone', 'Printout', 'Plan block']} />
                     </div>
                   </li>
                 ))}
@@ -239,38 +246,20 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
             )}
           </Section>
 
-          <Section title="Diagram changes" hint="Describe the change. Claude redraws it and marks it done here.">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="diagram-request" className="sr-only">
-                What should change in the diagram
-              </label>
-              <textarea
-                id="diagram-request"
-                rows={3}
-                className={input}
-                placeholder="e.g. Start from the corner. The coach passes from the blue line as they come back down."
-                value={requestText}
-                onChange={(e) => setRequestText(e.target.value)}
-              />
-              <button type="button" onClick={sendRequest} disabled={pending || !requestText.trim()} className="min-h-10 w-fit rounded-full bg-ink-100 px-4 text-sm font-medium text-surface-100 disabled:opacity-[var(--opacity-disabled)]">
-                Ask Claude to redraw
-              </button>
-            </div>
-            {detail.requests.length > 0 && (
-              <ul className="mt-3 flex flex-col">
-                {detail.requests.map((r) => (
-                  <li key={r.id} className="flex flex-col gap-1 border-t border-border-100 py-3 text-sm">
-                    <span className="flex flex-wrap items-center gap-2 text-xs text-ink-200">
-                      <span className={`rounded-full px-2 py-0.5 font-semibold ${r.resolvedAt ? 'bg-surface-300 text-ink-100' : 'border border-whistle-100 text-whistle-100'}`}>{r.resolvedAt ? 'Done' : 'Open'}</span>
-                      {r.createdBy} · {fmt(r.createdAt)}
-                    </span>
-                    <span>{r.note}</span>
-                    {r.resolution && <span className="text-ink-200">Claude: {r.resolution}</span>}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Section>
+          <DiagramChanges
+            requests={detail.requests}
+            current={detail.drill.diagram}
+            title={draft.funName}
+            text={requestText}
+            onText={setRequestText}
+            onSend={sendRequest}
+            pending={pending}
+            message={requestMsg}
+            onRestore={(before) => {
+              set('diagram', before);
+              setRequestMsg({ kind: 'ok', text: 'The diagram from before the redraw is back. Save to keep it, or Discard.' });
+            }}
+          />
 
           <Section title="Source">
             <p className="text-sm">
@@ -322,7 +311,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
 
           <Section title="Setup">
             <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3">
-              <Field label="Minutes" error={errors.minutes}>
+              <Field label={rotation ? 'Min per zone' : 'Minutes'} help={rotation ? `Whistle every ${draft.minutes} · ${draft.minutes * (draft.zones?.length ?? 0)} min in all` : undefined} error={errors.minutes}>
                 <input type="number" min={1} max={30} className={`${input} font-mono`} value={draft.minutes} onChange={(e) => set('minutes', Number(e.target.value) || 0)} />
               </Field>
               <Field label="Gear" error={errors.gear}>
@@ -335,19 +324,27 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
             </label>
           </Section>
 
-          <Section title="Description">
-            <Field label="How it runs" error={errors.description}>
+          <Section title={rotation ? 'How it runs' : 'Description'} hint={rotation ? 'The rotation, not the activities. The zones describe those.' : undefined}>
+            <Field label={rotation ? 'How the rotation works' : 'How it runs'} error={errors.description}>
               <textarea rows={4} className={input} value={draft.description} onChange={(e) => set('description', e.target.value)} />
             </Field>
           </Section>
 
-          <Section title="Steps" hint="One sentence each. Step numbers match the diagram.">
-            <ListEditor items={draft.steps} max={6} numbered onChange={(v) => set('steps', v)} error={errors.steps} addLabel="Add a step" />
-          </Section>
+          {rotation ? (
+            <Section title="What coaches see" hint="Built from the zones as you type.">
+              <CoachPreview drill={shownDrill} />
+            </Section>
+          ) : (
+            <>
+              <Section title="Steps" hint="One sentence each. Step numbers match the diagram.">
+                <ListEditor items={draft.steps} max={6} numbered onChange={(v) => set('steps', v)} error={errors.steps} addLabel="Add a step" />
+              </Section>
 
-          <Section title="Cues" hint="What the coach says on the ice. Two is plenty.">
-            <ListEditor items={draft.cues} max={3} onChange={(v) => set('cues', v)} error={errors.cues} addLabel="Add a cue" />
-          </Section>
+              <Section title="Cues" hint="What the coach says on the ice. Two is plenty.">
+                <ListEditor items={draft.cues} max={3} onChange={(v) => set('cues', v)} error={errors.cues} addLabel="Add a cue" />
+              </Section>
+            </>
+          )}
 
           <Section title="What it works on" hint="Main for one or two, Some for others.">
             <FocusEditor value={draft.focus} onChange={(v) => set('focus', v)} error={errors.focus} />
@@ -513,5 +510,200 @@ function NoteBox({ drillId, onDone }: { drillId: string; onDone: () => void }) {
       </button>
       {err && <span className="text-xs text-flag-100">{err}</span>}
     </div>
+  );
+}
+
+function ShowsIn({ items }: { items: string[] }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5" aria-label="Shows in">
+      <span className="text-xs text-ink-200">Shows in</span>
+      {items.map((t) => (
+        <span key={t} className="rounded-sm border border-border-100 bg-surface-200 px-2 py-0.5 text-xs text-ink-200">
+          {t}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// What coaches see of a rotation, built from its zones: the same text on three surfaces.
+const PREVIEWS = [
+  { key: 'phone', label: 'Rink-side phone', note: 'A big cue per zone, readable at arm’s length.' },
+  { key: 'print', label: 'Printout', note: 'The full “How it works”, with the cue as the key point.' },
+  { key: 'plan', label: 'Plan block', note: 'The activity and one line per zone, in the plan’s Rotation block.' },
+] as const;
+function CoachPreview({ drill }: { drill: Drill }) {
+  const [mode, setMode] = useState<(typeof PREVIEWS)[number]['key']>('phone');
+  const zones = drill.zones ?? [];
+  const note = PREVIEWS.find((p) => p.key === mode)!.note;
+  return (
+    <div className="flex flex-col gap-3 rounded-lg bg-surface-200 p-3">
+      <div role="tablist" aria-label="Preview" className="inline-flex w-fit max-w-full flex-wrap rounded-full bg-surface-300 p-[3px]">
+        {PREVIEWS.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            role="tab"
+            aria-selected={mode === p.key}
+            onClick={() => setMode(p.key)}
+            className={`min-h-9 rounded-full px-3 text-sm ${mode === p.key ? 'bg-surface-100 font-semibold shadow-sm' : 'text-ink-200 hover:text-ink-100'}`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-md border border-border-100 bg-surface-100 p-3">
+        <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+          <b className="font-display text-lg">{mode === 'plan' ? `Rotation · ${drill.funName}` : drill.funName}</b>
+          <span className="font-mono text-xs text-ink-200">
+            {drill.minutes * zones.length} min · whistle every {drill.minutes}
+          </span>
+        </div>
+        <ul className="flex flex-col">
+          {zones.map((z) => (
+            <li key={z.station} className="grid grid-cols-[28px_minmax(0,1fr)] gap-3 border-t border-border-100 py-2.5">
+              <span
+                className={`mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full font-mono text-sm ${mode === 'print' ? 'border-[1.5px] border-ink-100' : 'bg-ink-100 text-surface-100'}`}
+              >
+                {z.station}
+              </span>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="font-semibold">{z.name || <span className="text-ink-200">No activity yet</span>}</span>
+                {mode === 'phone' && <span className="font-display text-xl font-semibold leading-7">{z.cue ? `“${z.cue}”` : <span className="text-ink-200">No cue yet</span>}</span>}
+                {mode === 'print' && (
+                  <>
+                    <span className="text-sm">{z.how}</span>
+                    {z.cue && <span className="text-sm font-semibold">Key point: {z.cue}</span>}
+                  </>
+                )}
+                {mode === 'plan' && <span className="text-sm text-ink-200">{firstSentenceOf(z.how)}</span>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <p className="text-xs text-ink-200">{note}</p>
+    </div>
+  );
+}
+
+// Asking Claude to redraw. The loop is not instant: a Claude session in the Firstpass project
+// picks open requests up, redraws, and marks them done. So the screen says plainly where each
+// request is, and shows the redraw beside the diagram it replaced.
+function DiagramChanges({
+  requests,
+  current,
+  title,
+  text,
+  onText,
+  onSend,
+  pending,
+  message,
+  onRestore,
+}: {
+  requests: DiagramRequest[];
+  current: Drill['diagram'];
+  title: string;
+  text: string;
+  onText: (v: string) => void;
+  onSend: () => void;
+  pending: boolean;
+  message: { kind: 'ok' | 'error'; text: string } | null;
+  onRestore: (before: Drill['diagram']) => void;
+}) {
+  const open = requests.filter((r) => !r.resolvedAt);
+  const done = requests.filter((r) => r.resolvedAt);
+  return (
+    <Section title="Diagram changes" hint="Describe the change. Claude redraws it and marks it done here.">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="diagram-request" className="sr-only">
+          What should change in the diagram
+        </label>
+        <textarea
+          id="diagram-request"
+          rows={3}
+          className={input}
+          placeholder="e.g. Put a coach in zone C, standing by the last pylon."
+          value={text}
+          onChange={(e) => onText(e.target.value)}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={onSend} disabled={pending || !text.trim()} className="min-h-10 w-fit rounded-full bg-ink-100 px-4 text-sm font-medium text-surface-100 disabled:opacity-[var(--opacity-disabled)]">
+            {pending ? 'Sending…' : 'Ask Claude to redraw'}
+          </button>
+          {message && (
+            <span role={message.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${message.kind === 'error' ? 'text-flag-100' : 'text-good-100'}`}>
+              {message.text}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {open.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-md border border-border-100 p-3">
+          <p className="text-sm">
+            <b>Waiting for Claude.</b> Requests are picked up when you open Claude in the Firstpass project and ask it to work the diagram requests. Approving waits until they’re done.
+          </p>
+          <ul className="flex flex-col">
+            {open.map((r) => (
+              <li key={r.id} className="flex flex-col gap-1.5 border-t border-border-100 py-2.5 text-sm">
+                <span className="whitespace-pre-wrap">“{r.note}”</span>
+                <Track steps={[`Sent ${fmt(r.createdAt)} by ${r.createdBy}`, 'Claude redraws', 'You check it here']} at={1} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {done.length > 0 && (
+        <ul className="flex flex-col">
+          {done.map((r, i) => (
+            <li key={r.id} className="flex flex-col gap-2 border-t border-border-100 py-3 text-sm">
+              <span className="flex flex-wrap items-center gap-2 text-xs text-ink-200">
+                <span className="rounded-full bg-surface-300 px-2 py-0.5 font-semibold text-ink-100">Done</span>
+                Redrawn {fmt(r.resolvedAt!)} · asked by {r.createdBy}
+              </span>
+              <span className="whitespace-pre-wrap">“{r.note}”</span>
+              {r.resolution && (
+                <span>
+                  <b>What changed:</b> {r.resolution}
+                </span>
+              )}
+              {/* The newest redraw can be compared with what it replaced, and undone. */}
+              {i === 0 && r.before && (
+                <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <figure className="m-0 min-w-0">
+                      <figcaption className="mb-1 text-xs text-ink-200">Before</figcaption>
+                      <Rink spec={r.before} title={`${title} before`} detail="thumb" className="rounded-sm border border-border-100" />
+                    </figure>
+                    <figure className="m-0 min-w-0">
+                      <figcaption className="mb-1 text-xs font-semibold">Now</figcaption>
+                      <Rink spec={current} title={`${title} now`} detail="thumb" className="rounded-sm outline outline-2 outline-whistle-100" />
+                    </figure>
+                  </div>
+                  <button type="button" onClick={() => onRestore(r.before!)} className="min-h-10 w-fit rounded-full border border-border-100 px-4 text-sm font-medium hover:bg-surface-200">
+                    Put the old diagram back
+                  </button>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Section>
+  );
+}
+
+function Track({ steps, at }: { steps: string[]; at: number }) {
+  return (
+    <ol className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-200" aria-label="Progress">
+      {steps.map((t, i) => (
+        <li key={t} className={`flex items-center gap-1.5 ${i === at ? 'font-semibold text-ink-100' : ''}`} aria-current={i === at ? 'step' : undefined}>
+          <span className={`h-2.5 w-2.5 rounded-full border-[1.5px] ${i < at ? 'border-ink-200 bg-ink-200' : i === at ? 'border-whistle-100 bg-whistle-100' : 'border-ink-200'}`} />
+          {t}
+        </li>
+      ))}
+    </ol>
   );
 }

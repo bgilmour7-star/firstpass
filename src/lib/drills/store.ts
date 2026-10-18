@@ -33,7 +33,7 @@ export interface DrillStore {
   get(id: string): Promise<DrillDetail | null>;
   save(drill: Drill, actor: string): Promise<void>;
   setStatus(id: string, status: Status, actor: string): Promise<void>;
-  addDiagramRequest(drillId: string, note: string, actor: string): Promise<void>;
+  addDiagramRequest(drillId: string, note: string, actor: string, before: Drill['diagram']): Promise<void>;
   addNote(drillId: string, body: string, actor: string): Promise<void>;
 }
 

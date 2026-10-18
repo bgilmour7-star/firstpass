@@ -63,7 +63,7 @@ export class LocalDrillStore implements DrillStore {
     const state = await readState();
     return {
       drill,
-      requests: state.requests.filter((r) => r.drillId === id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      requests: state.requests.filter((r) => r.drillId === id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map((r) => ({ ...r, before: r.before ?? null })),
       notes: state.notes.filter((n) => n.drillId === id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       updatedAt: state.meta[id]?.updatedAt ?? null,
       updatedBy: state.meta[id]?.updatedBy ?? null,
@@ -88,9 +88,9 @@ export class LocalDrillStore implements DrillStore {
     await this.touch(id, actor);
   }
 
-  async addDiagramRequest(drillId: string, note: string, actor: string) {
+  async addDiagramRequest(drillId: string, note: string, actor: string, before: Drill['diagram']) {
     const state = await readState();
-    state.requests.push({ id: randomUUID(), drillId, note, createdBy: actor, createdAt: new Date().toISOString(), resolvedAt: null, resolution: null });
+    state.requests.push({ id: randomUUID(), drillId, note, createdBy: actor, createdAt: new Date().toISOString(), resolvedAt: null, resolution: null, before });
     await writeState(state);
   }
 

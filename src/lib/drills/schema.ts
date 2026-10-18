@@ -88,7 +88,37 @@ const drillObject = z.object({
   status: z.enum(STATUSES),
 });
 
-export const drillSchema = z.preprocess(upgradeDrill, drillObject);
+export const drillSchema = z.preprocess((raw) => fromZones(upgradeDrill(raw)), drillObject);
+
+/** The first sentence of a zone's "How it works", which is that zone's diagram caption. */
+export function firstSentenceOf(t: string): string {
+  const s = t.trim();
+  return (s.match(/^[^.!?]*[.!?]/)?.[0] ?? s).trim();
+}
+
+/** A rotation zone's step line: "Walk backwards: Line up on the goal line facing the end boards, toes turned in." */
+export function zoneStep(z: { name: string; how: string }): string {
+  const first = firstSentenceOf(z.how);
+  return [z.name.trim(), first].filter(Boolean).join(': ');
+}
+
+/**
+ * A rotation drill's zones are the one place each zone is written (design decision 2026-10-17).
+ * Its steps, cues and diagram captions are derived from them on every read and save, so they
+ * can never drift: step n and diagram step n are zone n, and each zone's "Say this" is a cue.
+ */
+export function fromZones(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object') return raw;
+  const d = raw as Record<string, unknown> & { groupModel?: string; zones?: { station: string; name: string; how: string; cue: string }[]; diagram?: { paths?: Record<string, unknown>[] } };
+  if (d.groupModel !== 'rotation' || !Array.isArray(d.zones) || !d.zones.length) return raw;
+  const steps = d.zones.map((z) => zoneStep(z) || z.station);
+  const zoneCues = d.zones.map((z) => z.cue.trim()).filter(Boolean);
+  const cues = zoneCues.length ? zoneCues : d.zones.map((z) => z.name.trim() || z.station);
+  const diagram = d.diagram && Array.isArray(d.diagram.paths)
+    ? { ...d.diagram, paths: d.diagram.paths.map((p) => (typeof p.step === 'number' && steps[p.step - 1] ? { ...p, caption: steps[p.step - 1] } : p)) }
+    : d.diagram;
+  return { ...d, steps: steps.slice(0, 6), cues: cues.slice(0, 3), diagram };
+}
 
 export type Drill = z.infer<typeof drillSchema>;
 export type GroupModel = Drill['groupModel'];
@@ -161,6 +191,8 @@ export type DiagramRequest = {
   createdAt: string; // ISO, UTC
   resolvedAt: string | null;
   resolution: string | null;
+  /** The diagram as it was when the request was sent, so the reviewer can compare it with the redraw. Null for older requests. */
+  before: Drill['diagram'] | null;
 };
 
 export type ReviewNote = { id: string; drillId: string; body: string; createdBy: string; createdAt: string };

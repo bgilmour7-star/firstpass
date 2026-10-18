@@ -50,7 +50,9 @@ export async function requestDiagramChange(id: string, note: string): Promise<Ac
   if (!text) return { ok: false, error: 'Say what should change in the diagram.' };
   if (text.length > 2000) return { ok: false, error: 'Keep it under 2,000 characters.' };
   const store = await getDrillStore();
-  await store.addDiagramRequest(id, text, admin.id);
+  const current = await store.get(id);
+  if (!current) return { ok: false, error: 'This drill no longer exists.' };
+  await store.addDiagramRequest(id, text, admin.id, current.drill.diagram);
   revalidatePath('/admin/drills');
   revalidatePath(`/admin/drills/${id}`);
   return { ok: true };

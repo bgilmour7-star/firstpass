@@ -52,7 +52,7 @@ export class SupabaseDrillStore implements DrillStore {
     return {
       drill: toDrill(row as Row),
       requests: (reqs ?? []).map(
-        (r): DiagramRequest => ({ id: r.id, drillId: r.drill_id, note: r.note, createdBy: who(r.created_by), createdAt: r.created_at, resolvedAt: r.resolved_at, resolution: r.resolution }),
+        (r): DiagramRequest => ({ id: r.id, drillId: r.drill_id, note: r.note, createdBy: who(r.created_by), createdAt: r.created_at, resolvedAt: r.resolved_at, resolution: r.resolution, before: r.before_diagram ?? null }),
       ),
       notes: (notes ?? []).map((n): ReviewNote => ({ id: n.id, drillId: n.drill_id, body: n.body, createdBy: who(n.created_by), createdAt: n.created_at })),
       updatedAt: row.updated_at,
@@ -74,9 +74,16 @@ export class SupabaseDrillStore implements DrillStore {
     if (error) throw error;
   }
 
-  async addDiagramRequest(drillId: string, note: string, actor: string) {
+  async addDiagramRequest(drillId: string, note: string, actor: string, before: Drill['diagram']) {
     const db = await supabaseServer();
-    const { error } = await db.from('diagram_requests').insert({ drill_id: drillId, note, created_by: actor });
+    const row = { drill_id: drillId, note, created_by: actor };
+    const { error } = await db.from('diagram_requests').insert({ ...row, before_diagram: before });
+    // Until migration 20261017000000 has run there is no before_diagram column: send the request without it.
+    if (error?.code === '42703' || error?.code === 'PGRST204') {
+      const retry = await db.from('diagram_requests').insert(row);
+      if (retry.error) throw retry.error;
+      return;
+    }
     if (error) throw error;
   }
 

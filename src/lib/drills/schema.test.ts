@@ -79,3 +79,17 @@ describe('group model', () => {
     expect(r.success).toBe(false);
   });
 });
+
+describe('rotation drills take steps, cues and captions from their zones', () => {
+  it('derives them on read, so they cannot drift', async () => {
+    const { drillSchema } = await import('./schema');
+    const raw = JSON.parse(readFileSync(join(process.cwd(), 'content/drills/rotation-backwards-day.json'), 'utf8'));
+    raw.steps = ['stale step'];
+    raw.cues = ['stale cue'];
+    const d = drillSchema.parse(raw);
+    expect(d.steps).toEqual(d.zones!.map((z) => `${z.name}: ${z.how.split(/(?<=[.!?])\s/)[0]}`));
+    expect(d.cues).toEqual(d.zones!.map((z) => z.cue));
+    const captions = (d.diagram.paths ?? []).filter((p) => typeof p.step === 'number').map((p) => p.caption);
+    expect(captions).toEqual(d.steps);
+  });
+});
