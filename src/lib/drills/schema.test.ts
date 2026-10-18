@@ -38,6 +38,12 @@ describe('status moves', () => {
     expect(canMove('live', 'approved', 3).ok).toBe(true);
     expect(canMove('approved', 'in_review', 0).ok).toBe(true);
   });
+  it('archives from anywhere, even with a diagram change open, and restores only to review', () => {
+    for (const from of ['draft', 'in_review', 'approved', 'live'] as const) expect(canMove(from, 'archived', 2).ok).toBe(true);
+    expect(canMove('archived', 'in_review', 0).ok).toBe(true);
+    expect(canMove('archived', 'live', 0).ok).toBe(false);
+    expect(canMove('archived', 'approved', 0).ok).toBe(false);
+  });
 });
 
 describe('group model', () => {

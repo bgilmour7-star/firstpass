@@ -6,6 +6,7 @@ const STYLE: Record<Status, string> = {
   in_review: 'border-whistle-100 text-whistle-100',
   approved: 'border-rink-100 text-rink-100',
   live: 'border-good-100 bg-good-100 text-surface-100',
+  archived: 'border-transparent bg-surface-300 text-ink-200 line-through decoration-1',
 };
 
 export function StatusPill({ status }: { status: Status }) {

@@ -14,9 +14,10 @@ export default async function DrillQueue({ searchParams }: { searchParams: Promi
   const counts = Object.fromEntries(STATUSES.map((s) => [s, all.filter((d) => d.status === s).length])) as Record<Status, number>;
   const waitingOnClaude = all.filter((d) => d.openRequests > 0).length;
 
-  const order: Record<Status, number> = { in_review: 0, draft: 1, approved: 2, live: 3 };
+  const order: Record<Status, number> = { in_review: 0, draft: 1, approved: 2, live: 3, archived: 4 };
   const shown = all
-    .filter((d) => !filter || d.status === filter)
+    // Archived drills stay out of the way: only their own tab shows them.
+    .filter((d) => (filter ? d.status === filter : d.status !== 'archived'))
     .sort((a, b) => order[a.status] - order[b.status] || a.openRequests - b.openRequests || a.funName.localeCompare(b.funName));
 
   return (
@@ -32,8 +33,8 @@ export default async function DrillQueue({ searchParams }: { searchParams: Promi
       </div>
 
       <nav aria-label="Filter by status" className="-mx-1 flex gap-1 overflow-x-auto px-1">
-        <FilterTab href="/admin/drills" on={!filter} label="All" count={all.length} />
-        {STATUSES.map((s) => (
+        <FilterTab href="/admin/drills" on={!filter} label="All" count={all.length - counts.archived} />
+        {STATUSES.filter((s) => s !== 'archived' || counts.archived > 0).map((s) => (
           <FilterTab key={s} href={`/admin/drills?status=${s}`} on={filter === s} label={STATUS_LABEL[s]} count={counts[s]} />
         ))}
       </nav>

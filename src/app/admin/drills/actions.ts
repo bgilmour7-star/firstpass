@@ -25,7 +25,7 @@ export async function saveDrill(input: unknown): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function moveStatus(id: string, to: string): Promise<ActionResult> {
+export async function moveStatus(id: string, to: string, why = ''): Promise<ActionResult> {
   const admin = await requireAdmin();
   if (!STATUSES.includes(to as Status)) return { ok: false, error: 'Unknown status.' };
   const store = await getDrillStore();
@@ -39,6 +39,10 @@ export async function moveStatus(id: string, to: string): Promise<ActionResult> 
     if (problem) return { ok: false, error: problem };
   }
   await store.setStatus(id, to as Status, admin.id);
+  // Why it was archived goes in the review notes, so whoever restores it later can see.
+  const reason = why.trim().slice(0, 2000);
+  if (to === 'archived') await store.addNote(id, reason ? `Archived: ${reason}` : 'Archived.', admin.id);
+  if (current.drill.status === 'archived') await store.addNote(id, 'Restored to review.', admin.id);
   revalidatePath('/admin/drills');
   revalidatePath(`/admin/drills/${id}`);
   return { ok: true };

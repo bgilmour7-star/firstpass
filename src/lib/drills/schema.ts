@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const GROUPS = ['Sharks', 'Bears', 'Eagles'] as const;
 export const FOCUS_ATTRIBUTES = ['Skating', 'Puck control', 'Passing', 'Shooting', 'Game sense', 'Effort & fun'] as const;
-export const STATUSES = ['draft', 'in_review', 'approved', 'live'] as const;
+export const STATUSES = ['draft', 'in_review', 'approved', 'live', 'archived'] as const;
 /** Which slot of a practice a drill fills (the Hockey Canada practice shape; see the season plan decision). */
 export const PARTS = ['warmup', 'skill', 'game'] as const;
 export const EFFORTS = ['easy', 'medium', 'hard'] as const;
@@ -20,6 +20,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   in_review: 'In review',
   approved: 'Approved',
   live: 'Live',
+  archived: 'Archived',
 };
 
 export const GROUP_MODELS = ['basic', 'stations', 'rotation'] as const;
@@ -206,16 +207,18 @@ export type DiagramRequest = {
 export type ReviewNote = { id: string; drillId: string; body: string; createdBy: string; createdAt: string };
 
 // Who may move a drill where. Live drills reach coaches; only approved drills can go live.
+// Any drill can be archived (not good enough to keep); an archived drill comes back through review.
 const NEXT: Record<Status, Status[]> = {
-  draft: ['in_review'],
-  in_review: ['draft', 'approved'],
-  approved: ['in_review', 'live'],
-  live: ['approved'],
+  draft: ['in_review', 'archived'],
+  in_review: ['draft', 'approved', 'archived'],
+  approved: ['in_review', 'live', 'archived'],
+  live: ['approved', 'archived'],
+  archived: ['in_review'],
 };
 
 export function canMove(from: Status, to: Status, openDiagramRequests: number): { ok: boolean; reason?: string } {
   if (!NEXT[from].includes(to)) return { ok: false, reason: `A ${STATUS_LABEL[from].toLowerCase()} drill can't go straight to ${STATUS_LABEL[to].toLowerCase()}.` };
-  const forward = STATUSES.indexOf(to) > STATUSES.indexOf(from);
+  const forward = from !== 'archived' && STATUSES.indexOf(to) > STATUSES.indexOf(from);
   if (forward && (to === 'approved' || to === 'live') && openDiagramRequests > 0)
     return { ok: false, reason: 'Finish the open diagram change first.' };
   return { ok: true };

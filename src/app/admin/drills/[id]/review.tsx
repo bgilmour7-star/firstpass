@@ -11,11 +11,13 @@ import { sameDrill } from '@/lib/drills/same';
 import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
 
 const MOVE_LABEL: Record<Status, Partial<Record<Status, string>>> = {
-  draft: { in_review: 'Send for review' },
-  in_review: { approved: 'Approve', draft: 'Back to draft' },
-  approved: { live: 'Make live', in_review: 'Back to review' },
-  live: { approved: 'Take off live' },
+  draft: { in_review: 'Send for review', archived: 'Archive' },
+  in_review: { approved: 'Approve', draft: 'Back to draft', archived: 'Archive' },
+  approved: { live: 'Make live', in_review: 'Back to review', archived: 'Archive' },
+  live: { approved: 'Take off live', archived: 'Archive' },
+  archived: { in_review: 'Restore to review' },
 };
+const ORDER: Status[] = ['draft', 'in_review', 'approved', 'live'];
 
 const fmt = (iso: string) => new Date(iso).toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
@@ -24,6 +26,8 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
   const [draft, setDraft] = useState<Drill>(detail.drill);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
+  const [archiving, setArchiving] = useState(false);
+  const [archiveWhy, setArchiveWhy] = useState('');
   const [pending, start] = useTransition();
   // Status changes only through the status buttons, so it never counts as an unsaved edit.
   const dirty = useMemo(() => !sameDrill({ ...draft, status: null }, { ...detail.drill, status: null }), [draft, detail.drill]);
@@ -59,15 +63,20 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
       }
     });
   }
-  function move(to: Status) {
+  function move(to: Status, why = '') {
     if (dirty) {
       setMessage({ kind: 'error', text: 'Save or discard your changes first.' });
       return;
     }
     start(async () => {
-      const r = await moveStatus(draft.id, to);
-      setMessage(r.ok ? { kind: 'ok', text: `Moved to ${to.replace('_', ' ')}.` } : { kind: 'error', text: r.error });
-      if (r.ok) router.refresh();
+      const r = await moveStatus(draft.id, to, why);
+      const done = to === 'archived' ? 'Archived. It’s out of the library and the review queue.' : `Moved to ${to.replace('_', ' ')}.`;
+      setMessage(r.ok ? { kind: 'ok', text: done } : { kind: 'error', text: r.error });
+      if (r.ok) {
+        setArchiving(false);
+        setArchiveWhy('');
+        router.refresh();
+      }
     });
   }
   function sendRequest() {
@@ -91,6 +100,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
   const setLevel = (i: number, patch: Partial<Drill['levels'][number]>) => set('levels', draft.levels.map((x, j) => (j === i ? { ...x, ...patch } : x)));
 
   const moves = nextStatuses(draft.status);
+  const isLive = detail.drill.status === 'live';
 
   return (
     <div className="flex flex-col gap-6 pb-20">
@@ -118,13 +128,14 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
           </div>
           <div className="flex flex-wrap gap-2">
             {moves.map((to) => {
-              const forward = ['draft', 'in_review', 'approved', 'live'].indexOf(to) > ['draft', 'in_review', 'approved', 'live'].indexOf(detail.drill.status);
+              const forward = detail.drill.status === 'archived' || (to !== 'archived' && ORDER.indexOf(to) > ORDER.indexOf(detail.drill.status));
               return (
                 <button
                   key={to}
                   type="button"
                   disabled={pending}
-                  onClick={() => move(to)}
+                  aria-expanded={to === 'archived' ? archiving : undefined}
+                  onClick={() => (to === 'archived' ? setArchiving((x) => !x) : move(to))}
                   className={`min-h-11 rounded-full px-5 text-sm font-medium disabled:opacity-[var(--opacity-disabled)] ${forward ? 'bg-rink-100 text-surface-100 hover:bg-rink-200' : 'border border-border-100 hover:bg-surface-200'}`}
                 >
                   {MOVE_LABEL[detail.drill.status][to]}
@@ -133,6 +144,29 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
             })}
           </div>
         </div>
+        {archiving && (
+          <div className="flex max-w-xl flex-col gap-3 rounded-md border border-border-100 bg-surface-200 p-4">
+            <div>
+              <p className="font-semibold">Archive {draft.funName || 'this drill'}?</p>
+              <p className="text-sm text-ink-200">
+                {isLive ? 'Coaches won’t find it in the library any more. Plans that already use it will ask to swap it. ' : 'It leaves the review queue. '}
+                You can restore it from the Archived tab.
+              </p>
+            </div>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">Why? (optional)</span>
+              <textarea rows={2} className={input} value={archiveWhy} maxLength={2000} placeholder="Too much standing in line, not much skill…" onChange={(e) => setArchiveWhy(e.target.value)} />
+            </label>
+            <div className="flex gap-2">
+              <button type="button" disabled={pending} onClick={() => move('archived', archiveWhy)} className="min-h-11 rounded-full bg-ink-100 px-5 text-sm font-semibold text-surface-100 disabled:opacity-[var(--opacity-disabled)]">
+                Archive drill
+              </button>
+              <button type="button" onClick={() => setArchiving(false)} className="min-h-11 rounded-full px-4 text-sm text-ink-200 hover:text-ink-100">
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
         {message && (
           <p role={message.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${message.kind === 'error' ? 'text-flag-100' : 'text-good-100'}`}>
             {message.text}
