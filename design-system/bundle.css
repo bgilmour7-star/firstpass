@@ -258,6 +258,7 @@ button.fp-stepper__segment:hover { filter: brightness(0.92); }
 .fp-rink__step text { fill: var(--surface-100, #FFFFFF); font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; }
 .fp-rink__pucks circle, .fp-rink__puck { fill: var(--ink-100, #0E1B1E); }
 .fp-rink__cone { fill: var(--whistle-100, #C2572A); }
+.fp-rink__stick { fill: none; stroke: var(--rink-boards, #3E5258); stroke-linecap: round; stroke-linejoin: round; }
 .fp-rink__station-badge circle { fill: var(--rink-200, #084F68); }
 .fp-rink__station-badge text { fill: var(--surface-100, #FFFFFF); font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; }
 .fp-rink .fp-rink__station-label { paint-order: stroke; stroke: var(--rink-ice, #FCFEFF); stroke-width: 1.2px; stroke-linejoin: round; fill: var(--ink-100, #0E1B1E); text-anchor: start; font-family: var(--font-body, 'Lexend', sans-serif); font-weight: 600; }
@@ -281,6 +282,7 @@ button.fp-stepper__segment:hover { filter: brightness(0.92); }
 .fp-rink--print { --rink-ice: #FFFFFF; --rink-boards: #111111; --rink-line-red: #8A8A8A; --rink-line-blue: #8A8A8A; --rink-crease: #EFEFEF; --ink-100: #000000; --ink-200: #333333; --rink-100: #000000; --rink-200: #000000; --role-defense-100: #000000; --whistle-100: #000000; --surface-100: #FFFFFF; }
 .fp-rink--print .fp-rink__centre { stroke-dasharray: 2.2 1.6; }
 .fp-rink--print .fp-rink__o { fill: #FFFFFF; }
+.fp-rink--print .fp-rink__stick { stroke: #000000; }
 .fp-rink--print .fp-rink__cone { fill: #FFFFFF; stroke: #000000; stroke-width: 0.5px; }
 
 /* highlight: the station's zone stays bright and outlined; the rest of the half fades back but stays visible for context. */

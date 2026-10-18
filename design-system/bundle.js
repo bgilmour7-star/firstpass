@@ -304,6 +304,15 @@
     return '<path class="fp-rink__cone" d="M' + n(x) + ' ' + n(y - h * 0.62) + 'L' + n(x + h * 0.56) + ' ' + n(y + h * 0.42) + 'L' + n(x - h * 0.56) + ' ' + n(y + h * 0.42) + 'Z"' + (d.portrait ? ' transform="rotate(-90 ' + n(x) + ' ' + n(y) + ')"' : '') + '/>';
   }
 
+  function renderStick(st, d) {
+    // A stick lying on the ice (or resting on two cones): a shaft from points[0] to points[1], blade at points[1].
+    var a = st.points[0], b = st.points[1], dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+    var ux = dx / len, uy = dy / len, bl = Math.min(3, len * 0.3), w = d.thin * 2.6;
+    // The blade turns 110 degrees off the shaft, to the left of the direction of travel.
+    var c = Math.cos(1.92), sn = Math.sin(1.92), bx = ux * c - uy * sn, by = ux * sn + uy * c;
+    return '<path class="fp-rink__stick" d="M' + n(a[0]) + ' ' + n(a[1]) + 'L' + n(b[0]) + ' ' + n(b[1]) + 'L' + n(b[0] + bx * bl) + ' ' + n(b[1] + by * bl) + '" stroke-width="' + n(w) + '"/>';
+  }
+
   function renderMiniNet(m, d) {
     // A portable net for small-area games. facing: 'left'|'right'|'up'|'down' = direction the mouth opens.
     var w = 4, dep = 2.2, rot = { right: 0, down: 90, left: 180, up: 270 }[m.facing || 'right'];
@@ -394,7 +403,7 @@
       var inside = function (x, y) { return unusedBoxes.some(function (b) { return x >= b[0] && x <= b[0] + b[2] && y >= b[1] && y <= b[1] + b[3]; }); };
       var keep = function (q) { return !inside(q.x, q.y); };
       spec = Object.assign({}, spec, {
-        players: (spec.players || []).filter(keep), cones: (spec.cones || []).filter(keep), nets: (spec.nets || []).filter(keep),
+        players: (spec.players || []).filter(keep), cones: (spec.cones || []).filter(keep), sticks: (spec.sticks || []).filter(function (q) { return !inside(q.points[0][0], q.points[0][1]); }), nets: (spec.nets || []).filter(keep),
         piles: (spec.piles || []).filter(keep), pucks: (spec.pucks || []).filter(keep), labels: (spec.labels || []).filter(keep),
         paths: (spec.paths || []).filter(function (q) { return !inside(q.points[0][0], q.points[0][1]); })
       });
@@ -451,6 +460,7 @@
       var m = '';
       (cx.areas || []).forEach(function (a) { m += '<rect class="fp-rink__area" x="' + a.x + '" y="' + a.y + '" width="' + a.w + '" height="' + a.h + '" rx="1.2" stroke-width="' + d.thin * 1.6 + '" stroke-dasharray="' + d.thin * 5 + ' ' + d.thin * 3.5 + '"/>'; });
       (cx.nets || []).forEach(function (q) { m += renderMiniNet(q, d); });
+      (cx.sticks || []).forEach(function (q) { m += renderStick(q, d); });
       (cx.cones || []).forEach(function (q) { m += renderCone(q, d); });
       (cx.paths || []).forEach(function (q) { m += renderPath(Object.assign({}, q, { step: null }), d); });
       (cx.piles || []).forEach(function (q) { m += renderPile(q, d); });
@@ -458,6 +468,7 @@
       s += '<g class="fp-rink__muted">' + m + '</g>';
     });
     (spec.nets || []).forEach(function (m) { s += renderMiniNet(m, d); });
+    (spec.sticks || []).forEach(function (st) { s += renderStick(st, d); });
     (spec.cones || []).forEach(function (c) { s += renderCone(c, d); });
     var act = spec.activeStep;
     (spec.paths || []).forEach(function (p, i) {
@@ -496,7 +507,8 @@
     ['shot', 'Shot', function (d) { return renderPath({ type: 'shot', points: [[0.5, 4], [11.5, 4]], fromPlayer: false }, d); }],
     ['stop', 'Stop', function (d) { return renderPath({ type: 'skate', end: 'stop', points: [[0.5, 4], [10.5, 4]], fromPlayer: false }, d); }],
     ['pile', 'Pucks', function (d) { return renderPile({ x: 6, y: 4.3 }, d); }],
-    ['cone', 'Cone', function (d) { return renderCone({ x: 6, y: 4.2 }, d); }]
+    ['cone', 'Cone', function (d) { return renderCone({ x: 6, y: 4.2 }, d); }],
+    ['stick', 'Stick', function (d) { return renderStick({ points: [[1.5, 5], [9.5, 5]] }, d); }]
   ];
 
   function usedSymbols(spec) {
@@ -505,6 +517,7 @@
     (spec.paths || []).forEach(function (p) { used[p.type || 'skate'] = 1; if (p.end === 'stop') used.stop = 1; });
     if ((spec.piles || []).length || (spec.pucks || []).length) used.pile = 1;
     if ((spec.cones || []).length) used.cone = 1;
+    if ((spec.sticks || []).length) used.stick = 1;
     return used;
   }
 

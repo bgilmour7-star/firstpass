@@ -50,6 +50,7 @@ export const diagramSchema = z
       )
       .optional(),
     cones: z.array(xy).optional(),
+    sticks: z.array(z.object({ points: z.tuple([point, point]) })).optional(),
     stations: z.object({ layout: z.enum(['halfice', 'halves', 'thirds', 'quarters']) }).passthrough().optional(),
   })
   .passthrough();

@@ -36,6 +36,8 @@ export interface RinkDiagramProps {
   piles?: { x: number; y: number }[];
   pucks?: { x: number; y: number }[];
   cones?: { x: number; y: number }[];
+  /** Sticks laid on the ice as obstacles (or resting on two cones): shaft from points[0], blade at points[1]. */
+  sticks?: { points: [RinkPoint, RinkPoint] }[];
   /** Portable nets; facing = direction the mouth opens. */
   nets?: { x: number; y: number; facing?: 'left' | 'right' | 'up' | 'down' }[];
   labels?: { x: number; y: number; text: string; size?: number }[];
