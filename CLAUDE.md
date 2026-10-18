@@ -26,12 +26,5 @@ Next.js 15 (App Router, TypeScript) on Vercel · Supabase (Postgres, Auth, RLS) 
 - **Database changes: always paste the SQL.** When Brett needs to run a migration or seed in the Supabase SQL editor, put the full SQL in the reply, every time, even if he has seen it before. Never just name the file. Make migrations safe to run twice (`if not exists`, `create or replace`, `drop policy if exists`).
 - Secrets live in `.env.local` and Vercel env vars, never in the repo. `SUPABASE_SERVICE_ROLE_KEY` is for `scripts/` only, never imported by `src/`.
 
-## Diagram change requests (the admin review loop)
-Reviewers ask for diagram changes on the drill review screen. To work them:
-1. `npm run drills -- requests` lists open requests.
-2. `npm run drills -- pull <id>`, then edit `content/drills/<id>.json`. Write from the drill's source, never from its name.
-3. `npm run drills -- preview <id>` and look at `.local/preview/<id>.html` (screenshot it with Playwright) before pushing.
-4. `npm run drills -- push <id>`, then `npm run drills -- resolve <requestId> "<one sentence on what changed>"`.
-5. Commit the JSON so the drill's history lives in git.
-
-Drawing rules: courses that end in a shot run toward the real net; a drill is basic (Level 1, with up to two added levels that each add one thing and have their own diagram; levels don't belong to groups: a plan switches on one or more and the whole group does them in order), stations (one station each on half ice, A, B, C), or a rotation (2–3 zones, each its own activity, everyone does every zone); captions are one plain sentence per step.
+## Diagrams: first draws and change requests
+Reviewers ask for diagram changes on the drill review screen; new drills need a first diagram. Both are done with the **rink-diagram** skill (`.claude/skills/rink-diagram/SKILL.md`): the request loop (`requests` → `pull` → edit → `preview` and look → `push` → `resolve`), coordinates and zones, notation, and the checks before pushing. "Work the diagram requests" means: run that skill.

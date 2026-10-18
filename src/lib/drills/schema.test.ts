@@ -93,3 +93,12 @@ describe('rotation drills take steps, cues and captions from their zones', () =>
     expect(captions).toEqual(d.steps);
   });
 });
+
+describe('rotation diagram badges', () => {
+  it('show zone letters', async () => {
+    const { drillSchema } = await import('./schema');
+    const d = drillSchema.parse(JSON.parse(readFileSync(join(process.cwd(), 'content/drills/rotation-backwards-day.json'), 'utf8')));
+    const labels = (d.diagram.paths ?? []).filter((p) => typeof p.step === 'number').map((p) => (p as { stepLabel?: string }).stepLabel);
+    expect(labels).toEqual(['A', 'B', 'C']);
+  });
+});

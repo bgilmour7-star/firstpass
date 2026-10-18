@@ -32,7 +32,7 @@ export interface RinkDiagramProps {
   /** O attacker, X defender, F forward, D defenceman, C coach, G goalie. */
   players?: { role: 'O' | 'X' | 'F' | 'D' | 'C' | 'G'; x: number; y: number; label?: string }[];
   /** skate solid, puck wavy, pass dashed, shot double line, backward ticked. */
-  paths?: { type: 'skate' | 'puck' | 'pass' | 'shot' | 'backward'; points: RinkPoint[]; end?: 'arrow' | 'stop'; team?: 'X'; step?: number | string; /** Shows and plays together with an earlier step. */ stepWith?: number; /** One plain sentence for step-through and animation. */ caption?: string; stepAt?: number; stepSide?: 'left' | 'right'; fromPlayer?: boolean; trimStart?: number; trimEnd?: number }[];
+  paths?: { type: 'skate' | 'puck' | 'pass' | 'shot' | 'backward'; points: RinkPoint[]; end?: 'arrow' | 'stop'; team?: 'X'; step?: number | string; /** Shows and plays together with an earlier step. */ stepWith?: number; /** One plain sentence for step-through and animation. */ caption?: string; /** Text in the step badge instead of the number, e.g. a rotation's zone letter ('A'). Step-through and animation still order by `step`. */ stepLabel?: string; stepAt?: number; stepSide?: 'left' | 'right'; fromPlayer?: boolean; trimStart?: number; trimEnd?: number }[];
   piles?: { x: number; y: number }[];
   pucks?: { x: number; y: number }[];
   cones?: { x: number; y: number }[];
@@ -46,7 +46,7 @@ export interface RinkDiagramApi {
   mount(el: Element, spec: RinkDiagramProps): Element;
   legend(spec: RinkDiagramProps | 'all'): string;
   /** Numbered steps with captions, for building a step-through control. */
-  steps(spec: RinkDiagramProps): { step: number | string; caption: string }[];
+  steps(spec: RinkDiagramProps): { step: number | string; label: string; caption: string }[];
   /** Plays the drill: players travel their paths, the puck follows passes and shots. Always landscape. */
   animate(el: Element, spec: RinkDiagramProps, opts?: { onStep?(step: number, caption: string): void; onDone?(): void }): { play(): void; stop(): void };
 }

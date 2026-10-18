@@ -27,7 +27,7 @@ export default async function DrillPage({ params }: { params: Promise<{ id: stri
       </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6">
-          <RinkStepper spec={d.diagram} title={d.funName} />
+          <RinkStepper spec={d.diagram} title={d.funName} noun={d.groupModel === 'rotation' ? 'zones' : 'steps'} />
           {levelCount(d) > 1 && (
             <Section title="Levels">
               <ol className="grid gap-4 sm:grid-cols-3">

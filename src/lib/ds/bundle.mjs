@@ -265,7 +265,7 @@ const window = {};
       var side = p.stepSide === 'right' ? -1 : 1;
       var sx = at[0] + nn3[0] * off * side, sy = at[1] + nn3[1] * off * side;
       s += '<g class="fp-rink__step"><circle cx="' + n(sx) + '" cy="' + n(sy) + '" r="' + d.player * 0.62 + '"/>' +
-        '<text x="' + n(sx) + '" y="' + n(sy) + '" font-size="' + d.player * 0.82 + '">' + esc(p.step) + '</text></g>';
+        '<text x="' + n(sx) + '" y="' + n(sy) + '" font-size="' + d.player * 0.82 + '">' + esc(p.stepLabel != null ? p.stepLabel : p.step) + '</text></g>';
     }
     return s;
   }
@@ -594,7 +594,7 @@ const window = {};
   function mountRink(el, spec) { el.innerHTML = renderRink(spec); return el; }
 
   window.firstpass = window.firstpass || {};
-  window.firstpass.RinkDiagram = { render: renderRink, legend: renderLegend, mount: mountRink, geometry: R, stationLayouts: Object.keys(STATION_LAYOUTS), animate: animate, steps: function (spec) { return (spec.paths || []).filter(function (p) { return p.step != null; }).map(function (p) { return { step: p.step, caption: p.caption || '' }; }); } };
+  window.firstpass.RinkDiagram = { render: renderRink, legend: renderLegend, mount: mountRink, geometry: R, stationLayouts: Object.keys(STATION_LAYOUTS), animate: animate, steps: function (spec) { return (spec.paths || []).filter(function (p) { return p.step != null; }).map(function (p) { return { step: p.step, label: p.stepLabel != null ? String(p.stepLabel) : String(p.step), caption: p.caption || '' }; }); } };
 })();
 
 /* Pips: the two-pip level mark (Main = 2, Some = 1, none = 0). Used by Focus chips, the drill

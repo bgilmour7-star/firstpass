@@ -19,8 +19,8 @@ export function Pips({ level, label }: { level: 0 | 1 | 2; label?: string }) {
 }
 
 // Step-through, opening on "All" (design decision), plus "Play for the kids".
-// A rotation passes `labels` (['A', 'B', 'C']) so its steps read as zones: step n is zone n.
-export function RinkStepper({ spec, title, labels, noun = 'steps' }: { spec: RinkDiagramProps; title: string; labels?: string[]; noun?: string }) {
+// Step buttons show each step's badge label (a rotation's zone letters), so they match the diagram.
+export function RinkStepper({ spec, title, noun = 'steps' }: { spec: RinkDiagramProps; title: string; noun?: string }) {
   const steps = useMemo(() => RD.steps(spec), [spec]);
   const [active, setActive] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -67,7 +67,7 @@ export function RinkStepper({ spec, title, labels, noun = 'steps' }: { spec: Rin
           <StepButton on={active == null && !playing} onClick={() => { stop(); setActive(null); }}>All</StepButton>
           {steps.map((s) => (
             <StepButton key={String(s.step)} on={active === Number(s.step)} onClick={() => { stop(); setActive(Number(s.step)); }}>
-              {labels?.[Number(s.step) - 1] ?? String(s.step)}
+              {s.label}
             </StepButton>
           ))}
         </div>
@@ -76,7 +76,7 @@ export function RinkStepper({ spec, title, labels, noun = 'steps' }: { spec: Rin
         </button>
       </div>
       <p className="min-h-5 text-sm text-ink-200" aria-live="polite">
-        {playing ? caption : current ? `${labels?.[Number(current.step) - 1] ?? current.step}. ${current.caption}` : `${steps.length} ${noun}. Pick one to walk through it.`}
+        {playing ? caption : current ? `${current.label}. ${current.caption}` : `${steps.length} ${noun}. Pick one to walk through it.`}
       </p>
     </div>
   );

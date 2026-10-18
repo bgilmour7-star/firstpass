@@ -105,7 +105,7 @@ export function zoneStep(z: { name: string; how: string }): string {
 /**
  * A rotation drill's zones are the one place each zone is written (design decision 2026-10-17).
  * Its steps, cues and diagram captions are derived from them on every read and save, so they
- * can never drift: step n and diagram step n are zone n, and each zone's "Say this" is a cue.
+ * can never drift: step n and diagram step n are zone n (its badge shows the zone letter), and each zone's "Say this" is a cue.
  */
 export function fromZones(raw: unknown): unknown {
   if (!raw || typeof raw !== 'object') return raw;
@@ -115,7 +115,7 @@ export function fromZones(raw: unknown): unknown {
   const zoneCues = d.zones.map((z) => z.cue.trim()).filter(Boolean);
   const cues = zoneCues.length ? zoneCues : d.zones.map((z) => z.name.trim() || z.station);
   const diagram = d.diagram && Array.isArray(d.diagram.paths)
-    ? { ...d.diagram, paths: d.diagram.paths.map((p) => (typeof p.step === 'number' && steps[p.step - 1] ? { ...p, caption: steps[p.step - 1] } : p)) }
+    ? { ...d.diagram, paths: d.diagram.paths.map((p) => (typeof p.step === 'number' && steps[p.step - 1] ? { ...p, caption: steps[p.step - 1], stepLabel: d.zones![p.step - 1].station } : p)) }
     : d.diagram;
   return { ...d, steps: steps.slice(0, 6), cues: cues.slice(0, 3), diagram };
 }

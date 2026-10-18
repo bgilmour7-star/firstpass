@@ -143,7 +143,7 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         {/* Left: what the drill looks like on the ice */}
         <div className="flex min-w-0 flex-col gap-6">
-          <RinkStepper spec={shownDrill.diagram} title={draft.funName} labels={rotation ? draft.zones?.map((z) => z.station) : undefined} noun={rotation ? 'zones' : 'steps'} />
+          <RinkStepper spec={shownDrill.diagram} title={draft.funName} noun={rotation ? 'zones' : 'steps'} />
 
           <Section
             title={`${shapeLabel(draft)} · goes in a ${BLOCK_FOR[draft.groupModel]} block`}
