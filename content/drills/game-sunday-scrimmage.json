@@ -1,0 +1,88 @@
+{
+  "id": "game-sunday-scrimmage",
+  "funName": "Sunday Scrimmage",
+  "plainName": "Two cross-ice games, one in each end",
+  "sourceTitle": "Sunday scrimmage",
+  "minutes": 30,
+  "gear": "Barrier pads along both blue lines, 4 small nets, pucks",
+  "worksAsStation": false,
+  "description": "Barrier pads go across both blue lines, so each end becomes its own small rink. Play a cross-ice game in each end: two small nets against the side boards, one team on each. The neutral zone stays empty. Change lines often so everyone plays.",
+  "steps": [
+    "Win the puck and skate it toward the other team's net.",
+    "Shoot when you're close. Then go get it back!"
+  ],
+  "cues": [
+    "Keep your feet moving.",
+    "Head up, find the net.",
+    "Lose it? Go get it back!"
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "Lots of puck touches, shots and goals in a small space."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Real game reads: where the puck is, where the net is, who's open."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "everyone",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Our Sunday practice",
+    "url": null,
+    "note": "How our team runs Sunday ice: most of the time is two half-ice games across the ice, with barrier pads along the blue lines."
+  },
+  "diagram": {
+    "scope": "full",
+    "stations": { "layout": "ends", "labels": ["Game 1", "Game 2"] },
+    "nets": [
+      { "x": 40, "y": 7, "facing": "down" },
+      { "x": 40, "y": 78, "facing": "up" },
+      { "x": 160, "y": 7, "facing": "down" },
+      { "x": 160, "y": 78, "facing": "up" }
+    ],
+    "players": [
+      { "x": 28, "y": 50, "role": "O" },
+      { "x": 52, "y": 58, "role": "O" },
+      { "x": 52, "y": 24, "role": "X" },
+      { "x": 58, "y": 36, "role": "X" },
+      { "x": 148, "y": 34, "role": "O" },
+      { "x": 172, "y": 28, "role": "O" },
+      { "x": 150, "y": 50, "role": "X" },
+      { "x": 142, "y": 58, "role": "X" }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [[30, 47], [34, 34], [38, 20]],
+        "step": 1,
+        "caption": "Win the puck and skate it toward the other team's net."
+      },
+      {
+        "type": "shot",
+        "points": [[38, 18], [40, 10]],
+        "step": 2,
+        "caption": "Shoot when you're close. Then go get it back!"
+      },
+      {
+        "type": "puck",
+        "points": [[170, 31], [166, 44], [162, 64]],
+        "stepWith": 1
+      },
+      {
+        "type": "shot",
+        "points": [[161, 67], [160, 75]],
+        "stepWith": 2
+      }
+    ]
+  },
+  "status": "in_review"
+}

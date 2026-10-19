@@ -330,7 +330,9 @@ const window = {};
     halves:   { lines: [[[100, 0], [100, 85]]], boxes: [[0, 0, 100, 85], [100, 0, 100, 85]] },
     thirds:   { lines: [[[75, 0], [75, 85]], [[125, 0], [125, 85]]], boxes: [[0, 0, 75, 85], [75, 0, 50, 85], [125, 0, 75, 85]] },
     quarters: { lines: [[[100, 0], [100, 85]], [[0, 42.5], [200, 42.5]]], boxes: [[0, 0, 100, 42.5], [100, 0, 100, 42.5], [0, 42.5, 100, 42.5], [100, 42.5, 100, 42.5]] },
-    halfice:  { lines: [[[75, 0], [75, 85]], [[17, 42.5], [75, 42.5]]], boxes: [[0, 0, 75, 42.5], [0, 42.5, 75, 42.5], [75, 0, 25, 85]], badges: ['A', 'B', 'C'] }
+    halfice:  { lines: [[[75, 0], [75, 85]], [[17, 42.5], [75, 42.5]]], boxes: [[0, 0, 75, 42.5], [0, 42.5, 75, 42.5], [75, 0, 25, 85]], badges: ['A', 'B', 'C'] },
+    // Two end-zone games with barrier pads along both blue lines; the neutral zone stays empty.
+    ends:     { lines: [[[75, 0], [75, 85]], [[125, 0], [125, 85]]], boxes: [[0, 0, 75, 85], [125, 0, 75, 85]], badges: ['A', 'B'], solid: true }
   };
 
   function mirrorLayout(lay) {
@@ -352,7 +354,10 @@ const window = {};
       var a = ln[0], b = ln[1];
       if (a[0] === b[0]) { var i = iceInset(a[0]); a = [a[0], i]; b = [b[0], R.W - i]; }
       else { a = [Math.max(0.6, Math.min(a[0], b[0])), a[1]]; b = [Math.min(R.L - 0.6, Math.max(ln[0][0], ln[1][0])), b[1]]; }
-      s += '<line class="fp-rink__divider" x1="' + n(a[0]) + '" y1="' + n(a[1]) + '" x2="' + n(b[0]) + '" y2="' + n(b[1]) + '" stroke-width="' + d.thin * 2.4 + '" stroke-dasharray="' + d.thin * 5 + ' ' + d.thin * 4 + '"/>';
+      // Solid, heavier dividers are physical barriers (pads across the ice); dashed ones are station lines.
+      s += lay.solid
+        ? '<line class="fp-rink__divider fp-rink__divider--barrier" x1="' + n(a[0]) + '" y1="' + n(a[1]) + '" x2="' + n(b[0]) + '" y2="' + n(b[1]) + '" stroke-width="' + d.thin * 4.2 + '" stroke-linecap="round"/>'
+        : '<line class="fp-rink__divider" x1="' + n(a[0]) + '" y1="' + n(a[1]) + '" x2="' + n(b[0]) + '" y2="' + n(b[1]) + '" stroke-width="' + d.thin * 2.4 + '" stroke-dasharray="' + d.thin * 5 + ' ' + d.thin * 4 + '"/>';
     });
     lay.boxes.forEach(function (bx, i) {
       var label = st.labels && st.labels[i];

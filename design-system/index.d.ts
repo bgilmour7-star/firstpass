@@ -25,8 +25,8 @@ export interface RinkDiagramProps {
   /** Step-through: earlier steps fade, later ones hide. Omit to show every step (the default view). */
   activeStep?: number;
   /** U7/U9 cross-ice station layout. */
-  /** Station layout. 'halfice' (U7 standard): A top corner, B bottom corner, C neutral strip, on the half given by `side`. */
-  stations?: { layout: 'halfice' | 'halves' | 'thirds' | 'quarters'; labels?: string[]; /** Starting skill group per station (e.g. Eagles, Bears, Sharks), never player names. */ groups?: string[]; minutes?: number[]; /** Badge text per station; default A/B/C for halfice, 1/2/3 otherwise. */ badges?: string[] };
+  /** Station layout. 'halfice' (U7 standard): A top corner, B bottom corner, C neutral strip, on the half given by `side`. 'ends' (full ice): A and B are the two end zones, with barrier pads drawn solid along both blue lines. */
+  stations?: { layout: 'halfice' | 'halves' | 'thirds' | 'quarters' | 'ends'; labels?: string[]; /** Starting skill group per station (e.g. Eagles, Bears, Sharks), never player names. */ groups?: string[]; minutes?: number[]; /** Badge text per station; default A/B/C for halfice, 1/2/3 otherwise. */ badges?: string[] };
   /** Dashed small-area boundaries. */
   areas?: { x: number; y: number; w: number; h: number }[];
   /** O attacker, X defender, F forward, D defenceman, C coach, G goalie. */
