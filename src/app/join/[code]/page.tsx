@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { Mark } from '@/components/app-header';
+import { Mark } from '@/components/app-shell';
 import { joinTeam } from '../actions';
 
 export const dynamic = 'force-dynamic';

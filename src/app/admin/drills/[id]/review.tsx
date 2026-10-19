@@ -402,8 +402,8 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
       </div>
 
       {dirty && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border-100 bg-surface-100 pb-[env(safe-area-inset-bottom,0px)]">
-          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+        <div className="fixed bottom-0 left-[var(--rail-w,0px)] right-0 z-30 border-t border-border-100 bg-surface-100 pb-[env(safe-area-inset-bottom,0px)]">
+          <div className="flex items-center gap-3 px-4 py-3 lg:px-8">
             <span className="text-sm font-medium">Unsaved changes</span>
             <button type="button" onClick={() => { setDraft(detail.drill); setErrors({}); }} className="ml-auto min-h-11 rounded-full px-4 text-sm hover:bg-surface-200">
               Discard

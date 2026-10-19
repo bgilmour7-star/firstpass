@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getAppStore } from '@/lib/app/store';
 import { addMinutes, clock, practiceFocus, todayUnits, withStationDrills } from '@/lib/plans/schema';
 import { PlanView } from '@/components/plan-view';
-import { Mark } from '@/components/app-header';
+import { Mark } from '@/components/app-shell';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Practice plan', robots: { index: false, follow: false }, referrer: 'no-referrer' };

@@ -214,7 +214,7 @@ export function CheckinForm({
         </section>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border-100 bg-surface-100 pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="fixed bottom-0 left-[var(--rail-w,0px)] right-0 z-30 border-t border-border-100 bg-surface-100 pb-[env(safe-area-inset-bottom,0px)]">
         <div className="mx-auto flex max-w-md flex-col gap-1 px-4 py-3">
           {error && (
             <p role="alert" className="text-sm text-flag-100">

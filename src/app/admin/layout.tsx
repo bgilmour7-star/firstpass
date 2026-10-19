@@ -1,12 +1,16 @@
+import { cookies } from 'next/headers';
 import { requireAdmin } from '@/lib/auth';
-import { AppHeader } from '@/components/app-header';
+import { getAppStore } from '@/lib/app/store';
+import { AppShell } from '@/components/app-shell';
+import { NAV_COOKIE } from '@/lib/nav';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
+  const [team, jar] = await Promise.all([(await getAppStore()).myTeam(admin.id), cookies()]);
+  const day = Number(new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver', day: 'numeric' }));
   return (
-    <div className="min-h-dvh">
-      <AppHeader email={admin.email} isAdmin local={admin.local} />
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">{children}</main>
-    </div>
+    <AppShell email={admin.email} isAdmin local={admin.local} teamName={team?.name} todayDay={day} initialCollapsed={jar.get(NAV_COOKIE)?.value === 'collapsed'}>
+      {children}
+    </AppShell>
   );
 }

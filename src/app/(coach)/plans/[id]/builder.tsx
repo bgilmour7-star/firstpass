@@ -297,7 +297,7 @@ export function Builder({
   return (
     <div className="flex flex-col gap-5">
       {/* Plan bar: sticky on desktop, the practice on the left, its status in the middle, actions on the right */}
-      <div className="sticky top-14 z-10 -mx-4 hidden border-b border-border-100 bg-surface-100/95 px-4 py-3 shadow-[0_6px_16px_-14px_rgba(14,27,30,0.5)] backdrop-blur lg:block print:hidden">
+      <div className="sticky top-[env(safe-area-inset-top,0px)] z-10 -mx-4 -mt-6 hidden border-b border-border-100 bg-surface-100/95 px-4 py-3 lg:-mx-8 lg:px-8 shadow-[0_6px_16px_-14px_rgba(14,27,30,0.5)] backdrop-blur lg:block print:hidden">
         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
           <div className="flex min-w-0 items-center gap-4">
             <button type="button" onClick={() => setDetailsOpen(true)} className="flex min-w-0 flex-col items-start text-left" aria-label="Date, time and ice">
@@ -479,7 +479,7 @@ export function Builder({
           </li>
         </ol>
 
-        <aside className="flex flex-col gap-5 self-start lg:sticky lg:top-[136px]">
+        <aside className="flex flex-col gap-5 self-start lg:sticky lg:top-[96px]">
           <TimeCard
             used={used}
             total={plan.minutes}
@@ -557,7 +557,7 @@ export function Builder({
       {/* Phone bottom bar */}
       <nav
         aria-label="Plan actions"
-        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border-100 bg-surface-100 px-2 pb-[max(14px,env(safe-area-inset-bottom))] pt-2 lg:hidden print:hidden"
+        className="fixed bottom-0 left-[var(--rail-w,0px)] right-0 z-30 flex border-t border-border-100 bg-surface-100 px-2 pb-[max(14px,env(safe-area-inset-bottom))] pt-2 lg:hidden print:hidden"
       >
         <button type="button" onClick={() => setAdding(blocks.length)} className="flex flex-1 flex-col items-center gap-0.5 text-[11px] font-semibold text-rink-100">
           <span className="flex h-[30px] w-11 items-center justify-center rounded-full bg-rink-100 text-surface-100">{Icon.plus(20)}</span>
