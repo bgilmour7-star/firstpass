@@ -93,3 +93,14 @@ h3 {
     font-size: 15px;
   }
 }
+
+/* Plan builder rows: the minutes stepper and menu stay out of the way until the coach points at a block
+   or tabs into it. Touch screens can't hover, so there they always show. */
+@media (hover: hover) and (min-width: 1024px) {
+  .blk .blk-ctl { opacity: 0; transition: opacity 120ms ease; }
+  .blk:hover .blk-ctl,
+  .blk:focus-within .blk-ctl { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blk .blk-ctl { transition: none; }
+}

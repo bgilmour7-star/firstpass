@@ -147,12 +147,14 @@ export function Menu({ items }: { items: MenuItem[] }) {
   );
 }
 
-export function PanelSec({ title, right, children }: { title: string; right?: string; children: React.ReactNode }) {
+export function PanelSec({ title, right, rightTone, children }: { title: string; right?: string; rightTone?: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-2 border-t-2 border-ink-100 pt-2">
-      <div className="flex items-baseline justify-between">
-        <h2 className="text-[15px] font-extrabold">{title}</h2>
-        {right && <span className="font-mono text-xs text-ink-200">{right}</span>}
+    // A section of the panel margin (design system: Panel). A hairline between sections, never an ink rule,
+    // and titles one step below the plan's so the plan always leads.
+    <section className="flex flex-col gap-2.5 border-t border-border-100 pt-[18px] first:border-t-0 first:pt-0">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-sm font-semibold">{title}</h2>
+        {right && <span className={`font-mono text-xs ${rightTone ?? 'text-ink-200'}`}>{right}</span>}
       </div>
       {children}
     </section>

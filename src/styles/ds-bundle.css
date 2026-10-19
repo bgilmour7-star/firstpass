@@ -332,31 +332,46 @@ button.fp-stepper__segment:hover { filter: brightness(0.92); }
 
 /* ---------------------------------------------------------------------------
    Panel — a side panel of practice-wide information ("This practice").
-   Built to scan down the left edge:
-     .fp-panel               the column (22px between sections)
+   Revised 2026-10-18: the panel reads as a MARGIN beside the plan, never as
+   a second plan. It sits on its own surface-200 column with a hairline edge,
+   its type stays a step below the plan's (section titles 14px, rows 13-14px,
+   against 22px drill titles), and rules are hairlines only.
+     .fp-panel-col           the margin column: surface-200 fill, border-100 left edge, sticky contents
+     .fp-panel               the column's contents (20px between sections)
      .fp-panel__label        small grey label naming the whole panel
-     .fp-panel-sec           one section; every section after the first gets a rule above it
-     .fp-panel-sec__head     heading row: .fp-panel-sec__title (17px display bold) + .fp-panel-sec__meta (its count, right)
+     .fp-panel-sec           one section; every section after the first gets a hairline above it
+     .fp-panel-sec__head     heading row: .fp-panel-sec__title (14px body semibold) + .fp-panel-sec__meta (mono count, right)
      .fp-anchor-list         rows that each start with ONE anchor (pips, a number, a station badge)
-       .fp-anchor-list__anchor   30px column: the anchor
-       .fp-anchor-list__name     bold name
+       .fp-anchor-list__anchor   28px column: the anchor
+       .fp-anchor-list__name     the name (semibold)
        .fp-anchor-list__detail   grey detail on its own line
      .fp-anchor-list--tight  one-line rows (equipment): count + item
+     .fp-panel-groups        who's here: three columns of count + group name
    --------------------------------------------------------------------------- */
-.fp-panel { display: flex; flex-direction: column; gap: 22px; }
-.fp-panel__label { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink-200); }
-.fp-panel-sec { display: flex; flex-direction: column; gap: 12px; }
-.fp-panel-sec + .fp-panel-sec { padding-top: 22px; border-top: 1px solid var(--border-100); }
+.fp-panel-col { background: var(--surface-200); border-left: 1px solid var(--border-100); padding: 28px 28px 48px; }
+.fp-panel-col > .fp-panel { position: sticky; top: var(--space-5); }
+.fp-panel { display: flex; flex-direction: column; gap: 20px; }
+.fp-panel__label { margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.02em; color: var(--ink-200); }
+.fp-panel-sec { display: flex; flex-direction: column; gap: 10px; }
+.fp-panel-sec + .fp-panel-sec { padding-top: 18px; border-top: 1px solid var(--border-100); }
 .fp-panel-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.fp-panel-sec__title { margin: 0; font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-weight: 700; font-size: 17px; line-height: 22px; color: var(--ink-100); }
-.fp-panel-sec__meta { font-size: 12px; color: var(--ink-200); }
-.fp-anchor-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
-.fp-anchor-list > li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.fp-panel-sec__title { margin: 0; font-family: var(--font-body, 'Lexend', sans-serif); font-weight: 600; font-size: 14px; line-height: 20px; color: var(--ink-100); }
+.fp-panel-sec__meta { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-size: 12px; line-height: 16px; color: var(--ink-200); font-variant-numeric: tabular-nums; }
+.fp-panel-sec__meta--good { color: var(--good-100); }
+.fp-panel-sec__meta--warn { color: var(--whistle-100); }
+.fp-anchor-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.fp-anchor-list > li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: baseline; }
 .fp-anchor-list--badges > li { align-items: center; }
-.fp-anchor-list__anchor { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; font-size: 20px; line-height: 22px; color: var(--ink-100); }
+.fp-anchor-list__anchor { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; font-size: 15px; line-height: 20px; color: var(--ink-100); }
 .fp-anchor-list__body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.fp-anchor-list__name { font-weight: 600; font-size: 15px; color: var(--ink-100); }
-.fp-anchor-list__detail { font-size: 13px; color: var(--ink-200); }
-.fp-anchor-list--tight { gap: 8px; }
-.fp-anchor-list--tight .fp-anchor-list__anchor { font-size: 15px; line-height: 20px; }
-.fp-anchor-list--tight > li { font-size: 14px; }
+.fp-anchor-list__name { font-weight: 600; font-size: 14px; line-height: 20px; color: var(--ink-100); }
+.fp-anchor-list__detail { font-size: 12px; line-height: 16px; color: var(--ink-200); }
+.fp-anchor-list--tight { gap: 4px; }
+.fp-anchor-list--tight .fp-anchor-list__anchor { font-size: 13px; line-height: 18px; color: var(--ink-200); }
+.fp-anchor-list--tight > li { font-size: 13px; line-height: 18px; }
+.fp-panel-groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.fp-panel-groups li { display: flex; flex-direction: column; }
+.fp-panel-groups b { font-family: var(--font-mono, 'IBM Plex Mono', monospace); font-weight: 500; font-size: 20px; line-height: 24px; color: var(--ink-100); }
+.fp-panel-groups span { font-size: 13px; line-height: 18px; color: var(--ink-200); }
+/* Focus summary inside a panel: compact rows, one step below the plan's type. */
+.fp-panel .fp-focus-sum li { padding: 4px 0; font-size: 13px; border-top: none; }

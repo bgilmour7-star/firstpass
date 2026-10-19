@@ -152,6 +152,20 @@ export function Builder({
   const fresh = [...inPlan].filter((d) => !knownSet.has(d));
   const gear = [...new Set([...inPlan].map((d) => byId.get(d)?.gear).filter((g): g is string => !!g && g !== 'None'))];
   const variety = varietyWarnings(blocks, byId);
+  // The block that takes the plan past the team's usual number of new drills carries the warning
+  // (UX pattern: a warning lives on the item that breaks the rule). The panel only counts.
+  const overNew = new Set<string>();
+  {
+    const seen = new Set<string>();
+    for (const b of blocks) {
+      for (const d of drillIds(b)) if (!knownSet.has(d)) seen.add(d);
+      // Only the block that crosses the limit, so the warning shows once, not on every later drill.
+      if (seen.size > team.newDrillsPerWeek && drillIds(b).some((d) => !knownSet.has(d))) {
+        overNew.add(b.id);
+        break;
+      }
+    }
+  }
   const name = (b: Block) => (b.kind === 'activity' ? b.title : b.kind === 'rotation' ? ((b.drillId && byId.get(b.drillId)?.funName) ?? 'Rotation') : (byId.get(b.drillId)?.funName ?? 'Drill'));
 
   // What the drawer knows about the spot it was opened from, so it can open pre-filtered for it.
@@ -367,8 +381,9 @@ export function Builder({
       </div>
       {copiedFrom && <p className="-mt-2 hidden text-sm text-ink-200 lg:block">Copied from {day(copiedFrom)}. Change what you need.</p>}
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <ol className="flex min-w-0 flex-col">
+      {/* The plan leads on the white page; practice-wide info sits in a grey margin column beside it (design system: Panel). */}
+      <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch">
+        <ol className="flex min-w-0 flex-col pb-6 lg:pr-14 lg:pt-5">
           {blocks.map((b, i) => (
             <li
               key={b.id}
@@ -395,10 +410,10 @@ export function Builder({
               className={`flex flex-col ${drag?.from === i ? 'opacity-40' : ''} ${drag && drag.over === i && drag.from !== i ? (drag.from < i ? 'border-b-4 border-rink-100' : 'border-t-4 border-rink-100') : ''}`}
             >
               {<Gap at={i} time={times[i]} after={i > 0 ? name(blocks[i - 1]) : ''} open={adding === i} onOpen={setAdding} onChoose={add} known={known} byId={byId} />}
-              <section className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t-2 border-ink-100 py-3.5">
-                <div className="flex flex-col gap-0.5 pt-0.5">
-                  <span className="font-mono text-sm font-medium">{clock(times[i])}</span>
-                  <span className="font-mono text-xs text-ink-200">{blockMinutes(b, gc)} min</span>
+              <section className={`blk grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-2.5' : 'py-6'}`}>
+                <div className="flex flex-col gap-0.5 pt-1">
+                  <span className={`font-mono text-sm font-medium ${b.kind === 'activity' ? 'text-ink-200' : ''}`}>{clock(times[i])}</span>
+                  {b.kind !== 'activity' && <span className="font-mono text-xs text-ink-200">{blockMinutes(b, gc)} min</span>}
                   <button
                     type="button"
                     aria-label={`Drag to move ${name(b)}`}
@@ -426,6 +441,8 @@ export function Builder({
                       : setPicker({ mode: 'add', at: i, filter: 'basic', part: 'game', why: `A fun break before ${name(b)}` })
                   }
                   onKeep={(rule) => keep(`${b.id}:${rule}`)}
+                  overNew={overNew.has(b.id) && !kept.has(`${b.id}:new`) ? { limit: team.newDrillsPerWeek, count: fresh.length } : null}
+                  onKeepNew={() => keep(`${b.id}:new`)}
                   update={(f) => update(b.id, f)}
                   menu={[
                     {
@@ -467,7 +484,7 @@ export function Builder({
               </section>
             </li>
           ))}
-          <li id="gap-end" className="border-t-2 border-ink-100 pt-1">
+          <li id="gap-end" className="border-t border-border-100 pt-1">
             <Gap
               at={blocks.length}
               time={endTime}
@@ -482,7 +499,10 @@ export function Builder({
           </li>
         </ol>
 
-        <aside className="flex flex-col gap-5 self-start lg:sticky lg:top-[96px]">
+        <div className="border-t border-border-100 pt-6 lg:border-l lg:border-t-0 lg:bg-surface-200 lg:px-7 lg:pb-24 lg:pt-7">
+        <aside aria-label="This practice" className="flex flex-col gap-[18px] lg:sticky lg:top-[96px]">
+          <p className="hidden text-xs font-semibold tracking-[0.02em] text-ink-200 lg:block">This practice</p>
+          <div className="flex flex-col">
           <TimeCard
             used={used}
             total={plan.minutes}
@@ -505,11 +525,11 @@ export function Builder({
             })()}
           />
           <PanelSec title="Who's here today" right={`${units.reduce((n, u) => n + u.skaters, 0)} skaters`}>
-            <ul className="text-sm">
+            <ul className="grid grid-cols-3 gap-2">
               {units.map((u) => (
-                <li key={u.key} className="grid grid-cols-[28px_minmax(0,1fr)] gap-2">
-                  <span className="font-mono">{u.skaters}</span>
-                  {u.label}
+                <li key={u.key} className="flex min-w-0 flex-col">
+                  <span className="font-mono text-xl font-medium leading-6">{u.skaters}</span>
+                  <span className="truncate text-[13px] text-ink-200">{u.label}</span>
                 </li>
               ))}
             </ul>
@@ -518,13 +538,13 @@ export function Builder({
             </button>
           </PanelSec>
           <PanelSec title="Focus" right={`${used} min`}>
-            <ul className="flex flex-col gap-1.5">
+            <ul className="flex flex-col gap-1">
               {FOCUS_ATTRIBUTES.map((a) => {
                 const f = focus.find((x) => x.attribute === a)!;
                 return (
-                  <li key={a} className="grid grid-cols-[22px_minmax(0,1fr)] items-center gap-2 text-sm">
+                  <li key={a} className="grid grid-cols-[22px_minmax(0,1fr)] items-center gap-2 text-[13px]">
                     <Pips level={f.level} />
-                    <span className={f.level === 2 ? 'font-bold' : f.level === 1 ? '' : 'text-ink-200'}>
+                    <span className={f.level === 2 ? 'font-semibold' : f.level === 1 ? '' : 'text-ink-200'}>
                       {a}
                       {f.level === 2 && <span className="font-normal text-ink-200"> · Main</span>}
                     </span>
@@ -533,28 +553,36 @@ export function Builder({
               })}
             </ul>
           </PanelSec>
-          <PanelSec title="New to the kids" right={`${fresh.length} of ${team.newDrillsPerWeek}`}>
+          <PanelSec
+            title="New to the kids"
+            right={`${fresh.length} · usual ${team.newDrillsPerWeek}`}
+            rightTone={fresh.length > team.newDrillsPerWeek ? 'text-whistle-100' : undefined}
+          >
             {fresh.length ? (
-              <ul className="text-sm">
-                {fresh.map((d) => (
-                  <li key={d}>{byId.get(d)?.funName ?? 'Drill not live'}</li>
+              <ol className="flex flex-col gap-1 text-[13px]">
+                {fresh.map((d, n) => (
+                  <li key={d} className="grid grid-cols-[18px_minmax(0,1fr)] gap-1">
+                    <span className={`font-mono ${n >= team.newDrillsPerWeek ? 'text-whistle-100' : 'text-ink-200'}`}>{n + 1}</span>
+                    {byId.get(d)?.funName ?? 'Drill not live'}
+                  </li>
                 ))}
-              </ul>
+              </ol>
             ) : (
-              <p className="text-sm text-ink-200">All familiar. Nice and calm.</p>
+              <p className="text-[13px] text-ink-200">All familiar. Nice and calm.</p>
             )}
-            {fresh.length > team.newDrillsPerWeek && <p className="text-xs text-whistle-100">More than your usual {team.newDrillsPerWeek}. Fine if it&apos;s on purpose.</p>}
           </PanelSec>
           {gear.length > 0 && (
-            <PanelSec title="You need" right={`${gear.length}`}>
-              <ul className="list-disc pl-5 text-sm">
+            <PanelSec title="You need" right={`${gear.length} item${gear.length === 1 ? '' : 's'}`}>
+              <ul className="flex flex-col gap-1 text-[13px]">
                 {gear.map((g) => (
                   <li key={g}>{g}</li>
                 ))}
               </ul>
             </PanelSec>
           )}
+          </div>
         </aside>
+        </div>
       </div>
 
       {/* Phone bottom bar */}
@@ -622,6 +650,8 @@ function BlockBody({
   onSwap,
   onBreak,
   onKeep,
+  overNew,
+  onKeepNew,
   update,
   menu,
   onChooseDrill,
@@ -638,6 +668,8 @@ function BlockBody({
   onSwap: () => void;
   onBreak: (rule: VarietyRule) => void;
   onKeep: (rule: VarietyRule) => void;
+  overNew: { limit: number; count: number } | null;
+  onKeepNew: () => void;
   update: (f: (b: Block) => Block) => void;
   menu: Parameters<typeof Menu>[0]['items'];
   onChooseDrill: () => void;
@@ -646,73 +678,93 @@ function BlockBody({
   void count;
   const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
   const fewer = gc < 3;
-  let tag = 'ACTIVITY';
-  let tone = 'text-ink-200';
+  // A quiet, sentence-case label: what kind of block this is. Activities need none; they are one-line rows.
+  let tag = '';
+  let tone = 'text-rink-100';
   if (b.kind === 'drill') {
     const lv = d?.levels.length ? blockLevels(d, b) : [];
-    tag = `DRILL${lv.length > 1 ? ` · LEVELS ${lv.join(' → ')}` : lv.length ? ` · LEVEL ${lv[0]} OF ${d!.levels.length + 1}` : ''}`;
-    tone = 'text-rink-100';
+    tag = `Drill${lv.length > 1 ? ` · Levels ${lv.join(' → ')}` : lv.length ? ` · Level ${lv[0]} of ${d!.levels.length + 1}` : ''}`;
   }
   if (b.kind === 'stations') {
-    tag = fewer ? `STATIONS · ${gc} GROUP${gc === 1 ? '' : 'S'} TODAY` : 'STATIONS · ONE PER GROUP';
+    tag = fewer ? `Stations · ${gc} group${gc === 1 ? '' : 's'} today` : 'Stations · one per group';
     tone = 'text-[var(--role-defense-100)]';
   }
   if (b.kind === 'rotation') {
     const { active, off } = rotationToday(b, gc);
-    tag = b.stations.length ? `ROTATION · ${active.length} ZONE${active.length === 1 ? '' : 'S'}${off.length ? ' TODAY' : ''}` : 'ROTATION';
+    tag = b.stations.length ? `Rotation · ${active.length} zone${active.length === 1 ? '' : 's'}${off.length ? ' today' : ''}` : 'Rotation';
     tone = 'text-rink-200';
   }
+  const act = b.kind === 'activity';
   return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <div className="flex flex-wrap items-start gap-3">
-        <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-0.5">
-          <span className={`font-mono text-[11px] font-medium tracking-wide ${tone}`}>{tag}</span>
+    <div className="flex min-w-0 flex-col gap-3.5">
+      <div className={`flex flex-wrap gap-3 ${act ? 'items-center' : 'items-start'}`}>
+        <div className={`flex min-w-0 flex-[1_1_240px] ${act ? 'flex-wrap items-baseline gap-x-2.5' : 'flex-col gap-0.5'}`}>
+          {tag && <span className={`text-xs font-medium ${tone}`}>{tag}</span>}
           {b.kind === 'activity' ? (
             <>
               <input
                 aria-label="Block name"
-                className="-mx-1 w-full max-w-sm rounded px-1 font-display text-[19px] font-bold leading-6 hover:bg-surface-200 focus:bg-surface-200"
+                className="-mx-1 rounded px-1 text-base font-semibold leading-6 [field-sizing:content] max-w-[16rem] min-w-[4ch] hover:bg-surface-200 focus:bg-surface-200"
                 value={b.title}
                 maxLength={60}
                 onChange={(e) => update((x) => ({ ...x, title: e.target.value }) as Block)}
               />
               <input
                 aria-label="Note"
-                placeholder="Note for coaches (optional)"
-                className="-mx-1 w-full max-w-md rounded px-1 text-sm text-ink-200 hover:bg-surface-200 focus:bg-surface-200"
+                placeholder="Add a note"
+                className="-mx-1 min-w-0 flex-[1_1_12rem] rounded px-1 text-[13px] text-ink-200 placeholder:text-ink-200/0 hover:bg-surface-200 hover:placeholder:text-ink-200/70 focus:bg-surface-200 focus:placeholder:text-ink-200/70"
                 value={b.note}
                 maxLength={200}
                 onChange={(e) => update((x) => ({ ...x, note: e.target.value }) as Block)}
               />
             </>
           ) : b.kind === 'rotation' && !d && isOldRotation(b) ? (
-            <h2 className="font-display text-[19px] font-bold leading-6">Rotation</h2>
+            <h2 className="font-display text-[22px] font-bold leading-7">Rotation</h2>
           ) : d ? (
             <>
-              <Link href={`/drills/${d.id}`} className="w-fit font-display text-[19px] font-bold leading-6 hover:underline">
+              <Link href={`/drills/${d.id}`} className="w-fit font-display text-[22px] font-bold leading-7 hover:underline">
                 {d.funName}
               </Link>
               <span className="text-[13px] text-ink-200">{d.plainName}</span>
             </>
           ) : (
-            <button type="button" onClick={onChooseDrill} className="w-fit font-display text-[19px] font-bold leading-6 text-rink-100 hover:underline">
+            <button type="button" onClick={onChooseDrill} className="w-fit font-display text-[22px] font-bold leading-7 text-rink-100 hover:underline">
               {b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}
             </button>
           )}
         </div>
-        <Stepper
-          value={b.minutes}
-          min={b.kind === 'rotation' ? 2 : 1}
-          max={b.kind === 'rotation' ? 20 : 60}
-          label={b.kind === 'rotation' ? 'min each' : 'min'}
-          onChange={(m) => update((x) => ({ ...x, minutes: m }) as Block)}
-        />
-        <Menu items={menu} />
+        {/* Minutes and the menu show on hover or keyboard focus (always on touch screens): see .blk-ctl in globals.css. */}
+        <div className="blk-ctl flex items-center gap-1">
+          <Stepper
+            value={b.minutes}
+            min={b.kind === 'rotation' ? 2 : 1}
+            max={b.kind === 'rotation' ? 20 : 60}
+            label={b.kind === 'rotation' ? 'min each' : 'min'}
+            onChange={(m) => update((x) => ({ ...x, minutes: m }) as Block)}
+          />
+          <Menu items={menu} />
+        </div>
       </div>
       {feedback && <FeedbackLine fb={feedback} />}
       {variety.map((w) => (
         <VarietyBox key={w.rule} w={w} onSwap={onSwap} onBreak={() => onBreak(w.rule)} onKeep={() => onKeep(w.rule)} />
       ))}
+      {overNew && (
+        <div role="note" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 px-3.5 py-2.5">
+          <p className="min-w-0 flex-[1_1_260px] text-sm">
+            <b className="font-semibold text-whistle-100">{overNew.count} new drills today.</b>{' '}
+            <span className="text-ink-200">Your usual is {overNew.limit}. Fine if it&apos;s on purpose.</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={onSwap} className="min-h-9 rounded-full bg-ink-100 px-4 text-sm font-semibold text-surface-100 hover:opacity-90">
+              Swap
+            </button>
+            <button type="button" onClick={onKeepNew} className="min-h-9 px-2 text-sm text-ink-200 hover:text-ink-100">
+              Keep as is
+            </button>
+          </div>
+        </div>
+      )}
       {b.kind === 'drill' &&
         d &&
         (d.levels.length ? (
@@ -964,9 +1016,9 @@ function TimeCard({
   const btn = 'flex min-h-9 w-full items-center justify-center rounded-full border border-border-100 bg-surface-100 px-3 text-[13px] font-medium hover:bg-surface-200';
   if (diff === 0 || (diff < 0 && dismissed))
     return (
-      <section className="flex flex-col gap-2 border-t-2 border-ink-100 pt-2">
+      <section className="flex flex-col gap-2.5 pb-[18px]">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[15px] font-extrabold">Time</h2>
+          <h2 className="text-sm font-semibold">Time</h2>
           <span className={`font-mono text-xs font-medium ${diff === 0 ? 'text-good-100' : 'text-whistle-100'}`}>
             {used} of {total} min
           </span>
@@ -988,9 +1040,9 @@ function TimeCard({
     .sort((a, b) => b.minutes - a.minutes)
     .slice(0, 3);
   return (
-    <section role={short ? undefined : 'alert'} className={`flex flex-col gap-2.5 rounded-[10px] border-[1.5px] px-3.5 py-3 ${short ? 'border-whistle-100' : 'border-flag-100'}`}>
+    <section role={short ? undefined : 'alert'} className={`mb-[18px] flex flex-col gap-2.5 rounded-[10px] border-[1.5px] bg-surface-100 px-3.5 py-3 ${short ? 'border-whistle-100' : 'border-flag-100'}`}>
       <div className="flex items-baseline justify-between">
-        <h2 className="text-[15px] font-extrabold">{short ? `${-diff} min short` : `${diff} min over`}</h2>
+        <h2 className="text-sm font-semibold">{short ? `${-diff} min short` : `${diff} min over`}</h2>
         <span className={`font-mono text-xs font-medium ${short ? 'text-whistle-100' : 'text-flag-100'}`}>
           {used} of {total} min
         </span>
