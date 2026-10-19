@@ -36,6 +36,7 @@ import {
 } from '@/lib/plans/schema';
 import { deletePractice, savePractice } from '../actions';
 import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
+import { DrillDrawer, OpenDrill, useOpenDrill } from './drill-drawer';
 import { AttendanceDialog, BLOCK_TYPES, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
 import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
@@ -85,6 +86,10 @@ export function Builder({
   initialShare: { token: string; expiresAt: string } | null;
 }) {
   const [plan, setPlan] = useState<Practice>(initial);
+  // The drill open in the side drawer, and team favourites as starred here (the drawer and the picker share them).
+  const [viewing, setViewing] = useState<string | null>(null);
+  const [favs, setFavs] = useState(favorites);
+  const closeDrill = useCallback(() => setViewing(null), []);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved');
   const [saveError, setSaveError] = useState('');
   const [picker, setPicker] = useState<Picker | null>(null);
@@ -312,6 +317,7 @@ export function Builder({
   );
 
   return (
+    <OpenDrill.Provider value={setViewing}>
     <div className="flex flex-col gap-5">
       {/* Plan bar: sticky on desktop, the practice on the left, its status in the middle, actions on the right */}
       <div className="sticky top-[env(safe-area-inset-top,0px)] z-10 -mx-4 -mt-6 hidden border-b border-border-100 bg-surface-100/95 px-4 py-3 lg:-mx-8 lg:px-8 shadow-[0_6px_16px_-14px_rgba(14,27,30,0.5)] backdrop-blur lg:block print:hidden">
@@ -626,14 +632,31 @@ export function Builder({
           lastRun={lastRun}
           recent={recentSet}
           feedback={feedback}
-          favorites={favorites}
+          favorites={favs}
           onPick={pick}
           onClose={() => setPicker(null)}
+        />
+      )}
+      {viewing && byId.get(viewing) && (
+        <DrillDrawer
+          drill={byId.get(viewing)!}
+          planId={plan.id}
+          favorite={favs[viewing] ?? null}
+          onFavorite={(f) =>
+            setFavs((m) => {
+              const n = { ...m };
+              if (f) n[viewing] = f;
+              else delete n[viewing];
+              return n;
+            })
+          }
+          onClose={closeDrill}
         />
       )}
       {attOpen && <AttendanceDialog team={team} value={plan.attendance} preview={preview} onApply={setAttendance} onClose={() => setAttOpen(false)} />}
       {detailsOpen && <DetailsDialog plan={plan} setPlan={setPlan} onClose={() => setDetailsOpen(false)} />}
     </div>
+    </OpenDrill.Provider>
   );
 }
 
@@ -676,6 +699,7 @@ function BlockBody({
 }) {
   void index;
   void count;
+  const openDrill = useOpenDrill();
   const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
   const fewer = gc < 3;
   // A quiet, sentence-case label: what kind of block this is. Activities need none; they are one-line rows.
@@ -722,9 +746,9 @@ function BlockBody({
             <h2 className="font-display text-[22px] font-bold leading-7">Rotation</h2>
           ) : d ? (
             <>
-              <Link href={`/drills/${d.id}`} className="w-fit font-display text-[22px] font-bold leading-7 hover:underline">
+              <button type="button" onClick={() => openDrill(d.id)} className="w-fit text-left font-display text-[22px] font-bold leading-7 hover:underline">
                 {d.funName}
-              </Link>
+              </button>
               <span className="text-[13px] text-ink-200">{d.plainName}</span>
             </>
           ) : (

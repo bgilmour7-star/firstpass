@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { Pips, Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
@@ -8,17 +7,23 @@ import { levelCount, levelOf } from '@/lib/drills/schema';
 import { blockLevels, levelMinutes, rotationToday, unusedZones, zoneFor, ZONES, type DrillBlock, type RotationBlock, type StationsBlock, type Unit, type Zone } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { Badge } from './parts';
+import { useOpenDrill } from './drill-drawer';
 
 // What each kind of block shows under its title.
 
 export function DrillCard({ drill, isNew }: { drill?: Drill; isNew: boolean }) {
   if (!drill) return <p className="text-sm text-flag-100">This drill isn&apos;t live any more. Swap it for another.</p>;
   const main = drill.focus.filter((f) => f.level === 2);
+  return <DrillCardBody drill={drill} isNew={isNew} main={main} />;
+}
+
+function DrillCardBody({ drill, isNew, main }: { drill: Drill; isNew: boolean; main: Drill['focus'] }) {
+  const openDrill = useOpenDrill();
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
-      <Link href={`/drills/${drill.id}`} aria-label={`Open ${drill.funName}`} className="max-w-[260px]">
+      <button type="button" onClick={() => openDrill(drill.id)} aria-label={`Open ${drill.funName}`} className="max-w-[260px] cursor-zoom-in">
         <Rink spec={drill.diagram} title={drill.funName} detail="thumb" className="rounded-sm border border-border-100" />
-      </Link>
+      </button>
       <div className="flex min-w-0 flex-col gap-1">
         {isNew && <span className="w-fit rounded-full border border-whistle-100 px-2 py-0.5 text-xs font-semibold text-whistle-100">New</span>}
         <span className="flex flex-wrap gap-x-3 text-xs">
