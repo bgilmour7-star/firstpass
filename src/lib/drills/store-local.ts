@@ -99,4 +99,10 @@ export class LocalDrillStore implements DrillStore {
     state.notes.push({ id: randomUUID(), drillId, body, createdBy: actor, createdAt: new Date().toISOString() });
     await writeState(state);
   }
+
+  async resolveDiagramRequest(requestId: string, drillId: string, resolution: string) {
+    const state = await readState();
+    state.requests = state.requests.map((r) => (r.id === requestId && r.drillId === drillId && !r.resolvedAt ? { ...r, resolvedAt: new Date().toISOString(), resolution } : r));
+    await writeState(state);
+  }
 }

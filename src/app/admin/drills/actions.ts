@@ -72,3 +72,25 @@ export async function addReviewNote(id: string, body: string): Promise<ActionRes
   revalidatePath(`/admin/drills/${id}`);
   return { ok: true };
 }
+
+/**
+ * A reviewer closes an open diagram request themselves: either the redraw is in and looks right,
+ * or they no longer need it. Approving waits for open requests, so this unblocks it.
+ */
+export async function closeDiagramRequest(drillId: string, requestId: string, how: 'looks-right' | 'withdraw'): Promise<ActionResult> {
+  await requireAdmin();
+  const store = await getDrillStore();
+  const current = await store.get(drillId);
+  const req = current?.requests.find((r) => r.id === requestId && !r.resolvedAt);
+  if (!current || !req) return { ok: false, error: 'That request is already closed. Reload to see the latest.' };
+  const resolution = how === 'looks-right' ? 'Checked in review: the redraw looks right.' : 'Withdrawn in review: no redraw needed.';
+  try {
+    await store.resolveDiagramRequest(requestId, drillId, resolution);
+  } catch (e) {
+    console.error('[review] closing a diagram request failed:', e instanceof Error ? e.message : e);
+    return { ok: false, error: 'Couldn’t close it. Try again in a minute.' };
+  }
+  revalidatePath('/admin/drills');
+  revalidatePath(`/admin/drills/${drillId}`);
+  return { ok: true };
+}

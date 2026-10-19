@@ -92,4 +92,10 @@ export class SupabaseDrillStore implements DrillStore {
     const { error } = await db.from('review_notes').insert({ drill_id: drillId, body, created_by: actor });
     if (error) throw error;
   }
+
+  async resolveDiagramRequest(requestId: string, drillId: string, resolution: string) {
+    const db = await supabaseServer();
+    const { error } = await db.from('diagram_requests').update({ resolved_at: new Date().toISOString(), resolution }).eq('id', requestId).eq('drill_id', drillId).is('resolved_at', null);
+    if (error) throw error;
+  }
 }

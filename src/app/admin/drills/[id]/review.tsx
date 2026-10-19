@@ -8,7 +8,7 @@ import { DiagramFlag, StatusPill } from '@/components/status';
 import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, EFFORTS, EFFORT_LABEL, FORMATS, FORMAT_LABEL, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
-import { addReviewNote, moveStatus, requestDiagramChange, saveDrill } from '../actions';
+import { addReviewNote, closeDiagramRequest, moveStatus, requestDiagramChange, saveDrill } from '../actions';
 
 const MOVE_LABEL: Record<Status, Partial<Record<Status, string>>> = {
   draft: { in_review: 'Send for review', archived: 'Archive' },
@@ -289,6 +289,15 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
             onSend={sendRequest}
             pending={pending}
             message={requestMsg}
+            onClose={(requestId, how) =>
+              start(async () => {
+                const r = await closeDiagramRequest(draft.id, requestId, how);
+                if (r.ok) {
+                  setRequestMsg({ kind: 'ok', text: how === 'looks-right' ? 'Marked done. You can approve now.' : 'Request withdrawn.' });
+                  router.refresh();
+                } else setRequestMsg({ kind: 'error', text: r.error });
+              })
+            }
             onRestore={(before) => {
               set('diagram', before);
               setRequestMsg({ kind: 'ok', text: 'The diagram from before the redraw is back. Save to keep it, or Discard.' });
@@ -652,6 +661,7 @@ function DiagramChanges({
   pending,
   message,
   onRestore,
+  onClose,
 }: {
   requests: DiagramRequest[];
   current: Drill['diagram'];
@@ -662,6 +672,7 @@ function DiagramChanges({
   pending: boolean;
   message: { kind: 'ok' | 'error'; text: string } | null;
   onRestore: (before: Drill['diagram']) => void;
+  onClose: (requestId: string, how: 'looks-right' | 'withdraw') => void;
 }) {
   const open = requests.filter((r) => !r.resolvedAt);
   const done = requests.filter((r) => r.resolvedAt);
@@ -694,15 +705,43 @@ function DiagramChanges({
       {open.length > 0 && (
         <div className="flex flex-col gap-2 rounded-md border border-border-100 p-3">
           <p className="text-sm">
-            <b>Waiting for Claude.</b> Requests are picked up when you open Claude in the Firstpass project and ask it to work the diagram requests. Approving waits until they’re done.
+            <b>Open requests.</b> Claude picks them up when you ask it to work the diagram requests. Approving waits until each one is closed.
           </p>
           <ul className="flex flex-col">
-            {open.map((r) => (
-              <li key={r.id} className="flex flex-col gap-1.5 border-t border-border-100 py-2.5 text-sm">
-                <span className="whitespace-pre-wrap">“{r.note}”</span>
-                <Track steps={[`Sent ${fmt(r.createdAt)} by ${r.createdBy}`, 'Claude redraws', 'You check it here']} at={1} />
-              </li>
-            ))}
+            {open.map((r) => {
+              // A redraw has landed when the diagram no longer matches the one the request was made on.
+              const redrawn = Boolean(r.before) && !sameDrill(r.before, current);
+              return (
+                <li key={r.id} className="flex flex-col gap-2 border-t border-border-100 py-2.5 text-sm">
+                  <span className="whitespace-pre-wrap">“{r.note}”</span>
+                  <Track steps={[`Sent ${fmt(r.createdAt)} by ${r.createdBy}`, 'Claude redraws', 'You check it here']} at={redrawn ? 2 : 1} />
+                  {redrawn && r.before && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <figure className="m-0 min-w-0">
+                        <figcaption className="mb-1 text-xs text-ink-200">Before</figcaption>
+                        <Rink spec={r.before} title={`${title} before`} detail="thumb" className="rounded-sm border border-border-100" />
+                      </figure>
+                      <figure className="m-0 min-w-0">
+                        <figcaption className="mb-1 text-xs font-semibold">Now</figcaption>
+                        <Rink spec={current} title={`${title} now`} detail="thumb" className="rounded-sm outline outline-2 outline-whistle-100" />
+                      </figure>
+                    </div>
+                  )}
+                  <span className="flex flex-wrap items-center gap-2">
+                    {redrawn ? (
+                      <button type="button" disabled={pending} onClick={() => onClose(r.id, 'looks-right')} className="min-h-10 rounded-full bg-ink-100 px-4 text-sm font-medium text-surface-100 disabled:opacity-[var(--opacity-disabled)]">
+                        Looks right, mark done
+                      </button>
+                    ) : (
+                      <span className="text-xs text-ink-200">Not redrawn yet.</span>
+                    )}
+                    <button type="button" disabled={pending} onClick={() => onClose(r.id, 'withdraw')} className="min-h-10 rounded-full px-3 text-sm text-ink-200 hover:bg-surface-200 hover:text-ink-100 disabled:opacity-[var(--opacity-disabled)]">
+                      Withdraw request
+                    </button>
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

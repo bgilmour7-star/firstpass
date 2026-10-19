@@ -35,6 +35,8 @@ export interface DrillStore {
   setStatus(id: string, status: Status, actor: string): Promise<void>;
   addDiagramRequest(drillId: string, note: string, actor: string, before: Drill['diagram']): Promise<void>;
   addNote(drillId: string, body: string, actor: string): Promise<void>;
+  /** A reviewer closes an open request: the redraw looks right, or the request is no longer needed. */
+  resolveDiagramRequest(requestId: string, drillId: string, resolution: string): Promise<void>;
 }
 
 export function usingSupabase(): boolean {
