@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { signOut } from '@/app/auth/actions';
 import { NAV_COOKIE } from '@/lib/nav';
+import type { NavPractice } from '@/lib/nav-practice';
 
 // The app's frame (design decision 2026-10-18, "Left navigation"): a left rail on desktop that is
 // open by default, collapses to icons, peeks open on hover and is pinned with the button beside
@@ -18,12 +19,12 @@ type Props = {
   isAdmin: boolean;
   local: boolean;
   teamName?: string;
-  todayDay: number;
+  next: NavPractice;
   initialCollapsed: boolean;
   children: React.ReactNode;
 };
 
-export function AppShell({ email, isAdmin, local, teamName, todayDay, initialCollapsed, children }: Props) {
+export function AppShell({ email, isAdmin, local, teamName, next, initialCollapsed, children }: Props) {
   const path = usePathname();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [peek, setPeek] = useState(false);
@@ -76,7 +77,7 @@ export function AppShell({ email, isAdmin, local, teamName, todayDay, initialCol
           expanded ? 'w-[248px]' : 'w-16'
         } ${peek ? 'shadow-[0_12px_40px_rgba(14,27,30,0.18),0_2px_6px_rgba(14,27,30,0.08)]' : ''}`}
       >
-        <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} todayDay={todayDay} expanded={expanded} pin={{ collapsed, toggle }} />
+        <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} expanded={expanded} pin={{ collapsed, toggle }} />
       </aside>
 
       {/* Phone top bar */}
@@ -98,7 +99,7 @@ export function AppShell({ email, isAdmin, local, teamName, todayDay, initialCol
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <button type="button" aria-label="Close menu" onClick={() => setDrawer(false)} className="absolute inset-0 bg-ink-100/40" />
           <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-surface-200 pb-[env(safe-area-inset-bottom,0px)] pt-[env(safe-area-inset-top,0px)] shadow-xl">
-            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} todayDay={todayDay} expanded />
+            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} expanded />
           </div>
         </div>
       )}
@@ -116,7 +117,7 @@ function Nav({
   isAdmin,
   local,
   teamName,
-  todayDay,
+  next,
   expanded,
   pin,
 }: {
@@ -125,7 +126,7 @@ function Nav({
   isAdmin: boolean;
   local: boolean;
   teamName?: string;
-  todayDay: number;
+  next: NavPractice;
   expanded: boolean;
   pin?: { collapsed: boolean; toggle: () => void };
 }) {
@@ -146,19 +147,26 @@ function Nav({
   useEffect(() => setMenu(false), [path]);
 
   const items = [
-    { href: '/today', label: 'Today', icon: <CalendarDay day={todayDay} /> },
+    { href: '/today', label: next.label, sub: next.sub, icon: <CalendarDay day={next.day} /> },
     { href: '/plans', label: 'Plans', icon: <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 10h6M9 14h6M9 18h3" /> },
     { href: '/drills', label: 'Drills', icon: <RinkIcon /> },
     { href: '/team', label: 'Team', icon: <Icon d="M9 11.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4M17 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM16.5 14.4c2.4.2 4 1.8 4.5 4.6" /> },
   ];
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';
-  const link = (href: string, label: string, icon: React.ReactNode) => {
+  const link = (href: string, label: string, icon: React.ReactNode, sub?: string) => {
     const on = path === href || path.startsWith(href + '/');
     return (
-      <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? undefined : label} className={`${row} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
+      <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? undefined : sub ? `${label}, ${sub}` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
         <span className="grid size-6 place-items-center">{icon}</span>
-        <span className={`truncate ${fade}`}>{label}</span>
+        {sub ? (
+          <span className={`flex min-w-0 flex-col ${fade}`}>
+            <span className="truncate leading-5">{label}</span>
+            <span className={`truncate text-xs leading-4 ${on ? 'text-surface-100/75' : 'text-ink-200'}`}>{sub}</span>
+          </span>
+        ) : (
+          <span className={`truncate ${fade}`}>{label}</span>
+        )}
       </Link>
     );
   };
@@ -198,7 +206,7 @@ function Nav({
       )}
 
       <nav aria-label="Main" className="flex flex-col gap-0.5">
-        {items.map((i) => link(i.href, i.label, i.icon))}
+        {items.map((i) => link(i.href, i.label, i.icon, 'sub' in i ? i.sub : undefined))}
         {isAdmin && (
           <>
             <div aria-hidden="true" className="mx-[10px] my-2.5 h-px bg-border-100" />
@@ -265,7 +273,7 @@ function Icon({ d }: { d: string }) {
   );
 }
 
-/** Today: a calendar page showing today's date. */
+/** Today / Next practice: a calendar page showing that practice's day of the month. */
 function CalendarDay({ day }: { day: number }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
