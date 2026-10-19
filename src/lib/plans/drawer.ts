@@ -45,8 +45,14 @@ export function partForSlot(at: number, blockCount: number): Part {
   return 'skill';
 }
 
+/** Search by name: the fun name or the plain name contains the text, ignoring case. Used by the drawer and the Drills page. */
+export function nameMatches(d: Pick<Drill, 'funName' | 'plainName'>, q: string): boolean {
+  const t = q.trim().toLowerCase();
+  return !t || `${d.funName} ${d.plainName}`.toLowerCase().includes(t);
+}
+
 export function matches(d: Drill, s: DrawerState, ctx: DrawerContext, skip?: FilterKey): boolean {
-  if (s.q && !`${d.funName} ${d.plainName}`.toLowerCase().includes(s.q.trim().toLowerCase())) return false;
+  if (!nameMatches(d, s.q)) return false;
   if (skip !== 'part' && s.part && d.part !== s.part) return false;
   if (skip !== 'fits' && s.fits && ctx.fitsMinutes != null && blockMinutes(d) > ctx.fitsMinutes) return false;
   if (skip !== 'focus' && s.focus && !d.focus.some((f) => f.attribute === s.focus && f.level === 2)) return false;

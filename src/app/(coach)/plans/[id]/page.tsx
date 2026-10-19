@@ -6,8 +6,6 @@ import { Builder } from './builder';
 import { CheckinNudge } from './check-in/nudge';
 import { practiceOver, rateUnits } from '@/lib/plans/checkin';
 import { drillFeedback, type DrillFeedback } from '@/lib/plans/feedback';
-// TEMPORARY (2026-10-19): diagnosing "Could not find the module …builder.tsx#Builder" on Vercel. Remove once fixed.
-import { workAsyncStorage } from 'next/dist/server/app-render/work-async-storage.external';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,13 +40,6 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   });
   const feedback: Record<string, DrillFeedback> = Object.fromEntries(fb);
   const nudge = prev && recentEnough && !checkedIn ? <CheckinNudge practiceId={prev.id} day={new Date(`${prev.date}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' })} /> : null;
-  {
-    type M = { clientModules: Record<string, unknown> };
-    const per = ((globalThis as Record<symbol, unknown>)[Symbol.for('next.server.action-manifests')] as { clientReferenceManifestsPerPage?: Record<string, M> } | undefined)?.clientReferenceManifestsPerPage ?? {};
-    const route = workAsyncStorage.getStore()?.route;
-    const mine = route ? per[route] : undefined;
-    console.log('[fp-manifest]', JSON.stringify({ route, node: process.version, routes: Object.keys(per), mineHasBuilder: mine ? Object.keys(mine.clientModules).filter((k) => k.includes('builder')) : 'no manifest', mineSize: mine ? Object.keys(mine.clientModules).length : 0 }));
-  }
   return (
     <>
       {nudge}

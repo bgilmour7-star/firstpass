@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { drillSchema, type Drill } from '../drills/schema';
-import { EMPTY, blockMinutes, countWith, filterDrills, partForSlot, widenOptions, type DrawerContext } from './drawer';
+import { EMPTY, blockMinutes, countWith, filterDrills, nameMatches, partForSlot, widenOptions, type DrawerContext } from './drawer';
 
 const dir = join(__dirname, '../../../content/drills');
 const all: Drill[] = readdirSync(dir).map((f) => drillSchema.parse(JSON.parse(readFileSync(join(dir, f), 'utf8'))));
@@ -50,5 +50,17 @@ describe('add-a-drill drawer filters', () => {
   it('a rotation fits by its total time', () => {
     const r = all.find((d) => d.groupModel === 'rotation')!;
     expect(blockMinutes(r)).toBe(r.minutes * r.zones!.length);
+  });
+});
+
+describe('nameMatches', () => {
+  const d = { funName: 'Sunday Scrimmage', plainName: 'Two cross-ice games, one in each end' };
+  it('matches either name, ignoring case and spaces around the text', () => {
+    expect(nameMatches(d, '  sunday ')).toBe(true);
+    expect(nameMatches(d, 'CROSS-ICE')).toBe(true);
+    expect(nameMatches(d, 'tag')).toBe(false);
+  });
+  it('matches everything when the search is empty', () => {
+    expect(nameMatches(d, '   ')).toBe(true);
   });
 });
