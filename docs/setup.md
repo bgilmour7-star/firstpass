@@ -36,3 +36,7 @@ Claude's cloud sessions can't reach Supabase by default. Add your Supabase host 
 ## Costs (checked 2026-10-13)
 - Supabase Free: $0. Pauses after a week with no activity; un-pause from its dashboard. Pro is $25 USD/month when real coaches use it.
 - Vercel Hobby: $0, terms are personal, non-commercial. Fine while it's admins reviewing drills; move to Pro ($20 USD/month) before any outside team signs in.
+
+## Why Vercel builds start clean
+
+`vercel.json` sets `installCommand: npm ci` and `buildCommand: rm -rf .next && next build`, so no Vercel build reuses cached `node_modules` or `.next`. On 2026-10-18, builds that reused the cache left the plan builder out of the client manifest, and every plan page failed ("Could not find the module …builder.tsx#Builder", digest 424264541). Every local and clean-clone build was fine. Turning off only webpack's cache didn't fix it; the fully clean build did. Builds take about a minute longer. Don't remove these settings without checking a plan page after the deploy.
