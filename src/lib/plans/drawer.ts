@@ -15,6 +15,8 @@ export type DrawerState = {
   fresh: boolean;
   levels: boolean;
   loved: boolean;
+  /** Team favourites only (decision 0012). */
+  fav: boolean;
 };
 export type DrawerContext = {
   /** Minutes the slot has. Null when there is no gap to fit (the plan is full or over). */
@@ -24,10 +26,12 @@ export type DrawerContext = {
   recent: Set<string>;
   /** Drills that were a Big hit last time (check-ins). */
   loved?: Set<string>;
+  /** Drills a coach starred for the team. */
+  favorites?: Set<string>;
 };
 export type FilterKey = Exclude<keyof DrawerState, 'q'>;
 
-export const EMPTY: DrawerState = { q: '', part: null, fits: false, focus: null, known: false, isNew: false, fresh: false, levels: false, loved: false };
+export const EMPTY: DrawerState = { q: '', part: null, fits: false, focus: null, known: false, isNew: false, fresh: false, levels: false, loved: false, fav: false };
 
 /** A drill's minutes in a plan: a rotation runs each zone for its minutes. */
 export function blockMinutes(d: Pick<Drill, 'groupModel' | 'minutes' | 'zones'>): number {
@@ -51,6 +55,7 @@ export function matches(d: Drill, s: DrawerState, ctx: DrawerContext, skip?: Fil
   if (skip !== 'fresh' && s.fresh && ctx.recent.has(d.id)) return false;
   if (skip !== 'levels' && s.levels && !(d.groupModel === 'basic' && d.levels.length > 0)) return false;
   if (skip !== 'loved' && s.loved && !ctx.loved?.has(d.id)) return false;
+  if (skip !== 'fav' && s.fav && !ctx.favorites?.has(d.id)) return false;
   return true;
 }
 
@@ -66,7 +71,7 @@ export function countWith(drills: Drill[], s: DrawerState, ctx: DrawerContext, p
 /** Filters hiding drills right now, most useful first, with how many more each would show if turned off. */
 export function widenOptions(drills: Drill[], s: DrawerState, ctx: DrawerContext): { key: FilterKey; more: number }[] {
   const now = filterDrills(drills, s, ctx).length;
-  const keys: FilterKey[] = ['fits', 'part', 'focus', 'known', 'isNew', 'fresh', 'levels', 'loved'];
+  const keys: FilterKey[] = ['fits', 'part', 'focus', 'known', 'isNew', 'fresh', 'levels', 'loved', 'fav'];
   return keys
     .filter((k) => Boolean(s[k]))
     .map((key) => ({ key, more: drills.filter((d) => matches(d, s, ctx, key)).length - now }))

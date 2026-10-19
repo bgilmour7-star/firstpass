@@ -11,6 +11,8 @@ import type { Checkin } from '../plans/checkin';
 
 export type NewPractice = Omit<Practice, 'id'>;
 export type Share = { token: string; expiresAt: string };
+/** A drill a coach starred for the team (decision 0012). */
+export type Favorite = { by: string; at: string };
 export type TeamCoach = { userId: string; email: string; role: 'head_coach' | 'coach'; joinedAt: string };
 /** Why joining through a link failed (decision 0011). */
 export type JoinError = 'link-off' | 'on-another-team' | 'join-migration-missing';
@@ -73,6 +75,11 @@ export interface AppStore {
   /** Join as a coach. Throws an Error whose message is a JoinError. */
   joinTeam(code: string, userId: string): Promise<string>;
   removeCoach(teamId: string, userId: string): Promise<void>;
+
+  /** Team favourite drills, by drill id (decision 0012). */
+  favorites(teamId: string): Promise<Record<string, Favorite>>;
+  /** Star or unstar a drill for the team. Throws 'favorites-migration-missing' before the SQL has run. */
+  setFavorite(teamId: string, userId: string, editor: string, drillId: string, on: boolean): Promise<void>;
 }
 
 export function newShareToken(): string {

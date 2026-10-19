@@ -29,6 +29,9 @@ Design: canvas "Key screens" and "Plan next practice".
 - [x] Tables `teams`, `team_members`, `practices` with RLS by membership (`supabase/migrations/20261014000000_teams_and_practices.sql`). **Still to do: an automated test that coach A cannot read or write team B** (needs a test Supabase project).
 - [x] One plain Team page (name, skaters and group counts, coaches on the ice, usual practice length and ice). Creating the first team makes you its head coach.
 
+### 3.10 Team favourites (decision 0012, 2026-10-18)
+- [x] Any coach stars a drill for the team: star on library cards and the drill page, favourites first in the library and drawer, a Team favourites chip and drawer filter. **Brett: run `supabase/migrations/20261023000000_team_favorites.sql`.**
+
 ### 3.9 Co-coaches join (decision 0011, 2026-10-18)
 - [x] Team join link (head coach turns it on, replaces or turns it off), `/join/<code>` page that survives the sign-in email, Coaches list with Remove, a "joining a team?" hint on Name your team, and non-admin coaches land on their plans. **Brett: run `supabase/migrations/20261022000000_team_join_link.sql`.**
 

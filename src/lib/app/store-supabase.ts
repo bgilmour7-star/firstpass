@@ -5,7 +5,7 @@ import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practic
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { checkinInput, type Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach, type Favorite } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
@@ -322,6 +322,19 @@ export class SupabaseAppStore implements AppStore {
     const db = await supabaseServer();
     const { error } = await db.rpc('remove_coach', { team: teamId, coach: userId });
     if (error) throw new Error(joinError(error.message));
+  }
+  async favorites(teamId: string): Promise<Record<string, Favorite>> {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('team_favorites').select('drill_id, editor, created_at').eq('team_id', teamId);
+    if (error) return {}; // also before the favourites migration has run
+    return Object.fromEntries(((data ?? []) as { drill_id: string; editor: string; created_at: string }[]).map((r) => [r.drill_id, { by: r.editor, at: r.created_at }]));
+  }
+  async setFavorite(teamId: string, userId: string, editor: string, drillId: string, on: boolean) {
+    const db = await supabaseServer();
+    const { error } = on
+      ? await db.from('team_favorites').upsert({ team_id: teamId, drill_id: drillId, user_id: userId, editor: editor.slice(0, 60) }, { onConflict: 'team_id,drill_id', ignoreDuplicates: true })
+      : await db.from('team_favorites').delete().eq('team_id', teamId).eq('drill_id', drillId);
+    if (error) throw new Error(/team_favorites|relation|schema cache/i.test(error.message) ? 'favorites-migration-missing' : error.message);
   }
 }
 

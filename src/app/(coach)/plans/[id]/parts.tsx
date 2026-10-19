@@ -5,6 +5,8 @@ import { Rink } from '@/components/ds';
 import { FOCUS_ATTRIBUTES, GROUPS, type Drill, type Group } from '@/lib/drills/schema';
 import { usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
+import type { Favorite } from '@/lib/app/store';
+import { StarIcon, starredBy } from '@/components/favorite-button';
 import type { DrillFeedback } from '@/lib/plans/feedback';
 import { shareWithParents, stopSharing } from '../actions';
 
@@ -163,8 +165,8 @@ export type DrawerFilter = 'basic' | 'stations' | 'rotation';
 export type DrawerSlot = { label: string; fitsMinutes: number | null; part: Drill['part'] | null };
 
 const PART_OPTIONS: [Drill['part'] | null, string][] = [[null, 'Any part'], ['warmup', 'Warm-up'], ['skill', 'Skill'], ['game', 'Fun game']];
-const TOGGLES: [Exclude<FilterKey, 'part' | 'fits' | 'focus'>, string][] = [['known', 'Known to them'], ['isNew', 'New'], ['fresh', 'Not used lately'], ['levels', 'Has levels'], ['loved', 'Kids loved it']];
-const LABEL: Record<FilterKey, string> = { part: 'Any part', fits: 'Fits the time', focus: 'Any skill', known: 'Known to them', isNew: 'New', fresh: 'Not used lately', levels: 'Has levels', loved: 'Kids loved it' };
+const TOGGLES: [Exclude<FilterKey, 'part' | 'fits' | 'focus'>, string][] = [['fav', 'Team favourites'], ['known', 'Known to them'], ['isNew', 'New'], ['fresh', 'Not used lately'], ['levels', 'Has levels'], ['loved', 'Kids loved it']];
+const LABEL: Record<FilterKey, string> = { part: 'Any part', fits: 'Fits the time', focus: 'Any skill', known: 'Known to them', isNew: 'New', fresh: 'Not used lately', levels: 'Has levels', loved: 'Kids loved it', fav: 'Team favourites' };
 const lastDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
 
 export function LibraryDrawer({
@@ -177,6 +179,7 @@ export function LibraryDrawer({
   lastRun,
   recent,
   feedback = {},
+  favorites = {},
   onPick,
   onClose,
 }: {
@@ -189,6 +192,7 @@ export function LibraryDrawer({
   lastRun: Record<string, string>;
   recent: Set<string>;
   feedback?: Record<string, DrillFeedback>;
+  favorites?: Record<string, Favorite>;
   onPick: (id: string) => void;
   onClose: () => void;
 }) {
@@ -205,9 +209,11 @@ export function LibraryDrawer({
 
   const pool = drills.filter((d) => d.groupModel === filter);
   const loved = new Set(Object.entries(feedback).filter(([, f]) => f.loved).map(([id]) => id));
-  const ctx: DrawerContext = { fitsMinutes: slot.fitsMinutes, known, recent, loved };
+  const favSet = new Set(Object.keys(favorites));
+  const ctx: DrawerContext = { fitsMinutes: slot.fitsMinutes, known, recent, loved, favorites: favSet };
   // Already in the plan last, then drills that flopped or lost them last time; Big hits first.
-  const rank = (id: string) => (inPlan.has(id) ? 3 : feedback[id]?.warn ? 2 : feedback[id]?.loved ? 0 : 1);
+  // Team favourites first, then drills the kids loved; warnings and drills already in the plan last.
+  const rank = (id: string) => (inPlan.has(id) ? 3 : feedback[id]?.warn ? 2 : favSet.has(id) ? -1 : feedback[id]?.loved ? 0 : 1);
   const list = filterDrills(pool, s, ctx).sort(
     (a, b) => rank(a.id) - rank(b.id) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName),
   );
@@ -217,7 +223,7 @@ export function LibraryDrawer({
     setMenu(null);
   };
   const toggle = (k: (typeof TOGGLES)[number][0]) => set({ [k]: !s[k], ...(k === 'known' && !s.known ? { isNew: false } : {}), ...(k === 'isNew' && !s.isNew ? { known: false } : {}) });
-  const anyOn = Boolean(s.part || s.fits || s.focus || s.known || s.isNew || s.fresh || s.levels || s.loved);
+  const anyOn = Boolean(s.part || s.fits || s.focus || s.known || s.isNew || s.fresh || s.levels || s.loved || s.fav);
   const isPreset = s.part === preset.part && s.fits === preset.fits && Boolean(preset.part || preset.fits);
   const hint =
     filter === 'stations'
@@ -265,7 +271,7 @@ export function LibraryDrawer({
             <button type="button" aria-haspopup="menu" aria-expanded={menu === 'focus'} onMouseDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === 'focus' ? null : 'focus')} className={chip(Boolean(s.focus))}>
               {s.focus ?? 'Any skill'} <span aria-hidden="true" className="text-[10px] opacity-70">▾</span>
             </button>
-            {TOGGLES.filter(([k]) => k !== 'loved' || loved.size > 0 || s.loved).map(([k, label]) => {
+            {TOGGLES.filter(([k]) => (k !== 'loved' || loved.size > 0 || s.loved) && (k !== 'fav' || favSet.size > 0 || s.fav)).map(([k, label]) => {
               const n = s[k] ? null : countWith(pool, s, ctx, { [k]: true, ...(k === 'known' ? { isNew: false } : k === 'isNew' ? { known: false } : {}) });
               return (
                 <button key={k} type="button" aria-pressed={s[k]} disabled={n === 0} title={n === 0 ? 'None with your other filters' : undefined} onClick={() => toggle(k)} className={chip(s[k])}>
@@ -317,7 +323,15 @@ export function LibraryDrawer({
                   <button type="button" onClick={() => onPick(d.id)} className={`grid w-full grid-cols-[120px_minmax(0,1fr)] items-start gap-3 rounded-md py-3 text-left hover:bg-surface-200/60 ${inPlan.has(d.id) ? 'opacity-60' : ''}`}>
                     <Rink spec={d.diagram} title={d.funName} detail="thumb" />
                     <span className="flex min-w-0 flex-col gap-1">
-                      <b className="font-display text-base leading-5">{d.funName}</b>
+                      <b className="flex items-center gap-1.5 font-display text-base leading-5">
+                        {d.funName}
+                        {favorites[d.id] && (
+                          <span className="text-rink-100" title={starredBy(favorites[d.id])}>
+                            <StarIcon on size={15} />
+                            <span className="sr-only">Team favourite</span>
+                          </span>
+                        )}
+                      </b>
                       <span className="text-xs text-ink-200">{d.plainName}</span>
                       <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-200">
                         <span className="font-mono text-ink-100">

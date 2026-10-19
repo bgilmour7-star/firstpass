@@ -6,12 +6,12 @@ import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import type { Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach, type Favorite } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
 type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
-type State = { joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type State = { favorites?: Record<string, Record<string, Favorite>>; joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -248,6 +248,18 @@ export class LocalAppStore implements AppStore {
   async removeCoach(teamId: string, userId: string) {
     const s = await read();
     s.members = s.members.filter((m) => !(m.teamId === teamId && m.userId === userId && m.role !== 'head_coach'));
+    await write(s);
+  }
+
+  async favorites(teamId: string) {
+    return (await read()).favorites?.[teamId] ?? {};
+  }
+  async setFavorite(teamId: string, _userId: string, editor: string, drillId: string, on: boolean) {
+    const s = await read();
+    const team = { ...(s.favorites?.[teamId] ?? {}) };
+    if (on) team[drillId] ??= { by: editor, at: new Date().toISOString() };
+    else delete team[drillId];
+    s.favorites = { ...(s.favorites ?? {}), [teamId]: team };
     await write(s);
   }
 }

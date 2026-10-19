@@ -30,6 +30,13 @@ describe('add-a-drill drawer filters', () => {
     expect(w[0]).toEqual({ key: 'fits', more: longer });
   });
 
+  it('team favourites show only the starred drills, and can be widened back out', () => {
+    const fav = { ...ctx, favorites: new Set(['airplanes', 'game-garbage-trucks']) };
+    expect(filterDrills(basic, { ...EMPTY, fav: true }, fav).map((d) => d.id).sort()).toEqual(['airplanes', 'game-garbage-trucks']);
+    expect(widenOptions(basic, { ...EMPTY, fav: true }, fav)).toEqual([{ key: 'fav', more: basic.length - 2 }]);
+    expect(filterDrills(basic, { ...EMPTY, fav: true }, ctx)).toEqual([]);
+  });
+
   it('known and new split the library', () => {
     const k = countWith(basic, EMPTY, ctx, { known: true });
     const n = countWith(basic, EMPTY, ctx, { isNew: true });

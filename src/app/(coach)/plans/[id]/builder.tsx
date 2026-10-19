@@ -38,6 +38,7 @@ import { deletePractice, savePractice } from '../actions';
 import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
 import { AttendanceDialog, BLOCK_TYPES, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
 import type { DrillFeedback } from '@/lib/plans/feedback';
+import type { Favorite } from '@/lib/app/store';
 import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
 import { partForSlot } from '@/lib/plans/drawer';
 
@@ -68,6 +69,7 @@ export function Builder({
   lastRun,
   recent,
   feedback,
+  favorites,
   copiedFrom,
   initialShare,
 }: {
@@ -78,6 +80,7 @@ export function Builder({
   lastRun: Record<string, string>;
   recent: string[];
   feedback: Record<string, DrillFeedback>;
+  favorites: Record<string, Favorite>;
   copiedFrom: string | null;
   initialShare: { token: string; expiresAt: string } | null;
 }) {
@@ -595,6 +598,7 @@ export function Builder({
           lastRun={lastRun}
           recent={recentSet}
           feedback={feedback}
+          favorites={favorites}
           onPick={pick}
           onClose={() => setPicker(null)}
         />
