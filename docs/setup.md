@@ -10,6 +10,7 @@ Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace 
    - **Magic Link:** `supabase/templates/magic-link.html`, subject `Your Firstpass code: {{ .Token }}`
    - **Confirm signup:** `supabase/templates/confirm-signup.html`, subject `Your Firstpass code: {{ .Token }}`
    - **Reset Password:** `supabase/templates/reset-password.html`, subject `Set your Firstpass password`
+   - **Change Email Address:** `supabase/templates/change-email.html`, subject `Confirm your new Firstpass email` (decision 0014)
 
    Every button links to our `emailRedirectTo` (an `/auth/confirm?next=…` URL) plus the token hash, so it works in any browser or app, and every sign-in email also carries the 6-digit code.
    Then **Authentication → Sign In / Providers → Email:** Confirm email on, minimum password length 8, email OTP length 6, OTP expiry 3600 seconds.

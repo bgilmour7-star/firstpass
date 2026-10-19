@@ -56,6 +56,18 @@ const templates: Record<string, { subject: string; html: string }> = {
       footer: ["Didn't ask for this? Ignore it. Your password stays as it is."],
     }),
   },
+  'change-email': {
+    subject: 'Confirm your new Firstpass email',
+    html: shell({
+      site,
+      preheader: 'Your sign-in email changes once you confirm.',
+      heading: 'Confirm your new email',
+      paragraphs: ['You asked to sign in to Firstpass with {{ .NewEmail }} instead of {{ .Email }}. Tap below to confirm. We sent this to both addresses; your email changes once it’s confirmed.'],
+      button: { label: 'Confirm new email', url: link('email_change') },
+      note: 'The link works once, for one hour.',
+      footer: ["Didn't ask for this? Ignore it, and your email stays as it is."],
+    }),
+  },
 };
 
 for (const [name, t] of Object.entries(templates)) {

@@ -226,8 +226,8 @@ function Nav({
             {menu && (
               <div className="absolute bottom-full left-0 z-40 mb-1 w-[228px] rounded-[10px] border border-border-100 bg-surface-100 p-1 shadow-lg">
                 <p className="truncate px-3 pb-1.5 pt-2 text-xs text-ink-200">Signed in as {email}</p>
-                <Link href="/account/password" onClick={() => setMenu(false)} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-surface-200">
-                  Password
+                <Link href="/account" onClick={() => setMenu(false)} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-surface-200">
+                  Account
                 </Link>
                 <form action={signOut}>
                   <button type="submit" className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-surface-200">

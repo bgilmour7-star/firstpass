@@ -30,5 +30,8 @@ export async function GET(request: NextRequest) {
   }
   // A password link always ends on the screen that sets it.
   if (type === 'recovery') return go('/account/password');
+  // Confirming a new email: back to the account page (decision 0014).
+  // Supabase confirms an email change from both inboxes; after the first, the new email is still pending.
+  if (type === 'email_change') return go(data.user?.new_email ? '/account?email=half' : '/account?email=changed');
   return go(await afterSignIn(data.session, { next, joinCode: join }));
 }

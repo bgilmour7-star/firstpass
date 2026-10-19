@@ -57,6 +57,11 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
               <span className="truncate text-[15px] font-medium">
                 {shown(c)}
                 {c.userId === me && <span className="font-normal text-ink-200"> (you)</span>}
+                {c.userId === me && !c.firstName && (
+                  <a href="/account" className="ml-2 text-[13px] font-normal text-rink-100 hover:underline">
+                    Add your name
+                  </a>
+                )}
               </span>
               <span className="truncate text-xs text-ink-200">
                 {c.role === 'head_coach' ? 'Head coach' : 'Coach'}
