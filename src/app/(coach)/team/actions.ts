@@ -86,3 +86,47 @@ export async function setCheckinEmails(on: boolean): Promise<{ ok: boolean; erro
   }
   return { ok: true };
 }
+
+type CoachResult = { ok: true; code?: string | null } | { ok: false; error: string };
+
+function coachError(e: unknown): string {
+  const m = e instanceof Error ? e.message : '';
+  if (m === 'not-head-coach') return 'Only the head coach can do that.';
+  if (m === 'not-yourself') return 'You can’t remove yourself: the team needs its head coach.';
+  if (m === 'join-migration-missing') return 'Join links aren’t set up in the database yet. Run supabase/migrations/20261022000000_team_join_link.sql in the Supabase SQL editor.';
+  console.error('[coaches] change failed:', m);
+  return 'Couldn’t save that. Try again in a minute.';
+}
+
+/** Head coach: a new join link. Any old link stops working (decision 0011). */
+export async function newJoinLink(): Promise<CoachResult> {
+  const { team } = await requireTeam('/team');
+  try {
+    return { ok: true, code: await (await getAppStore()).newJoinCode(team.id) };
+  } catch (e) {
+    return { ok: false, error: coachError(e) };
+  }
+}
+
+/** Head coach: turn the join link off. Coaches already on the team stay. */
+export async function turnOffJoinLink(): Promise<CoachResult> {
+  const { team } = await requireTeam('/team');
+  try {
+    await (await getAppStore()).turnOffJoinCode(team.id);
+    return { ok: true, code: null };
+  } catch (e) {
+    return { ok: false, error: coachError(e) };
+  }
+}
+
+/** Head coach: take a coach off the team. */
+export async function removeCoach(userId: string): Promise<CoachResult> {
+  const { team } = await requireTeam('/team');
+  try {
+    await (await getAppStore()).removeCoach(team.id, userId);
+  } catch (e) {
+    return { ok: false, error: coachError(e) };
+  }
+  revalidatePath('/team');
+  return { ok: true };
+}

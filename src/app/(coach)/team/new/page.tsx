@@ -13,6 +13,9 @@ export default async function NewTeam({ searchParams }: { searchParams: Promise<
         <h1 className="text-2xl font-bold">Name your team</h1>
         <p className="text-sm text-ink-200">You can set group sizes and practice length next. Team details only: never kids&apos; names.</p>
       </div>
+      <p className="rounded-md bg-surface-200 p-3 text-sm">
+        <b>Joining a team someone else set up?</b> Don&apos;t create a new one. Open the join link your head coach sent you, or ask them for it (it&apos;s on their Team page).
+      </p>
       <form action={createTeam} className="flex flex-col gap-3">
         <label htmlFor="name" className="text-xs font-semibold text-ink-200">
           Team name

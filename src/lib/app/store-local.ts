@@ -6,12 +6,12 @@ import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import type { Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
 type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
-type State = { emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type State = { joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -206,6 +206,48 @@ export class LocalAppStore implements AppStore {
     const s = await read();
     const key = `${teamId}:${userId}`;
     s.emailsOff = (s.emailsOff ?? []).filter((k) => k !== key).concat(on ? [] : [key]);
+    await write(s);
+  }
+
+  async coaches(teamId: string): Promise<TeamCoach[]> {
+    return (await read()).members
+      .filter((m) => m.teamId === teamId)
+      .map((m) => ({ userId: m.userId, email: m.userId === 'local' ? 'Local coach' : m.userId, role: m.role === 'head_coach' ? 'head_coach' : 'coach', joinedAt: '' }));
+  }
+  async joinCode(teamId: string) {
+    return (await read()).joinCodes?.[teamId] ?? null;
+  }
+  async newJoinCode(teamId: string) {
+    const s = await read();
+    const code = randomUUID().replace(/-/g, '').slice(0, 24);
+    s.joinCodes = { ...(s.joinCodes ?? {}), [teamId]: code };
+    await write(s);
+    return code;
+  }
+  async turnOffJoinCode(teamId: string) {
+    const s = await read();
+    if (s.joinCodes) delete s.joinCodes[teamId];
+    await write(s);
+  }
+  async joinCodeTeam(code: string) {
+    const s = await read();
+    const id = Object.entries(s.joinCodes ?? {}).find(([, c]) => c === code)?.[0];
+    const team = s.teams.find((t) => t.id === id);
+    return team ? { id: team.id, name: team.name } : null;
+  }
+  async joinTeam(code: string, userId: string) {
+    const s = await read();
+    const id = Object.entries(s.joinCodes ?? {}).find(([, c]) => c === code)?.[0];
+    if (!id) throw new Error('link-off');
+    if (s.members.some((m) => m.userId === userId && m.teamId === id)) return id;
+    if (s.members.some((m) => m.userId === userId)) throw new Error('on-another-team');
+    s.members.push({ teamId: id, userId, role: 'coach' });
+    await write(s);
+    return id;
+  }
+  async removeCoach(teamId: string, userId: string) {
+    const s = await read();
+    s.members = s.members.filter((m) => !(m.teamId === teamId && m.userId === userId && m.role !== 'head_coach'));
     await write(s);
   }
 }

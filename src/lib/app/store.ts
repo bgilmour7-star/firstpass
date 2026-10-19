@@ -11,6 +11,9 @@ import type { Checkin } from '../plans/checkin';
 
 export type NewPractice = Omit<Practice, 'id'>;
 export type Share = { token: string; expiresAt: string };
+export type TeamCoach = { userId: string; email: string; role: 'head_coach' | 'coach'; joinedAt: string };
+/** Why joining through a link failed (decision 0011). */
+export type JoinError = 'link-off' | 'on-another-team' | 'join-migration-missing';
 /** What a parent link shows: no ids beyond the drills, no coach names. */
 export type SharedPractice = { team: string; groups: Team['groups'] | null; practice: Pick<Practice, 'date' | 'startTime' | 'minutes' | 'ice' | 'blocks' | 'attendance'>; drills: Drill[] };
 
@@ -60,6 +63,16 @@ export interface AppStore {
   /** The after-practice email (decision 0010): on unless this coach turned it off. */
   checkinEmails(teamId: string, userId: string): Promise<boolean>;
   setCheckinEmails(teamId: string, userId: string, on: boolean): Promise<void>;
+
+  /** Coaches and the join link (decision 0011). Head-coach-only changes throw 'not-head-coach'. */
+  coaches(teamId: string): Promise<TeamCoach[]>;
+  joinCode(teamId: string): Promise<string | null>;
+  newJoinCode(teamId: string): Promise<string>;
+  turnOffJoinCode(teamId: string): Promise<void>;
+  joinCodeTeam(code: string): Promise<{ id: string; name: string } | null>;
+  /** Join as a coach. Throws an Error whose message is a JoinError. */
+  joinTeam(code: string, userId: string): Promise<string>;
+  removeCoach(teamId: string, userId: string): Promise<void>;
 }
 
 export function newShareToken(): string {

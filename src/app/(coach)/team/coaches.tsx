@@ -1,0 +1,139 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import type { TeamCoach } from '@/lib/app/store';
+import { newJoinLink, removeCoach, turnOffJoinLink } from './actions';
+
+const pill = 'inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-medium disabled:opacity-50';
+
+/** Who coaches the team, and the join link that adds more (decision 0011). */
+export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches: TeamCoach[]; me: string; isHead: boolean; initialCode: string | null; origin: string }) {
+  const [list, setList] = useState(coaches);
+  const [code, setCode] = useState(initialCode);
+  const [copied, setCopied] = useState(false);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const link = code ? `${origin}/join/${code}` : '';
+  const head = list.find((c) => c.role === 'head_coach');
+
+  const run = (fn: () => Promise<{ ok: true; code?: string | null } | { ok: false; error: string }>, after?: () => void) =>
+    start(async () => {
+      setError(null);
+      const r = await fn();
+      if (!r.ok) return setError(r.error);
+      if (r.code !== undefined) setCode(r.code);
+      setCopied(false);
+      after?.();
+    });
+
+  return (
+    <section className="flex flex-col gap-3 border-t-2 border-ink-100 pt-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-[17px] font-extrabold">Coaches</h2>
+        <span className="text-sm text-ink-200">
+          {list.length} coach{list.length === 1 ? '' : 'es'}
+        </span>
+      </div>
+
+      <ul className="flex flex-col">
+        {list.map((c) => (
+          <li key={c.userId} className="flex min-h-12 items-center gap-3 border-t border-border-100 py-2 first:border-t-0">
+            <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-300 font-display text-sm font-bold">
+              {c.email.charAt(0).toUpperCase()}
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-[15px]">
+                {c.email}
+                {c.userId === me && <span className="text-ink-200"> (you)</span>}
+              </span>
+              <span className="text-xs text-ink-200">{c.role === 'head_coach' ? 'Head coach' : 'Coach'}</span>
+            </span>
+            {isHead && c.userId !== me && c.role !== 'head_coach' && (
+              confirming === c.userId ? (
+                <span className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => run(() => removeCoach(c.userId), () => setList((l) => l.filter((x) => x.userId !== c.userId)))}
+                    className={`${pill} bg-flag-100 text-surface-100`}
+                  >
+                    Remove
+                  </button>
+                  <button type="button" onClick={() => setConfirming(null)} className={`${pill} hover:bg-surface-200`}>
+                    Keep
+                  </button>
+                </span>
+              ) : (
+                <button type="button" onClick={() => setConfirming(c.userId)} className={`${pill} shrink-0 text-ink-200 hover:bg-surface-200`}>
+                  Remove
+                </button>
+              )
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex flex-col gap-2 rounded-md bg-surface-200 p-3">
+        <h3 className="text-sm font-bold">Add a coach</h3>
+        {isHead ? (
+          code ? (
+            <>
+              <p className="text-sm text-ink-200">Send this link to your co-coaches by text or email. They sign in with their email and join as coaches.</p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <label htmlFor="join-link" className="sr-only">
+                  Join link
+                </label>
+                <input id="join-link" readOnly value={link} onFocus={(e) => e.currentTarget.select()} className="w-full min-w-0 rounded-md border border-border-100 bg-surface-100 px-3 py-2 font-mono text-sm" />
+                <span className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(link);
+                        setCopied(true);
+                      } catch {
+                        setError('Couldn’t copy. Select the link and copy it.');
+                      }
+                    }}
+                    className={`${pill} bg-rink-100 text-surface-100 hover:bg-rink-200`}
+                  >
+                    Copy link
+                  </button>
+                  <span aria-live="polite" className="text-sm text-ink-200">
+                    {copied ? 'Copied' : ''}
+                  </span>
+                </span>
+              </div>
+              <p className="flex flex-wrap items-center gap-x-1 text-xs text-ink-200">
+                Anyone with the link can join.
+                <button type="button" disabled={pending} onClick={() => run(newJoinLink)} className="underline underline-offset-2 disabled:opacity-50">
+                  Make a new link
+                </button>
+                (the old one stops working) or
+                <button type="button" disabled={pending} onClick={() => run(turnOffJoinLink)} className="underline underline-offset-2 disabled:opacity-50">
+                  turn it off
+                </button>
+                <span className="-ml-1">.</span>
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-ink-200">Turn on a join link and send it to your co-coaches. They sign in with their email and join as coaches.</p>
+              <button type="button" disabled={pending} onClick={() => run(newJoinLink)} className={`${pill} self-start bg-rink-100 text-surface-100 hover:bg-rink-200`}>
+                {pending ? 'Turning on…' : 'Turn on join link'}
+              </button>
+            </>
+          )
+        ) : (
+          <p className="text-sm text-ink-200">Ask {head ? head.email : 'your head coach'} for the team&apos;s join link.</p>
+        )}
+        {error && (
+          <p role="alert" className="text-sm text-flag-100">
+            {error}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}

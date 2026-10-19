@@ -5,7 +5,7 @@ import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practic
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { checkinInput, type Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
@@ -281,4 +281,52 @@ export class SupabaseAppStore implements AppStore {
     const { error } = await db.rpc('set_checkin_emails', { team: teamId, wanted: on });
     if (error) throw new Error(/set_checkin_emails|function|schema cache/i.test(error.message) ? 'email-migration-missing' : error.message);
   }
+
+  async coaches(teamId: string): Promise<TeamCoach[]> {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('team_coaches', { team: teamId });
+    if (error) return []; // also before the join-link migration has run
+    return ((data ?? []) as { user_id: string; email: string; role: TeamCoach['role']; joined_at: string }[]).map((r) => ({ userId: r.user_id, email: r.email, role: r.role, joinedAt: r.joined_at }));
+  }
+  async joinCode(teamId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('teams').select('join_code').eq('id', teamId).maybeSingle();
+    if (error || !data) return null;
+    return (data as { join_code: string | null }).join_code;
+  }
+  async newJoinCode(teamId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('new_join_code', { team: teamId });
+    if (error) throw new Error(joinError(error.message));
+    return data as string;
+  }
+  async turnOffJoinCode(teamId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('turn_off_join_code', { team: teamId });
+    if (error) throw new Error(joinError(error.message));
+  }
+  async joinCodeTeam(code: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('join_code_team', { code });
+    const row = (data as { team_id: string; team_name: string }[] | null)?.[0];
+    if (error || !row) return null;
+    return { id: row.team_id, name: row.team_name };
+  }
+  async joinTeam(code: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('join_team', { code });
+    if (error) throw new Error(joinError(error.message));
+    return data as string;
+  }
+  async removeCoach(teamId: string, userId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('remove_coach', { team: teamId, coach: userId });
+    if (error) throw new Error(joinError(error.message));
+  }
+}
+
+function joinError(message: string): string {
+  for (const known of ['link-off', 'on-another-team', 'not-head-coach', 'not-yourself']) if (message.includes(known)) return known;
+  if (/function|schema cache|join_code/i.test(message)) return 'join-migration-missing';
+  return message;
 }

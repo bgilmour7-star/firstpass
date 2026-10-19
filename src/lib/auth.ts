@@ -20,7 +20,8 @@ async function currentUser(nextPath: string): Promise<{ id: string; email: strin
 // Every admin page and server action calls this first. RLS enforces the same rule in the database.
 export async function requireAdmin(nextPath = '/admin/drills'): Promise<Admin> {
   const u = await currentUser(nextPath);
-  if (!u.isAdmin) redirect('/not-allowed');
+  // Coaches who aren't admins land on their plans (the sign-in email points at drill review).
+  if (!u.isAdmin) redirect('/');
   return { id: u.id, email: u.email === 'Local coach' ? 'Local admin' : u.email, local: u.local };
 }
 
