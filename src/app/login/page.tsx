@@ -1,20 +1,39 @@
-import { LoginForm } from './form';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { AuthFrame } from '@/components/auth-frame';
+import { AuthFlow } from '@/components/auth-flow';
+import { LAST_EMAIL, safeNext } from '@/lib/auth-after';
+import { Expired } from './expired';
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; reason?: string }> }) {
-  const { next, error, reason } = await searchParams;
+export const dynamic = 'force-dynamic';
+
+// Sign in or create an account, email first (decision 0013).
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
+  const { next: rawNext, error } = await searchParams;
+  const next = safeNext(rawNext);
+  const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  if (!configured) redirect(next);
+  // A join link always signs in on its own page, with the team in view.
+  const join = next.match(/^\/join\/([A-Za-z0-9]{8,64})$/);
+  if (join && !error) redirect(next);
+  const last = (await cookies()).get(LAST_EMAIL)?.value ?? '';
+
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Sign in to Firstpass</h1>
-        <p className="text-sm text-ink-200">We&apos;ll email you a link. No password.</p>
-      </div>
-      {error && (
-        <p role="alert" className="text-sm text-flag-100">
-          That link didn&apos;t work. Links work once and expire after an hour. Ask for a new one.
-          {reason && <span className="mt-1 block font-mono text-xs text-ink-200">Reason: {reason}</span>}
-        </p>
+    <AuthFrame>
+      {error ? (
+        <Expired email={last} next={next} />
+      ) : (
+        <AuthFlow
+          next={next}
+          initialEmail={last}
+          intro={
+            <div className="mt-16 flex flex-col gap-3 lg:mt-[120px]">
+              <h1 className="font-display text-[36px] font-extrabold leading-[40px] tracking-[-0.025em] text-balance lg:text-[44px] lg:leading-[48px]">U7 &amp; U9 practices, planned in minutes</h1>
+              <p className="text-[17px] leading-[26px] text-ink-200">Drills from Hockey Canada&apos;s U7 and U9 programs, stations on half ice, and a sheet for the bench.</p>
+            </div>
+          }
+        />
       )}
-      <LoginForm next={next?.startsWith('/') ? next : '/admin/drills'} />
-    </main>
+    </AuthFrame>
   );
 }

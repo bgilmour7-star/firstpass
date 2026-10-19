@@ -13,7 +13,9 @@ export type NewPractice = Omit<Practice, 'id'>;
 export type Share = { token: string; expiresAt: string };
 /** A drill a coach starred for the team (decision 0012). */
 export type Favorite = { by: string; at: string };
-export type TeamCoach = { userId: string; email: string; role: 'head_coach' | 'coach'; joinedAt: string };
+export type TeamCoach = { userId: string; email: string; firstName: string | null; role: 'head_coach' | 'coach'; joinedAt: string };
+/** What a join link is for, shown before joining, even signed out (decisions 0011, 0013). */
+export type JoinPreview = { id: string; name: string; inviter: string | null; next: { date: string; startTime: string; ice: 'half' | 'full'; blocks: number } | null };
 /** Why joining through a link failed (decision 0011). */
 export type JoinError = 'link-off' | 'on-another-team' | 'join-migration-missing';
 /** What a parent link shows: no ids beyond the drills, no coach names. */
@@ -25,7 +27,7 @@ export type IceTimeRow = Omit<IceTime, 'id' | 'teamId'>;
 
 export interface AppStore {
   myTeam(userId: string): Promise<Team | null>;
-  createTeam(name: string, userId: string): Promise<Team>;
+  createTeam(name: string, userId: string, setup?: { ageGroup: string; ice: Team['ice'] }): Promise<Team>;
   updateTeam(team: Team): Promise<void>;
   listPractices(teamId: string): Promise<Practice[]>;
   getPractice(id: string): Promise<Practice | null>;
@@ -71,7 +73,7 @@ export interface AppStore {
   joinCode(teamId: string): Promise<string | null>;
   newJoinCode(teamId: string): Promise<string>;
   turnOffJoinCode(teamId: string): Promise<void>;
-  joinCodeTeam(code: string): Promise<{ id: string; name: string } | null>;
+  joinCodeTeam(code: string): Promise<JoinPreview | null>;
   /** Join as a coach. Throws an Error whose message is a JoinError. */
   joinTeam(code: string, userId: string): Promise<string>;
   removeCoach(teamId: string, userId: string): Promise<void>;

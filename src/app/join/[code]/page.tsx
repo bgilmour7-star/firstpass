@@ -1,74 +1,107 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { requireUser } from '@/lib/auth';
+import { optionalUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { Mark } from '@/components/app-shell';
+import { AuthFrame } from '@/components/auth-frame';
+import { AuthFlow } from '@/components/auth-flow';
+import { clock } from '@/lib/plans/schema';
 import { joinTeam } from '../actions';
 
 export const dynamic = 'force-dynamic';
 
-// Where a co-coach lands from the team's join link (decision 0011).
-export default async function JoinPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ error?: string }> }) {
+// Where a coach lands from a team's join link (decisions 0011, 0013). Signed out, it says who
+// invited them and to which team, then signs them in or creates their account right here and
+// joins in the same step. Signed in, it's one button.
+export default async function JoinPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ error?: string; email?: string }> }) {
   const { code } = await params;
-  const { error } = await searchParams;
-  const coach = await requireUser(`/join/${code}`);
+  const { error, email } = await searchParams;
+  if (!/^[A-Za-z0-9]{8,64}$/.test(code)) return <Off />;
   const store = await getAppStore();
-  const [team, mine] = await Promise.all([store.joinCodeTeam(code), store.myTeam(coach.id)]);
-  if (team && mine?.id === team.id) redirect('/plans');
+  const [coach, team] = await Promise.all([optionalUser(), store.joinCodeTeam(code)]);
+  const mine = coach ? await store.myTeam(coach.id) : null;
+  if (team && mine?.id === team.id && !error) redirect('/plans');
 
-  let body: React.ReactNode;
-  if (!team || error === 'link-off') {
-    body = (
-      <>
-        <h1 className="text-2xl font-bold">This join link is turned off</h1>
-        <p className="text-sm text-ink-200">The head coach replaced it or turned it off. Ask them for the team&apos;s current link.</p>
-        {mine && <Back />}
-      </>
+  if (error === 'link-off' || (coach && !team)) return <Off back={!!mine} />;
+  if (mine || error === 'on-another-team')
+    return (
+      <AuthFrame panel={false}>
+        <div className="mt-14 flex flex-col gap-3">
+          <h1 className="font-display text-[30px] font-extrabold leading-[34px]">You&apos;re already on {mine?.name ?? 'another team'}</h1>
+          <p className="text-[15px] leading-[22px] text-ink-200">
+            During the pilot a coach is on one team at a time, so you can&apos;t join {team?.name ?? 'this team'} as well. If you meant to switch, ask your head coach to remove you first.
+          </p>
+          <Back />
+        </div>
+      </AuthFrame>
     );
-  } else if (mine || error === 'on-another-team') {
-    body = (
-      <>
-        <h1 className="text-2xl font-bold">You&apos;re already on {mine?.name ?? 'another team'}</h1>
-        <p className="text-sm text-ink-200">
-          During the pilot a coach is on one team at a time, so you can&apos;t join {team.name} as well. If you meant to switch, ask your head coach to remove you first.
+
+  const heading = (
+    <div className="mt-10 flex flex-col gap-2.5">
+      {team?.inviter && (
+        <p className="flex items-center gap-2.5 text-sm text-ink-200">
+          <span aria-hidden="true" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rink-200 text-xs font-semibold text-surface-100">
+            {team.inviter.charAt(0).toUpperCase()}
+          </span>
+          <span>
+            <b className="font-semibold text-ink-100">{team.inviter}</b> invited you to coach
+          </span>
         </p>
-        <Back />
-      </>
+      )}
+      <h1 className="font-display text-[36px] font-extrabold leading-[40px] tracking-[-0.02em] text-balance">{team ? `Join ${team.name}` : 'Join your team on Firstpass'}</h1>
+      {team?.next && (
+        <p className="mt-3 flex flex-col gap-0.5 border-y border-border-100 py-3">
+          <span className="text-xs text-ink-200">Next practice</span>
+          <span className="text-[15px] font-semibold">
+            {new Date(team.next.date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })} · {clock(team.next.startTime)}
+          </span>
+          <span className="text-[13px] text-ink-200">
+            {team.next.ice === 'half' ? 'Half ice' : 'Full ice'} · {team.next.blocks} block{team.next.blocks === 1 ? '' : 's'} planned
+          </span>
+        </p>
+      )}
+    </div>
+  );
+
+  if (!coach)
+    return (
+      <AuthFrame>
+        <AuthFlow next={`/join/${code}`} join={{ code, teamName: team?.name ?? 'the team' }} initialEmail={email ?? ''} intro={heading} />
+      </AuthFrame>
     );
-  } else {
-    body = (
-      <>
-        <h1 className="text-2xl font-bold">Join {team.name}</h1>
-        <p className="text-sm text-ink-200">You&apos;ll plan practices with the other coaches, run them rink-side and check in after. Team details only: never kids&apos; names.</p>
-        <form action={joinTeam.bind(null, code)}>
-          <button type="submit" className="min-h-11 w-full rounded-full bg-rink-100 px-5 text-sm font-medium text-surface-100 hover:bg-rink-200">
-            Join {team.name}
-          </button>
-        </form>
+
+  return (
+    <AuthFrame>
+      {heading}
+      <form action={joinTeam.bind(null, code)} className="mt-7 flex flex-col gap-2">
+        <button type="submit" className="inline-flex h-[52px] items-center justify-center rounded-full bg-rink-100 font-semibold text-surface-100 hover:bg-rink-200">
+          Join the team
+        </button>
         {error === 'failed' && (
-          <p role="alert" className="text-sm text-flag-100">
+          <p role="alert" className="text-[13px] text-flag-100">
             Couldn&apos;t join just now. Try again in a minute.
           </p>
         )}
-        <p className="text-xs text-ink-200">Signed in as {coach.email}.</p>
-      </>
-    );
-  }
+        <p className="mt-1 text-center text-[13px] text-ink-200">Signed in as {coach.email}.</p>
+      </form>
+    </AuthFrame>
+  );
+}
 
+function Off({ back }: { back?: boolean }) {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-4 px-4">
-      <p className="flex items-center gap-2 font-display text-lg font-bold">
-        <Mark />
-        Firstpass
-      </p>
-      {body}
-    </main>
+    <AuthFrame panel={false}>
+      <div className="mt-14 flex flex-col gap-3">
+        <h1 className="font-display text-[30px] font-extrabold leading-[34px]">This join link is turned off</h1>
+        <p className="text-[15px] leading-[22px] text-ink-200">The head coach replaced it or turned it off. Ask them for the team&apos;s current link.</p>
+        {back && <Back />}
+      </div>
+    </AuthFrame>
   );
 }
 
 function Back() {
   return (
-    <Link href="/plans" className="inline-flex min-h-11 items-center justify-center rounded-full border border-border-100 px-5 text-sm font-medium hover:bg-surface-200">
+    <Link href="/plans" className="mt-3 inline-flex h-[52px] items-center justify-center rounded-full border-[1.5px] border-border-200 text-[15px] font-medium hover:bg-surface-200">
       Go to my plans
     </Link>
   );

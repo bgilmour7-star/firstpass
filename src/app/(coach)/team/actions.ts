@@ -6,13 +6,18 @@ import { requireTeam, requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { teamSchema } from '@/lib/plans/schema';
 import { readCalendar, syncCalendar, todayLocal } from '@/lib/calendar/sync';
+import { inviteEmail } from '@/lib/email/account-emails';
+import { SITE, sendEmail } from '@/lib/email/layout';
 
 export async function createTeam(formData: FormData) {
   const coach = await requireUser('/team/new');
   const name = String(formData.get('name') ?? '').trim();
   if (!name) redirect('/team/new?error=name');
+  const ageGroup = formData.get('age') === 'U9' ? 'U9' : 'U7';
+  const iceRaw = String(formData.get('ice') ?? 'half');
+  const ice = iceRaw === 'full' || iceRaw === 'varies' ? iceRaw : 'half';
   const store = await getAppStore();
-  if (!(await store.myTeam(coach.id))) await store.createTeam(name.slice(0, 80), coach.id);
+  if (!(await store.myTeam(coach.id))) await store.createTeam(name.slice(0, 80), coach.id, { ageGroup, ice });
   redirect('/team?welcome=1');
 }
 
@@ -129,4 +134,19 @@ export async function removeCoach(userId: string): Promise<CoachResult> {
   }
   revalidatePath('/team');
   return { ok: true };
+}
+
+/** Head coach: email the team's join link to a coach (decision 0013). Their address is filled in when they open it. */
+export async function sendInvite(raw: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { coach, team } = await requireTeam('/team');
+  const to = raw.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return { ok: false, error: 'Enter their email, like coach@example.com.' };
+  const store = await getAppStore();
+  const [coaches, code] = await Promise.all([store.coaches(team.id), store.joinCode(team.id)]);
+  if (coaches.find((c) => c.userId === coach.id)?.role !== 'head_coach') return { ok: false, error: 'Only the head coach can invite coaches.' };
+  if (coaches.some((c) => c.email.toLowerCase() === to)) return { ok: false, error: 'They’re already on the team.' };
+  if (!code) return { ok: false, error: 'Turn on the join link first.' };
+  const joinUrl = `${SITE}/join/${code}?email=${encodeURIComponent(to)}`;
+  const sent = await sendEmail(to, inviteEmail({ inviter: coach.name, teamName: team.name, to, joinUrl }), 'invite');
+  return sent ? { ok: true } : { ok: false, error: 'Couldn’t send it just now. Copy the link and send it yourself.' };
 }

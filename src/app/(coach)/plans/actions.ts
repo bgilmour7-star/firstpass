@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { copyBlocks, practiceSchema, starterBlocks, type Practice, type Team } from '@/lib/plans/schema';
-import { SESSION_MS, describeChange, editorLabel, type Snapshot } from '@/lib/plans/activity';
+import { SESSION_MS, describeChange, type Snapshot } from '@/lib/plans/activity';
 import type { AppStore } from '@/lib/app/store';
 import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
 
@@ -16,7 +16,7 @@ const shortDay = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString
  * One line in the practice's edit log. Saves by the same coach within SESSION_MS merge into one
  * entry whose summary compares against the plan as it was when they started. Never blocks a save.
  */
-async function logEdit(store: AppStore, coach: { id: string; email: string }, before: Practice, after: Practice, fixed?: string) {
+async function logEdit(store: AppStore, coach: { id: string; name: string }, before: Practice, after: Practice, fixed?: string) {
   try {
     const last = await store.latestEdit(after.id);
     // Fixed events (created, shared) store no base, so later edits start a new entry instead of overwriting them.
@@ -28,7 +28,7 @@ async function logEdit(store: AppStore, coach: { id: string; email: string }, be
       summary = describeChange(base, snap(after), (id) => names.get(id));
     }
     if (sameSession && !fixed) await store.updateEdit(last.id, { summary, at: new Date().toISOString() });
-    else await store.addEdit({ practiceId: after.id, teamId: after.teamId, userId: coach.id, editor: editorLabel(coach.email), summary, base: fixed ? null : base });
+    else await store.addEdit({ practiceId: after.id, teamId: after.teamId, userId: coach.id, editor: coach.name, summary, base: fixed ? null : base });
   } catch (e) {
     console.error('[plans] edit log:', e);
   }
@@ -55,7 +55,7 @@ async function startPlan(team: Team, coachId: string, at: { date: string; startT
   return { p, last };
 }
 
-async function logCreated(coach: { id: string; email: string }, p: Practice, last: Practice | undefined) {
+async function logCreated(coach: { id: string; name: string }, p: Practice, last: Practice | undefined) {
   const store = await getAppStore();
   await logEdit(store, coach, p, p, last ? `copied it from ${shortDay(last.date)}` : 'started the plan');
 }
@@ -156,7 +156,7 @@ export async function saveCheckin(practiceId: string, input: unknown): Promise<{
       practiceId: p.id,
       teamId: team.id,
       userId: coach.id,
-      editor: editorLabel(coach.email),
+      editor: coach.name,
       savedAt: new Date().toISOString(),
     });
   } catch (e) {

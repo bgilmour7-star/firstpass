@@ -1,22 +1,34 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { supabaseServer } from '@/lib/supabase/server';
+import { afterSignIn, JOIN_CODE, safeNext } from '@/lib/auth-after';
 
-// Email-link landing that works in any browser or device (e.g. a link opened inside the Gmail app).
-// The Supabase email templates point here with the link's token hash (see docs/setup.md).
+// Where every button in a Supabase email lands (decision 0013, templates in supabase/templates).
+// It works in any browser or app (e.g. inside the Gmail app) because the link carries a plain
+// token hash. The link was asked for from a specific screen, so it also carries where to go next
+// and, from a join link, which team to join.
+const TYPES: EmailOtpType[] = ['email', 'magiclink', 'signup', 'recovery', 'invite', 'email_change'];
+
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const tokenHash = params.get('token_hash');
-  const type = (params.get('type') ?? 'email') as EmailOtpType;
-  const nextParam = params.get('next') ?? '/admin/drills';
-  const next = nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/admin/drills';
-  if (tokenHash) {
-    const supabase = await supabaseServer();
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    if (!error) return NextResponse.redirect(new URL(next, request.url));
-    console.error('[auth] %s failed: %s %s', 'verifyOtp', error.status ?? '', error.code ?? error.message);
-    return NextResponse.redirect(new URL(`/login?error=link&reason=${encodeURIComponent(error.code ?? error.message)}`, request.url));
+  const rawType = params.get('type') ?? 'email';
+  const type = (TYPES.includes(rawType as EmailOtpType) ? rawType : 'email') as EmailOtpType;
+  const next = safeNext(params.get('next'));
+  const join = params.get('join');
+  const go = (path: string) => NextResponse.redirect(new URL(path, request.url));
+
+  if (!tokenHash) {
+    console.error('[auth] email link arrived without a token', request.nextUrl.search);
+    return go('/login?error=link');
   }
-  console.error('[auth] sign-in link arrived without a token', request.nextUrl.search);
-  return NextResponse.redirect(new URL('/login?error=link&reason=missing_token', request.url));
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+  if (error) {
+    console.error('[auth] verifyOtp failed: %s %s', error.status ?? '', error.code ?? error.message);
+    return go(`/login?error=link${join && JOIN_CODE.test(join) ? `&next=${encodeURIComponent(`/join/${join}`)}` : ''}`);
+  }
+  // A password link always ends on the screen that sets it.
+  if (type === 'recovery') return go('/account/password');
+  return go(await afterSignIn(data.session, { next, joinCode: join }));
 }

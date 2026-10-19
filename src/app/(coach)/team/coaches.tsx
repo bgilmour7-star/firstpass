@@ -2,11 +2,20 @@
 
 import { useState, useTransition } from 'react';
 import type { TeamCoach } from '@/lib/app/store';
-import { newJoinLink, removeCoach, turnOffJoinLink } from './actions';
+import { newJoinLink, removeCoach, sendInvite, turnOffJoinLink } from './actions';
 
 const pill = 'inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-medium disabled:opacity-50';
 
-/** Who coaches the team, and the join link that adds more (decision 0011). */
+const shown = (c: TeamCoach) => c.firstName ?? c.email;
+/** "joined today" / "joined 3 days ago" for a week after joining, so the head coach's email lands on something that matches. */
+function joinedLabel(at: string): string {
+  if (!at) return '';
+  const days = Math.floor((Date.now() - new Date(at).getTime()) / 86_400_000);
+  if (days < 0 || days > 6) return '';
+  return days === 0 ? ' · joined today' : days === 1 ? ' · joined yesterday' : ` · joined ${days} days ago`;
+}
+
+/** Who coaches the team, and the join link that adds more (decisions 0011, 0013). */
 export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches: TeamCoach[]; me: string; isHead: boolean; initialCode: string | null; origin: string }) {
   const [list, setList] = useState(coaches);
   const [code, setCode] = useState(initialCode);
@@ -14,6 +23,8 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
   const [confirming, setConfirming] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [invite, setInvite] = useState('');
+  const [sent, setSent] = useState('');
   const link = code ? `${origin}/join/${code}` : '';
   const head = list.find((c) => c.role === 'head_coach');
 
@@ -28,7 +39,7 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
     });
 
   return (
-    <section className="flex flex-col gap-3 border-t-2 border-ink-100 pt-3">
+    <section id="coaches" className="flex scroll-mt-24 flex-col gap-3 border-t-2 border-ink-100 pt-3">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-[17px] font-extrabold">Coaches</h2>
         <span className="text-sm text-ink-200">
@@ -40,14 +51,18 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
         {list.map((c) => (
           <li key={c.userId} className="flex min-h-12 items-center gap-3 border-t border-border-100 py-2 first:border-t-0">
             <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-300 font-display text-sm font-bold">
-              {c.email.charAt(0).toUpperCase()}
+              {shown(c).charAt(0).toUpperCase()}
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-[15px]">
-                {c.email}
-                {c.userId === me && <span className="text-ink-200"> (you)</span>}
+              <span className="truncate text-[15px] font-medium">
+                {shown(c)}
+                {c.userId === me && <span className="font-normal text-ink-200"> (you)</span>}
               </span>
-              <span className="text-xs text-ink-200">{c.role === 'head_coach' ? 'Head coach' : 'Coach'}</span>
+              <span className="truncate text-xs text-ink-200">
+                {c.role === 'head_coach' ? 'Head coach' : 'Coach'}
+                {c.firstName ? ` · ${c.email}` : ''}
+                {c.role === 'head_coach' ? '' : joinedLabel(c.joinedAt)}
+              </span>
             </span>
             {isHead && c.userId !== me && c.role !== 'head_coach' && (
               confirming === c.userId ? (
@@ -105,6 +120,40 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
                   </span>
                 </span>
               </div>
+              <form
+                className="mt-1 flex flex-col gap-2 sm:flex-row"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const to = invite;
+                  run(() => sendInvite(to), () => {
+                    setSent(`Invite sent to ${to.trim()}.`);
+                    setInvite('');
+                  });
+                }}
+              >
+                <label htmlFor="invite" className="sr-only">
+                  Invite a coach by email
+                </label>
+                <input
+                  id="invite"
+                  type="email"
+                  required
+                  autoComplete="off"
+                  placeholder="Or email it: coach@example.com"
+                  value={invite}
+                  onChange={(e) => {
+                    setInvite(e.target.value);
+                    setSent('');
+                  }}
+                  className="w-full min-w-0 rounded-md border border-border-200 bg-surface-100 px-3 py-2 text-sm"
+                />
+                <button type="submit" disabled={pending} className={`${pill} shrink-0 border border-border-200 bg-surface-100 hover:bg-surface-300`}>
+                  Send invite
+                </button>
+              </form>
+              <p aria-live="polite" className="text-sm text-good-100">
+                {sent}
+              </p>
               <p className="flex flex-wrap items-center gap-x-1 text-xs text-ink-200">
                 Anyone with the link can join.
                 <button type="button" disabled={pending} onClick={() => run(newJoinLink)} className="underline underline-offset-2 disabled:opacity-50">
@@ -126,7 +175,7 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
             </>
           )
         ) : (
-          <p className="text-sm text-ink-200">Ask {head ? head.email : 'your head coach'} for the team&apos;s join link.</p>
+          <p className="text-sm text-ink-200">Ask {head ? shown(head) : 'your head coach'} for the team&apos;s join link.</p>
         )}
         {error && (
           <p role="alert" className="text-sm text-flag-100">

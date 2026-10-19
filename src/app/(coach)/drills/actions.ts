@@ -3,12 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore, type Favorite } from '@/lib/app/store';
-import { editorLabel } from '@/lib/plans/activity';
 
 /** Star or unstar a drill for the whole team (decision 0012). */
 export async function setTeamFavorite(drillId: string, on: boolean): Promise<{ ok: true; fav: Favorite | null } | { ok: false; error: string }> {
   const { coach, team } = await requireTeam('/drills');
-  const editor = editorLabel(coach.email);
+  const editor = coach.name;
   try {
     await (await getAppStore()).setFavorite(team.id, coach.id, editor, drillId, on);
   } catch (e) {

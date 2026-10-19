@@ -5,7 +5,7 @@ import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practic
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { checkinInput, type Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach, type Favorite } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach, type Favorite, type JoinPreview } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
@@ -24,10 +24,12 @@ export class SupabaseAppStore implements AppStore {
     const row = (data as { teams: TeamRow | null } | null)?.teams;
     return row ? toTeam(row) : null;
   }
-  async createTeam(name: string) {
+  async createTeam(name: string, _userId: string, setup?: { ageGroup: string; ice: Team['ice'] }) {
     const db = await supabaseServer();
     const { data: id, error } = await db.rpc('create_team', { team_name: name });
     if (error) throw error;
+    // The new head coach may edit their own team (RLS), so the first setup step saves straight on.
+    if (setup) await db.from('teams').update({ age_group: setup.ageGroup, ice: setup.ice }).eq('id', id);
     const { data, error: e2 } = await db.from('teams').select('*').eq('id', id).single();
     if (e2) throw e2;
     return toTeam(data as TeamRow);
@@ -286,7 +288,7 @@ export class SupabaseAppStore implements AppStore {
     const db = await supabaseServer();
     const { data, error } = await db.rpc('team_coaches', { team: teamId });
     if (error) return []; // also before the join-link migration has run
-    return ((data ?? []) as { user_id: string; email: string; role: TeamCoach['role']; joined_at: string }[]).map((r) => ({ userId: r.user_id, email: r.email, role: r.role, joinedAt: r.joined_at }));
+    return ((data ?? []) as { user_id: string; email: string; first_name?: string | null; role: TeamCoach['role']; joined_at: string }[]).map((r) => ({ userId: r.user_id, email: r.email, firstName: r.first_name ?? null, role: r.role, joinedAt: r.joined_at }));
   }
   async joinCode(teamId: string) {
     const db = await supabaseServer();
@@ -305,12 +307,21 @@ export class SupabaseAppStore implements AppStore {
     const { error } = await db.rpc('turn_off_join_code', { team: teamId });
     if (error) throw new Error(joinError(error.message));
   }
-  async joinCodeTeam(code: string) {
+  async joinCodeTeam(code: string): Promise<JoinPreview | null> {
     const db = await supabaseServer();
-    const { data, error } = await db.rpc('join_code_team', { code });
-    const row = (data as { team_id: string; team_name: string }[] | null)?.[0];
-    if (error || !row) return null;
-    return { id: row.team_id, name: row.team_name };
+    // join_link_preview works signed out too (decision 0013). Before that migration has run,
+    // fall back to the signed-in-only lookup from decision 0011.
+    const { data, error } = await db.rpc('join_link_preview', { code });
+    if (!error) {
+      type Row = { team_id: string; team_name: string; inviter: string | null; next_date: string | null; next_start: string | null; next_ice: 'half' | 'full' | null; next_blocks: number | null };
+      const r = (data as Row[] | null)?.[0];
+      if (!r) return null;
+      return { id: r.team_id, name: r.team_name, inviter: r.inviter, next: r.next_date && r.next_start ? { date: r.next_date, startTime: r.next_start.slice(0, 5), ice: r.next_ice ?? 'half', blocks: r.next_blocks ?? 0 } : null };
+    }
+    const old = await db.rpc('join_code_team', { code });
+    const row = (old.data as { team_id: string; team_name: string }[] | null)?.[0];
+    if (old.error || !row) return null;
+    return { id: row.team_id, name: row.team_name, inviter: null, next: null };
   }
   async joinTeam(code: string) {
     const db = await supabaseServer();

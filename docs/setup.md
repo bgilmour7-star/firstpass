@@ -6,11 +6,13 @@ Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace 
 1. **SQL editor →** paste and run `supabase/migrations/20261013000000_drill_review.sql` (tables, admin check, RLS).
 2. **SQL editor →** paste and run `supabase/seed/drills.sql` (the drills in `content/drills`; regenerate with `npm run seed:sql`). It skips drills that are already there.
 3. **Authentication → URL configuration:** Site URL = `https://firstpass.coach`. Redirect URLs: `https://firstpass.coach/**`, `https://firstpass-jet.vercel.app/**` and `http://localhost:3000/**`.
-4. **Authentication → Emails → Templates:** in both **Magic Link** and **Confirm signup**, replace the link with
-   ```html
-   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/admin/drills">Sign in to Firstpass</a>
-   ```
-   This link works even when it's opened in a different browser from the one that asked for it (e.g. inside the Gmail app).
+4. **Authentication → Emails → Templates** (decision 0013): run `npm run email:templates`, then paste each file into its template and set its subject:
+   - **Magic Link:** `supabase/templates/magic-link.html`, subject `Your Firstpass code: {{ .Token }}`
+   - **Confirm signup:** `supabase/templates/confirm-signup.html`, subject `Your Firstpass code: {{ .Token }}`
+   - **Reset Password:** `supabase/templates/reset-password.html`, subject `Set your Firstpass password`
+
+   Every button links to our `emailRedirectTo` (an `/auth/confirm?next=…` URL) plus the token hash, so it works in any browser or app, and every sign-in email also carries the 6-digit code.
+   Then **Authentication → Sign In / Providers → Email:** Confirm email on, minimum password length 8, email OTP length 6, OTP expiry 3600 seconds.
 5. **Authentication → Emails → SMTP Settings:** sign-in emails go out through Resend (free: 3,000 a month, 100 a day), with `firstpass.coach` verified there. Host `smtp.resend.com`, port `465`, username `resend`, password a Resend API key with sending access, sender email `hello@firstpass.coach`, sender name `Firstpass`. Then **Authentication → Rate Limits:** emails per hour 30.
 6. **Check-in emails (decision 0010):** in Vercel, add the environment variable `RESEND_API_KEY` (a Resend key with sending access) and redeploy. Then run `supabase/migrations/20261021000000_checkin_emails.sql` in the SQL editor: it adds the email tables and starts a 10-minute timer that calls `https://firstpass.coach/api/cron/checkin-emails`. To stop the timer: `select cron.unschedule('firstpass-checkin-emails');`.
 7. **Project settings → General:** check the region. Canada (Central) keeps data in Canada; if it isn't, that's fine for the pilot, but recreate the store in `ca-central-1` before real coaches sign up.

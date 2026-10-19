@@ -31,12 +31,12 @@ export class LocalAppStore implements AppStore {
     const m = s.members.find((x) => x.userId === userId);
     return m ? (s.teams.find((t) => t.id === m.teamId) ?? null) : null;
   }
-  async createTeam(name: string, userId: string) {
+  async createTeam(name: string, userId: string, setup?: { ageGroup: string; ice: Team['ice'] }) {
     const s = await read();
     const team = teamSchema.parse({
       id: randomUUID(),
       name,
-      ageGroup: 'U7',
+      ageGroup: setup?.ageGroup ?? 'U7',
       groups: [
         { group: 'Eagles', skaters: 4 },
         { group: 'Bears', skaters: 4 },
@@ -44,7 +44,7 @@ export class LocalAppStore implements AppStore {
       ],
       coachesOnIce: 3,
       practiceMinutes: 60,
-      ice: 'half',
+      ice: setup?.ice ?? 'half',
       newDrillsPerWeek: 2,
     });
     s.teams.push(team);
@@ -212,7 +212,7 @@ export class LocalAppStore implements AppStore {
   async coaches(teamId: string): Promise<TeamCoach[]> {
     return (await read()).members
       .filter((m) => m.teamId === teamId)
-      .map((m) => ({ userId: m.userId, email: m.userId === 'local' ? 'Local coach' : m.userId, role: m.role === 'head_coach' ? 'head_coach' : 'coach', joinedAt: '' }));
+      .map((m) => ({ userId: m.userId, email: m.userId === 'local' ? 'Local coach' : m.userId, firstName: m.userId === 'local' ? 'Coach' : null, role: m.role === 'head_coach' ? 'head_coach' : 'coach', joinedAt: '' }));
   }
   async joinCode(teamId: string) {
     return (await read()).joinCodes?.[teamId] ?? null;
@@ -233,7 +233,10 @@ export class LocalAppStore implements AppStore {
     const s = await read();
     const id = Object.entries(s.joinCodes ?? {}).find(([, c]) => c === code)?.[0];
     const team = s.teams.find((t) => t.id === id);
-    return team ? { id: team.id, name: team.name } : null;
+    if (!team) return null;
+    const today = new Date().toISOString().slice(0, 10);
+    const next = s.practices.filter((p) => p.teamId === team.id && p.date >= today && p.blocks.length).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))[0];
+    return { id: team.id, name: team.name, inviter: 'Coach', next: next ? { date: next.date, startTime: next.startTime, ice: next.ice, blocks: next.blocks.length } : null };
   }
   async joinTeam(code: string, userId: string) {
     const s = await read();
