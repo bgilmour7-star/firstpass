@@ -60,7 +60,7 @@ export function WaitlistForm() {
         submit(e.currentTarget);
       }}
       onFocus={firstTouch}
-      className="box-border flex min-w-0 max-w-[520px] flex-[1_1_380px] flex-col gap-5 rounded-2xl bg-surface-200 p-[clamp(24px,3vw,36px)]"
+      className="box-border flex min-w-0 max-w-[520px] flex-[1_1_380px] flex-col gap-5 rounded-2xl bg-surface-100 text-ink-100 shadow-[0_12px_32px_rgba(4,30,40,0.25)] p-[clamp(24px,3vw,36px)]"
     >
       <fieldset className="m-0 border-0 p-0" disabled={done}>
         <legend className="mb-2.5 p-0 text-sm font-semibold">I&apos;m joining as</legend>
