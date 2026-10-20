@@ -52,6 +52,9 @@ Design: canvas "Key screens" and "Plan next practice".
 ### 3.11 Drill requests from coaches (decision 0018, 2026-10-20)
 - [x] Request a drill and Suggest a change; Claude drafts once a day (drill-requests skill, scheduled task); From coaches in Drill review with a waiting count in the nav; change view with Accept/Decline; emails to Brett (draft ready) and to the coach (outcome). **Brett: run `supabase/migrations/20261025000000_drill_requests.sql`.**
 
+### 3.12 Landing page and waitlist (decision 0019, 2026-10-20)
+- [x] Public landing page at `/`, waitlist form for coaches and associations with confirmation and alert emails, invite-only sign-up (join link or Onboarded on the waitlist), cookie-free visit counts, Admin → Analytics (Brett only), `/privacy`. **Brett: run `supabase/migrations/20261026000000_waitlist_and_analytics.sql`, and make sure hello@firstpass.coach reaches an inbox you read.**
+
 ## Milestone 4 — Rink-side and sharing
 - [x] Phone Today view: timeline, current block open with countdown (whistle countdown during stations), who is where now, "Start the clock now" for late starts.
 - [x] Parent link: random 32-character token, revocable, expires after 30 days, no sign-in; parents see fun names, plain names and focus only (`supabase/migrations/20261014010000_parent_links.sql`).

@@ -28,8 +28,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           initialEmail={last}
           intro={
             <div className="mt-16 flex flex-col gap-3 lg:mt-[120px]">
-              <h1 className="font-display text-[36px] font-extrabold leading-[40px] tracking-[-0.025em] text-balance lg:text-[44px] lg:leading-[48px]">U7 &amp; U9 practices, planned in minutes</h1>
-              <p className="text-[17px] leading-[26px] text-ink-200">Drills from Hockey Canada&apos;s U7 and U9 programs, stations on half ice, and a sheet for the bench.</p>
+              <h1 className="font-display text-[36px] font-extrabold leading-[40px] tracking-[-0.025em] text-balance lg:text-[44px] lg:leading-[48px]">U5–U9 practices, planned in minutes</h1>
+              <p className="text-[17px] leading-[26px] text-ink-200">Stations on half ice, drills that grow with your kids, and a sheet for the bench.</p>
             </div>
           }
         />

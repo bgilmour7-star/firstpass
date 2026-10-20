@@ -55,6 +55,22 @@ h3 {
   border-radius: 6px;
 }
 
+/* The parent share card is always drawn in the light palette, whatever the theme (BrandDevices). */
+.share-light {
+  --rink-ice: #FCFEFF;
+  --rink-boards: #3E5258;
+  --rink-line-red: #DE9E9C;
+  --rink-line-blue: #93B7D3;
+  --rink-crease: #E2EFF7;
+  --ink-100: #0E1B1E;
+  --ink-200: #51646A;
+  --rink-100: #0C6E8F;
+  --rink-200: #084F68;
+  --whistle-100: #C2572A;
+  --surface-100: #FFFFFF;
+  --role-defense-100: #5C6A8C;
+}
+
 .rink-frame svg {
   display: block;
   width: 100%;

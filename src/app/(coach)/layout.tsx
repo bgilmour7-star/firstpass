@@ -14,7 +14,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
   const reviewCount = coach.isAdmin ? (await getRequestStore().then((r) => r.all()).catch(() => [])).filter((r) => r.state === 'drafted').length : 0;
   const next = navPractice(team ? await store.listPractices(team.id).catch(() => []) : []);
   return (
-    <AppShell email={coach.email} isAdmin={coach.isAdmin} local={coach.local} teamName={team?.name} next={next} reviewCount={reviewCount} initialCollapsed={jar.get(NAV_COOKIE)?.value === 'collapsed'}>
+    <AppShell email={coach.email} isAdmin={coach.isAdmin} local={coach.local} teamName={team?.name} next={next} reviewCount={reviewCount} analytics={coach.analytics} initialCollapsed={jar.get(NAV_COOKIE)?.value === 'collapsed'}>
       {children}
     </AppShell>
   );
