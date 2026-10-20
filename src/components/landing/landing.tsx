@@ -6,6 +6,7 @@ import skiRacer from '../../../content/drills/ski-racer.json';
 import { VisitTracker } from './visit-tracker';
 import { WaitlistForm } from './waitlist-form';
 import { Mark } from './mark';
+import { HeroRink } from './hero-rink';
 
 // The public landing page (decision 0019; canvas "Firstpass Landing Page"). One promise, "Show up
 // ready", proved with the product: real drills from the library drawn by RinkDiagram, and crops of
@@ -30,17 +31,18 @@ const levels: { n: number; name: string; spec: RinkDiagramProps }[] = [
   ...(skiRacer.levels as unknown as Level[]).map((l, i) => ({ n: i + 2, name: l.name, spec: l.diagram })),
 ];
 const zones = puckParty.zones as { station: string; name: string }[];
+const heroTitle = `${puckParty.funName}: three zones on half ice. ${zones.map((z) => `${z.station}, ${z.name}`).join('. ')}.`;
 
 const h2 = 'font-display text-[clamp(34px,4.4vw,56px)] font-bold leading-[1.02] tracking-[-0.025em]';
 const section = 'relative border-t border-border-100 py-[clamp(64px,9vw,112px)]';
 const mono = 'font-mono';
 
 /** A piece of the dashed pass line, in the left gutter of a section. */
-function Rail({ top = '0px', height }: { top?: string; height?: string }) {
+function Rail({ top = '0px', height, onTeal = false }: { top?: string; height?: string; onTeal?: boolean }) {
   return (
     <div
       aria-hidden="true"
-      className="absolute left-[calc(var(--railx)-var(--railpad))] w-[3px] rounded-sm bg-[repeating-linear-gradient(to_bottom,var(--ink-200)_0_9px,transparent_9px_17px)]"
+      className={`rail-draw absolute left-[calc(var(--railx)-var(--railpad))] w-[3px] rounded-sm ${onTeal ? 'bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]' : 'bg-[repeating-linear-gradient(to_bottom,var(--ink-200)_0_9px,transparent_9px_17px)]'}`}
       style={height ? { top, height } : { top, bottom: 0 }}
     />
   );
@@ -161,7 +163,7 @@ export function Landing() {
               </div>
             </div>
             <div className="relative min-w-0 flex-[1_1_440px] pb-[max(200px,14vw)]">
-              <Rink spec={hero} title={`${puckParty.funName}: three zones on half ice. ${zones.map((z) => `${z.station}, ${z.name}`).join('. ')}.`} />
+              <HeroRink svg={RD.render({ ...hero, title: heroTitle })} spec={hero} title={heroTitle} />
               <PhoneCard />
             </div>
           </section>
@@ -387,12 +389,17 @@ export function Landing() {
             </div>
           </section>
 
-          {/* Join */}
-          <section id="join" aria-labelledby="join-title" className="relative flex scroll-mt-6 flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 border-t border-border-100 pb-[clamp(72px,9vw,120px)] pt-[clamp(64px,9vw,112px)]">
-            <span id="join-association" aria-hidden="true" className="absolute top-0 scroll-mt-6" />
-            <Rail height="clamp(66px, 9vw, 114px)" />
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22" className="absolute left-[calc(var(--railx)-var(--railpad)-9.5px)] top-[clamp(66px,9vw,114px)]">
-              <circle cx="11" cy="11" r="8.5" fill="var(--surface-100)" stroke="var(--ink-100)" strokeWidth="3.5" />
+        </div>
+      </main>
+
+      {/* Join: the one teal band (brand moment 1). The page stays white until the ask. */}
+      <section id="join" aria-labelledby="join-title" className="band-teal relative scroll-mt-0 text-white">
+        <span id="join-association" aria-hidden="true" className="absolute top-0" />
+        <div className="mx-auto max-w-[1200px] px-[clamp(16px,4vw,48px)]">
+          <div className="relative flex flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 pb-[clamp(72px,9vw,120px)] pl-[var(--railpad)] pt-[clamp(64px,9vw,112px)] [--railpad:clamp(28px,5vw,76px)] [--railx:clamp(4px,1.4vw,20px)]">
+            <div aria-hidden="true" className="absolute left-[var(--railx)] top-0 w-[3px] bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]" style={{ height: 'clamp(66px, 9vw, 114px)' }} />
+            <svg aria-hidden="true" width="26" height="26" viewBox="0 0 26 26" className="absolute left-[calc(var(--railx)-11.5px)] top-[clamp(64px,9vw,112px)]">
+              <circle cx="13" cy="13" r="10" fill="var(--band-teal)" stroke="#FFFFFF" strokeWidth="4" />
             </svg>
             <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-8">
               <h2 id="join-title" className="font-display text-[clamp(44px,6vw,80px)] font-extrabold leading-[0.96] tracking-[-0.03em]">
@@ -400,14 +407,14 @@ export function Landing() {
               </h2>
               <blockquote className="m-0 flex max-w-[40ch] flex-col gap-3">
                 <p className="font-display text-[22px] font-semibold leading-[1.35]">“I built Firstpass while coaching my son’s U7 team in Nanaimo, for every parent who said yes to coaching.”</p>
-                <footer className="text-[15px] text-ink-200">Brett, founder</footer>
+                <footer className="text-[15px] text-white/80">Brett, founder</footer>
               </blockquote>
-              <p className="max-w-[46ch] text-[15px] text-ink-200">Drills are adapted from the skills young players already learn, and every drill shows where it came from. No kids’ names, ever.</p>
+              <p className="max-w-[46ch] text-[15px] text-white/80">Drills are adapted from the skills young players already learn, and every drill shows where it came from. No kids’ names, ever.</p>
             </div>
             <WaitlistForm />
-          </section>
+          </div>
         </div>
-      </main>
+      </section>
 
       <footer className="border-t border-border-100">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-[clamp(16px,4vw,48px)] py-7 text-sm text-ink-200">
@@ -437,7 +444,10 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   return (
     <div className="flex flex-col gap-2">
       <h3 className="font-display text-[22px] font-bold leading-[1.2]">
-        <span className="mr-2.5 font-mono text-[15px] font-medium text-ink-200">{n}</span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" className="mr-2.5 inline-block align-[-1px]">
+          <path d="M8 1 15 15H1z" fill="var(--whistle-100)" />
+        </svg>
+        <span className="sr-only">Step {n}: </span>
         {title}
       </h3>
       <p className="max-w-[38ch] text-ink-200">{children}</p>

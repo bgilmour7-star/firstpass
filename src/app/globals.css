@@ -55,6 +55,47 @@ h3 {
   border-radius: 6px;
 }
 
+/* Brand details (decision 0020): selected text in the brand teal, and the deep teal of the share card for the
+   landing page's one coloured band. */
+::selection {
+  background: color-mix(in srgb, var(--rink-100) 24%, transparent);
+}
+:root {
+  --band-teal: #084F68;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --band-teal: #0D3E50;
+  }
+}
+:root[data-theme='dark'] {
+  --band-teal: #0D3E50;
+}
+.band-teal {
+  background: var(--band-teal);
+}
+
+/* The landing page's pass line draws itself as each section scrolls in, where the browser can tie an
+   animation to scrolling. Elsewhere, and with reduced motion, it is simply there. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rail-draw {
+      transform-origin: top;
+      animation: rail-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 45%;
+    }
+  }
+}
+@keyframes rail-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 /* The parent share card is always drawn in the light palette, whatever the theme (BrandDevices). */
 .share-light {
   --rink-ice: #FCFEFF;
