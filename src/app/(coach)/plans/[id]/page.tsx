@@ -9,10 +9,10 @@ import { drillFeedback, type DrillFeedback } from '@/lib/plans/feedback';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PlanPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ copied?: string; dated?: string }> }) {
+export default async function PlanPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ copied?: string }> }) {
   const { coach, team } = await requireTeam('/plans');
   const { id } = await params;
-  const { copied, dated } = await searchParams;
+  const { copied } = await searchParams;
   const store = await getAppStore();
   const practice = await store.getPractice(id);
   if (!practice || practice.teamId !== team.id) notFound();
@@ -43,7 +43,7 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   return (
     <>
       {nudge}
-      <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} lastRun={lastRun} recent={recent} feedback={feedback} favorites={favorites} copiedFrom={copied ?? null} datedBy={dated === 'ice' || dated === 'week' || dated === 'sat' ? dated : null} initialShare={share} />
+      <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} lastRun={lastRun} recent={recent} feedback={feedback} favorites={favorites} copiedFrom={copied ?? null} initialShare={share} />
     </>
   );
 }

@@ -42,7 +42,6 @@ import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
 import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
 import { partForSlot } from '@/lib/plans/drawer';
-import { DATE_WHY, type DateWhy } from '@/lib/plans/next-date';
 
 // The plan builder (decision 0004). A sticky plan bar keeps the key actions in reach on long plans
 // (a bottom bar on phones); blocks can be added at any gap and changed to another kind in place;
@@ -73,7 +72,6 @@ export function Builder({
   feedback,
   favorites,
   copiedFrom,
-  datedBy,
   initialShare,
 }: {
   initial: Practice;
@@ -85,7 +83,6 @@ export function Builder({
   feedback: Record<string, DrillFeedback>;
   favorites: Record<string, Favorite>;
   copiedFrom: string | null;
-  datedBy: DateWhy | null;
   initialShare: { token: string; expiresAt: string } | null;
 }) {
   const [plan, setPlan] = useState<Practice>(initial);
@@ -319,22 +316,7 @@ export function Builder({
     </button>
   );
 
-  // A new plan says where its date came from, with Change right there (decision 0017), and what it was copied from.
-  const startNote = (cls: string) =>
-    datedBy || copiedFrom ? (
-      <p className={`${cls} text-ink-200`}>
-        {datedBy && (
-          <>
-            Dated {day(plan.date)}, {DATE_WHY[datedBy]} ·{' '}
-            <button type="button" onClick={() => setDetailsOpen(true)} className="font-medium text-rink-100 hover:underline">
-              Change
-            </button>
-            {copiedFrom ? '. ' : ''}
-          </>
-        )}
-        {copiedFrom && <>Copied from {day(copiedFrom)}. Change what you need.</>}
-      </p>
-    ) : null;
+  const startNote = (cls: string) => (copiedFrom ? <p className={`${cls} text-ink-200`}>Copied from {day(copiedFrom)}. Change what you need.</p> : null);
 
   return (
     <OpenDrill.Provider value={setViewing}>

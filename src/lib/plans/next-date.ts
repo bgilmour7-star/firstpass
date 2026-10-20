@@ -1,7 +1,8 @@
-// "Plan a practice" picks the date itself (decision 0017), in this order:
-// 1. the next practice ice time from the team's calendar that has no plan yet (same as its "Plan it");
+// A guess at the next practice's date and start (decision 0017), in this order:
+// 1. the next practice ice time from the team's calendar that has no plan yet;
 // 2. a week after the latest plan, at its start time (another week on while that's not in the future);
-// 3. the coming Saturday at 9:30. The plan then says where its date came from, with Change.
+// 3. the coming Saturday at 9:30.
+// "Add a practice" prefills its date and start from 2 and 3 (ice times have their own "Plan it").
 export type DateWhy = 'ice' | 'week' | 'sat';
 export type NextDate = { iceId: string } | { date: string; startTime: string; why: DateWhy };
 
@@ -32,6 +33,6 @@ export function nextPracticeDate(plans: Plan[], ice: Ice[], today: string): Next
 
 export const DATE_WHY: Record<DateWhy, string> = {
   ice: 'your next ice time',
-  week: 'a week after your last one',
+  week: 'a week after your last practice',
   sat: 'the coming Saturday',
 };

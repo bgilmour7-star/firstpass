@@ -6,7 +6,9 @@ import { syncCalendar } from '@/lib/calendar/sync';
 import { activityLine, initials } from '@/lib/plans/activity';
 import { practiceOver } from '@/lib/plans/checkin';
 import type { IceTime } from '@/lib/app/store';
-import { createPractice, ignoreIceTime, planIceTime } from './actions';
+import { ignoreIceTime, planIceTime } from './actions';
+import { AddPractice } from './add-practice';
+import { DATE_WHY, nextPracticeDate } from '@/lib/plans/next-date';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +29,8 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const upcoming = plans.filter((p) => p.date >= today).reverse();
   const past = plans.filter((p) => p.date < today);
   const planIds = new Set(plans.map((p) => p.id));
+  // The Add a practice box is prefilled with a guess; ice times from the calendar have their own Plan it.
+  const guess = nextPracticeDate(plans, [], today) as { date: string; startTime: string; why: 'week' | 'sat' };
   const iceFor = new Map(ice.filter((x) => x.practiceId).map((x) => [x.practiceId!, x]));
   // Ice times still to plan: practices, then games and the rest further down; hidden ones on request.
   const toPlan = ice.filter((x) => x.date >= today && !x.cancelled && !(x.practiceId && planIds.has(x.practiceId)) && x.kind !== 'other');
@@ -111,11 +115,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
           <h1 className="text-2xl font-bold">Plans</h1>
           <p className="text-sm text-ink-200">{plans.length ? 'A new plan starts as a copy of the one before it.' : 'Your first plan starts from a simple template.'}</p>
         </div>
-        <form action={createPractice}>
-          <button type="submit" className="min-h-11 rounded-full bg-rink-100 px-5 text-sm font-medium text-surface-100 hover:bg-rink-200">
-            Plan a practice
-          </button>
-        </form>
+        <AddPractice date={guess.date} startTime={guess.startTime} hint={`${DATE_WHY[guess.why].charAt(0).toUpperCase()}${DATE_WHY[guess.why].slice(1)}.`} copies={plans.length > 0} />
       </div>
 
       {sync.status === 'error' && (
@@ -149,7 +149,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
         {coming.length ? (
           <ul className="grid gap-2">{coming.slice(0, limit).map((c) => (c.kind === 'plan' ? row(c.p) : <IceRow key={c.x.id} x={c.x} />))}</ul>
         ) : (
-          <p className="text-sm text-ink-200">{hidden ? 'Nothing hidden.' : 'Nothing coming up. Plan a practice above.'}</p>
+          <p className="text-sm text-ink-200">{hidden ? 'Nothing hidden.' : 'Nothing coming up. Add a practice above.'}</p>
         )}
         {coming.length > limit && (
           <Link href={hidden ? '/plans?hidden=1&all=1' : '/plans?all=1'} className="w-fit text-sm text-rink-100 hover:underline">

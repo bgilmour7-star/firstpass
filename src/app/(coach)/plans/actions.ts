@@ -7,7 +7,6 @@ import { getAppStore } from '@/lib/app/store';
 import { copyBlocks, practiceSchema, starterBlocks, type Practice, type Team } from '@/lib/plans/schema';
 import { SESSION_MS, describeChange, type Snapshot } from '@/lib/plans/activity';
 import type { AppStore } from '@/lib/app/store';
-import { nextPracticeDate } from '@/lib/plans/next-date';
 import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
 
 const snap = (p: Practice): Snapshot => ({ blocks: p.blocks, status: p.status, attendance: p.attendance, minutes: p.minutes, startTime: p.startTime, date: p.date });
@@ -61,23 +60,26 @@ async function logCreated(coach: { id: string; name: string }, p: Practice, last
   await logEdit(store, coach, p, p, last ? `copied it from ${shortDay(last.date)}` : 'started the plan');
 }
 
-/** "Plan a practice": no date to pick first. It takes the next free ice time, else a week after the last plan (decision 0017). */
-export async function createPractice() {
+/** "Add a practice": a date and start the coach chose (prefilled with a guess, decision 0017). If it matches an
+ * unplanned ice time from the calendar, the plan takes that ice time (length, half ice) as "Plan it" would. */
+export async function createPractice(formData: FormData) {
   const { coach, team } = await requireTeam('/plans');
+  const date = String(formData.get('date') ?? '');
+  const startTime = String(formData.get('time') ?? '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(startTime)) redirect('/plans');
   const store = await getAppStore();
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const [plans, ice] = await Promise.all([store.listPractices(team.id), store.iceTimes(team.id).catch(() => [])]);
-  const next = nextPracticeDate(plans, ice, today);
-  if ('iceId' in next) return planIceTime(next.iceId, 'ice');
-  const { p, last } = await startPlan(team, coach.id, { date: next.date, startTime: next.startTime });
+  const planned = new Set(plans.map((p) => p.id));
+  const match = ice.find((x) => x.date === date && x.startTime === startTime && !x.cancelled && !(x.practiceId && planned.has(x.practiceId)));
+  if (match) return planIceTime(match.id);
+  const { p, last } = await startPlan(team, coach.id, { date, startTime });
   await logCreated(coach, p, last);
   revalidatePath('/plans');
-  redirect(`/plans/${p.id}?dated=${next.why}${last ? '&copied=' + last.date : ''}`);
+  redirect(`/plans/${p.id}${last ? '?copied=' + last.date : ''}`);
 }
 
 /** "Plan it" on an ice time from the calendar: date, time and length come from the calendar. */
-// From a form (bound to the ice id), the second argument is the form data; from createPractice it is 'ice'.
-export async function planIceTime(iceId: string, dated?: unknown) {
+export async function planIceTime(iceId: string) {
   const { coach, team } = await requireTeam('/plans');
   const store = await getAppStore();
   const ice = (await store.iceTimes(team.id)).find((x) => x.id === iceId);
@@ -88,8 +90,7 @@ export async function planIceTime(iceId: string, dated?: unknown) {
   await logCreated(coach, p, last);
   await store.setIceTime(ice.id, { practiceId: p.id });
   revalidatePath('/plans');
-  const q = [dated === 'ice' && 'dated=ice', last && `copied=${last.date}`].filter(Boolean).join('&');
-  redirect(`/plans/${p.id}${q ? '?' + q : ''}`);
+  redirect(`/plans/${p.id}${last ? '?copied=' + last.date : ''}`);
 }
 
 /** "Not ours" hides an ice time; "Show again" brings it back. */
