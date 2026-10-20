@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { checkEmail, createAccount, sendLink, sendPasswordLink, signInWithPassword, verifyCode, type Status } from '@/app/login/actions';
 
@@ -59,7 +60,7 @@ export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = '
           className="mt-7 flex flex-col gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            run(() => checkEmail(email), (r) => {
+            run(() => checkEmail(email, join?.code), (r) => {
               setEmail(r.email);
               setKnownName(r.firstName);
               setStep(r.status);
@@ -110,6 +111,27 @@ export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = '
           Email me a sign-in link instead
         </button>
         <p className="mt-2 text-center text-xs text-ink-200">No password. You sign in from your email each time.</p>
+      </div>
+    );
+
+  if (step === 'waitlist')
+    return (
+      <div className="flex flex-col">
+        <EmailChip email={email} onChange={back} />
+        <h1 className={`${h1} mt-6`}>{join ? 'This join link isn’t working' : 'Firstpass is invite-only for now'}</h1>
+        <p className="mt-2 text-[15px] leading-[22px] text-ink-200">
+          {join
+            ? `There’s no account for ${email} yet, and the link to ${join.teamName} has been turned off. Ask your head coach for a new one.`
+            : `There’s no account for ${email}. While we pilot Firstpass, new coaches join from the waitlist. Join it and Brett will be in touch.`}
+        </p>
+        {!join && (
+          <Link href="/#join" className={`${primary} mt-7`}>
+            Join the waitlist
+          </Link>
+        )}
+        <button type="button" onClick={back} className={`${secondary} ${join ? 'mt-7' : 'mt-3'}`}>
+          Use a different email
+        </button>
       </div>
     );
 

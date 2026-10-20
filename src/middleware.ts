@@ -35,8 +35,10 @@ export async function middleware(request: NextRequest) {
   const { data } = await supabase.auth.getUser();
   // /api/cron/ is called by the database's timer and checks its own secret (decision 0010).
   // /join/ shows who invited you and signs you in on the spot (decision 0013); joining itself
-  // needs a session. /email/ holds the logo the emails load.
-  const open = ['/login', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/join/', '/email/'].some((p) => request.nextUrl.pathname.startsWith(p));
+  // needs a session. /email/ holds the logo the emails load, /og/ the share card. / is the public landing page and
+  // /privacy its privacy page (decision 0019); / sends signed-in coaches on to their plans itself.
+  const path = request.nextUrl.pathname;
+  const open = path === '/' || path === '/privacy' || path.startsWith('/og/') || ['/login', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/join/', '/email/'].some((p) => path.startsWith(p));
   if (!data.user && !open) {
     const login = request.nextUrl.clone();
     login.pathname = '/login';
