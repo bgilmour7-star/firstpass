@@ -3,6 +3,7 @@ import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { withStationDrills } from '@/lib/plans/schema';
 import { TodayView } from './today-view';
+import { InstallCard, OfflineNote } from '@/components/pwa';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,8 +27,26 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
         <Link href="/plans" className="mx-auto min-h-11 rounded-full bg-rink-100 px-5 py-2.5 text-sm font-medium text-surface-100">
           Go to plans
         </Link>
+        <div className="mt-6 text-left empty:hidden">
+          <InstallCard />
+        </div>
       </div>
     );
   const [drills, favorites] = await Promise.all([store.libraryDrills(), store.favorites(team.id)]);
-  return <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} favorites={favorites} isToday={chosen.date === today} />;
+  const isToday = chosen.date === today;
+  // Install card (decision 0021): above the plan on other days; on practice day the plan comes first.
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="mx-auto flex w-full max-w-xl flex-col gap-3 empty:hidden">
+        <OfflineNote />
+        {!isToday && <InstallCard />}
+      </div>
+      <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} favorites={favorites} isToday={isToday} />
+      {isToday && (
+        <div className="mx-auto w-full max-w-xl empty:hidden">
+          <InstallCard />
+        </div>
+      )}
+    </div>
+  );
 }

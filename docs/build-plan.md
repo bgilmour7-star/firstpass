@@ -57,6 +57,9 @@ Design: canvas "Key screens" and "Plan next practice".
 
 - [x] Brand moments (decision 0020): teal close, the hero plays its drill, cones on the steps, teal text selection, the Offside 404.
 
+### 3.13 Installable app (decision 0021, 2026-10-20)
+- [x] Installs to the home screen and opens Today; Today opens with no signal; "New version ready · Reload"; install card on Today (phones) and Account → Install on your phone. **Brett: install it on your phone and open Today in airplane mode.**
+
 ## Milestone 4 — Rink-side and sharing
 - [x] Phone Today view: timeline, current block open with countdown (whistle countdown during stations), who is where now, "Start the clock now" for late starts.
 - [x] Parent link: random 32-character token, revocable, expires after 30 days, no sign-in; parents see fun names, plain names and focus only (`supabase/migrations/20261014010000_parent_links.sql`).

@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { signOut } from '@/app/auth/actions';
 import { Profile } from './profile';
+import { InstallSection } from '@/components/pwa';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,8 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
           )}
         </p>
       </section>
+
+      <InstallSection />
 
       {!coach.local && (
         <section className="border-t border-border-100 pt-5">
