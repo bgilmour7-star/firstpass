@@ -7,7 +7,7 @@ import { levelCount, levelOf } from '@/lib/drills/schema';
 import { blockLevels, levelMinutes, rotationToday, unusedZones, zoneFor, ZONES, type DrillBlock, type RotationBlock, type StationsBlock, type Unit, type Zone } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { Badge } from './parts';
-import { useOpenDrill } from './drill-drawer';
+import { useOpenDrill } from '@/components/drill-drawer';
 
 // What each kind of block shows under its title.
 

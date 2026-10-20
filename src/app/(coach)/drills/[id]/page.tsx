@@ -9,7 +9,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 export const dynamic = "force-dynamic";
 
 // Read-only drill page for coaches. v1: coaches never edit drills, only their minutes in a plan.
-// Opened from a plan's drawer ("Open full page"), ?from=/plans/<id> brings back a link to that plan.
+// Opened from a drawer ("Open full page"), ?from=/plans/<id> or /today brings back a link there.
 export default async function DrillPage({
   params,
   searchParams,
@@ -29,7 +29,9 @@ export default async function DrillPage({
   const d = drills.find((x) => x.id === id);
   if (!d) notFound();
   const back =
-    plan && plan.teamId === team.id
+    from === "/today"
+      ? { href: "/today", label: "← Back to the practice" }
+      : plan && plan.teamId === team.id
       ? {
           href: `/plans/${plan.id}`,
           label: `← Back to ${new Date(plan.date + "T12:00:00").toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" })}'s plan`,

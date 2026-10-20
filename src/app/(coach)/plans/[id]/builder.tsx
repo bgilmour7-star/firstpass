@@ -36,7 +36,7 @@ import {
 } from '@/lib/plans/schema';
 import { deletePractice, savePractice } from '../actions';
 import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
-import { DrillDrawer, OpenDrill, useOpenDrill } from './drill-drawer';
+import { DrillDrawer, OpenDrill, useOpenDrill } from '@/components/drill-drawer';
 import { AttendanceDialog, BLOCK_TYPES, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
 import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
@@ -640,7 +640,8 @@ export function Builder({
       {viewing && byId.get(viewing) && (
         <DrillDrawer
           drill={byId.get(viewing)!}
-          planId={plan.id}
+          from={`/plans/${plan.id}`}
+          backLabel="Back to the plan"
           favorite={favs[viewing] ?? null}
           onFavorite={(f) =>
             setFavs((m) => {

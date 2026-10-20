@@ -28,6 +28,6 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
         </Link>
       </div>
     );
-  const drills = await store.libraryDrills();
-  return <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} isToday={chosen.date === today} />;
+  const [drills, favorites] = await Promise.all([store.libraryDrills(), store.favorites(team.id)]);
+  return <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} favorites={favorites} isToday={chosen.date === today} />;
 }

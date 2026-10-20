@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DrillDrawer, OpenDrill, useOpenDrill } from '@/components/drill-drawer';
+import type { Favorite } from '@/lib/app/store';
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
@@ -16,8 +18,12 @@ const toMin = (hhmm: string) => {
   return h * 60 + m;
 };
 
-export function TodayView({ practice, team, drills, isToday }: { practice: Practice; team: Team; drills: Drill[]; isToday: boolean }) {
+export function TodayView({ practice, team, drills, favorites, isToday }: { practice: Practice; team: Team; drills: Drill[]; favorites: Record<string, Favorite>; isToday: boolean }) {
   const byId = useMemo(() => new Map(drills.map((d) => [d.id, d])), [drills]);
+  // Tap a drill for its full details in a sheet, without losing your place in the practice (decision 0015).
+  const [viewing, setViewing] = useState<string | null>(null);
+  const [favs, setFavs] = useState(favorites);
+  const closeDrill = useCallback(() => setViewing(null), []);
   const key = `firstpass.offset.${practice.id}`;
   const [now, setNow] = useState<Date | null>(null);
   const [offset, setOffset] = useState(0); // minutes the practice started late
@@ -56,7 +62,9 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
     return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   };
 
+  const open = viewing ? byId.get(viewing) : undefined;
   return (
+    <OpenDrill.Provider value={setViewing}>
     <div className="mx-auto flex max-w-xl flex-col gap-4">
       <div className="flex flex-col gap-1">
         <h1 className="text-[26px] font-extrabold leading-8">{isToday ? 'Today' : new Date(practice.date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })}</h1>
@@ -105,7 +113,14 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
             >
               <div className="flex items-baseline gap-3">
                 <span className="w-12 font-mono text-sm">{fmt(s)}</span>
-                <span className="min-w-0 flex-1 font-display text-lg font-bold">{title(b, byId)}</span>
+                {b.kind !== 'activity' && b.drillId && byId.get(b.drillId) ? (
+                  <button type="button" onClick={() => setViewing(b.drillId!)} className="flex min-w-0 flex-1 items-baseline gap-1.5 text-left font-display text-lg font-bold hover:underline">
+                    <span className="min-w-0">{title(b, byId)}</span>
+                    <Chevron />
+                  </button>
+                ) : (
+                  <span className="min-w-0 flex-1 font-display text-lg font-bold">{title(b, byId)}</span>
+                )}
                 {done && <span className="text-xs font-semibold text-ink-200">Done</span>}
                 {i === current && (
                   <span className="rounded-full bg-rink-100 px-2 py-0.5 font-mono text-xs text-surface-100">
@@ -122,7 +137,44 @@ export function TodayView({ practice, team, drills, isToday }: { practice: Pract
       <Link href={`/plans/${practice.id}`} className="w-fit text-sm text-ink-200 hover:text-ink-100">
         Edit this plan
       </Link>
+      {open && (
+        <DrillDrawer
+          drill={open}
+          from="/today"
+          backLabel="Back to the practice"
+          favorite={favs[open.id] ?? null}
+          onFavorite={(f) =>
+            setFavs((m) => {
+              const n = { ...m };
+              if (f) n[open.id] = f;
+              else delete n[open.id];
+              return n;
+            })
+          }
+          onClose={closeDrill}
+        />
+      )}
     </div>
+    </OpenDrill.Provider>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0 self-center text-ink-200">
+      <path d="M5 3l4 4-4 4" />
+    </svg>
+  );
+}
+
+/** A station or zone's drill name: tap for its details. */
+function DrillName({ id, name }: { id: string; name: string }) {
+  const openDrill = useOpenDrill();
+  return (
+    <button type="button" onClick={() => openDrill(id)} className="inline-flex items-baseline gap-1 text-left font-display text-base font-bold hover:underline">
+      {name}
+      <Chevron />
+    </button>
   );
 }
 
@@ -229,7 +281,7 @@ function Detail({ block, byId, units, startMin, nowMin, fmt }: { block: Block; b
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink-100 font-mono text-sm text-surface-100">{s.station}</span>
               <div className="flex min-w-0 flex-col gap-1">
                 <span className="flex flex-wrap items-baseline gap-x-2">
-                  <b className="font-display text-base">{d?.funName ?? 'No drill'}</b>
+                  {d ? <DrillName id={d.id} name={d.funName} /> : <b className="font-display text-base">No drill</b>}
                   {s.coach && <span className="text-xs text-ink-200">{s.coach}</span>}
                 </span>
                 {d && <Rink spec={d.diagram} title={d.funName} detail="thumb" className="max-w-[260px]" />}
