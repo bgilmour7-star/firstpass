@@ -9,12 +9,18 @@
  *   npm run drills -- push <id>             copy content/drills/<id>.json up to Supabase
  *   npm run drills -- resolve <requestId> "what changed"
  *   npm run drills -- seed [--force]        insert drills that aren't in Supabase yet (--force overwrites content)
+ *   npm run drills -- asks                  list coaches' drill requests waiting for a draft (decision 0018)
+ *   npm run drills -- drafted <requestId> <drillId> "note"   after push of a new drill (In review): link it, mark the request drafted
+ *   npm run drills -- propose <requestId> "note"   store content/drills/<drillId>.json as the proposed change (the live drill is untouched)
+ *   npm run drills -- cant <requestId> "why"       mark a request drafted with only a note, for the reviewer to decline
  *
  * Supabase commands use SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS. Keep it in .env.local
  * or the environment, never in the repo or the browser.
  *
  * Diagram loop: `requests` → `pull <id>` → edit content/drills/<id>.json → `preview <id>` and look →
  * `push <id>` → `resolve <requestId> "..."`. Status in Supabase is never changed by push; reviewers own it.
+ *
+ * Drill requests loop (skill: drill-requests): `asks` → draft → `push <newId>` + `drafted <req> <newId>`, or `propose` for a change.
  */
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -130,6 +136,59 @@ body{font-family:system-ui;margin:24px;background:#fff}main{display:grid;grid-te
     const { error } = await db.from('diagram_requests').update({ resolved_at: new Date().toISOString(), resolution }).eq('id', requestId);
     if (error) throw error;
     console.log(`resolved ${requestId}`);
+  },
+
+  async asks() {
+    const db = admin();
+    const { data, error } = await db
+      .from('drill_requests')
+      .select('id, kind, drill_id, answers, description, link, requester_name, created_at, teams(name)')
+      .eq('state', 'sent')
+      .order('created_at');
+    if (error) throw error;
+    if (!data.length) return console.log('No drill requests waiting.');
+    for (const r of data) console.log(JSON.stringify(r, null, 2));
+  },
+
+  async drafted([requestId, drillId, ...rest]) {
+    if (!requestId || !drillId) throw new Error('Usage: drafted <requestId> <drillId> "note"  (after push; the drill must be In review)');
+    const db = admin();
+    const { data: r, error } = await db.from('drill_requests').select('kind, state').eq('id', requestId).single();
+    if (error) throw error;
+    if (r.kind !== 'new' || r.state !== 'sent') throw new Error(`Request is ${r.kind}/${r.state}, not a waiting new-drill request.`);
+    const { data: d } = await db.from('drills').select('status').eq('id', drillId).maybeSingle();
+    if (!d) throw new Error(`Push ${drillId} first.`);
+    if (d.status !== 'in_review') throw new Error(`${drillId} is ${d.status}; a requested drill goes in as in_review.`);
+    const { error: e } = await db
+      .from('drill_requests')
+      .update({ state: 'drafted', drill_id: drillId, drafted_at: new Date().toISOString(), claude_note: rest.join(' ').trim() || null })
+      .eq('id', requestId);
+    if (e) throw e;
+    console.log(`drafted ${requestId} → ${drillId}`);
+  },
+
+  async propose([requestId, ...rest]) {
+    if (!requestId) throw new Error('Usage: propose <requestId> "note"');
+    const db = admin();
+    const { data: r, error } = await db.from('drill_requests').select('kind, state, drill_id').eq('id', requestId).single();
+    if (error) throw error;
+    if (r.kind !== 'change' || r.state !== 'sent' || !r.drill_id) throw new Error(`Request is ${r.kind}/${r.state}, not a waiting change request.`);
+    const d = readLocal(r.drill_id);
+    const { error: e } = await db
+      .from('drill_requests')
+      .update({ state: 'drafted', proposed: { ...d, id: r.drill_id }, drafted_at: new Date().toISOString(), claude_note: rest.join(' ').trim() || null })
+      .eq('id', requestId);
+    if (e) throw e;
+    console.log(`proposed a change to ${r.drill_id} for ${requestId}. Now run: npm run drills -- pull ${r.drill_id}  (puts the live version back in content/drills)`);
+  },
+
+  async cant([requestId, ...rest]) {
+    const why = rest.join(' ').trim();
+    if (!requestId || !why) throw new Error('Usage: cant <requestId> "why"');
+    const db = admin();
+    const { error } = await db.from('drill_requests').update({ state: 'drafted', drafted_at: new Date().toISOString(), claude_note: why }).eq('id', requestId).eq('state', 'sent');
+    if (error) throw error;
+    console.log(`noted ${requestId} for the reviewer`);
   },
 
   async seed(args) {

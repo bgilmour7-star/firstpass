@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { requireTeam } from "@/lib/auth";
 import { getAppStore } from "@/lib/app/store";
 import { DrillDetail } from "@/components/drill-detail";
+import { SuggestChange } from "@/components/drill-request";
 import { FavoriteButton } from "@/components/favorite-button";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +64,7 @@ export default async function DrillPage({
           variant="full"
         />
       </div>
-      <DrillDetail drill={d} />
+      <DrillDetail drill={d} after={<SuggestChange drillId={d.id} drillName={d.funName} />} />
     </div>
   );
 }

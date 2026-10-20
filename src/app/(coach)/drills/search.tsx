@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { nameMatches } from '@/lib/plans/drawer';
+import { RequestDrill } from '@/components/drill-request';
 
 export type LibraryItem = { id: string; funName: string; plainName: string; card: React.ReactNode };
 
@@ -35,6 +36,12 @@ export function LibrarySearch({ items, scope, initialQ, filters }: { items: Libr
               <Link href={`/drills?q=${encodeURIComponent(q.trim())}`} className="font-semibold text-ink-100 underline underline-offset-2">
                 Search all drills
               </Link>
+            </>
+          )}
+          {!scope && (
+            <>
+              {' '}
+              <RequestDrill variant="link" prefill={`A drill called “${q.trim()}”. `} />
             </>
           )}
         </p>

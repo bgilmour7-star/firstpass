@@ -20,11 +20,12 @@ type Props = {
   local: boolean;
   teamName?: string;
   next: NavPractice;
+  reviewCount?: number;
   initialCollapsed: boolean;
   children: React.ReactNode;
 };
 
-export function AppShell({ email, isAdmin, local, teamName, next, initialCollapsed, children }: Props) {
+export function AppShell({ email, isAdmin, local, teamName, next, reviewCount = 0, initialCollapsed, children }: Props) {
   const path = usePathname();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [peek, setPeek] = useState(false);
@@ -77,7 +78,7 @@ export function AppShell({ email, isAdmin, local, teamName, next, initialCollaps
           expanded ? 'w-[248px]' : 'w-16'
         } ${peek ? 'shadow-[0_12px_40px_rgba(14,27,30,0.18),0_2px_6px_rgba(14,27,30,0.08)]' : ''}`}
       >
-        <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} expanded={expanded} pin={{ collapsed, toggle }} />
+        <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} reviewCount={reviewCount} expanded={expanded} pin={{ collapsed, toggle }} />
       </aside>
 
       {/* Phone top bar */}
@@ -99,7 +100,7 @@ export function AppShell({ email, isAdmin, local, teamName, next, initialCollaps
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <button type="button" aria-label="Close menu" onClick={() => setDrawer(false)} className="absolute inset-0 bg-ink-100/40" />
           <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-surface-200 pb-[env(safe-area-inset-bottom,0px)] pt-[env(safe-area-inset-top,0px)] shadow-xl">
-            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} expanded />
+            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} reviewCount={reviewCount} expanded />
           </div>
         </div>
       )}
@@ -118,6 +119,7 @@ function Nav({
   local,
   teamName,
   next,
+  reviewCount,
   expanded,
   pin,
 }: {
@@ -127,6 +129,7 @@ function Nav({
   local: boolean;
   teamName?: string;
   next: NavPractice;
+  reviewCount: number;
   expanded: boolean;
   pin?: { collapsed: boolean; toggle: () => void };
 }) {
@@ -154,12 +157,22 @@ function Nav({
   ];
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';
-  const link = (href: string, label: string, icon: React.ReactNode, sub?: string) => {
+  const link = (href: string, label: string, icon: React.ReactNode, sub?: string, badge = 0) => {
     const on = path === href || path.startsWith(href + '/');
     return (
-      <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? undefined : sub ? `${label}, ${sub}` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
-        <span className="grid size-6 place-items-center">{icon}</span>
-        {sub ? (
+      <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
+        <span className="relative grid size-6 place-items-center">
+          {icon}
+          {badge > 0 && !expanded && <span aria-hidden="true" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-surface-200 bg-whistle-100" />}
+        </span>
+        {badge > 0 ? (
+          <span className={`flex min-w-0 items-center justify-between gap-2 ${fade}`}>
+            <span className="truncate">{label}</span>
+            <span aria-hidden="true" className="rounded-full bg-whistle-100 px-2 py-px font-mono text-xs font-medium text-surface-100">
+              {badge}
+            </span>
+          </span>
+        ) : sub ? (
           <span className={`flex min-w-0 flex-col ${fade}`}>
             <span className="truncate leading-5">{label}</span>
             <span className={`truncate text-xs leading-4 ${on ? 'text-surface-100/75' : 'text-ink-200'}`}>{sub}</span>
@@ -210,7 +223,7 @@ function Nav({
         {isAdmin && (
           <>
             <div aria-hidden="true" className="mx-[10px] my-2.5 h-px bg-border-100" />
-            {link('/admin/drills', 'Drill review', <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 13l2 2 4-4.5" />)}
+            {link('/admin/drills', 'Drill review', <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 13l2 2 4-4.5" />, undefined, reviewCount)}
           </>
         )}
       </nav>

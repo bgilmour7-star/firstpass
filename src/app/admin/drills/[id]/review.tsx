@@ -8,6 +8,7 @@ import { DiagramFlag, StatusPill } from '@/components/status';
 import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, EFFORTS, EFFORT_LABEL, FORMATS, FORMAT_LABEL, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
+import type { DrillRequest } from '@/lib/requests/schema';
 import { addReviewNote, closeDiagramRequest, moveStatus, requestDiagramChange, saveDrill } from '../actions';
 
 const MOVE_LABEL: Record<Status, Partial<Record<Status, string>>> = {
@@ -21,7 +22,7 @@ const ORDER: Status[] = ['draft', 'in_review', 'approved', 'live'];
 
 const fmt = (iso: string) => new Date(iso).toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-export function DrillReview({ detail }: { detail: DrillDetail }) {
+export function DrillReview({ detail, asked = null }: { detail: DrillDetail; asked?: DrillRequest | null }) {
   const router = useRouter();
   const [draft, setDraft] = useState<Drill>(detail.drill);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -108,6 +109,23 @@ export function DrillReview({ detail }: { detail: DrillDetail }) {
         <Link href="/admin/drills" className="w-fit text-sm text-ink-200 hover:text-ink-100">
           ← All drills
         </Link>
+        {asked && (
+          <div role="note" className="flex flex-col gap-1 rounded-lg border-[1.5px] border-dashed border-whistle-100 px-3.5 py-2.5 text-sm">
+            <p>
+              <b className="font-semibold">
+                Asked for by {asked.requesterName ?? 'a coach'}
+                {asked.teamName ? `, ${asked.teamName}` : ''}.
+              </b>{' '}
+              <span className="text-ink-200">“{asked.description}”</span>
+            </p>
+            <p className="text-ink-200">
+              {asked.state === 'accepted' ? 'Answered: it went live. ' : asked.state === 'declined' ? 'Answered: declined. ' : `Making it live or archiving it answers ${asked.requesterName ?? 'them'} by email. `}
+              <Link href={`/admin/requests/${asked.id}`} className="text-rink-100 underline underline-offset-2">
+                See the request
+              </Link>
+            </p>
+          </div>
+        )}
         <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
           <div className="min-w-0 flex-[1_1_320px]">
             <div className="flex flex-wrap items-center gap-2">

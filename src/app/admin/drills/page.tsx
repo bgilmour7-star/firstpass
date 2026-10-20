@@ -3,6 +3,8 @@ import { getDrillStore } from '@/lib/drills/store';
 import { STATUSES, STATUS_LABEL, type Status } from '@/lib/drills/schema';
 import { DiagramFlag, GROUP_MODEL_LABEL, StatusPill } from '@/components/status';
 import { Rink } from '@/components/ds';
+import { getRequestStore } from '@/lib/requests/store';
+import { isOpen } from '@/lib/requests/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +12,10 @@ export const dynamic = 'force-dynamic';
 export default async function DrillQueue({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const { status } = await searchParams;
   const filter = STATUSES.includes(status as Status) ? (status as Status) : null;
-  const all = await (await getDrillStore()).list();
+  const [all, requests] = await Promise.all([(await getDrillStore()).list(), getRequestStore().then((r) => r.all()).catch(() => [])]);
+  const names = new Map(all.map((d) => [d.id, d.funName]));
+  // Coaches' requests that are still open: drafted ones first, they're waiting for you (decision 0018).
+  const asks = requests.filter(isOpen).sort((a, b) => Number(b.state === 'drafted') - Number(a.state === 'drafted') || b.createdAt.localeCompare(a.createdAt));
   const counts = Object.fromEntries(STATUSES.map((s) => [s, all.filter((d) => d.status === s).length])) as Record<Status, number>;
   const waitingOnClaude = all.filter((d) => d.openRequests > 0).length;
 
@@ -31,6 +36,39 @@ export default async function DrillQueue({ searchParams }: { searchParams: Promi
           </p>
         </div>
       </div>
+
+      {asks.length > 0 && (
+        <section aria-labelledby="from-coaches" className="flex flex-col gap-2">
+          <h2 id="from-coaches" className="text-sm font-semibold">
+            From coaches <span className="font-mono text-xs text-ink-200">{asks.length}</span>
+          </h2>
+          <ul className="flex flex-col">
+            {asks.map((r) => {
+              const name = r.drillId ? names.get(r.drillId) : undefined;
+              const ready = r.state === 'drafted';
+              const title = r.kind === 'new' ? (ready && name ? `Draft ready: ${name}` : 'New drill') : `${ready ? 'Change ready' : 'Change'}: ${name ?? 'a drill'}`;
+              return (
+                <li key={r.id}>
+                  <Link
+                    href={r.kind === 'new' && ready && r.drillId ? `/admin/drills/${r.drillId}` : `/admin/requests/${r.id}`}
+                    className="grid gap-x-4 gap-y-0.5 border-b border-border-100 py-2.5 text-sm hover:bg-surface-200 sm:grid-cols-[minmax(0,1fr)_auto]"
+                  >
+                    <span className="min-w-0 truncate">
+                      {ready && <span aria-hidden="true" className="mr-2 inline-block h-2 w-2 rounded-full bg-whistle-100" />}
+                      <b className="font-semibold">{title}</b>
+                      <span className="text-ink-200"> · “{r.description}”</span>
+                    </span>
+                    <span className="text-ink-200">
+                      {r.requesterName ?? 'A coach'}
+                      {r.teamName ? `, ${r.teamName}` : ''} · {ready ? 'Waiting for you' : 'Waiting for Claude'}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <nav aria-label="Filter by status" className="-mx-1 flex gap-1 overflow-x-auto px-1">
         <FilterTab href="/admin/drills" on={!filter} label="All" count={all.length - counts.archived} />

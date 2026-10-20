@@ -5,6 +5,9 @@ import { FOCUS_ATTRIBUTES, shapeLabel } from "@/lib/drills/schema";
 import { Pips, Rink } from "@/components/ds";
 import { FavoriteButton, StarIcon } from "@/components/favorite-button";
 import { LibrarySearch } from "./search";
+import { RequestDrill } from "@/components/drill-request";
+import { getRequestStore } from "@/lib/requests/store";
+import { stateLine } from "@/lib/requests/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +21,14 @@ export default async function Library({
   const filter = FOCUS_ATTRIBUTES.find((a) => a === focus) ?? null;
   const onlyFavs = fav === "1";
   const store = await getAppStore();
-  const [all, favs] = await Promise.all([
+  const [all, favs, requests] = await Promise.all([
     store.libraryDrills(),
     store.favorites(team.id),
+    getRequestStore()
+      .then((r) => r.forTeam(team.id))
+      .catch(() => []),
   ]);
+  const names = new Map(all.map((d) => [d.id, d.funName]));
   const favCount = all.filter((d) => favs[d.id]).length;
   // Team favourites first (decision 0012), then by how much the drill works on the chosen skill.
   const shown = all
@@ -68,14 +75,17 @@ export default async function Library({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold">Drills</h1>
-        <p className="text-sm text-ink-200">
-          {all.length} drills, each from a coaching source and checked by a
-          coach.
-          {coach.isAdmin &&
-            " Only drills marked Live in Drill review show here."}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Drills</h1>
+          <p className="text-sm text-ink-200">
+            {all.length} drills, each from a coaching source and checked by a
+            coach.
+            {coach.isAdmin &&
+              " Only drills marked Live in Drill review show here."}
+          </p>
+        </div>
+        <RequestDrill />
       </div>
 
       {shown.length === 0 ? (
@@ -142,6 +152,40 @@ export default async function Library({
             };
           })}
         />
+      )}
+
+      {requests.length > 0 && (
+        <section aria-labelledby="your-requests" className="flex flex-col gap-2 border-t border-border-100 pt-5">
+          <h2 id="your-requests" className="text-sm font-semibold">
+            Your team&apos;s requests
+          </h2>
+          <ul className="flex flex-col">
+            {requests.slice(0, 8).map((r) => (
+              <li key={r.id} className="grid gap-x-4 gap-y-0.5 border-b border-border-100 py-2.5 text-sm sm:grid-cols-[minmax(0,1fr)_auto]">
+                <span className="min-w-0 truncate">
+                  <b className="font-semibold">
+                    {r.kind === "change"
+                      ? `Change to ${names.get(r.drillId ?? "") ?? "a drill"}`
+                      : r.state === "accepted" && r.drillId && names.get(r.drillId)
+                        ? names.get(r.drillId)
+                        : "New drill"}
+                  </b>
+                  <span className="text-ink-200"> · “{r.description}”</span>
+                </span>
+                <span className={r.state === "accepted" ? "text-good-100" : "text-ink-200"}>
+                  {r.state === "accepted" && r.kind === "new" && r.drillId && names.get(r.drillId) ? (
+                    <Link href={`/drills/${r.drillId}`} className="underline underline-offset-2">
+                      Live in the library
+                    </Link>
+                  ) : (
+                    stateLine(r)
+                  )}
+                  {r.requesterName ? ` · ${r.requesterName}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

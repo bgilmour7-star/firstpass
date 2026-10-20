@@ -49,6 +49,9 @@ Design: canvas "Key screens" and "Plan next practice".
 - [x] **3.8 Who's worked on a plan (2026-10-17):** every save, copy and share adds to a practice's edit log (one entry per coach per 30-minute session, with a plain summary like "added Keep Away"). Plans cards show the latest change ("Kara added 2 drills · 1h ago"), the coaches' initials, empty blocks, and a dot when someone else changed it since you last opened it. **Brett: run `supabase/migrations/20261018000000_practice_activity.sql`** (plans save fine without it; the line just doesn't show).
 - [x] Next practice starts as a copy of the last one; New tag on drills new to the kids; new-drill limit visible.
 
+### 3.11 Drill requests from coaches (decision 0018, 2026-10-20)
+- [x] Request a drill and Suggest a change; Claude drafts once a day (drill-requests skill, scheduled task); From coaches in Drill review with a waiting count in the nav; change view with Accept/Decline; emails to Brett (draft ready) and to the coach (outcome). **Brett: run `supabase/migrations/20261025000000_drill_requests.sql`.**
+
 ## Milestone 4 — Rink-side and sharing
 - [x] Phone Today view: timeline, current block open with countdown (whistle countdown during stations), who is where now, "Start the clock now" for late starts.
 - [x] Parent link: random 32-character token, revocable, expires after 30 days, no sign-in; parents see fun names, plain names and focus only (`supabase/migrations/20261014010000_parent_links.sql`).

@@ -21,7 +21,7 @@ Next.js 15 (App Router, TypeScript) on Vercel · Supabase (Postgres, Auth, RLS) 
 ## Rules
 - **No child-identifiable data, ever.** Teams, groups (Sharks, Bears, Eagles) and counts only. No player names, photos or birthdates in any table, log or prompt.
 - **Authorization on the server.** Every page and server action under `/admin` calls `requireAdmin()` (`src/lib/auth.ts`), and every table has RLS. A new table without RLS policies is a bug.
-- **Storage goes through the stores:** `src/lib/drills/store.ts` (drill review) and `src/lib/app/store.ts` (teams, plans, live library). Don't query Supabase from components. Coach pages call `requireTeam()`.
+- **Storage goes through the stores:** `src/lib/drills/store.ts` (drill review) and `src/lib/app/store.ts` (teams, plans, live library) and `src/lib/requests/store.ts` (coaches' drill requests). Don't query Supabase from components. Coach pages call `requireTeam()`.
 - **Diagrams are RinkDiagram specs**, rendered only by the design-system module (`src/lib/ds/bundle.mjs`, generated). Never hand-draw a rink. Use design-system tokens (`bg-surface-200`, `text-ink-200`, `font-display`...), not raw colours.
 - `src/lib/ds/`, `src/styles/tokens.css` and `src/styles/ds-bundle.css` are generated. Change `design-system/` and run `npm run ds:sync`.
 - **Database changes: always paste the SQL.** When Brett needs to run a migration or seed in the Supabase SQL editor, put the full SQL in the reply, every time, even if he has seen it before. Never just name the file. Make migrations safe to run twice (`if not exists`, `create or replace`, `drop policy if exists`).
@@ -29,3 +29,6 @@ Next.js 15 (App Router, TypeScript) on Vercel · Supabase (Postgres, Auth, RLS) 
 
 ## Diagrams: first draws and change requests
 Reviewers ask for diagram changes on the drill review screen; new drills need a first diagram. Both are done with the **rink-diagram** skill (`.claude/skills/rink-diagram/SKILL.md`): the request loop (`requests` → `pull` → edit → `preview` and look → `push` → `resolve`), coordinates and zones, notation, and the checks before pushing. "Work the diagram requests" means: run that skill.
+
+## Drill requests from coaches
+Coaches ask for new drills or suggest changes (decision 0018). Once a day a scheduled run works them with the **drill-requests** skill (`.claude/skills/drill-requests/SKILL.md`): draft a new drill In review, or store a change as a proposal; never make anything live. "Work the drill requests" means: run that skill.

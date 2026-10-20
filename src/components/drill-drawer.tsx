@@ -6,6 +6,7 @@ import { BLOCK_FOR, PART_LABEL, shapeLabel, type Drill } from '@/lib/drills/sche
 import type { Favorite } from '@/lib/app/store';
 import { DrillDetail } from '@/components/drill-detail';
 import { FavoriteButton } from '@/components/favorite-button';
+import { SuggestChange } from '@/components/drill-request';
 
 // Opening a drill from a plan or the rink-side page keeps you where you were (decision 0015): the
 // drill slides in from the right on a desktop and up from the bottom on a phone. Escape, the backdrop
@@ -69,7 +70,7 @@ export function DrillDrawer({
           </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          <DrillDetail drill={d} wide={false} />
+          <DrillDetail drill={d} wide={false} after={<SuggestChange key={d.id} drillId={d.id} drillName={d.funName} />} />
         </div>
         <footer className="flex items-center justify-between gap-3 border-t border-border-100 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <Link href={`/drills/${d.id}?from=${encodeURIComponent(from)}`} className="text-sm font-medium text-rink-100 hover:underline">

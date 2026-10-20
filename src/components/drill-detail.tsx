@@ -4,12 +4,15 @@ import { Pips, Rink, RinkStepper } from "@/components/ds";
 // Everything about a drill, read-only (v1: coaches never edit drills). One component for the
 // drill page and the drawer that opens from a practice plan, so they always say the same thing.
 // "wide" lays it out in two columns; the drawer uses one.
+// "after" sits at the end of the details: "Suggest a change" on the drill page and in the drawer.
 export function DrillDetail({
   drill: d,
   wide = true,
+  after,
 }: {
   drill: Drill;
   wide?: boolean;
+  after?: React.ReactNode;
 }) {
   return (
     <div
@@ -162,6 +165,7 @@ export function DrillDetail({
             . Re-described and drawn by Firstpass.
           </p>
         </Section>
+        {after}
       </div>
     </div>
   );
