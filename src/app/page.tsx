@@ -20,7 +20,11 @@ export const metadata: Metadata = {
     siteName: 'Firstpass',
     type: 'website',
     locale: 'en_CA',
+    // The share card: the hero's Puck Party rotation drawn by RinkDiagram, in the light palette
+    // (BrandDevices). A static render: regenerate it if the hero drill changes.
+    images: [{ url: 'https://firstpass.coach/og/firstpass-landing.png', width: 1200, height: 630, alt: 'Firstpass: Show up ready. Practice plans for U5–U9 hockey, with a three-zone rotation on half ice.' }],
   },
+  twitter: { card: 'summary_large_image', images: ['https://firstpass.coach/og/firstpass-landing.png'] },
 };
 
 export default async function Home() {

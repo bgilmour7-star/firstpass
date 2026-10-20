@@ -25,6 +25,8 @@ Date: 2026-10-20 · Decided by: Brett
   personal emails: headline numbers against the previous period, visits per day with sign-ups, the funnel, sources,
   who's signing up, and the waitlist with a status per row (New → Emailed → Call booked → Onboarded / Not a fit).
 - A plain **privacy page** at `/privacy`.
+- **Share card** (`public/og/firstpass-landing.png`, 1200×630): the hero's Puck Party rotation drawn by RinkDiagram in
+  the light palette beside "Show up ready." on `rink-200`. A static render; redo it if the hero drill changes.
 
 ## Why
 Brett wants a short public page with impactful copy and imagery, a way for coaches and associations to show
@@ -35,4 +37,3 @@ uses. Counting ourselves keeps the numbers next to the waitlist and avoids a coo
 - Supabase's own sign-up endpoint is still open to someone calling the API directly with the public key. The app
   never does; a "before user created" auth hook would close it if that ever matters.
 - No booking link on the page: Brett emails each person.
-- A share-card image (Open Graph) for the landing page.
