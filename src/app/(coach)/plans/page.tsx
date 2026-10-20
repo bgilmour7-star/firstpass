@@ -13,9 +13,9 @@ export const dynamic = 'force-dynamic';
 const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
 const STATUS = { draft: 'Draft', ready: 'Ready', done: 'Done' } as const;
 
-export default async function Plans({ searchParams }: { searchParams: Promise<{ error?: string; hidden?: string; all?: string }> }) {
+export default async function Plans({ searchParams }: { searchParams: Promise<{ hidden?: string; all?: string }> }) {
   const { coach, team } = await requireTeam('/plans');
-  const { error, hidden, all } = await searchParams;
+  const { hidden, all } = await searchParams;
   const limit = all ? 200 : 10;
   const store = await getAppStore();
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans.
@@ -26,7 +26,6 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const upcoming = plans.filter((p) => p.date >= today).reverse();
   const past = plans.filter((p) => p.date < today);
-  const lastTime = plans[0]?.startTime ?? '17:45';
   const planIds = new Set(plans.map((p) => p.id));
   const iceFor = new Map(ice.filter((x) => x.practiceId).map((x) => [x.practiceId!, x]));
   // Ice times still to plan: practices, then games and the rest further down; hidden ones on request.
@@ -112,21 +111,12 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
           <h1 className="text-2xl font-bold">Plans</h1>
           <p className="text-sm text-ink-200">{plans.length ? 'A new plan starts as a copy of the one before it.' : 'Your first plan starts from a simple template.'}</p>
         </div>
-        <form action={createPractice} className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-ink-200">Date</span>
-            <input type="date" name="date" required defaultValue={today} className="rounded-md border border-border-100 bg-surface-100 px-3 py-2" />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-ink-200">Start</span>
-            <input type="time" name="time" required defaultValue={lastTime} step={300} className="rounded-md border border-border-100 bg-surface-100 px-3 py-2" />
-          </label>
+        <form action={createPractice}>
           <button type="submit" className="min-h-11 rounded-full bg-rink-100 px-5 text-sm font-medium text-surface-100 hover:bg-rink-200">
             Plan a practice
           </button>
         </form>
       </div>
-      {error && <p className="text-sm text-flag-100">Pick a date and a start time.</p>}
 
       {sync.status === 'error' && (
         <p className="text-sm text-flag-100">
