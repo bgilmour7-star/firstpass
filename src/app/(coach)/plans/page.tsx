@@ -13,7 +13,6 @@ import { DATE_WHY, nextPracticeDate } from '@/lib/plans/next-date';
 export const dynamic = 'force-dynamic';
 
 const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
-const STATUS = { draft: 'Draft', ready: 'Ready', done: 'Done' } as const;
 
 export default async function Plans({ searchParams }: { searchParams: Promise<{ hidden?: string; all?: string }> }) {
   const { coach, team } = await requireTeam('/plans');
@@ -78,9 +77,8 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
                 Checked in {here.length} of {Math.max(coachCount, here.length)}
               </span>
             )}
-            <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${p.status === 'ready' ? 'border-rink-100 text-rink-100' : p.status === 'done' ? 'border-border-100 text-ink-200' : 'border-dashed border-border-100 text-ink-200'}`}>
-              {STATUS[p.status]}
-            </span>
+            {/* Done comes from the check-in; there's no status to set by hand (decision 0023). */}
+            {p.status === 'done' && <span className="rounded-full border border-border-100 px-2 py-0.5 text-xs font-semibold text-ink-200">Done</span>}
           </span>
           {act && (
             <span className="flex items-center gap-2 text-xs text-ink-200">
@@ -113,7 +111,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Plans</h1>
-          <p className="text-sm text-ink-200">{plans.length ? 'A new plan starts as a copy of the one before it.' : 'Your first plan starts from a simple template.'}</p>
+          <p className="text-sm text-ink-200">{plans.length ? 'A new plan starts as a copy of the one before it.' : 'Your first practice comes ready to run. Change anything you like.'}</p>
         </div>
         <AddPractice date={guess.date} startTime={guess.startTime} hint={`${DATE_WHY[guess.why].charAt(0).toUpperCase()}${DATE_WHY[guess.why].slice(1)}.`} copies={plans.length > 0} />
       </div>

@@ -58,11 +58,6 @@ const day = (iso: string) =>
     month: 'short',
     day: 'numeric',
   });
-const STATUS = [
-  ['draft', 'Draft', 'bg-ink-200/50'],
-  ['ready', 'Ready', 'bg-rink-100'],
-  ['done', 'Done', 'bg-good-100'],
-] as const;
 
 export function Builder({
   initial,
@@ -164,7 +159,9 @@ export function Builder({
   // The block that takes the plan past the team's usual number of new drills carries the warning
   // (UX pattern: a warning lives on the item that breaks the rule). The panel only counts.
   const overNew = new Set<string>();
-  {
+  // The first practice: everything is new to the kids, so there's no usual to go over.
+  const firstPractice = knownSet.size === 0;
+  if (!firstPractice) {
     const seen = new Set<string>();
     for (const b of blocks) {
       for (const d of drillIds(b)) if (!knownSet.has(d)) seen.add(d);
@@ -249,8 +246,9 @@ export function Builder({
     const b = blocks.find((x) => x.id === p.blockId);
     const current = b && b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
     return {
-      label: b ? `For the ${b.minutes}-min ${b.kind === 'activity' ? 'block' : b.kind} block${current ? `, instead of ${current.funName}` : ''}` : '',
-      fitsMinutes: b ? b.minutes : null,
+      label: b ? `For the ${blockMinutes(b, gc)}-min ${b.kind === 'activity' ? 'block' : b.kind} block${current ? `, instead of ${current.funName}` : ''}` : '',
+      // The whole block's time: a rotation's minutes are per zone, and a rotation drill is judged by its total.
+      fitsMinutes: b ? blockMinutes(b, gc) : null,
       part: p.filter === 'basic' && current ? current.part : null,
     };
   }
@@ -343,23 +341,6 @@ export function Builder({
       },
     }));
 
-  const statusSeg = (
-    <div role="radiogroup" aria-label="Plan status" className="inline-flex rounded-full bg-surface-300 p-[3px]">
-      {STATUS.map(([s, label, dot]) => (
-        <button
-          key={s}
-          type="button"
-          role="radio"
-          aria-checked={plan.status === s}
-          onClick={() => setPlan((p) => ({ ...p, status: s }))}
-          className={`inline-flex min-h-9 items-center gap-2 rounded-full px-4 text-sm ${plan.status === s ? 'bg-surface-100 font-semibold text-ink-100 shadow-sm' : 'text-ink-200 hover:text-ink-100'}`}
-        >
-          <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
-          {label}
-        </button>
-      ))}
-    </div>
-  );
   const saved = (
     <span aria-live="polite" className={saveState === 'error' ? 'text-flag-100' : saveState === 'saved' ? 'text-good-100' : ''}>
       {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : `Not saved: ${saveError}`}
@@ -385,7 +366,7 @@ export function Builder({
     <div className="flex flex-col gap-5">
       {/* Plan bar: sticky on desktop, the practice on the left, its status in the middle, actions on the right */}
       <div className="sticky top-[env(safe-area-inset-top,0px)] z-10 -mx-4 -mt-6 hidden border-b border-border-100 bg-surface-100/95 px-4 py-3 lg:-mx-8 lg:px-8 shadow-[0_6px_16px_-14px_rgba(14,27,30,0.5)] backdrop-blur lg:block print:hidden">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4">
             <button type="button" onClick={() => setDetailsOpen(true)} className="flex min-w-0 flex-col items-start text-left" aria-label="Date, time and ice">
               <span className="font-display text-xl font-extrabold leading-6">{day(plan.date)}</span>
@@ -395,7 +376,6 @@ export function Builder({
             </button>
             {attChip}
           </div>
-          {statusSeg}
           <div className="flex items-center justify-end gap-2">
             <Link
               href={`/today?plan=${plan.id}`}
@@ -642,10 +622,12 @@ export function Builder({
           </PanelSec>
           <PanelSec
             title="New to the kids"
-            right={`${fresh.length} · usual ${team.newDrillsPerWeek}`}
-            rightTone={fresh.length > team.newDrillsPerWeek ? 'text-whistle-100' : undefined}
+            right={firstPractice ? `${fresh.length}` : `${fresh.length} · usual ${team.newDrillsPerWeek}`}
+            rightTone={!firstPractice && fresh.length > team.newDrillsPerWeek ? 'text-whistle-100' : undefined}
           >
-            {fresh.length ? (
+            {firstPractice ? (
+              <p className="text-[13px] text-ink-200">Your first practice, so it’s all new. From the next one, Firstpass keeps it to about {team.newDrillsPerWeek} new drills.</p>
+            ) : fresh.length ? (
               <ol className="flex flex-col gap-1 text-[13px]">
                 {fresh.map((d, n) => (
                   <li key={d} className="grid grid-cols-[18px_minmax(0,1fr)] gap-1">
@@ -688,7 +670,10 @@ export function Builder({
         <div className="flex-1">
           <ShareControl practiceId={plan.id} initial={initialShare} compact />
         </div>
-        <PhoneStatus status={plan.status} onChange={(s) => setPlan((p) => ({ ...p, status: s }))} />
+        <Link href={`/today?plan=${plan.id}`} className="flex flex-1 flex-col items-center gap-0.5 text-[11px]">
+          {Icon.rinkside(20)}
+          Rink-side
+        </Link>
       </nav>
 
       {adding !== null && (
@@ -1061,41 +1046,6 @@ function AddSheet({
         </div>
         <AddPicker at={at} onChoose={onChoose} onClose={onClose} known={known} byId={byId} sheet />
       </div>
-    </div>
-  );
-}
-
-function PhoneStatus({ status, onChange }: { status: Practice['status']; onChange: (s: Practice['status']) => void }) {
-  const [open, setOpen] = useState(false);
-  const ref = useDismiss(open, () => setOpen(false));
-  const cur = STATUS.find(([s]) => s === status)!;
-  return (
-    <div ref={ref} className="relative flex-1">
-      <button type="button" aria-expanded={open} aria-label={`Status: ${cur[1]}`} onClick={() => setOpen((o) => !o)} className="flex w-full flex-col items-center gap-0.5 text-[11px]">
-        <span className="inline-flex h-[22px] items-center gap-1.5 rounded-full border border-border-100 px-2 font-mono text-xs">
-          <span className={`h-2 w-2 rounded-full ${cur[2]}`} />
-          {cur[1]}
-        </span>
-        Status
-      </button>
-      {open && (
-        <div className="absolute bottom-full right-1 mb-3 w-40 rounded-md border border-border-100 bg-surface-100 py-1 shadow-lg">
-          {STATUS.map(([s, label, dot]) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => {
-                onChange(s);
-                setOpen(false);
-              }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-surface-200 ${s === status ? 'font-semibold' : ''}`}
-            >
-              <span className={`h-2 w-2 rounded-full ${dot}`} />
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
