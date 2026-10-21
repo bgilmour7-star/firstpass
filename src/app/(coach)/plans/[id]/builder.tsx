@@ -3,10 +3,8 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Pips } from '@/components/ds';
-import { FOCUS_ATTRIBUTES, type Drill } from '@/lib/drills/schema';
+import { FOCUS_ATTRIBUTES, levelOf, type Drill } from '@/lib/drills/schema';
 import {
-  ACTIVITY_KINDS,
-  ACTIVITY_LABEL,
   addMinutes,
   attendanceLabel,
   blockForDrill,
@@ -26,7 +24,6 @@ import {
   totalMinutes,
   unusedZones,
   ZONES,
-  type ActivityKind,
   type Attendance,
   type Block,
   type ChangeTarget,
@@ -35,9 +32,14 @@ import {
   type Zone,
 } from '@/lib/plans/schema';
 import { deletePractice, keepSuggestion, savePractice } from '../actions';
-import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
+import { RotationCard, StationsCard } from './blocks';
+import { FORMAT_NAME, FormatIcon, formatWhat } from './format';
+import { IconButton, LevelPills, PlayableRink } from './opened';
+import { FavoriteButton } from '@/components/favorite-button';
+import { Rink } from '@/components/ds';
+import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { DrillDrawer, OpenDrill, useOpenDrill } from '@/components/drill-drawer';
-import { AttendanceDialog, BLOCK_TYPES, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
+import { AttendanceDialog, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot, type QuickActivity } from './parts';
 import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
 import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
@@ -50,7 +52,6 @@ import { AppliedNote, CheckinPanel, PhoneLine, SuggestionBox, type Applied, type
 // "Who's here today" adapts every block to the groups on the ice.
 
 type Picker = { mode: 'add'; at: number; filter: DrawerFilter; part?: Drill['part']; why?: string } | { mode: 'fill'; blockId: string; filter: DrawerFilter };
-type AddChoice = 'drill' | 'stations' | 'rotation' | ActivityKind | { drillId: string };
 
 const day = (iso: string) =>
   new Date(iso + 'T12:00:00').toLocaleDateString('en-CA', {
@@ -92,7 +93,14 @@ export function Builder({
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved');
   const [saveError, setSaveError] = useState('');
   const [picker, setPicker] = useState<Picker | null>(null);
-  const [adding, setAdding] = useState<number | null>(null);
+  // Read first (decision 0024): one drill open at a time; removing shows Undo.
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ text: string; before: Block[] } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(t);
+  }, [toast]);
   const [attOpen, setAttOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [leaveShort, setLeaveShort] = useState<number | null>(null);
@@ -265,14 +273,22 @@ export function Builder({
     });
   const insert = (at: number, b: Block) => setBlocks((bs) => [...bs.slice(0, at), b, ...bs.slice(at)]);
 
-  function add(at: number, choice: AddChoice) {
-    setAdding(null);
-    if (typeof choice === 'object') {
-      const d = byId.get(choice.drillId);
-      if (d) insert(at, blockForDrill(d));
-    } else if (choice === 'drill' || choice === 'stations' || choice === 'rotation') setPicker({ mode: 'add', at, filter: choice === 'drill' ? 'basic' : choice });
-    else insert(at, newActivity(choice));
-  }
+  // One picker for everything (decision 0024): the drill decides the kind of block.
+  const addAt = () => {
+    const last = blocks[blocks.length - 1];
+    return last?.kind === 'activity' && last.activity === 'huddle' ? blocks.length - 1 : blocks.length;
+  };
+  const openAdd = (at: number) => setPicker({ mode: 'add', at, filter: 'all' });
+  const quick = (k: QuickActivity) => {
+    if (picker?.mode !== 'add') return;
+    insert(picker.at, newActivity(k, k === 'water' ? 2 : k === 'huddle' ? 3 : 5));
+    setPicker(null);
+  };
+  const remove = (b: Block) => {
+    setToast({ text: `Removed ${name(b)}`, before: blocks });
+    setOpenId(null);
+    setBlocks((bs) => bs.filter((x) => x.id !== b.id));
+  };
 
   function pick(drillId: string) {
     if (!picker) return;
@@ -396,13 +412,10 @@ export function Builder({
             <ShareControl practiceId={plan.id} initial={initialShare} />
             <button
               type="button"
-              onClick={() => {
-                setAdding(blocks.length);
-                requestAnimationFrame(() => document.getElementById('gap-end')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-              }}
+              onClick={() => openAdd(addAt())}
               className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-full bg-rink-100 px-4 text-sm font-medium text-surface-100 hover:bg-rink-200"
             >
-              {Icon.plus(16)} Add block
+              {Icon.plus(16)} Add a drill
             </button>
           </div>
         </div>
@@ -460,8 +473,7 @@ export function Builder({
               }}
               className={`flex flex-col ${drag?.from === i ? 'opacity-40' : ''} ${drag && drag.over === i && drag.from !== i ? (drag.from < i ? 'border-b-4 border-rink-100' : 'border-t-4 border-rink-100') : ''}`}
             >
-              {<Gap at={i} time={times[i]} after={i > 0 ? name(blocks[i - 1]) : ''} open={adding === i} onOpen={setAdding} onChoose={add} known={known} byId={byId} />}
-              <section className={`blk grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-2.5' : 'py-6'}`}>
+              <section className={`blk grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' && openId !== b.id ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/50 px-4 lg:-mx-3 lg:rounded-xl lg:px-3' : ''}`}>
                 <div className="flex flex-col gap-0.5 pt-1">
                   <span className={`font-mono text-sm font-medium ${b.kind === 'activity' ? 'text-ink-200' : ''}`}>{clock(times[i])}</span>
                   {b.kind !== 'activity' && <span className="font-mono text-xs text-ink-200">{blockMinutes(b, gc)} min</span>}
@@ -516,52 +528,37 @@ export function Builder({
                       sub: changeTargets(b),
                       note: 'Keeps the time slot and minutes',
                     },
-                    ...(b.kind !== 'activity' && (b.drillId || isOldRotation(b))
-                      ? [
-                          {
-                            label: b.kind === 'rotation' ? 'Swap for another rotation' : 'Swap for another drill',
-                            run: () => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'drill' ? 'basic' : b.kind }),
-                          },
-                        ]
-                      : []),
                     {
                       label: 'Duplicate',
                       run: () => insert(i + 1, { ...structuredClone(b), id: newId() }),
                     },
-                    {
-                      label: 'Move up',
-                      run: () => moveTo(i, i - 1),
-                      disabled: i === 0,
-                    },
-                    {
-                      label: 'Move down',
-                      run: () => moveTo(i, i + 1),
-                      disabled: i === blocks.length - 1,
-                    },
-                    {
-                      label: 'Remove from plan',
-                      run: () => setBlocks((bs) => bs.filter((x) => x.id !== b.id)),
-                      danger: true,
-                    },
                   ]}
                   onChooseDrill={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
+                  open={openId === b.id}
+                  onToggle={() => setOpenId((o) => (o === b.id ? null : b.id))}
+                  onMove={(by) => moveTo(i, i + by)}
+                  onRemove={() => remove(b)}
+                  onAddAfter={() => openAdd(i + 1)}
+                  favorite={b.kind !== 'activity' && b.drillId ? (favs[b.drillId] ?? null) : null}
+                  onFavorite={(f) => {
+                    const id = b.kind !== 'activity' ? b.drillId : null;
+                    if (!id) return;
+                    setFavs((m) => {
+                      const n = { ...m };
+                      if (f) n[id] = f;
+                      else delete n[id];
+                      return n;
+                    });
+                  }}
 
                 />
               </section>
             </li>
           ))}
-          <li id="gap-end" className="border-t border-border-100 pt-1">
-            <Gap
-              at={blocks.length}
-              time={endTime}
-              after={blocks.length ? name(blocks[blocks.length - 1]) : ''}
-              open={adding === blocks.length}
-              onOpen={setAdding}
-              onChoose={add}
-              known={known}
-              byId={byId}
-              end
-            />
+          <li className="border-t border-border-100 pt-3">
+            <button type="button" onClick={() => openAdd(addAt())} className="min-h-11 pl-[68px] text-sm font-medium text-rink-100 hover:underline">
+              + Add a drill
+            </button>
           </li>
         </ol>
 
@@ -580,11 +577,7 @@ export function Builder({
             dismissed={leaveShort === used}
             onDismiss={() => setLeaveShort(used)}
             onSet={(id, m) => update(id, (b) => ({ ...b, minutes: m }) as Block)}
-            onAddDrill={() => {
-              const last = blocks[blocks.length - 1];
-              const at = last?.kind === 'activity' && last.activity === 'huddle' ? blocks.length - 1 : blocks.length;
-              setPicker({ mode: 'add', at, filter: 'basic' });
-            }}
+            onAddDrill={() => openAdd(addAt())}
             addAt={(() => {
               const last = blocks[blocks.length - 1];
               return last?.kind === 'activity' && last.activity === 'huddle' ? times[blocks.length - 1] : endTime;
@@ -659,7 +652,7 @@ export function Builder({
         aria-label="Plan actions"
         className="fixed bottom-0 left-[var(--rail-w,0px)] right-0 z-30 flex border-t border-border-100 bg-surface-100 px-2 pb-[max(14px,env(safe-area-inset-bottom))] pt-2 lg:hidden print:hidden"
       >
-        <button type="button" onClick={() => setAdding(blocks.length)} className="flex flex-1 flex-col items-center gap-0.5 text-[11px] font-semibold text-rink-100">
+        <button type="button" onClick={() => openAdd(addAt())} className="flex flex-1 flex-col items-center gap-0.5 text-[11px] font-semibold text-rink-100">
           <span className="flex h-[30px] w-11 items-center justify-center rounded-full bg-rink-100 text-surface-100">{Icon.plus(20)}</span>
           Add
         </button>
@@ -676,23 +669,27 @@ export function Builder({
         </Link>
       </nav>
 
-      {adding !== null && (
-        <AddSheet
-          at={adding}
-          time={adding < blocks.length ? times[adding] : endTime}
-          after={adding > 0 ? name(blocks[adding - 1]) : ''}
-          onChoose={add}
-          onClose={() => setAdding(null)}
-          known={known}
-          byId={byId}
-        />
+      {toast && (
+        <div role="status" className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] z-[45] mx-auto flex max-w-sm items-center gap-3 rounded-full bg-ink-100 py-1.5 pl-4 pr-1.5 text-sm text-surface-100 shadow-lg lg:bottom-6 print:hidden">
+          <span className="min-w-0 flex-1 truncate">{toast.text}</span>
+          <button
+            type="button"
+            onClick={() => {
+              setBlocks(() => toast.before);
+              setToast(null);
+            }}
+            className="min-h-9 rounded-full bg-surface-100 px-4 font-semibold text-ink-100"
+          >
+            Undo
+          </button>
+        </div>
       )}
       {picker && (
         <LibraryDrawer
           drills={drills}
           known={knownSet}
           inPlan={inPlan}
-          title={picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a stations drill' : picker.mode === 'fill' ? 'Choose a drill' : 'Add a drill'}
+          title={picker.mode === 'add' ? 'Add a drill' : picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a split-by-skill drill' : 'Choose a drill'}
           filter={picker.filter}
           slot={pickerSlot(picker)}
           lastRun={lastRun}
@@ -700,6 +697,7 @@ export function Builder({
           feedback={feedback}
           favorites={favs}
           onPick={pick}
+          onActivity={picker.mode === 'add' && !picker.part ? quick : undefined}
           onClose={() => setPicker(null)}
         />
       )}
@@ -749,6 +747,13 @@ function BlockBody({
   update,
   menu,
   onChooseDrill,
+  open,
+  onToggle,
+  onMove,
+  onRemove,
+  onAddAfter,
+  favorite,
+  onFavorite,
 }: {
   block: Block;
   index: number;
@@ -771,281 +776,200 @@ function BlockBody({
   update: (f: (b: Block) => Block) => void;
   menu: Parameters<typeof Menu>[0]['items'];
   onChooseDrill: () => void;
+  open: boolean;
+  onToggle: () => void;
+  onMove: (by: -1 | 1) => void;
+  onRemove: () => void;
+  onAddAfter: () => void;
+  favorite: Favorite | null;
+  onFavorite: (f: Favorite | null) => void;
 }) {
-  void index;
-  void count;
   const openDrill = useOpenDrill();
   const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
   const fewer = gc < 3;
-  // A quiet, sentence-case label: what kind of block this is. Activities need none; they are one-line rows.
-  let tag = '';
-  let tone = 'text-rink-100';
-  if (b.kind === 'drill') {
-    const lv = d?.levels.length ? blockLevels(d, b) : [];
-    tag = `Drill${lv.length > 1 ? ` · Levels ${lv.join(' → ')}` : lv.length ? ` · Level ${lv[0]} of ${d!.levels.length + 1}` : ''}`;
-  }
-  if (b.kind === 'stations') {
-    tag = fewer ? `Stations · ${gc} group${gc === 1 ? '' : 's'} today` : 'Stations · one per group';
-    tone = 'text-[var(--role-defense-100)]';
-  }
-  if (b.kind === 'rotation') {
-    const { active, off } = rotationToday(b, gc);
-    tag = b.stations.length ? `Rotation · ${active.length} zone${active.length === 1 ? '' : 's'}${off.length ? ' today' : ''}` : 'Rotation';
-    tone = 'text-rink-200';
-  }
   const act = b.kind === 'activity';
-  return (
-    <div className="flex min-w-0 flex-col gap-3.5">
-      <div className={`flex flex-wrap gap-3 ${act ? 'items-center' : 'items-start'}`}>
-        <div className={`flex min-w-0 flex-[1_1_240px] ${act ? 'flex-wrap items-baseline gap-x-2.5' : 'flex-col gap-0.5'}`}>
-          {tag && <span className={`text-xs font-medium ${tone}`}>{tag}</span>}
-          {b.kind === 'activity' ? (
-            <>
-              <input
-                aria-label="Block name"
-                className="-mx-1 rounded px-1 text-base font-semibold leading-6 [field-sizing:content] max-w-[16rem] min-w-[4ch] hover:bg-surface-200 focus:bg-surface-200"
-                value={b.title}
-                maxLength={60}
-                onChange={(e) => update((x) => ({ ...x, title: e.target.value }) as Block)}
-              />
-              <input
-                aria-label="Note"
-                placeholder="Add a note"
-                className="-mx-1 min-w-0 flex-[1_1_12rem] rounded px-1 text-[13px] text-ink-200 placeholder:text-ink-200/0 hover:bg-surface-200 hover:placeholder:text-ink-200/70 focus:bg-surface-200 focus:placeholder:text-ink-200/70"
-                value={b.note}
-                maxLength={200}
-                onChange={(e) => update((x) => ({ ...x, note: e.target.value }) as Block)}
-              />
-            </>
-          ) : b.kind === 'rotation' && !d && isOldRotation(b) ? (
-            <h2 className="font-display text-[22px] font-bold leading-7">Rotation</h2>
-          ) : d ? (
-            <>
-              <button type="button" onClick={() => openDrill(d.id)} className="w-fit text-left font-display text-[22px] font-bold leading-7 hover:underline">
-                {d.funName}
-              </button>
-              <span className="text-[13px] text-ink-200">{d.plainName}</span>
-            </>
-          ) : (
-            <button type="button" onClick={onChooseDrill} className="w-fit font-display text-[22px] font-bold leading-7 text-rink-100 hover:underline">
-              {b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}
-            </button>
-          )}
-        </div>
-        {/* Minutes and the menu show on hover or keyboard focus (always on touch screens): see .blk-ctl in globals.css. */}
-        <div className="blk-ctl flex items-center gap-1">
-          <Stepper
-            value={b.minutes}
-            min={b.kind === 'rotation' ? 2 : 1}
-            max={b.kind === 'rotation' ? 20 : 60}
-            label={b.kind === 'rotation' ? 'min each' : 'min'}
-            onChange={(m) => update((x) => ({ ...x, minutes: m }) as Block)}
-          />
-          <Menu items={menu} />
+  // Read first (decision 0024): a quiet line saying how the drill is organised, its name, and a thumbnail.
+  let tag: React.ReactNode = null;
+  if (b.kind === 'drill' && d?.levels.length) {
+    const lv = blockLevels(d, b);
+    tag = lv.length > 1 ? `Levels ${lv.join(' → ')}` : `Level ${lv[0]} of ${d.levels.length + 1}`;
+  }
+  if (b.kind === 'stations')
+    tag = (
+      <>
+        <FormatIcon model="stations" />
+        {FORMAT_NAME.stations}
+        {fewer ? ` · ${gc} group${gc === 1 ? '' : 's'} today` : ''}
+      </>
+    );
+  if (b.kind === 'rotation' && (d || isOldRotation(b))) {
+    const { active, off } = rotationToday(b, gc);
+    tag = (
+      <>
+        <FormatIcon model="rotation" />
+        {FORMAT_NAME.rotation} · {b.minutes} min a zone{off.length ? ` · ${active.length} zones today` : ''}
+      </>
+    );
+  }
+  const empty = !act && !d && !(b.kind === 'rotation' && isOldRotation(b));
+  // One message per drill: a suggestion first, then the variety check, then the new-drill limit, then what coaches said.
+  const box =
+    suggestion ??
+    (variety[0] ? (
+      <VarietyBox w={variety[0]} also={varietyAlso} onSwap={onSwap} onBreak={() => onBreak(variety[0].rule)} onKeep={() => onKeep(variety[0].rule)} />
+    ) : overNew ? (
+      <div role="note" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 px-3.5 py-2.5">
+        <p className="min-w-0 flex-[1_1_260px] text-sm">
+          <b className="font-semibold text-whistle-100">{overNew.count} new drills today.</b> <span className="text-ink-200">Your usual is {overNew.limit}. Fine if it&apos;s on purpose.</span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={onSwap} className="min-h-9 rounded-full bg-ink-100 px-4 text-sm font-semibold text-surface-100 hover:opacity-90">
+            Swap
+          </button>
+          <button type="button" onClick={onKeepNew} className="min-h-9 px-2 text-sm text-ink-200 hover:text-ink-100">
+            Keep as is
+          </button>
         </div>
       </div>
-      {appliedNotes}
-      {feedback && <FeedbackLine fb={feedback} />}
-      {suggestion}
-      {variety.map((w) => (
-        <VarietyBox key={w.rule} w={w} also={varietyAlso} onSwap={onSwap} onBreak={() => onBreak(w.rule)} onKeep={() => onKeep(w.rule)} />
-      ))}
-      {overNew && (
-        <div role="note" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 px-3.5 py-2.5">
-          <p className="min-w-0 flex-[1_1_260px] text-sm">
-            <b className="font-semibold text-whistle-100">{overNew.count} new drills today.</b>{' '}
-            <span className="text-ink-200">Your usual is {overNew.limit}. Fine if it&apos;s on purpose.</span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={onSwap} className="min-h-9 rounded-full bg-ink-100 px-4 text-sm font-semibold text-surface-100 hover:opacity-90">
-              Swap
-            </button>
-            <button type="button" onClick={onKeepNew} className="min-h-9 px-2 text-sm text-ink-200 hover:text-ink-100">
-              Keep as is
-            </button>
-          </div>
-        </div>
-      )}
-      {b.kind === 'drill' &&
-        d &&
-        (d.levels.length ? (
-          <LevelPicker block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />
-        ) : (
-          <DrillCard drill={d} isNew={!known.has(d.id)} />
-        ))}
-      {b.kind === 'stations' && d && <StationsCard block={b} drill={d} units={units} onZone={(k, z: Zone) => update((x) => (x.kind === 'stations' ? { ...x, zones: { ...x.zones, [k]: z } } : x))} />}
-      {b.kind === 'rotation' && (
-        <RotationCard
-          block={b}
-          drill={d}
-          byId={byId}
-          known={known}
-          groupCount={gc}
-          onChoose={onChooseDrill}
-          onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))}
-        />
-      )}
+    ) : null);
+  const history = feedback ? <FeedbackLine fb={feedback} /> : d && !known.has(d.id) ? <span className="text-[13px] text-ink-200">New to the kids</span> : null;
+  const howMany = d ? (d.groupModel === 'rotation' ? `${d.zones?.length ?? 0} zones` : d.groupModel === 'stations' ? `${d.stations?.length ?? 0} versions` : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`) : '';
+
+  const foot = (
+    <div className="flex items-center gap-2">
+      <button type="button" onClick={onAddAfter} className="min-h-10 whitespace-nowrap text-sm font-medium text-rink-100 hover:underline">
+        + Add after
+      </button>
+      <span className="ml-auto flex items-center gap-1">
+        {d && <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} variant="tile" onChange={onFavorite} />}
+        <IconButton kind="up" label="Move up" onClick={() => onMove(-1)} disabled={index === 0} />
+        <IconButton kind="down" label="Move down" onClick={() => onMove(1)} disabled={index === count - 1} />
+        <IconButton kind="bin" label="Remove" onClick={onRemove} />
+        <Menu items={menu} />
+      </span>
     </div>
   );
-}
+  const minutes = (
+    <Stepper value={b.minutes} min={b.kind === 'rotation' ? 2 : 1} max={b.kind === 'rotation' ? 20 : 60} label={b.kind === 'rotation' ? 'min each' : 'min'} onChange={(m) => update((x) => ({ ...x, minutes: m }) as Block)} />
+  );
 
-/** The gap between two blocks: "+ Add here" (on hover on desktop, always on phones). */
-function Gap({
-  at,
-  time,
-  after,
-  open,
-  onOpen,
-  onChoose,
-  known,
-  byId,
-  end,
-}: {
-  at: number;
-  time: string;
-  after: string;
-  open: boolean;
-  onOpen: (n: number | null) => void;
-  onChoose: (at: number, c: AddChoice) => void;
-  known: string[];
-  byId: Map<string, Drill>;
-  end?: boolean;
-}) {
   return (
-    <div className="group relative">
-      {open ? (
-        <div className="hidden flex-col gap-2 py-2 pl-[68px] lg:flex">
-          <div className="flex items-center gap-2.5 text-rink-100">
-            <span className="h-0 flex-1 border-t-2 border-rink-100" />
-            <span className="text-xs font-semibold">Add at {clock(time)}</span>
-            <span className="h-0 flex-1 border-t-2 border-rink-100" />
-          </div>
-          <AddPicker at={at} onChoose={onChoose} onClose={() => onOpen(null)} known={known} byId={byId} />
-        </div>
-      ) : null}
+    <div className="flex min-w-0 flex-col gap-3">
       <button
         type="button"
-        onClick={() => onOpen(at)}
-        className={`flex w-full items-center gap-2.5 py-1 pl-[68px] text-xs text-rink-100 ${open ? 'lg:hidden' : ''} ${end ? 'font-medium' : 'lg:opacity-0 lg:transition-opacity lg:group-hover:opacity-100 lg:focus-visible:opacity-100'}`}
+        onClick={empty ? onChooseDrill : onToggle}
+        aria-expanded={empty ? undefined : open}
+        className={`grid w-full grid-cols-[minmax(0,1fr)_auto] gap-3 text-left ${act ? 'items-center' : 'items-start'}`}
       >
-        <span className="h-0 flex-1 border-t border-dashed border-rink-100/50" />
-        <span>{end ? '+ Add a block' : '+ Add here'}</span>
-        <span className="h-0 flex-1 border-t border-dashed border-rink-100/50" />
-        <span className="sr-only">{after ? `after ${after}` : 'at the start'}</span>
+        <span className="flex min-w-0 flex-col gap-0.5">
+          {tag && <span className="flex items-center gap-1.5 text-xs font-medium text-rink-100">{tag}</span>}
+          {act ? (
+            <span className="flex flex-wrap items-baseline gap-x-2.5">
+              <span className="text-base font-semibold leading-6">{b.title}</span>
+              {b.note && !open && <span className="text-[13px] text-ink-200">{b.note}</span>}
+            </span>
+          ) : d ? (
+            <>
+              <span className="font-display text-[22px] font-bold leading-7">{d.funName}</span>
+              <span className="text-[13px] text-ink-200">{d.plainName}</span>
+            </>
+          ) : b.kind === 'rotation' && isOldRotation(b) ? (
+            <span className="font-display text-[22px] font-bold leading-7">Rotation</span>
+          ) : (
+            <span className="font-display text-[22px] font-bold leading-7 text-rink-100">{b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}</span>
+          )}
+        </span>
+        {act ? (
+          <span className="font-mono text-xs text-ink-200">{b.minutes} min</span>
+        ) : d && !open ? (
+          <span className="block w-[92px] overflow-hidden rounded-md border border-border-100 sm:w-[132px]">
+            <Rink spec={d.diagram} title={d.funName} detail="thumb" />
+          </span>
+        ) : (
+          <span />
+        )}
       </button>
-    </div>
-  );
-}
-
-function AddPicker({
-  at,
-  onChoose,
-  onClose,
-  known,
-  byId,
-  sheet,
-}: {
-  at: number;
-  onChoose: (at: number, c: AddChoice) => void;
-  onClose: () => void;
-  known: string[];
-  byId: Map<string, Drill>;
-  sheet?: boolean;
-}) {
-  const [activity, setActivity] = useState(false);
-  const ref = useDismiss(!sheet, onClose);
-  const chips = known
-    .map((id) => byId.get(id))
-    .filter((d): d is Drill => !!d)
-    .slice(0, 5);
-  return (
-    <div
-      ref={ref}
-      className={`flex flex-col gap-2.5 ${sheet ? '' : 'mx-auto w-full max-w-[620px] rounded-[14px] border border-border-100 bg-surface-100 p-3 shadow-[0_12px_32px_-12px_rgba(14,27,30,0.35)]'}`}
-    >
-      {activity ? (
-        <div className="flex flex-col gap-1">
-          <button type="button" onClick={() => setActivity(false)} className="w-fit text-sm text-ink-200">
-            ‹ Activity
-          </button>
-          <div className={`grid gap-1.5 ${sheet ? '' : 'grid-cols-2'}`}>
-            {ACTIVITY_KINDS.filter((k) => k !== 'other').map((k) => (
-              <button key={k} type="button" onClick={() => onChoose(at, k)} className="min-h-11 rounded-md px-3 text-left text-[15px] hover:bg-surface-200">
-                {ACTIVITY_LABEL[k]}
-              </button>
-            ))}
+      {appliedNotes}
+      {box}
+      {!box && !open && feedback && <FeedbackLine fb={feedback} />}
+      {open && act && (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              aria-label="Block name"
+              className="min-h-10 rounded-md border border-border-100 bg-surface-100 px-3 text-[15px] font-semibold"
+              value={b.title}
+              maxLength={60}
+              onChange={(e) => update((x) => ({ ...x, title: e.target.value }) as Block)}
+            />
+            <input
+              aria-label="Note"
+              placeholder="Add a note"
+              className="min-h-10 min-w-0 flex-[1_1_12rem] rounded-md border border-border-100 bg-surface-100 px-3 text-sm"
+              value={b.note}
+              maxLength={200}
+              onChange={(e) => update((x) => ({ ...x, note: e.target.value }) as Block)}
+            />
           </div>
+          <div>{minutes}</div>
+          {foot}
         </div>
-      ) : (
-        <div className={`grid gap-1.5 ${sheet ? '' : 'grid-cols-2'}`}>
-          {BLOCK_TYPES.map((t) => (
-            <button
-              key={t.kind}
-              type="button"
-              onClick={() => (t.kind === 'activity' ? setActivity(true) : onChoose(at, t.kind))}
-              className={`flex items-start gap-3 rounded-[10px] px-3 text-left hover:bg-surface-200 ${sheet ? 'min-h-14 items-center border-t border-surface-300 py-1.5' : 'py-2.5'}`}
-            >
-              <span className="mt-0.5 text-rink-200">{t.icon(sheet ? 20 : 18)}</span>
-              <span className="flex flex-1 flex-col gap-0.5">
-                <b className="text-[15px]">{t.label}</b>
-                <span className="text-xs leading-4 text-ink-200">{t.help}</span>
+      )}
+      {open && !act && (
+        <div className="flex flex-col gap-3">
+          {b.kind === 'drill' && d && <PlayableRink spec={b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? (levelOf(d, Math.max(...blockLevels(d, b))).diagram as RinkDiagramProps) : d.diagram} title={d.funName} />}
+          {b.kind === 'drill' && d && d.levels.length > 0 && <LevelPills block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />}
+          {b.kind === 'stations' && d && (
+            <>
+              <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
+                <FormatIcon model="stations" className="mt-0.5 text-rink-100" />
+                {formatWhat('stations')}.
+              </p>
+              <StationsCard block={b} drill={d} units={units} onZone={(k, z: Zone) => update((x) => (x.kind === 'stations' ? { ...x, zones: { ...x.zones, [k]: z } } : x))} />
+            </>
+          )}
+          {b.kind === 'rotation' && (
+            <>
+              {d && (
+                <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
+                  <FormatIcon model="rotation" className="mt-0.5 text-rink-100" />
+                  {formatWhat('rotation', d.zones?.length ?? 3)}. Whistle every {b.minutes} min.
+                </p>
+              )}
+              <RotationCard block={b} drill={d} byId={byId} known={known} groupCount={gc} onChoose={onChooseDrill} onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))} />
+            </>
+          )}
+          {d?.cues[0] && (
+            <p className="text-sm">
+              <span className="text-ink-200">Say:</span> “{d.cues[0]}”
+            </p>
+          )}
+          {history}
+          {d && (
+            <button type="button" onClick={() => openDrill(d.id)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-border-100 bg-surface-100 px-3.5 py-3 text-left hover:bg-surface-200">
+              <span className="flex flex-col">
+                <b className="text-[15px] font-semibold">How to run it</b>
+                <span className="text-[13px] text-ink-200">
+                  {howMany}
+                  {d.gear && d.gear !== 'None' ? ` · ${d.gear}` : ''}
+                </span>
               </span>
-              {sheet && <span className="text-ink-200">›</span>}
+              <span aria-hidden="true" className="text-xl leading-none text-ink-200">
+                ›
+              </span>
             </button>
-          ))}
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {minutes}
+            {(d || isOldRotation(b)) && (
+              <button type="button" onClick={onSwap} className="min-h-10 rounded-full border border-border-100 bg-surface-100 px-4 text-sm font-medium hover:bg-surface-200">
+                Swap
+              </button>
+            )}
+          </div>
+          {foot}
         </div>
       )}
-      {chips.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-surface-300 pt-2.5">
-          <span className="text-xs text-ink-200">Known to the kids:</span>
-          {chips.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => onChoose(at, { drillId: d.id })}
-              className="inline-flex h-7 items-center rounded-full border border-border-100 px-2.5 text-xs font-medium hover:bg-surface-200"
-            >
-              {d.funName}
-            </button>
-          ))}
-          <button type="button" onClick={() => onChoose(at, 'drill')} className="ml-auto text-[13px] text-rink-100 hover:underline">
-            Search the library
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Phones: adding is a bottom sheet. */
-function AddSheet({
-  at,
-  time,
-  after,
-  onChoose,
-  onClose,
-  known,
-  byId,
-}: {
-  at: number;
-  time: string;
-  after: string;
-  onChoose: (at: number, c: AddChoice) => void;
-  onClose: () => void;
-  known: string[];
-  byId: Map<string, Drill>;
-}) {
-  return (
-    <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label={`Add at ${clock(time)}`}>
-      <button type="button" aria-label="Close" className="absolute inset-0 bg-ink-100/35" onClick={onClose} />
-      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2.5 rounded-t-[18px] bg-surface-100 px-4 pb-7 pt-2.5 shadow-xl">
-        <span className="mx-auto h-1 w-10 rounded-full bg-border-100" aria-hidden="true" />
-        <div className="flex items-baseline justify-between">
-          <b className="font-display text-[19px]">Add at {clock(time)}</b>
-          {after && <span className="text-[13px] text-ink-200">after {after}</span>}
-        </div>
-        <AddPicker at={at} onChoose={onChoose} onClose={onClose} known={known} byId={byId} sheet />
-      </div>
     </div>
   );
 }

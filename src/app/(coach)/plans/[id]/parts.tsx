@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Rink } from '@/components/ds';
+import { FORMAT_NAME, FormatLabel, formatWhat } from './format';
 import { FOCUS_ATTRIBUTES, GROUPS, type Drill, type Group } from '@/lib/drills/schema';
 import { usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
@@ -33,12 +34,6 @@ export const Icon = {
   grip: (s?: number) => svg(<><circle cx="9" cy="6" r="1" /><circle cx="15" cy="6" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="18" r="1" /><circle cx="15" cy="18" r="1" /></>, s),
 };
 
-export const BLOCK_TYPES = [
-  { kind: 'drill', label: 'Drill', help: 'One basic drill for the whole group. If it has levels, switch on the ones to run, in order.', icon: Icon.drill },
-  { kind: 'stations', label: 'Stations', help: 'One stations drill: each group plays its own version at its own spot.', icon: Icon.stations },
-  { kind: 'rotation', label: 'Rotation', help: 'One rotation drill: every group does every zone, moving on the whistle.', icon: Icon.rotation },
-  { kind: 'activity', label: 'Activity', help: 'Water, huddle, free skate, small games. No drill.', icon: Icon.activity },
-] as const;
 
 export function Badge({ zone, dim }: { zone: string; dim?: boolean }) {
   return <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-xs text-surface-100 ${dim ? 'bg-ink-200/50' : 'bg-ink-100'}`}>{zone}</span>;
@@ -161,8 +156,10 @@ export function PanelSec({ title, right, rightTone, children }: { title: string;
   );
 }
 
-/** Each block kind lists only its own kind of drill (decision 0006). */
-export type DrawerFilter = 'basic' | 'stations' | 'rotation';
+/** Swapping lists only the block's own kind of drill (decision 0006); adding lists every kind (decision 0024). */
+export type DrawerFilter = 'all' | 'basic' | 'stations' | 'rotation';
+/** Quick activities offered at the top when adding. */
+export type QuickActivity = 'water' | 'scrimmage' | 'huddle';
 /** The spot the drawer was opened for: where it is, the minutes it has and the part of practice it suggests. */
 export type DrawerSlot = { label: string; fitsMinutes: number | null; part: Drill['part'] | null };
 
@@ -183,6 +180,7 @@ export function LibraryDrawer({
   feedback = {},
   favorites = {},
   onPick,
+  onActivity,
   onClose,
 }: {
   drills: Drill[];
@@ -196,6 +194,8 @@ export function LibraryDrawer({
   feedback?: Record<string, DrillFeedback>;
   favorites?: Record<string, Favorite>;
   onPick: (id: string) => void;
+  /** Adding: Water, Small games and Huddle as one tap each. */
+  onActivity?: (k: QuickActivity) => void;
   onClose: () => void;
 }) {
   // Opens pre-set from the slot: its part of practice and the minutes it has.
@@ -209,7 +209,7 @@ export function LibraryDrawer({
     return () => window.removeEventListener('keydown', esc);
   }, [onClose, menu]);
 
-  const pool = drills.filter((d) => d.groupModel === filter);
+  const pool = filter === 'all' ? drills : drills.filter((d) => d.groupModel === filter);
   const loved = new Set(Object.entries(feedback).filter(([, f]) => f.loved).map(([id]) => id));
   const favSet = new Set(Object.keys(favorites));
   const ctx: DrawerContext = { fitsMinutes: slot.fitsMinutes, known, recent, loved, favorites: favSet };
@@ -229,9 +229,9 @@ export function LibraryDrawer({
   const isPreset = s.part === preset.part && s.fits === preset.fits && Boolean(preset.part || preset.fits);
   const hint =
     filter === 'stations'
-      ? 'Each group plays its own version at its own spot, all at once.'
+      ? `${FORMAT_NAME.stations}: ${formatWhat('stations').toLowerCase()}.`
       : filter === 'rotation'
-        ? 'Zones and activities ready to go. Everyone does every zone.'
+        ? `${FORMAT_NAME.rotation}: every group does all the zones, one after another.`
         : '';
   const chip = (on: boolean) => `inline-flex min-h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[13px] disabled:cursor-default disabled:opacity-[var(--opacity-disabled)] ${on ? 'border-ink-100 bg-ink-100 text-surface-100' : 'border-border-100 hover:bg-surface-200 disabled:hover:bg-transparent'}`;
   const menuItems: [string | null, string][] = menu === 'part' ? PART_OPTIONS : [[null, 'Any skill'], ...FOCUS_ATTRIBUTES.map((f): [string, string] => [f, f])];
@@ -255,6 +255,22 @@ export function LibraryDrawer({
               Close
             </button>
           </div>
+          {onActivity && (
+            <div className="-mx-4 flex items-center gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]">
+              <span className="shrink-0 text-xs text-ink-200">Quick:</span>
+              {(
+                [
+                  ['water', 'Water · 2 min'],
+                  ['scrimmage', 'Small games · 5 min'],
+                  ['huddle', 'Huddle · 3 min'],
+                ] as const
+              ).map(([k, label]) => (
+                <button key={k} type="button" onClick={() => onActivity(k)} className="inline-flex min-h-9 shrink-0 items-center whitespace-nowrap rounded-full border border-border-100 px-3 text-[13px] hover:bg-surface-200">
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
           <input autoFocus type="search" aria-label="Search drills" placeholder="Search drills" className={input} value={s.q} onChange={(e) => setS((x) => ({ ...x, q: e.target.value }))} />
           {/* All filters on one row, scrolling sideways when it doesn't fit. */}
           <div
@@ -314,7 +330,7 @@ export function LibraryDrawer({
 
         <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4 pt-3" aria-live="polite">
           <p className="text-[13px] text-ink-200">
-            <b className="text-ink-100">{list.length}</b> of {pool.length} {filter === 'rotation' ? 'rotations' : filter === 'stations' ? 'stations drills' : 'drills'}
+            <b className="text-ink-100">{list.length}</b> of {pool.length} {filter === 'rotation' ? 'rotations' : filter === 'stations' ? 'split-by-skill drills' : 'drills'}
             {hint && ` · ${hint}`}
           </p>
           <ul className="flex flex-col">
@@ -344,6 +360,7 @@ export function LibraryDrawer({
                         ) : (
                           <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>
                         )}
+                        <FormatLabel model={d.groupModel} className="font-medium text-rink-100" />
                         {d.groupModel === 'basic' && d.levels.length > 0 && <span>{d.levels.length + 1} levels</span>}
                         {d.groupModel === 'rotation' && <span>{d.zones?.length ?? 0} zones</span>}
                         {d.lessons.length > 0 && <span>Lesson {d.lessons.join(', ')}</span>}

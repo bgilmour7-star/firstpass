@@ -62,6 +62,8 @@ Design: canvas "Key screens" and "Plan next practice".
 
 - [x] **3.14 Simpler start (decision 0023, 2026-10-20):** the first plan comes ready to run from the library, no new-drill limit on the first practice, the rotation picker's minutes fixed, Draft · Ready · Done removed. Next: read-first plan and one drill picker, mocked and tested with novice coaches first.
 
+- [x] **3.15 Read-first planner (decision 0024, 2026-10-20):** plans open to read; tap a drill for its diagram with Play, cue, history, How to run it, minutes, Swap and icon actions; Everyone rotates / Split by skill / Whole group in plain words; one Add for every kind of drill plus quick activities; one message per drill.
+
 ## Milestone 4 — Rink-side and sharing
 - [x] Phone Today view: timeline, current block open with countdown (whistle countdown during stations), who is where now, "Start the clock now" for late starts.
 - [x] Parent link: random 32-character token, revocable, expires after 30 days, no sign-in; parents see fun names, plain names and focus only (`supabase/migrations/20261014010000_parent_links.sql`).

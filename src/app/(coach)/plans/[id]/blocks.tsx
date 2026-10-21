@@ -1,122 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Pips, Rink } from '@/components/ds';
+import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
-import { levelCount, levelOf } from '@/lib/drills/schema';
-import { blockLevels, levelMinutes, rotationToday, unusedZones, zoneFor, ZONES, type DrillBlock, type RotationBlock, type StationsBlock, type Unit, type Zone } from '@/lib/plans/schema';
+import { rotationToday, unusedZones, zoneFor, ZONES, type RotationBlock, type StationsBlock, type Unit, type Zone } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { Badge } from './parts';
-import { useOpenDrill } from '@/components/drill-drawer';
 
 // What each kind of block shows under its title.
-
-export function DrillCard({ drill, isNew }: { drill?: Drill; isNew: boolean }) {
-  if (!drill) return <p className="text-sm text-flag-100">This drill isn&apos;t live any more. Swap it for another.</p>;
-  const main = drill.focus.filter((f) => f.level === 2);
-  return <DrillCardBody drill={drill} isNew={isNew} main={main} />;
-}
-
-function DrillCardBody({ drill, isNew, main }: { drill: Drill; isNew: boolean; main: Drill['focus'] }) {
-  const openDrill = useOpenDrill();
-  return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
-      <button type="button" onClick={() => openDrill(drill.id)} aria-label={`Open ${drill.funName}`} className="max-w-[260px] cursor-zoom-in">
-        <Rink spec={drill.diagram} title={drill.funName} detail="thumb" className="rounded-sm border border-border-100" />
-      </button>
-      <div className="flex min-w-0 flex-col gap-1">
-        {isNew && <span className="w-fit rounded-full border border-whistle-100 px-2 py-0.5 text-xs font-semibold text-whistle-100">New</span>}
-        <span className="flex flex-wrap gap-x-3 text-xs">
-          {main.map((f) => (
-            <span key={f.attribute} className="inline-flex items-center gap-1.5 font-semibold">
-              <Pips level={2} /> {f.attribute}
-            </span>
-          ))}
-        </span>
-        <span className="text-sm">“{drill.cues[0]}”</span>
-      </div>
-    </div>
-  );
-}
-
-/**
- * A drill with added levels. Each level is a switch: the whole group does the levels that are on,
- * in order, easiest first, splitting the block's minutes (decision 0006). Levels that are on show
- * their diagram; the others are compact stubs. On a phone the levels that are on come first.
- */
-export function LevelPicker({ block, drill, onLevels, suggested }: { block: DrillBlock; drill: Drill; onLevels: (levels: number[]) => void; /** A level the check-in suggests adding (decision 0022). */ suggested?: number }) {
-  const on = blockLevels(drill, block);
-  const mins = levelMinutes(block.minutes, on.length);
-  const all = Array.from({ length: levelCount(drill) }, (_, i) => levelOf(drill, i + 1));
-  const what = (l: (typeof all)[number]) => (l.n === 1 ? 'As written.' : `Adds: ${l.adds}`);
-  const toggle = (n: number) => {
-    const next = on.includes(n) ? on.filter((x) => x !== n) : [...on, n].sort((x, y) => x - y);
-    if (next.length) onLevels(next);
-  };
-  const tick = (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 7.5l2.6 2.6L11 4.5" />
-    </svg>
-  );
-  return (
-    <div role="group" aria-label={`Levels of ${drill.funName}`} className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-stretch sm:gap-4">
-      {all.map((l) => {
-        const i = on.indexOf(l.n);
-        if (i >= 0) {
-          const last = on.length === 1;
-          return (
-            <button
-              key={l.n}
-              type="button"
-              role="checkbox"
-              aria-checked="true"
-              aria-disabled={last || undefined}
-              aria-label={`Level ${l.n}, ${l.name}: on, ${mins[i]} minutes${last ? '. At least one level stays on' : ''}`}
-              onClick={() => toggle(l.n)}
-              className={`relative order-first flex flex-col gap-2 rounded-md border-2 border-rink-100 bg-surface-100 p-1.5 text-left sm:order-none sm:w-[212px] ${last ? 'col-span-2 cursor-default' : ''}`}
-            >
-              <Rink spec={l.diagram as RinkDiagramProps} title={`${drill.funName} level ${l.n}`} detail="thumb" className="w-full rounded-sm" />
-              <span aria-hidden="true" className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-md bg-rink-100 text-surface-100">
-                {tick}
-              </span>
-              <span className="flex items-baseline gap-2 px-1">
-                <span className="font-mono text-[13px] font-medium text-rink-100">{l.n}</span>
-                <b className="text-[15px] font-semibold leading-5">{l.name}</b>
-              </span>
-              <span className="pl-[25px] pr-1 text-[13px] leading-[18px] text-ink-200 sm:min-h-[54px]">{what(l)}</span>
-              <span className="mt-auto pb-1 pl-[25px] font-mono text-[12px] text-ink-100">
-                {on.length > 1 ? `${i === 0 ? 'First' : 'Then'} · ` : ''}
-                {mins[i]} min
-              </span>
-            </button>
-          );
-        }
-        return (
-          <button
-            key={l.n}
-            type="button"
-            role="checkbox"
-            aria-checked="false"
-            aria-label={`Level ${l.n}, ${l.name}: off${suggested === l.n ? ', suggested' : ''}`}
-            onClick={() => toggle(l.n)}
-            className={`relative flex min-h-[88px] flex-col gap-1 rounded-md border-[1.5px] border-dashed bg-surface-200 p-3 text-left hover:border-rink-100 sm:w-[148px] sm:gap-2 ${suggested === l.n ? 'border-whistle-100' : 'border-ink-200'}`}
-          >
-            {suggested === l.n && (
-              <span aria-hidden="true" className="absolute -top-2.5 left-2 rounded-full bg-whistle-100 px-2 text-[11px] font-semibold leading-5 text-surface-100">
-                Suggested
-              </span>
-            )}
-            <span aria-hidden="true" className="absolute right-3 top-3 h-6 w-6 rounded-md border-2 border-ink-200" />
-            <span className="font-mono text-[13px] font-medium text-rink-100">Level {l.n}</span>
-            <b className="pr-6 text-[15px] font-semibold leading-5">{l.name}</b>
-            <span className="hidden text-[13px] leading-[18px] text-ink-200 sm:block">{what(l)}</span>
-            <span className="mt-auto hidden text-sm font-medium text-rink-100 sm:block">+ Add this level</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 /** One drill, one diagram: each group at its own station; stations nobody needs today are greyed out. */
 export function StationsCard({ block, drill, units, onZone }: { block: StationsBlock; drill: Drill; units: Unit[]; onZone: (unitKey: string, z: Zone) => void }) {
