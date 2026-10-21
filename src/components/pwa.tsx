@@ -57,6 +57,7 @@ function useDevice(): Device | null {
 /** Registers the worker and offers a new version when one is waiting. Lives in the app shell. */
 export function AppWorker() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
+  const [later, setLater] = useState(false);
   useEffect(() => {
     if (!('serviceWorker' in navigator) || process.env.NODE_ENV !== 'production') return;
     let reg: ServiceWorkerRegistration | undefined;
@@ -90,13 +91,52 @@ export function AppWorker() {
   }, []);
 
   if (!waiting) return null;
-  // Never reloads by itself: a coach mid-practice decides.
+  const reload = () => waiting.postMessage('reload');
+  // Never reloads by itself: a coach mid-practice decides. "Later" folds the drawer into a small pill.
+  if (later)
+    return (
+      <div role="status" className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] z-[60] mx-auto flex max-w-sm items-center justify-between gap-3 rounded-full border border-border-100 bg-surface-100 py-1.5 pl-4 pr-1.5 text-sm shadow-[0_4px_12px_rgba(14,27,30,0.12)] lg:bottom-6 print:hidden">
+        <span>New version ready</span>
+        <button type="button" onClick={reload} className="min-h-10 rounded-full bg-rink-100 px-4 font-medium text-surface-100 hover:bg-rink-200">
+          Reload
+        </button>
+      </div>
+    );
   return (
-    <div role="status" className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] z-[60] mx-auto flex max-w-sm items-center justify-between gap-3 rounded-full border border-border-100 bg-surface-100 py-1.5 pl-4 pr-1.5 text-sm shadow-[0_4px_12px_rgba(14,27,30,0.12)] lg:bottom-6 print:hidden">
-      <span>New version ready</span>
-      <button type="button" onClick={() => waiting.postMessage('reload')} className="min-h-10 rounded-full bg-rink-100 px-4 font-medium text-surface-100 hover:bg-rink-200">
-        Reload
-      </button>
+    <div className="fixed inset-0 z-[60] flex items-end justify-center print:hidden">
+      <button type="button" aria-label="Later" onClick={() => setLater(true)} className="absolute inset-0 bg-ink-100/25" />
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="update-title"
+        className="relative flex w-full max-w-md flex-col gap-4 rounded-t-[22px] bg-surface-100 px-5 pb-[calc(env(safe-area-inset-bottom,0px)+20px)] pt-3 shadow-[0_-12px_32px_rgba(14,27,30,0.22)] lg:mb-6 lg:rounded-[22px]"
+      >
+        <span aria-hidden="true" className="mx-auto h-1 w-10 rounded-full bg-border-100 lg:hidden" />
+        <div className="flex items-start gap-3.5">
+          <span aria-hidden="true" className="flex size-12 flex-none items-center justify-center rounded-[12px] bg-[#084F68]">
+            <svg viewBox="0 0 48 48" width="28" height="28">
+              <circle cx="9.5" cy="38.5" r="6.5" fill="#fff" />
+              <path d="M17.5 33C21.5 30 24.5 27 27 23.5" fill="none" stroke="#fff" strokeWidth="4" strokeDasharray="4.4 3.8" strokeLinecap="round" />
+              <path d="M31 18.5 23.06 22.62 27.47 23.35 29.53 27.32Z" fill="#fff" />
+              <circle cx="37.5" cy="10.5" r="7.2" fill="none" stroke="#fff" strokeWidth="4" />
+            </svg>
+          </span>
+          <div className="flex min-w-0 flex-col gap-1">
+            <h2 id="update-title" className="font-display text-[21px] font-bold leading-tight">
+              A new version of Firstpass is ready
+            </h2>
+            <p className="text-[15px] text-ink-200">Reload to get it. Your plans are saved, so nothing is lost.</p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <button type="button" onClick={reload} className="min-h-12 rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200">
+            Reload now
+          </button>
+          <button type="button" onClick={() => setLater(true)} className="min-h-11 text-[15px] font-medium text-ink-200 hover:text-ink-100">
+            Later
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
