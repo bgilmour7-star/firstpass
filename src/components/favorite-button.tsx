@@ -28,7 +28,7 @@ export function FavoriteButton({
   drillId: string;
   drillName: string;
   initial: Favorite | null;
-  variant?: 'icon' | 'full';
+  variant?: 'icon' | 'full' | 'tile';
   onChange?: (fav: Favorite | null) => void;
 }) {
   const [fav, setFav] = useState(initial);
@@ -84,7 +84,7 @@ export function FavoriteButton({
       aria-pressed={on}
       aria-label={label}
       title={error ?? (fav ? starredBy(fav) : 'Star for the team')}
-      className={`grid size-10 shrink-0 place-items-center rounded-full disabled:opacity-60 ${on ? 'text-rink-100' : 'text-ink-200 hover:text-ink-100'} ${error ? 'ring-2 ring-flag-100' : ''}`}
+      className={`grid shrink-0 place-items-center disabled:opacity-60 ${variant === 'tile' ? `size-[42px] rounded-xl border bg-surface-100 ${on ? 'border-rink-100' : 'border-border-100'}` : 'size-10 rounded-full'} ${on ? 'text-rink-100' : 'text-ink-200 hover:text-ink-100'} ${error ? 'ring-2 ring-flag-100' : ''}`}
     >
       <StarIcon on={on} />
     </button>
