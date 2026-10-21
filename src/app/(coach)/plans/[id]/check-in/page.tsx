@@ -116,6 +116,7 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
         </section>
 
         <div className="flex flex-col gap-2 border-t border-border-100 pt-4">
+          {next && (s.flops.length > 0 || s.lostSteam || s.ready.length > 0) && <p className="text-center text-[13px] text-ink-200">These show up as suggestions on {weekday(next.date)}’s plan, on the drills they’re about.</p>}
           <Link href={next ? `/plans/${next.id}` : '/plans'} className="grid min-h-12 place-items-center rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200">
             {next ? `Open ${weekday(next.date)}’s plan` : 'Back to plans'}
           </Link>

@@ -9,6 +9,9 @@ import type { Checkin } from '../plans/checkin';
 // The seam between coach screens and storage (teams, practices, the live drill library).
 // Supabase in production (RLS by team membership); a JSON file in .local/ in local mode.
 
+/** A suggestion from the check-in that a coach chose to keep as is. */
+export type KeptSuggestion = { key: string; editor: string; at: string };
+
 export type NewPractice = Omit<Practice, 'id'>;
 export type Share = { token: string; expiresAt: string };
 /** A drill a coach starred for the team (decision 0012). */
@@ -61,6 +64,9 @@ export interface AppStore {
   /** Every coach's check-ins for the team (small: a few rows per practice). */
   teamCheckins(teamId: string): Promise<Checkin[]>;
   saveCheckin(c: Checkin): Promise<void>;
+  /** Suggestions a coach kept as is on a plan (decision 0022), hidden for the whole team. */
+  keptSuggestions(practiceId: string): Promise<KeptSuggestion[]>;
+  keepSuggestion(k: { practiceId: string; teamId: string; userId: string; editor: string; key: string }): Promise<void>;
   /** How many coaches are on the team, for "2 of 3 checked in". */
   coachCount(teamId: string): Promise<number>;
 

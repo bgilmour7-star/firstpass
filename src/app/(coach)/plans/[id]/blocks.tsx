@@ -44,7 +44,7 @@ function DrillCardBody({ drill, isNew, main }: { drill: Drill; isNew: boolean; m
  * in order, easiest first, splitting the block's minutes (decision 0006). Levels that are on show
  * their diagram; the others are compact stubs. On a phone the levels that are on come first.
  */
-export function LevelPicker({ block, drill, onLevels }: { block: DrillBlock; drill: Drill; onLevels: (levels: number[]) => void }) {
+export function LevelPicker({ block, drill, onLevels, suggested }: { block: DrillBlock; drill: Drill; onLevels: (levels: number[]) => void; /** A level the check-in suggests adding (decision 0022). */ suggested?: number }) {
   const on = blockLevels(drill, block);
   const mins = levelMinutes(block.minutes, on.length);
   const all = Array.from({ length: levelCount(drill) }, (_, i) => levelOf(drill, i + 1));
@@ -97,10 +97,15 @@ export function LevelPicker({ block, drill, onLevels }: { block: DrillBlock; dri
             type="button"
             role="checkbox"
             aria-checked="false"
-            aria-label={`Level ${l.n}, ${l.name}: off`}
+            aria-label={`Level ${l.n}, ${l.name}: off${suggested === l.n ? ', suggested' : ''}`}
             onClick={() => toggle(l.n)}
-            className="relative flex min-h-[88px] flex-col gap-1 rounded-md border-[1.5px] border-dashed border-ink-200 bg-surface-200 p-3 text-left hover:border-rink-100 sm:w-[148px] sm:gap-2"
+            className={`relative flex min-h-[88px] flex-col gap-1 rounded-md border-[1.5px] border-dashed bg-surface-200 p-3 text-left hover:border-rink-100 sm:w-[148px] sm:gap-2 ${suggested === l.n ? 'border-whistle-100' : 'border-ink-200'}`}
           >
+            {suggested === l.n && (
+              <span aria-hidden="true" className="absolute -top-2.5 left-2 rounded-full bg-whistle-100 px-2 text-[11px] font-semibold leading-5 text-surface-100">
+                Suggested
+              </span>
+            )}
             <span aria-hidden="true" className="absolute right-3 top-3 h-6 w-6 rounded-md border-2 border-ink-200" />
             <span className="font-mono text-[13px] font-medium text-rink-100">Level {l.n}</span>
             <b className="pr-6 text-[15px] font-semibold leading-5">{l.name}</b>
