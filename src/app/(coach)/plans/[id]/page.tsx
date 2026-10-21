@@ -5,6 +5,7 @@ import { drillIds, withStationDrills } from '@/lib/plans/schema';
 import { Builder } from './builder';
 import { CheckinNudge } from './check-in/nudge';
 import { practiceOver, rateUnits } from '@/lib/plans/checkin';
+import type { SuggestContext } from './suggestions';
 import { drillFeedback, type DrillFeedback } from '@/lib/plans/feedback';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,7 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   if (!practice || practice.teamId !== team.id) notFound();
   // Opening the plan clears its "changed since you last looked" dot on the Plans list.
   await store.markViewed(practice.id, coach.id).catch(() => undefined);
-  const [all, drills, share, checkins, favorites] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.activeShare(practice.id), store.teamCheckins(team.id).catch(() => []), store.favorites(team.id)]);
+  const [all, drills, share, checkins, favorites, kept] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.activeShare(practice.id), store.teamCheckins(team.id).catch(() => []), store.favorites(team.id), store.keptSuggestions(practice.id).catch(() => [])]);
   // Drills the kids have done before this practice ("known"), for the New tag and the library drawer.
   const earlier = all.filter((p) => p.id !== practice.id && p.date < practice.date).sort((a, b) => b.date.localeCompare(a.date));
   const known = [...new Set(earlier.flatMap((p) => p.blocks.flatMap(drillIds)))];
@@ -39,11 +40,27 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
     return rateUnits({ ...p, blocks: withStationDrills(p.blocks, byId) }, team, byId).find((u) => u.key === c.steamFrom)?.drillId ?? null;
   });
   const feedback: Record<string, DrillFeedback> = Object.fromEntries(fb);
+  // Suggestions (decision 0022): from the check-ins on the practice just before this one, if it was in the last two weeks.
+  const last = earlier[0];
+  const lastCheckins = last ? checkins.filter((c) => c.practiceId === last.id) : [];
+  const runs: Record<string, number> = {};
+  for (const p of earlier) for (const d of new Set(p.blocks.flatMap(drillIds))) runs[d] = (runs[d] ?? 0) + 1;
+  const suggest: SuggestContext | null =
+    last && lastCheckins.length && (Date.parse(practice.date) - Date.parse(last.date)) / 864e5 <= 14
+      ? {
+          last: { date: last.date, blocks: last.blocks },
+          checkins: lastCheckins,
+          units: rateUnits({ ...last, blocks: withStationDrills(last.blocks, byId) }, team, byId),
+          runs,
+          kept,
+          day: new Date(`${last.date}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' }),
+        }
+      : null;
   const nudge = prev && recentEnough && !checkedIn ? <CheckinNudge practiceId={prev.id} day={new Date(`${prev.date}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' })} /> : null;
   return (
     <>
       {nudge}
-      <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} lastRun={lastRun} recent={recent} feedback={feedback} favorites={favorites} copiedFrom={copied ?? null} initialShare={share} />
+      <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} lastRun={lastRun} recent={recent} feedback={feedback} suggest={suggest} favorites={favorites} copiedFrom={copied ?? null} initialShare={share} />
     </>
   );
 }

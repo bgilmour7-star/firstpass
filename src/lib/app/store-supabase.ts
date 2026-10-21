@@ -266,6 +266,18 @@ export class SupabaseAppStore implements AppStore {
     });
     if (error) throw new Error(/practice_checkins/.test(error.message) ? 'Check-ins need a one-time database update (supabase/migrations/20261019000000_checkins.sql).' : error.message);
   }
+  // Kept suggestions: before the migration runs, nothing reads as kept and a keep explains what to run.
+  async keptSuggestions(practiceId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('practice_suggestions_kept').select('key, editor, kept_at').eq('practice_id', practiceId);
+    if (error || !data) return [];
+    return data.map((r) => ({ key: r.key as string, editor: r.editor as string, at: r.kept_at as string }));
+  }
+  async keepSuggestion(k: { practiceId: string; teamId: string; userId: string; editor: string; key: string }) {
+    const db = await supabaseServer();
+    const { error } = await db.from('practice_suggestions_kept').upsert({ practice_id: k.practiceId, team_id: k.teamId, user_id: k.userId, editor: k.editor, key: k.key }, { onConflict: 'practice_id,key', ignoreDuplicates: true });
+    if (error) throw new Error(/practice_suggestions_kept/.test(error.message) ? 'Keep as is needs a one-time database update (supabase/migrations/20261027000000_kept_suggestions.sql).' : error.message);
+  }
   async coachCount(teamId: string) {
     const db = await supabaseServer();
     const { count } = await db.from('team_members').select('user_id', { count: 'exact', head: true }).eq('team_id', teamId);
