@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { copyBlocks, practiceSchema, starterBlocks, type Practice, type Team } from '@/lib/plans/schema';
+import { copyBlocks, practiceSchema, type Practice, type Team } from '@/lib/plans/schema';
+import { firstPlan } from '@/lib/plans/first-plan';
 import { SESSION_MS, describeChange, type Snapshot } from '@/lib/plans/activity';
 import type { AppStore } from '@/lib/app/store';
 import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
@@ -38,6 +39,9 @@ async function logEdit(store: AppStore, coach: { id: string; name: string }, bef
 async function startPlan(team: Team, coachId: string, at: { date: string; startTime: string; minutes?: number; ice?: Practice['ice'] }) {
   const store = await getAppStore();
   const last = (await store.listPractices(team.id)).filter((p) => p.date <= at.date)[0];
+  // No plan to copy yet: the first one comes ready to run (decision 0023).
+  const groups = team.groups.filter((g) => g.skaters > 0).length || 3;
+  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, await store.libraryDrills(), groups);
   const p = await store.createPractice(
     {
       teamId: team.id,
@@ -46,7 +50,7 @@ async function startPlan(team: Team, coachId: string, at: { date: string; startT
       minutes: at.minutes ?? last?.minutes ?? team.practiceMinutes,
       ice: at.ice ?? (team.ice === 'full' ? 'full' : 'half'),
       status: 'draft',
-      blocks: last ? copyBlocks(last.blocks) : starterBlocks(at.minutes ?? team.practiceMinutes),
+      blocks,
       // Who's here is set fresh for each practice; it starts as the team's usual groups.
       attendance: null,
     },

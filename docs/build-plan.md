@@ -60,6 +60,8 @@ Design: canvas "Key screens" and "Plan next practice".
 ### 3.13 Installable app (decision 0021, 2026-10-20)
 - [x] Installs to the home screen and opens Today; Today opens with no signal; "New version ready · Reload"; install card on Today (phones) and Account → Install on your phone. **Brett: install it on your phone and open Today in airplane mode.**
 
+- [x] **3.14 Simpler start (decision 0023, 2026-10-20):** the first plan comes ready to run from the library, no new-drill limit on the first practice, the rotation picker's minutes fixed, Draft · Ready · Done removed. Next: read-first plan and one drill picker, mocked and tested with novice coaches first.
+
 ## Milestone 4 — Rink-side and sharing
 - [x] Phone Today view: timeline, current block open with countdown (whistle countdown during stations), who is where now, "Start the clock now" for late starts.
 - [x] Parent link: random 32-character token, revocable, expires after 30 days, no sign-in; parents see fun names, plain names and focus only (`supabase/migrations/20261014010000_parent_links.sql`).

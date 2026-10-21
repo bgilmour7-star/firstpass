@@ -51,7 +51,7 @@ export default async function Joined() {
               {new Date(next.date + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })} · {clock(next.startTime)}
             </span>
             <span className="text-sm text-ink-200">
-              {next.ice === 'half' ? 'Half ice' : 'Full ice'} · {next.minutes} min · {count} drill{count === 1 ? '' : 's'} · {next.status === 'draft' ? 'Draft' : next.status === 'ready' ? 'Ready' : 'Done'}
+              {next.ice === 'half' ? 'Half ice' : 'Full ice'} · {next.minutes} min · {count} drill{count === 1 ? '' : 's'}
             </span>
           </div>
           {shown && (

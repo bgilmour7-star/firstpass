@@ -31,7 +31,7 @@ export function AddPractice({ date, startTime, hint, copies }: { date: string; s
           <form action={createPractice} className="relative flex w-full flex-col gap-5 rounded-t-2xl bg-surface-100 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:max-w-sm sm:rounded-2xl">
             <div className="flex flex-col gap-1">
               <h2 className="font-display text-xl font-extrabold">Add a practice</h2>
-              <p className="text-sm text-ink-200">{copies ? 'It starts as a copy of your last plan.' : 'It starts from a simple template.'}</p>
+              <p className="text-sm text-ink-200">{copies ? 'It starts as a copy of your last plan.' : 'It comes ready to run: a warm-up, a rotation and a game. Change anything.'}</p>
             </div>
             <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-3">
               <label className="flex flex-col gap-1.5">
