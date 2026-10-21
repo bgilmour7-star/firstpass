@@ -52,6 +52,9 @@ h3 {
 :focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
+}
+/* Text links and plain elements get softened corners; pills and cards keep their own radius. */
+:focus-visible:not([class*='rounded']) {
   border-radius: 6px;
 }
 
