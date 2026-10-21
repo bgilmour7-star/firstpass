@@ -11,7 +11,8 @@ import { HeroRink } from './hero-rink';
 // The public landing page (decision 0019; canvas "Firstpass Landing Page"). One promise, "Show up
 // ready", proved with the product: real drills from the library drawn by RinkDiagram, and crops of
 // real screens. A dashed pass line runs down the left from a puck (the hero) to a teammate ring
-// (the waitlist form), so the page reads like the logo: puck, pass, teammate.
+// (the waitlist form), so the page reads like the logo: puck, pass, teammate. Tablet and up only: on a
+// phone the two ends are screens apart, so the line is just a stripe that costs margin.
 
 const RD = firstpass.RinkDiagram as RinkDiagramApi;
 
@@ -42,7 +43,7 @@ function Rail({ top = '0px', height, onTeal = false }: { top?: string; height?: 
   return (
     <div
       aria-hidden="true"
-      className={`rail-draw absolute left-[calc(var(--railx)-var(--railpad))] w-[3px] rounded-sm ${onTeal ? 'bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]' : 'bg-[repeating-linear-gradient(to_bottom,var(--ink-200)_0_9px,transparent_9px_17px)]'}`}
+      className={`rail-draw absolute hidden sm:block left-[calc(var(--railx)-var(--railpad))] w-[3px] rounded-sm ${onTeal ? 'bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]' : 'bg-[repeating-linear-gradient(to_bottom,var(--ink-200)_0_9px,transparent_9px_17px)]'}`}
       style={height ? { top, height } : { top, bottom: 0 }}
     />
   );
@@ -51,7 +52,7 @@ function Rail({ top = '0px', height, onTeal = false }: { top?: string; height?: 
 /** The orange cone that marks each step down the pass line. */
 function Cone({ top }: { top: string }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 16 16" className="absolute left-[calc(var(--railx)-var(--railpad)+1.5px-var(--dot)/2)] size-[var(--dot)]" style={{ top }}>
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" className="absolute hidden left-[calc(var(--railx)-var(--railpad)-6.5px)] sm:block" style={{ top }}>
       <path d="M8 1 15 15H1z" fill="var(--whistle-100)" />
     </svg>
   );
@@ -128,7 +129,7 @@ export function Landing() {
   return (
     <div className="min-h-dvh bg-surface-100 text-ink-100">
       <VisitTracker />
-      <header className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 sm:px-[clamp(16px,4vw,48px)] py-5">
+      <header className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 sm:px-[clamp(16px,4vw,48px)] py-5">
         <Link href="/" aria-label="Firstpass home" className="inline-flex items-center gap-2.5">
           <Mark className="size-[30px]" />
           <span className="font-display text-2xl font-extrabold leading-none tracking-[-0.01em]">Firstpass</span>
@@ -140,12 +141,12 @@ export function Landing() {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-[1200px] px-6 sm:px-[clamp(16px,4vw,48px)]">
-        <div className="relative pl-[var(--railpad)] [--railpad:0px] [--railx:-15px] [--dot:12px] sm:[--dot:16px] sm:[--railpad:clamp(28px,5vw,76px)] sm:[--railx:clamp(4px,1.4vw,20px)]">
+      <main className="mx-auto max-w-[1200px] px-5 sm:px-[clamp(16px,4vw,48px)]">
+        <div className="relative pl-[var(--railpad)] [--railpad:0px] [--railx:clamp(4px,1.4vw,20px)] sm:[--railpad:clamp(28px,5vw,76px)]">
           {/* Hero */}
           <section aria-labelledby="hero-title" className="relative flex flex-wrap items-center gap-[clamp(40px,5vw,72px)] pb-[clamp(72px,9vw,120px)] pt-10">
             <Rail top="64px" />
-            <div aria-hidden="true" className="absolute left-[calc(var(--railx)-var(--railpad)+1.5px-var(--dot)/2)] top-[52px] size-[var(--dot)] rounded-full bg-ink-100" />
+            <div aria-hidden="true" className="absolute hidden left-[calc(var(--railx)-var(--railpad)-6.5px)] top-[52px] size-4 rounded-full bg-ink-100 sm:block" />
             <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-6">
               <h1 id="hero-title" className="font-display text-[clamp(60px,8.4vw,112px)] font-extrabold leading-[0.92] tracking-[-0.035em]">
                 Show up ready.
@@ -298,7 +299,7 @@ export function Landing() {
                 something new every week.
               </p>
             </div>
-            <div role="region" aria-label="The three levels" tabIndex={0} className="-mr-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 pr-6 sm:mr-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] sm:gap-8 sm:overflow-visible sm:pb-0 sm:pr-0">
+            <div role="region" aria-label="The three levels" tabIndex={0} className="-mr-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 pr-5 sm:mr-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] sm:gap-8 sm:overflow-visible sm:pb-0 sm:pr-0">
               {levels.map((l) => (
                 <figure key={l.n} className="m-0 flex w-[84%] flex-none snap-start flex-col gap-3.5 sm:w-auto">
                   <Rink spec={l.spec} title={`${skiRacer.funName}, level ${l.n}: ${l.name}`} />
@@ -395,10 +396,10 @@ export function Landing() {
       {/* Join: the one teal band (brand moment 1). The page stays white until the ask. */}
       <section id="join" aria-labelledby="join-title" className="band-teal relative scroll-mt-0 text-white">
         <span id="join-association" aria-hidden="true" className="absolute top-0" />
-        <div className="mx-auto max-w-[1200px] px-6 sm:px-[clamp(16px,4vw,48px)]">
-          <div className="relative flex flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 pb-[clamp(72px,9vw,120px)] pl-[var(--railpad)] pt-[clamp(64px,9vw,112px)] [--railpad:0px] [--railx:-15px] [--dot:12px] sm:[--dot:16px] sm:[--railpad:clamp(28px,5vw,76px)] sm:[--railx:clamp(4px,1.4vw,20px)]">
-            <div aria-hidden="true" className="absolute left-[var(--railx)] top-0 w-[3px] bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]" style={{ height: 'clamp(66px, 9vw, 114px)' }} />
-            <svg aria-hidden="true" viewBox="0 0 26 26" className="absolute left-[calc(var(--railx)+1.5px-var(--ring)/2)] top-[clamp(64px,9vw,112px)] size-[var(--ring)] [--ring:16px] sm:[--ring:26px]">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-[clamp(16px,4vw,48px)]">
+          <div className="relative flex flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 pb-[clamp(72px,9vw,120px)] pl-[var(--railpad)] pt-[clamp(64px,9vw,112px)] [--railpad:0px] [--railx:clamp(4px,1.4vw,20px)] sm:[--railpad:clamp(28px,5vw,76px)]">
+            <div aria-hidden="true" className="absolute hidden left-[var(--railx)] top-0 w-[3px] sm:block bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]" style={{ height: 'clamp(66px, 9vw, 114px)' }} />
+            <svg aria-hidden="true" width="26" height="26" viewBox="0 0 26 26" className="absolute hidden left-[calc(var(--railx)-11.5px)] top-[clamp(64px,9vw,112px)] sm:block">
               <circle cx="13" cy="13" r="10" fill="var(--band-teal)" stroke="#FFFFFF" strokeWidth="4" />
             </svg>
             <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-8">
@@ -417,7 +418,7 @@ export function Landing() {
       </section>
 
       <footer className="border-t border-border-100">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-6 sm:px-[clamp(16px,4vw,48px)] py-7 text-sm text-ink-200">
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-5 sm:px-[clamp(16px,4vw,48px)] py-7 text-sm text-ink-200">
           <span className="inline-flex items-center gap-2 text-ink-100">
             <Mark className="size-5" />
             <span className="font-display text-[17px] font-extrabold">Firstpass</span>
