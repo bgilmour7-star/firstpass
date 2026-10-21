@@ -34,7 +34,7 @@ import {
   type Team,
   type Zone,
 } from '@/lib/plans/schema';
-import { deletePractice, savePractice } from '../actions';
+import { deletePractice, keepSuggestion, savePractice } from '../actions';
 import { DrillCard, LevelPicker, RotationCard, StationsCard } from './blocks';
 import { DrillDrawer, OpenDrill, useOpenDrill } from '@/components/drill-drawer';
 import { AttendanceDialog, BLOCK_TYPES, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot } from './parts';
@@ -42,6 +42,8 @@ import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
 import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
 import { partForSlot } from '@/lib/plans/drawer';
+import { suggestions, type Suggestion } from '@/lib/plans/suggest';
+import { AppliedNote, CheckinPanel, PhoneLine, SuggestionBox, type Applied, type SuggestContext } from './suggestions';
 
 // The plan builder (decision 0004). A sticky plan bar keeps the key actions in reach on long plans
 // (a bottom bar on phones); blocks can be added at any gap and changed to another kind in place;
@@ -70,6 +72,7 @@ export function Builder({
   lastRun,
   recent,
   feedback,
+  suggest,
   favorites,
   copiedFrom,
   initialShare,
@@ -81,6 +84,7 @@ export function Builder({
   lastRun: Record<string, string>;
   recent: string[];
   feedback: Record<string, DrillFeedback>;
+  suggest: SuggestContext | null;
   favorites: Record<string, Favorite>;
   copiedFrom: string | null;
   initialShare: { token: string; expiresAt: string } | null;
@@ -171,6 +175,64 @@ export function Builder({
       }
     }
   }
+  // Suggestions from the last check-in (decision 0022). Worked out from the plan as it is now, so
+  // one that's been acted on simply stops appearing; this visit remembers what was done, for Undo.
+  const [applied, setApplied] = useState<Applied[]>([]);
+  const [keptBy, setKeptBy] = useState<Map<string, string>>(() => new Map((suggest?.kept ?? []).map((k) => [k.key, k.editor])));
+  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, known: knownSet, feedback, runs: suggest.runs }) : { list: [], stays: [] };
+  const appliedKeys = new Set(applied.map((a) => a.key));
+  const openSug = sug.list.filter((x) => !keptBy.has(x.key) && !appliedKeys.has(x.key));
+  const keptSug = sug.list.filter((x) => keptBy.has(x.key)).map((x) => ({ ...x, editor: keptBy.get(x.key)! }));
+  const sugFor = new Map(openSug.map((x) => [x.blockId, x]));
+  // A variety warning that a suggestion would clear says so ("Swapping Snake in the Forest above fixes this too").
+  const fixesToo = new Map<string, string>();
+  for (const x of openSug) {
+    if (!x.drillId || (x.kind !== 'swap' && x.kind !== 'game-before')) continue;
+    const after = varietyWarnings(applySuggestion(blocks, x, byId), byId);
+    const what = x.kind === 'swap' ? `Swapping ${byId.get((blocks.find((b) => b.id === x.blockId) as { drillId?: string })?.drillId ?? '')?.funName ?? 'the drill'} above` : `The game before ${name0(blocks.find((b) => b.id === x.blockId))}`;
+    for (const [id] of variety) if (!after.has(id) && !fixesToo.has(id)) fixesToo.set(id, `${what} fixes this too.`);
+  }
+  function name0(b: Block | undefined) {
+    return b && b.kind !== 'activity' && b.drillId ? (byId.get(b.drillId)?.funName ?? 'it') : 'it';
+  }
+  function act(x: Suggestion) {
+    const b = blocks.find((y) => y.id === x.blockId);
+    if (!b) return;
+    const oldName = name0(b);
+    const done =
+      x.kind === 'add-level' ? `Added Level ${x.level}` : x.kind === 'drop-level' ? `Turned off Level ${x.level}` : x.kind === 'water-before' ? 'Added a water break before it' : x.kind === 'game-before' ? `Added ${byId.get(x.drillId!)?.funName ?? 'a game'} before it` : `Swapped in for ${oldName}`;
+    const next = applySuggestion(blocks, x, byId);
+    const added = next.find((y) => !blocks.some((o) => o.id === y.id))?.id;
+    setApplied((prev) => [...prev, { key: x.key, blockId: x.blockId, done, why: x.title.replace(/\.$/, ''), before: b, added, short: x.kind === 'swap' ? `${byId.get(x.drillId!)?.funName ?? oldName} · swapped in` : x.short }]);
+    setBlocks(() => next);
+  }
+  // Undo puts back only this change: the block as it was, or without the block it added.
+  function undo(a: Applied) {
+    setBlocks((bs) => (a.added ? bs.filter((y) => y.id !== a.added) : bs.map((y) => (y.id === a.blockId ? a.before : y))));
+    setApplied((prev) => prev.filter((y) => y.key !== a.key));
+  }
+  function keepSug(x: Suggestion) {
+    setKeptBy((m) => new Map(m).set(x.key, 'you'));
+    start(async () => {
+      const r = await keepSuggestion(plan.id, x.key);
+      setKeptBy((m) => {
+        const next = new Map(m);
+        if (r.ok) next.set(x.key, r.editor);
+        else next.delete(x.key);
+        return next;
+      });
+      if (!r.ok) {
+        setSaveState('error');
+        setSaveError(r.error);
+      }
+    });
+  }
+  function pickFor(x: Suggestion, i: number) {
+    const b = blocks[i];
+    if (x.kind === 'game-before') setPicker({ mode: 'add', at: i, filter: 'basic', part: 'game', why: `A fun game before ${name0(b)}` });
+    else setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' });
+  }
+
   const name = (b: Block) => (b.kind === 'activity' ? b.title : b.kind === 'rotation' ? ((b.drillId && byId.get(b.drillId)?.funName) ?? 'Rotation') : (byId.get(b.drillId)?.funName ?? 'Drill'));
 
   // What the drawer knows about the spot it was opened from, so it can open pre-filtered for it.
@@ -388,6 +450,7 @@ export function Builder({
         {startNote('text-xs')}
       </div>
       {startNote('-mt-2 hidden text-sm lg:block')}
+      {suggest && <PhoneLine day={suggest.day} open={[...openSug].sort((x, y) => blocks.findIndex((b) => b.id === x.blockId) - blocks.findIndex((b) => b.id === y.blockId))} />}
 
       {/* The plan leads on the white page; practice-wide info sits in a grey margin column beside it (design system: Panel). */}
       <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch">
@@ -440,8 +503,23 @@ export function Builder({
                   gc={gc}
                   byId={byId}
                   known={knownSet}
-                  feedback={b.kind !== 'activity' && b.drillId ? feedback[b.drillId] : undefined}
+                  feedback={b.kind !== 'activity' && b.drillId && !sugFor.has(b.id) ? feedback[b.drillId] : undefined}
                   variety={(variety.get(b.id) ?? []).filter((w) => !kept.has(`${b.id}:${w.rule}`))}
+                  varietyAlso={fixesToo.get(b.id)}
+                  suggestion={
+                    suggest && sugFor.has(b.id) ? (
+                      <SuggestionBox
+                        s={sugFor.get(b.id)!}
+                        day={suggest.day}
+                        drill={sugFor.get(b.id)!.drillId ? byId.get(sugFor.get(b.id)!.drillId!) : undefined}
+                        onApply={() => act(sugFor.get(b.id)!)}
+                        onPick={() => pickFor(sugFor.get(b.id)!, i)}
+                        onKeep={() => keepSug(sugFor.get(b.id)!)}
+                      />
+                    ) : null
+                  }
+                  appliedNotes={suggest ? applied.filter((a) => a.blockId === b.id).map((a) => <AppliedNote key={a.key} a={a} day={suggest.day} onUndo={() => undo(a)} />) : null}
+                  levelSuggested={sugFor.get(b.id)?.kind === 'add-level' ? sugFor.get(b.id)!.level : undefined}
                   onSwap={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
                   onBreak={(rule) =>
                     rule === 'hard'
@@ -532,6 +610,7 @@ export function Builder({
               return last?.kind === 'activity' && last.activity === 'huddle' ? times[blocks.length - 1] : endTime;
             })()}
           />
+          {suggest && <CheckinPanel day={suggest.day} open={[...openSug].sort((x, y) => blocks.findIndex((b) => b.id === x.blockId) - blocks.findIndex((b) => b.id === y.blockId))} applied={applied} kept={keptSug} stays={sug.stays} />}
           <PanelSec title="Who's here today" right={`${units.reduce((n, u) => n + u.skaters, 0)} skaters`}>
             <ul className="grid grid-cols-3 gap-2">
               {units.map((u) => (
@@ -673,6 +752,10 @@ function BlockBody({
   known,
   feedback,
   variety,
+  varietyAlso,
+  suggestion,
+  appliedNotes,
+  levelSuggested,
   onSwap,
   onBreak,
   onKeep,
@@ -691,6 +774,10 @@ function BlockBody({
   known: Set<string>;
   feedback?: DrillFeedback;
   variety: VarietyWarning[];
+  varietyAlso?: string;
+  suggestion: React.ReactNode;
+  appliedNotes: React.ReactNode;
+  levelSuggested?: number;
   onSwap: () => void;
   onBreak: (rule: VarietyRule) => void;
   onKeep: (rule: VarietyRule) => void;
@@ -772,9 +859,11 @@ function BlockBody({
           <Menu items={menu} />
         </div>
       </div>
+      {appliedNotes}
       {feedback && <FeedbackLine fb={feedback} />}
+      {suggestion}
       {variety.map((w) => (
-        <VarietyBox key={w.rule} w={w} onSwap={onSwap} onBreak={() => onBreak(w.rule)} onKeep={() => onKeep(w.rule)} />
+        <VarietyBox key={w.rule} w={w} also={varietyAlso} onSwap={onSwap} onBreak={() => onBreak(w.rule)} onKeep={() => onKeep(w.rule)} />
       ))}
       {overNew && (
         <div role="note" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 px-3.5 py-2.5">
@@ -795,7 +884,7 @@ function BlockBody({
       {b.kind === 'drill' &&
         d &&
         (d.levels.length ? (
-          <LevelPicker block={b} drill={d} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />
+          <LevelPicker block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />
         ) : (
           <DrillCard drill={d} isNew={!known.has(d.id)} />
         ))}
@@ -1203,12 +1292,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /** A variety warning, inside the block that breaks the streak. Suggests; never changes the plan on its own. */
-function VarietyBox({ w, onSwap, onBreak, onKeep }: { w: VarietyWarning; onSwap: () => void; onBreak: () => void; onKeep: () => void }) {
+function VarietyBox({ w, also, onSwap, onBreak, onKeep }: { w: VarietyWarning; also?: string; onSwap: () => void; onBreak: () => void; onKeep: () => void }) {
   const breakLabel = w.rule === 'hard' ? 'Add a water break before it' : w.rule === 'skill' ? 'Add a fun game before it' : null;
   return (
     <div role="note" className="flex flex-col gap-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 bg-surface-200 px-3.5 pb-3.5 pt-3">
       <p className="text-sm">
         <b className="font-semibold">{w.text}</b> <span className="text-ink-200">{w.fix}</span>
+        {also && <span className="text-ink-200"> {also}</span>}
       </p>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={onSwap} className="min-h-9 rounded-full bg-ink-100 px-4 text-sm font-semibold text-surface-100 hover:opacity-90">
@@ -1225,4 +1315,20 @@ function VarietyBox({ w, onSwap, onBreak, onKeep }: { w: VarietyWarning; onSwap:
       </div>
     </div>
   );
+}
+
+/** A suggestion from the check-in, carried out on the plan (decision 0022). */
+function applySuggestion(blocks: Block[], x: Suggestion, byId: Map<string, Drill>): Block[] {
+  const i = blocks.findIndex((b) => b.id === x.blockId);
+  if (i < 0) return blocks;
+  const b = blocks[i];
+  const d = x.drillId ? byId.get(x.drillId) : undefined;
+  if ((x.kind === 'add-level' || x.kind === 'drop-level') && b.kind === 'drill') {
+    const levels = x.kind === 'add-level' ? [...new Set([...b.levels, x.level!])].sort((m, n) => m - n) : b.levels.filter((l) => l !== x.level);
+    return blocks.map((y) => (y.id === b.id ? { ...b, levels: levels.length ? levels : [1] } : y));
+  }
+  if (x.kind === 'swap' && d) return blocks.map((y) => (y.id === b.id ? { ...blockForDrill(d, b.minutes), id: b.id } : y));
+  if (x.kind === 'game-before' && d) return [...blocks.slice(0, i), blockForDrill(d), ...blocks.slice(i)];
+  if (x.kind === 'water-before') return [...blocks.slice(0, i), newActivity('water'), ...blocks.slice(i)];
+  return blocks;
 }

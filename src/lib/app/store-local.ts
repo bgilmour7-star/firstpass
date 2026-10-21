@@ -11,7 +11,7 @@ import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPr
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
 type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
-type State = { favorites?: Record<string, Record<string, Favorite>>; joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type State = { kept?: { practiceId: string; key: string; editor: string; at: string }[]; favorites?: Record<string, Record<string, Favorite>>; joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -193,6 +193,15 @@ export class LocalAppStore implements AppStore {
   async saveCheckin(c: Checkin) {
     const s = await read();
     s.checkins = [...(s.checkins ?? []).filter((x) => !(x.practiceId === c.practiceId && x.userId === c.userId)), c];
+    await write(s);
+  }
+  async keptSuggestions(practiceId: string) {
+    return ((await read()).kept ?? []).filter((k) => k.practiceId === practiceId).map(({ key, editor, at }) => ({ key, editor, at }));
+  }
+  async keepSuggestion(k: { practiceId: string; teamId: string; userId: string; editor: string; key: string }) {
+    const s = await read();
+    if ((s.kept ?? []).some((x) => x.practiceId === k.practiceId && x.key === k.key)) return;
+    s.kept = [...(s.kept ?? []), { practiceId: k.practiceId, key: k.key, editor: k.editor, at: new Date().toISOString() }];
     await write(s);
   }
   async coachCount(teamId: string) {

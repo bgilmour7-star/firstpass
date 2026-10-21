@@ -67,8 +67,8 @@ export function WaitlistForm() {
         <div className="grid grid-cols-2 gap-1 rounded-full bg-surface-300 p-1">
           {(
             [
-              ['coach', 'I coach a team'],
-              ['association', 'I run an association'],
+              ['coach', 'Coach'],
+              ['association', 'Association'],
             ] as const
           ).map(([k, text]) => (
             <label key={k} className={`relative flex min-h-11 cursor-pointer items-center justify-center rounded-full px-2 text-center text-sm has-[:focus-visible]:shadow-[var(--focus-ring)] ${kind === k ? 'bg-surface-100 font-semibold shadow-[0_1px_2px_rgba(14,27,30,0.12)]' : 'text-ink-200'}`}>

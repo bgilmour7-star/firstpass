@@ -62,7 +62,7 @@ export function HeroRink({ svg, spec, title }: { svg: string; spec: RinkDiagramP
     <div className="flex flex-col gap-3">
       <div ref={still} className="rink-frame" hidden={state === 'playing'} dangerouslySetInnerHTML={{ __html: svg }} />
       <div ref={stage} className="rink-frame" hidden={state !== 'playing'} />
-      <div className="flex max-w-[58%] flex-col items-start gap-1.5">
+      <div className="flex flex-col sm:max-w-[58%] items-start gap-1.5">
         <p aria-live="polite" className="min-h-[44px] text-[15px] leading-snug">
           {caption}
         </p>
