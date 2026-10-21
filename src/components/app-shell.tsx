@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { signOut } from '@/app/auth/actions';
+import { AppWorker } from './pwa';
 import { NAV_COOKIE } from '@/lib/nav';
 import type { NavPractice } from '@/lib/nav-practice';
 
@@ -109,6 +110,7 @@ export function AppShell({ email, isAdmin, local, teamName, next, reviewCount = 
 
       <main className="min-w-0 px-4 pb-24 pt-6 transition-[margin] duration-200 ease-out motion-reduce:transition-none lg:ml-[var(--rail-w)] lg:px-8 print:ml-0 print:px-0">
         {children}
+        <AppWorker />
       </main>
     </div>
   );

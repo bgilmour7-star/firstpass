@@ -4,6 +4,7 @@ import { AuthFrame } from '@/components/auth-frame';
 import { AuthFlow } from '@/components/auth-flow';
 import { LAST_EMAIL, safeNext } from '@/lib/auth-after';
 import { Expired } from './expired';
+import { ClearSaved } from '@/components/pwa';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <AuthFrame>
+      <ClearSaved />
       {error ? (
         <Expired email={last} next={next} />
       ) : (
