@@ -51,7 +51,7 @@ function Rail({ top = '0px', height, onTeal = false }: { top?: string; height?: 
 /** The orange cone that marks each step down the pass line. */
 function Cone({ top }: { top: string }) {
   return (
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" className="absolute left-[calc(var(--railx)-var(--railpad)-6.5px)]" style={{ top }}>
+    <svg aria-hidden="true" viewBox="0 0 16 16" className="absolute left-[calc(var(--railx)-var(--railpad)+1.5px-var(--dot)/2)] size-[var(--dot)]" style={{ top }}>
       <path d="M8 1 15 15H1z" fill="var(--whistle-100)" />
     </svg>
   );
@@ -64,7 +64,7 @@ function Badge({ children }: { children: React.ReactNode }) {
 /** The rink-side view on a phone, floating over the hero rink. */
 function PhoneCard() {
   return (
-    <figure aria-label="Rink-side view on a phone: the Puck Party rotation is on now, 7:20 left" className="absolute bottom-0 right-[-4px] m-0 box-border w-[clamp(156px,36%,236px)] rounded-[28px] border border-border-100 bg-surface-100 px-4 pb-4 pt-[18px] shadow-[0_12px_32px_rgba(14,27,30,0.18)]">
+    <figure aria-label="Rink-side view on a phone: the Puck Party rotation is on now, 7:20 left" className="absolute bottom-0 right-[-4px] m-0 box-border hidden sm:block w-[clamp(156px,36%,236px)] rounded-[28px] border border-border-100 bg-surface-100 px-4 pb-4 pt-[18px] shadow-[0_12px_32px_rgba(14,27,30,0.18)]">
       <div aria-hidden="true" className="flex flex-col gap-2.5">
         <div className={`${mono} text-[11px] text-ink-200`}>Today · 9:45</div>
         <div className="flex flex-col gap-0.5">
@@ -99,10 +99,10 @@ const PLAN: { at: string; name: string; strong?: boolean; sub?: string }[] = [
   { at: '10:32', name: 'Huddle' },
 ];
 
-function Crop({ label, children, pad = 'p-6' }: { label: string; children: React.ReactNode; pad?: string }) {
+function Crop({ label, children, pad = 'p-3 sm:p-6', fit = false }: { label: string; children: React.ReactNode; pad?: string; fit?: boolean }) {
   return (
-    <figure aria-label={label} className={`m-0 h-[300px] overflow-hidden rounded-2xl bg-surface-200 ${pad}`}>
-      <div aria-hidden="true" className="h-full">
+    <figure aria-label={label} className={`m-0 overflow-hidden rounded-2xl bg-surface-200 ${fit ? 'sm:h-[300px]' : 'h-[260px] sm:h-[300px]'} ${pad}`}>
+      <div aria-hidden="true" className="sm:h-full">
         {children}
       </div>
     </figure>
@@ -128,7 +128,7 @@ export function Landing() {
   return (
     <div className="min-h-dvh bg-surface-100 text-ink-100">
       <VisitTracker />
-      <header className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-[clamp(16px,4vw,48px)] py-5">
+      <header className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 sm:px-[clamp(16px,4vw,48px)] py-5">
         <Link href="/" aria-label="Firstpass home" className="inline-flex items-center gap-2.5">
           <Mark className="size-[30px]" />
           <span className="font-display text-2xl font-extrabold leading-none tracking-[-0.01em]">Firstpass</span>
@@ -140,12 +140,12 @@ export function Landing() {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-[1200px] px-[clamp(16px,4vw,48px)]">
-        <div className="relative pl-[var(--railpad)] [--railpad:clamp(28px,5vw,76px)] [--railx:clamp(4px,1.4vw,20px)]">
+      <main className="mx-auto max-w-[1200px] px-6 sm:px-[clamp(16px,4vw,48px)]">
+        <div className="relative pl-[var(--railpad)] [--railpad:0px] [--railx:-15px] [--dot:12px] sm:[--dot:16px] sm:[--railpad:clamp(28px,5vw,76px)] sm:[--railx:clamp(4px,1.4vw,20px)]">
           {/* Hero */}
           <section aria-labelledby="hero-title" className="relative flex flex-wrap items-center gap-[clamp(40px,5vw,72px)] pb-[clamp(72px,9vw,120px)] pt-10">
             <Rail top="64px" />
-            <div aria-hidden="true" className="absolute left-[calc(var(--railx)-var(--railpad)-6.5px)] top-[52px] size-4 rounded-full bg-ink-100" />
+            <div aria-hidden="true" className="absolute left-[calc(var(--railx)-var(--railpad)+1.5px-var(--dot)/2)] top-[52px] size-[var(--dot)] rounded-full bg-ink-100" />
             <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-6">
               <h1 id="hero-title" className="font-display text-[clamp(60px,8.4vw,112px)] font-extrabold leading-[0.92] tracking-[-0.035em]">
                 Show up ready.
@@ -162,7 +162,7 @@ export function Landing() {
                 </a>
               </div>
             </div>
-            <div className="relative min-w-0 flex-[1_1_440px] pb-[max(200px,14vw)]">
+            <div className="relative min-w-0 flex-[1_1_440px] sm:pb-[max(200px,14vw)]">
               <HeroRink svg={RD.render({ ...hero, title: heroTitle })} spec={hero} title={heroTitle} />
               <PhoneCard />
             </div>
@@ -181,7 +181,7 @@ export function Landing() {
                   ['1', 'volunteer with a whistle'],
                 ] as const
               ).map(([n, l]) => (
-                <div key={l} className="flex flex-col-reverse gap-1">
+                <div key={l} className="flex flex-col-reverse justify-end gap-1">
                   <dt className="text-[17px] text-ink-200">{l}</dt>
                   <dd className={`${mono} m-0 text-[clamp(52px,6vw,76px)] font-medium leading-none tracking-[-0.03em]`}>{n}</dd>
                 </div>
@@ -199,7 +199,7 @@ export function Landing() {
             </h2>
             <ol className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-x-8 gap-y-10 p-0">
               <li className="flex flex-col gap-5">
-                <Crop label="Setup, step 2 of 4: how many skaters are in each group">
+                <Crop fit label="Setup, step 2 of 4: how many skaters are in each group">
                   <div className="flex flex-col gap-3.5 rounded-xl border border-border-100 bg-surface-100 p-[18px]">
                     <svg viewBox="0 0 320 30" width="100%" height="24">
                       <path d="M16 18H112" stroke="var(--ink-100)" strokeWidth="2.4" strokeLinecap="round" />
@@ -232,7 +232,7 @@ export function Landing() {
                 </Step>
               </li>
               <li className="flex flex-col gap-5">
-                <Crop label="Saturday's plan, ready: warm-up, drills, a rotation, water, a game and a huddle, 50 minutes">
+                <Crop fit label="Saturday's plan, ready: warm-up, drills, a rotation, water, a game and a huddle, 50 minutes">
                   <div className="flex flex-col gap-2.5 rounded-xl border border-border-100 bg-surface-100 px-[18px] py-4 text-[13px]">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="font-display text-base font-bold">Sat, Oct 24</span>
@@ -253,8 +253,8 @@ export function Landing() {
                 </Step>
               </li>
               <li className="flex flex-col gap-5">
-                <Crop label="The rink-side view: what's on now, the zones, and what's next" pad="px-6 pt-6">
-                  <div className="mx-auto flex h-full w-[220px] flex-col gap-2.5 rounded-t-[26px] border border-b-0 border-border-100 bg-surface-100 px-4 py-[18px]">
+                <Crop label="The rink-side view: what's on now, the zones, and what's next" pad="px-3 pt-3 sm:px-6 sm:pt-6">
+                  <div className="mx-auto flex h-[248px] w-[220px] sm:h-full flex-col gap-2.5 rounded-t-[26px] border border-b-0 border-border-100 bg-surface-100 px-4 py-[18px]">
                     <div className={`${mono} text-[11px] text-ink-200`}>Today · 9:45</div>
                     <div className="flex items-center gap-2 text-xs text-ink-200">
                       <span className="line-through">Ski Racer</span>
@@ -298,9 +298,9 @@ export function Landing() {
                 something new every week.
               </p>
             </div>
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-8">
+            <div role="region" aria-label="The three levels" tabIndex={0} className="-mr-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 pr-6 sm:mr-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] sm:gap-8 sm:overflow-visible sm:pb-0 sm:pr-0">
               {levels.map((l) => (
-                <figure key={l.n} className="m-0 flex flex-col gap-3.5">
+                <figure key={l.n} className="m-0 flex w-[84%] flex-none snap-start flex-col gap-3.5 sm:w-auto">
                   <Rink spec={l.spec} title={`${skiRacer.funName}, level ${l.n}: ${l.name}`} />
                   <figcaption className="flex flex-col gap-0.5">
                     <span className="font-display text-[22px] font-bold">Level {l.n}</span>
@@ -320,7 +320,7 @@ export function Landing() {
             </h2>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] gap-x-10 gap-y-12">
               <div className="flex flex-col gap-5">
-                <figure aria-label="The after-practice check-in: how it went, whether they lost steam, standouts, and which groups are ready for harder" className="m-0 rounded-2xl bg-surface-200 p-7">
+                <figure aria-label="The after-practice check-in: how it went, whether they lost steam, standouts, and which groups are ready for harder" className="m-0 rounded-2xl bg-surface-200 p-3 sm:p-7">
                   <div aria-hidden="true" className="flex flex-col gap-4 rounded-xl border border-border-100 bg-surface-100 p-5 text-[13px]">
                     <span className="font-display text-lg font-bold">How was Saturday?</span>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -354,7 +354,7 @@ export function Landing() {
                 </p>
               </div>
               <div className="flex flex-col gap-5">
-                <figure aria-label="The plan shared with parents as a link, with a preview card of this week's rotation" className="m-0 flex flex-col gap-3.5 rounded-2xl bg-surface-200 p-7">
+                <figure aria-label="The plan shared with parents as a link, with a preview card of this week's rotation" className="m-0 flex flex-col gap-3.5 rounded-2xl bg-surface-200 p-3 sm:p-7">
                   <div aria-hidden="true" className="flex flex-col gap-3.5">
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-100 bg-surface-100 px-4 py-3 text-[13px]">
                       <span className="flex flex-col">
@@ -395,10 +395,10 @@ export function Landing() {
       {/* Join: the one teal band (brand moment 1). The page stays white until the ask. */}
       <section id="join" aria-labelledby="join-title" className="band-teal relative scroll-mt-0 text-white">
         <span id="join-association" aria-hidden="true" className="absolute top-0" />
-        <div className="mx-auto max-w-[1200px] px-[clamp(16px,4vw,48px)]">
-          <div className="relative flex flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 pb-[clamp(72px,9vw,120px)] pl-[var(--railpad)] pt-[clamp(64px,9vw,112px)] [--railpad:clamp(28px,5vw,76px)] [--railx:clamp(4px,1.4vw,20px)]">
+        <div className="mx-auto max-w-[1200px] px-6 sm:px-[clamp(16px,4vw,48px)]">
+          <div className="relative flex flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 pb-[clamp(72px,9vw,120px)] pl-[var(--railpad)] pt-[clamp(64px,9vw,112px)] [--railpad:0px] [--railx:-15px] [--dot:12px] sm:[--dot:16px] sm:[--railpad:clamp(28px,5vw,76px)] sm:[--railx:clamp(4px,1.4vw,20px)]">
             <div aria-hidden="true" className="absolute left-[var(--railx)] top-0 w-[3px] bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]" style={{ height: 'clamp(66px, 9vw, 114px)' }} />
-            <svg aria-hidden="true" width="26" height="26" viewBox="0 0 26 26" className="absolute left-[calc(var(--railx)-11.5px)] top-[clamp(64px,9vw,112px)]">
+            <svg aria-hidden="true" viewBox="0 0 26 26" className="absolute left-[calc(var(--railx)+1.5px-var(--ring)/2)] top-[clamp(64px,9vw,112px)] size-[var(--ring)] [--ring:16px] sm:[--ring:26px]">
               <circle cx="13" cy="13" r="10" fill="var(--band-teal)" stroke="#FFFFFF" strokeWidth="4" />
             </svg>
             <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-8">
@@ -417,7 +417,7 @@ export function Landing() {
       </section>
 
       <footer className="border-t border-border-100">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-[clamp(16px,4vw,48px)] py-7 text-sm text-ink-200">
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-6 sm:px-[clamp(16px,4vw,48px)] py-7 text-sm text-ink-200">
           <span className="inline-flex items-center gap-2 text-ink-100">
             <Mark className="size-5" />
             <span className="font-display text-[17px] font-extrabold">Firstpass</span>
