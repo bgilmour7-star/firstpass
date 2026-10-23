@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { noteAppOpen } from '@/app/site-actions';
 
 // The installed app (decision 0021): registering the service worker, the "New version ready" notice,
 // the install card and Account section, the offline note on Today, and clearing the saved copy on the
@@ -58,6 +59,19 @@ function useDevice(): Device | null {
 export function AppWorker() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
   const [later, setLater] = useState(false);
+  // Counts the coach as active today, and whether they came from the home screen (decision 0025).
+  useEffect(() => {
+    const installed = window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    const key = `fp_open_${installed ? 'app' : 'web'}`;
+    const today = new Date().toLocaleDateString('en-CA');
+    try {
+      if (localStorage.getItem(key) === today) return;
+      localStorage.setItem(key, today);
+    } catch {
+      // No storage: count anyway; the database keeps one row a day.
+    }
+    void noteAppOpen(installed);
+  }, []);
   useEffect(() => {
     if (!('serviceWorker' in navigator) || process.env.NODE_ENV !== 'production') return;
     let reg: ServiceWorkerRegistration | undefined;
