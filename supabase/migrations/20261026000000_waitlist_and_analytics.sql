@@ -3,7 +3,7 @@
 
 -- 1. Who sees Analytics: Brett only, not every admin (the waitlist holds personal emails).
 alter table public.admins add column if not exists analytics boolean not null default false;
-update public.admins set analytics = true where lower(email) = 'brett@paddio.ca';
+update public.admins set analytics = true where lower(email) in ('brett@paddio.ca', 'bgilmour7@gmail.com');
 
 create or replace function public.can_see_analytics()
 returns boolean language sql stable security definer set search_path = ''

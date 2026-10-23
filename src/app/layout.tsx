@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { WebVitals } from '@/components/web-vitals';
 
 export const metadata: Metadata = {
   title: 'Firstpass',
@@ -24,7 +25,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-CA">
-      <body className="min-h-dvh antialiased">{children}</body>
+      <body className="min-h-dvh antialiased">
+        <WebVitals />
+        {children}
+      </body>
     </html>
   );
 }

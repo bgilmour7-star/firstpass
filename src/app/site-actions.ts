@@ -62,3 +62,16 @@ export async function track(name: EventName, path: string, source: string | null
     console.error('[site] track failed:', e instanceof Error ? e.message : e);
   }
 }
+
+/** The signed-in coach opened the app today (decision 0025). Never throws, never redirects. */
+export async function noteAppOpen(installed: boolean): Promise<void> {
+  try {
+    const { optionalUser } = await import('@/lib/auth');
+    const user = await optionalUser();
+    if (!user) return;
+    const v = await visit();
+    await (await getSiteStore()).recordAppOpen(user.id, installed === true, v.device);
+  } catch (e) {
+    console.error('[site] app open failed:', e instanceof Error ? e.message : e);
+  }
+}

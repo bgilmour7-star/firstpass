@@ -4,6 +4,10 @@ import { getSiteStore } from '@/lib/site/store';
 import { change, summarize, vanDay, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
 import { StatusSelect } from './status-select';
+import { InTheApp, SectionTitle, Speed } from './app-sections';
+import { getAppStore } from '@/lib/app/store';
+import { EMPTY_USAGE_ROWS, summarizeUsage, type UsageRows } from '@/lib/site/usage';
+import { summarizeSpeed, type Vital } from '@/lib/site/vitals';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,13 +38,41 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
   const s = summarize(events, waitlist, { days });
 
+  // In the app and Speed (decision 0025). Their tables come from a later migration.
+  const since = new Date(Date.now() - 2 * days * DAY).toISOString();
+  let rows: UsageRows = EMPTY_USAGE_ROWS;
+  let vitals: Vital[] = [];
+  let usageMissing = false;
+  try {
+    [rows, vitals] = await Promise.all([store.usage(since), store.vitals(since)]);
+  } catch (e) {
+    if (e instanceof Error && e.message === 'usage-migration-missing') usageMissing = true;
+    else throw e;
+  }
+  const usage = summarizeUsage(rows, { days });
+  const speed = summarizeSpeed(vitals, { days });
+  const names = new Map((await (await getAppStore()).libraryDrills().catch(() => [])).map((d) => [d.id, d.funName]));
+
   return (
     <div className="flex flex-col gap-9 pb-16">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-[30px] font-bold leading-[1.1]">Analytics</h1>
           <p className="text-sm text-ink-200">
-            firstpass.coach landing page · {shortDay(s.from)} – {shortDay(s.to)} · counted without cookies
+            {shortDay(s.from)} – {shortDay(s.to)} ·{' '}
+            {[
+              ['#site', 'Landing page'],
+              ['#app', 'In the app'],
+              ['#speed', 'Speed'],
+              ['#waitlist', 'Waitlist'],
+            ].map(([href, label], i) => (
+              <span key={href}>
+                {i > 0 && ' · '}
+                <a href={href} className="underline decoration-border-100 underline-offset-4 hover:text-ink-100">
+                  {label}
+                </a>
+              </span>
+            ))}
           </p>
         </div>
         <nav aria-label="Period" className="inline-flex gap-1 rounded-full bg-surface-300 p-1">
@@ -63,6 +95,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
         </p>
       )}
 
+      <div id="site" className="-mb-3 scroll-mt-6">
+        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and the waitlist form, counted without cookies." />
+      </div>
       <Headline s={s} />
       <VisitsChart s={s} />
 
@@ -72,6 +107,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       </div>
 
       <Who s={s} />
+      <InTheApp u={usage} days={days} names={names} missing={usageMissing} />
+      <Speed s={speed} missing={usageMissing} />
       <Waitlist list={waitlist} />
     </div>
   );
