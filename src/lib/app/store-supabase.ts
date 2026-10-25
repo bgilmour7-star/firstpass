@@ -83,6 +83,15 @@ export class SupabaseAppStore implements AppStore {
     const { error } = await db.rpc('leave_team', { team: teamId });
     if (error) throw new Error(/head-coach-leaves/.test(error.message) ? 'head-coach-leaves' : /function|schema cache/i.test(error.message) ? 'teams-migration-missing' : error.message);
   }
+  async handOverTeam(teamId: string, _fromUserId: string, toUserId: string) {
+    const db = await supabaseServer();
+    // The function checks the caller is head coach (auth.uid()) and swaps both roles in one statement.
+    const { error } = await db.rpc('hand_over_team', { team: teamId, new_head: toUserId });
+    if (error) {
+      for (const known of ['not-head-coach', 'not-on-team']) if (error.message.includes(known)) throw new Error(known);
+      throw new Error(/function|schema cache/i.test(error.message) ? 'teams-migration-missing' : error.message);
+    }
+  }
   async deleteTeam(teamId: string) {
     const db = await supabaseServer();
     const { data, error } = await db.from('teams').delete().eq('id', teamId).select('id');

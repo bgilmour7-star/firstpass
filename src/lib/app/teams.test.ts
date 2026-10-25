@@ -71,6 +71,47 @@ describe('a coach on several teams', () => {
     expect((await activeTeam(store, 'brett', rebels.id))?.name).toBe('Avalanche');
   });
 
+  it('hands a team to another coach on it; then the old head coach can leave', async () => {
+    const t = await store.createTeam('Clippers', 'sam');
+    await store.joinTeam(await store.newJoinCode(t.id), 'jo');
+    await expect(store.leaveTeam(t.id, 'sam')).rejects.toThrow('head-coach-leaves');
+    await store.handOverTeam(t.id, 'sam', 'jo');
+    const roles = Object.fromEntries((await store.coaches(t.id)).map((c) => [c.userId, c.role]));
+    expect(roles).toEqual({ sam: 'coach', jo: 'head_coach' });
+    await store.leaveTeam(t.id, 'sam');
+    expect((await store.coaches(t.id)).map((c) => [c.userId, c.role])).toEqual([['jo', 'head_coach']]);
+    // The team and its history stay.
+    expect((await store.myTeam('jo', t.id))?.name).toBe('Clippers');
+  });
+
+  it("keeps a coach's check-ins, under their name, after they leave", async () => {
+    const t = (await store.myTeam('jo'))!;
+    const { summarize } = await import('../plans/checkin');
+    await store.joinTeam(await store.newJoinCode(t.id), 'kara');
+    await store.saveCheckin({ practiceId: 'p1', teamId: t.id, userId: 'kara', editor: 'Kara', savedAt: '2026-10-20', overall: 'great', steam: 'no', steamFrom: null, ready: ['Bears'], note: '', marks: [] });
+    await store.leaveTeam(t.id, 'kara');
+    const checkins = await store.teamCheckins(t.id);
+    expect(checkins.map((c) => c.editor)).toEqual(['Kara']);
+    const s = summarize(checkins, []);
+    expect(s.coaches).toEqual([{ userId: 'kara', editor: 'Kara' }]);
+    expect(s.ready).toEqual(['Bears']);
+  });
+
+  it("won't hand a team to someone who isn't on it", async () => {
+    const t = await store.createTeam('Hawks', 'lee');
+    await expect(store.handOverTeam(t.id, 'lee', 'stranger')).rejects.toThrow('not-on-team');
+    expect((await store.coaches(t.id)).find((c) => c.userId === 'lee')?.role).toBe('head_coach');
+  });
+
+  it('only the head coach can hand over', async () => {
+    const t = (await store.myTeam('lee'))!;
+    await store.joinTeam(await store.newJoinCode(t.id), 'max');
+    await store.joinTeam(await store.newJoinCode(t.id), 'ola');
+    await expect(store.handOverTeam(t.id, 'max', 'ola')).rejects.toThrow('not-head-coach');
+    const heads = (await store.coaches(t.id)).filter((c) => c.role === 'head_coach').map((c) => c.userId);
+    expect(heads).toEqual(['lee']);
+  });
+
   it('a coach on no team gets none', async () => {
     const a = (await store.myTeam('brett'))!;
     await store.deleteTeam(a.id);

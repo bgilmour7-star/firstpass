@@ -36,6 +36,18 @@ Date: 2026-10-25 · Decided by: Brett (Technical Design "Teams and discovery", `
   text field and the group names.
 - **Teams gain `gear` (jsonb counts) and `focus` (text[], up to two)** for the Team page and the wizard.
 
+## Handing over a team
+- A head coach can make another coach **already on the team** head coach (Coaches drawer → Make head coach, with a confirm:
+  "Kara becomes head coach. You stay on the team as a coach and can leave after."). `hand_over_team(team, new_head)` swaps
+  both roles in one statement, so a team always has exactly one head coach; it raises `not-head-coach` or `not-on-team`
+  (no handing a team to a stranger: invite them first). The team, its plans and its history stay.
+- The new head coach gets an email ("Brett made you head coach of U7 Clippers": what they can now do, and a button to the
+  team), `headCoachEmail` in `src/lib/email/account-emails.ts`. It needs registering in PR 3's journey registry.
+- At the bottom of the Team page a head coach with other coaches sees "Hand the team to another coach first", which opens
+  the Coaches drawer; after handing over, Leave is there. The only coach on a team can only delete it.
+- Coaches who leave keep their first names on past check-ins and edits (stored as text with each row; team data, no kids'
+  data), and counts never go below zero.
+
 ## Why
 The bet is whether coaches keep using Firstpass: a coach making a second team, or a U9 team signing up, is the strongest
 signal, and the one-team rule blocked both. The team is what a volunteer coach thinks in, so it's the home page; reading
@@ -43,11 +55,10 @@ first and editing one section at a time keeps it calm for novices (decision 0024
 
 ## Migration
 `supabase/migrations/20261028000000_multi_team_and_older_interest.sql` (safe to run twice): `join_team` and `create_team`
-replaced, `leave_team`, a head-coach delete policy on `teams`, an index for newest membership, `teams.gear` and
+replaced, `leave_team`, `hand_over_team`, a head-coach delete policy on `teams`, an index for newest membership, `teams.gear` and
 `teams.focus`, and `older_team_interest` with RLS (insert own row; select own row or admin). Before it runs the app still
 works: joining a second team shows "try again tomorrow", leaving explains what to run, gear and focus aren't saved.
 
 ## Not done
 - A fourth skill group (see above).
-- Handing a team to another head coach. A head coach can't leave; they delete the team.
 - Ice times typed by hand in Create a team (no calendar link: plans take a date each time, as today).

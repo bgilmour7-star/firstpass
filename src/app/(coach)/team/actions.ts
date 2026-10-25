@@ -8,7 +8,7 @@ import { requireTeam, requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { teamSchema } from '@/lib/plans/schema';
 import { readCalendar, syncCalendar, todayLocal } from '@/lib/calendar/sync';
-import { inviteEmail } from '@/lib/email/account-emails';
+import { headCoachEmail, inviteEmail } from '@/lib/email/account-emails';
 import { SITE, sendEmail } from '@/lib/email/layout';
 
 /** Make a team the active one (decision 0026). Only a team the coach is on; anything else is ignored. */
@@ -173,6 +173,28 @@ export async function removeCoach(userId: string): Promise<CoachResult> {
     return { ok: false, error: coachError(e) };
   }
   revalidatePath('/team');
+  return { ok: true };
+}
+
+/**
+ * Head coach: hand the team to another coach already on it (decision 0026). They become head coach,
+ * you become a coach and can leave after. They get an email. The team and its history stay.
+ */
+export async function handOverTeam(userId: string): Promise<CoachResult> {
+  const { coach, team } = await requireTeam('/team');
+  const store = await getAppStore();
+  try {
+    await store.handOverTeam(team.id, coach.id, userId);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : '';
+    if (m === 'not-on-team') return { ok: false, error: 'They’re not on the team. Invite them first, then make them head coach.' };
+    if (m === 'teams-migration-missing') return { ok: false, error: 'Handing over needs a one-time database update (supabase/migrations/20261028000000_multi_team_and_older_interest.sql).' };
+    return { ok: false, error: coachError(e) };
+  }
+  // Never blocks the hand-over.
+  const to = (await store.coaches(team.id).catch(() => [])).find((c) => c.userId === userId);
+  if (to?.email.includes('@')) await sendEmail(to.email, headCoachEmail({ from: coach.name, teamName: team.name, teamUrl: `${SITE}/team` }), 'head-coach', `head-${team.id}-${userId}`).catch(() => false);
+  revalidatePath('/', 'layout');
   return { ok: true };
 }
 

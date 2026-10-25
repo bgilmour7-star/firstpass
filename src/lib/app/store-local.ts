@@ -78,6 +78,18 @@ export class LocalAppStore implements AppStore {
     s.members = s.members.filter((x) => !(x.teamId === teamId && x.userId === userId));
     await write(s);
   }
+  async handOverTeam(teamId: string, fromUserId: string, toUserId: string) {
+    const s = await read();
+    const from = s.members.find((m) => m.teamId === teamId && m.userId === fromUserId);
+    if (from?.role !== 'head_coach') throw new Error('not-head-coach');
+    if (toUserId === fromUserId) return;
+    const to = s.members.find((m) => m.teamId === teamId && m.userId === toUserId);
+    if (!to) throw new Error('not-on-team');
+    // Both change together, so the team always has exactly one head coach.
+    from.role = 'coach';
+    to.role = 'head_coach';
+    await write(s);
+  }
   async deleteTeam(teamId: string) {
     const s = await read();
     s.teams = s.teams.filter((t) => t.id !== teamId);

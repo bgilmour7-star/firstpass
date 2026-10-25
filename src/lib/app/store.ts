@@ -44,6 +44,11 @@ export interface AppStore {
   updateTeam(team: Team): Promise<void>;
   /** A coach leaves a team. The head coach can't leave (they delete it instead): throws 'head-coach-leaves'. */
   leaveTeam(teamId: string, userId: string): Promise<void>;
+  /**
+   * Head coach: make another coach on the team head coach; the caller becomes a coach (decision 0026).
+   * Throws 'not-head-coach' or 'not-on-team'.
+   */
+  handOverTeam(teamId: string, fromUserId: string, toUserId: string): Promise<void>;
   /** Head coach: delete the team and everything on it. Throws 'not-head-coach'. */
   deleteTeam(teamId: string): Promise<void>;
   /** The "U11 or older" discovery answer. Throws 'older-migration-missing' before the SQL has run. */

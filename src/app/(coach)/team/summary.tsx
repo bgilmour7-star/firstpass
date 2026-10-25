@@ -283,7 +283,7 @@ export function TeamSummary(p: {
           </div>
         )}
         <div className="flex-1" />
-        <LeaveOrDelete team={team} isHead={isHead} />
+        <LeaveOrDelete team={team} isHead={isHead} others={p.coaches.length - 1} onHandOver={() => setEdit('coaches')} />
       </aside>
 
       {edit === 'name' && <NameDrawer team={team} onClose={close} />}
@@ -342,7 +342,7 @@ export function TeamSummary(p: {
       )}
       {edit === 'coaches' && (
         <Drawer title="Coaches" kicker={team.name} onClose={close}>
-          <Coaches coaches={p.coaches} me={p.me} isHead={isHead} initialCode={p.joinCode} origin={p.origin} embedded />
+          <Coaches coaches={p.coaches} me={p.me} isHead={isHead} initialCode={p.joinCode} origin={p.origin} embedded onHandedOver={() => router.refresh()} />
         </Drawer>
       )}
     </div>
@@ -435,18 +435,40 @@ function CopyLink({ link }: { link: string }) {
   );
 }
 
-function LeaveOrDelete({ team, isHead }: { team: Team; isHead: boolean }) {
-  const [open, setOpen] = useState(false);
+/**
+ * Leave or delete, at the bottom of the Team page (decision 0026). A coach leaves. A head coach with
+ * other coaches hands the team over first (the Coaches drawer), then can leave; they can also delete
+ * it. The only coach on a team can only delete it.
+ */
+function LeaveOrDelete({ team, isHead, others, onHandOver }: { team: Team; isHead: boolean; others: number; onHandOver: () => void }) {
+  const [open, setOpen] = useState<'leave' | 'delete' | null>(null);
   const [typed, setTyped] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const link = 'font-medium text-rink-100 hover:underline';
   return (
     <div className="flex flex-col gap-3 border-t border-border-100 pt-5">
-      <p className="text-[13px] leading-[18px] text-ink-200">
-        Firstpass keeps team details only, never kids&apos; names.{' '}
-        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="font-medium text-rink-100 hover:underline">
-          {isHead ? 'Delete this team' : 'Leave this team'}
-        </button>
+      <p className="text-[13px] leading-[18px] text-ink-200">Firstpass keeps team details only, never kids&apos; names.</p>
+      <p className="flex flex-col items-start gap-1.5 text-[13px] leading-[18px]">
+        {!isHead && (
+          <button type="button" onClick={() => setOpen(open === 'leave' ? null : 'leave')} aria-expanded={open === 'leave'} className={link}>
+            Leave this team
+          </button>
+        )}
+        {isHead && others > 0 && (
+          <span className="text-ink-200">
+            Stepping down?{' '}
+            <button type="button" onClick={onHandOver} className={link}>
+              Hand the team to another coach first
+            </button>
+            , then you can leave.
+          </span>
+        )}
+        {isHead && (
+          <button type="button" onClick={() => setOpen(open === 'delete' ? null : 'delete')} aria-expanded={open === 'delete'} className={link}>
+            Delete this team
+          </button>
+        )}
       </p>
       {open && (
         <form
@@ -455,27 +477,30 @@ function LeaveOrDelete({ team, isHead }: { team: Team; isHead: boolean }) {
             e.preventDefault();
             start(async () => {
               setError(null);
-              const r = isHead ? await deleteTeam(typed) : await leaveTeam();
+              const r = open === 'delete' ? await deleteTeam(typed) : await leaveTeam();
               if (r && !r.ok) setError(r.error);
             });
           }}
         >
-          {isHead ? (
+          {open === 'delete' ? (
             <>
-              <p className="text-sm">Deleting removes the team&apos;s plans, check-ins and join link for every coach. It can&apos;t be undone.</p>
+              <p className="text-sm">
+                Deleting removes the team&apos;s plans, check-ins and join link for every coach. It can&apos;t be undone.
+                {others > 0 ? ' To keep the team going without you, hand it to another coach instead.' : ''}
+              </p>
               <label htmlFor="confirm-name" className="text-[13px] font-semibold">
                 Type {team.name} to confirm
               </label>
               <input id="confirm-name" className={field} value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
             </>
           ) : (
-            <p className="text-sm">You&apos;ll stop seeing {team.name}&apos;s plans. The head coach can send you the join link again.</p>
+            <p className="text-sm">You&apos;ll stop seeing {team.name}&apos;s plans. The team and its history stay with its coaches. The head coach can send you the join link again.</p>
           )}
           <div className="flex items-center gap-2">
             <button type="submit" disabled={pending} className="inline-flex h-11 items-center rounded-full bg-flag-100 px-5 text-sm font-semibold text-surface-100 disabled:opacity-50">
-              {pending ? 'One moment…' : isHead ? 'Delete the team' : 'Leave the team'}
+              {pending ? 'One moment…' : open === 'delete' ? 'Delete the team' : 'Leave the team'}
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="h-11 rounded-full px-4 text-sm font-medium hover:bg-surface-200">
+            <button type="button" onClick={() => setOpen(null)} className="h-11 rounded-full px-4 text-sm font-medium hover:bg-surface-200">
               Keep it
             </button>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import type { TeamCoach } from '@/lib/app/store';
-import { newJoinLink, removeCoach, sendInvite, turnOffJoinLink } from './actions';
+import { handOverTeam, newJoinLink, removeCoach, sendInvite, turnOffJoinLink } from './actions';
 
 const pill = 'inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-medium disabled:opacity-50';
 
@@ -16,8 +16,30 @@ function joinedLabel(at: string): string {
 }
 
 /** Who coaches the team, and the join link that adds more (decisions 0011, 0013). */
-export function Coaches({ coaches, me, isHead, initialCode, origin, embedded = false }: { coaches: TeamCoach[]; me: string; isHead: boolean; initialCode: string | null; origin: string; /** Inside the Team page's drawer (decision 0026). */ embedded?: boolean }) {
+export function Coaches({
+  coaches,
+  me,
+  isHead,
+  initialCode,
+  origin,
+  embedded = false,
+  onHandedOver,
+}: {
+  coaches: TeamCoach[];
+  me: string;
+  isHead: boolean;
+  initialCode: string | null;
+  origin: string;
+  /** Inside the Team page's drawer (decision 0026). */
+  embedded?: boolean;
+  /** After handing the team to another coach (decision 0026). */
+  onHandedOver?: () => void;
+}) {
   const [list, setList] = useState(coaches);
+  // Head coach until they hand the team over in this drawer.
+  const [amHead, setAmHead] = useState(isHead);
+  const [handing, setHanding] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
@@ -49,7 +71,8 @@ export function Coaches({ coaches, me, isHead, initialCode, origin, embedded = f
 
       <ul className="flex flex-col">
         {list.map((c) => (
-          <li key={c.userId} className="flex min-h-12 items-center gap-3 border-t border-border-100 py-2 first:border-t-0">
+          <li key={c.userId} className="flex flex-col border-t border-border-100 py-2 first:border-t-0">
+            <div className="flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1">
             <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-300 font-display text-sm font-bold">
               {shown(c).charAt(0).toUpperCase()}
             </span>
@@ -69,34 +92,76 @@ export function Coaches({ coaches, me, isHead, initialCode, origin, embedded = f
                 {c.role === 'head_coach' ? '' : joinedLabel(c.joinedAt)}
               </span>
             </span>
-            {isHead && c.userId !== me && c.role !== 'head_coach' && (
-              confirming === c.userId ? (
-                <span className="flex shrink-0 items-center gap-1">
+            {amHead && c.userId !== me && c.role !== 'head_coach' && confirming !== c.userId && handing !== c.userId && (
+              <span className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+                <button type="button" onClick={() => (setHanding(c.userId), setConfirming(null))} className={`${pill} text-rink-100 hover:bg-surface-200`}>
+                  Make head coach
+                </button>
+                <button type="button" onClick={() => (setConfirming(c.userId), setHanding(null))} className={`${pill} text-ink-200 hover:bg-surface-200`}>
+                  Remove
+                </button>
+              </span>
+            )}
+            {confirming === c.userId && (
+              <span className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => run(() => removeCoach(c.userId), () => setList((l) => l.filter((x) => x.userId !== c.userId)))}
+                  className={`${pill} bg-flag-100 text-surface-100`}
+                >
+                  Remove
+                </button>
+                <button type="button" onClick={() => setConfirming(null)} className={`${pill} hover:bg-surface-200`}>
+                  Keep
+                </button>
+              </span>
+            )}
+            </div>
+            {handing === c.userId && (
+              <div role="group" aria-label={`Make ${shown(c)} head coach`} className="mt-2 flex flex-col gap-3 rounded-[10px] border border-border-100 bg-surface-200 p-3">
+                <p className="text-[15px] leading-[22px]">
+                  <b className="font-semibold">{shown(c)} becomes head coach.</b> You stay on the team as a coach and can leave after.
+                </p>
+                <p className="text-[13px] leading-[18px] text-ink-200">They can edit the team, invite and remove coaches, and turn the join link on or off. The team&apos;s plans and history stay. We&apos;ll email them.</p>
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     disabled={pending}
-                    onClick={() => run(() => removeCoach(c.userId), () => setList((l) => l.filter((x) => x.userId !== c.userId)))}
-                    className={`${pill} bg-flag-100 text-surface-100`}
+                    onClick={() =>
+                      run(
+                        () => handOverTeam(c.userId),
+                        () => {
+                          setList((l) => l.map((x) => (x.userId === c.userId ? { ...x, role: 'head_coach' } : x.userId === me ? { ...x, role: 'coach' } : x)));
+                          setAmHead(false);
+                          setHanding(null);
+                          setDone(`${shown(c)} is head coach now. You can leave the team from the bottom of the Team page.`);
+                          onHandedOver?.();
+                        },
+                      )
+                    }
+                    className={`${pill} bg-rink-100 text-surface-100 hover:bg-rink-200`}
                   >
-                    Remove
+                    {pending ? 'One moment…' : `Make ${shown(c)} head coach`}
                   </button>
-                  <button type="button" onClick={() => setConfirming(null)} className={`${pill} hover:bg-surface-200`}>
-                    Keep
+                  <button type="button" onClick={() => setHanding(null)} className={`${pill} hover:bg-surface-300`}>
+                    Cancel
                   </button>
-                </span>
-              ) : (
-                <button type="button" onClick={() => setConfirming(c.userId)} className={`${pill} shrink-0 text-ink-200 hover:bg-surface-200`}>
-                  Remove
-                </button>
-              )
+                </div>
+              </div>
             )}
           </li>
         ))}
       </ul>
+      {done && (
+        <p role="status" className="text-sm text-good-100">
+          {done}
+        </p>
+      )}
 
       <div className="flex flex-col gap-2 rounded-md bg-surface-200 p-3">
         <h3 className="text-sm font-bold">Add a coach</h3>
-        {isHead ? (
+        {amHead ? (
           code ? (
             <>
               <p className="text-sm text-ink-200">Send this link to your co-coaches by text or email. They sign in with their email and join as coaches.</p>

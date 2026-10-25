@@ -41,6 +41,25 @@ begin
   delete from public.team_members m where m.team_id = team and m.user_id = auth.uid();
 end;
 $$;
+-- The head coach hands the team to another coach already on it (invite them first). In one
+-- statement the new head becomes head_coach and the old head becomes coach, so the team always has
+-- exactly one head coach. Raises not-head-coach or not-on-team.
+create or replace function public.hand_over_team(team uuid, new_head uuid)
+returns void language plpgsql security definer set search_path = ''
+as $$
+begin
+  if auth.uid() is null then raise exception 'Sign in first'; end if;
+  if not public.is_head_coach(team) then raise exception 'not-head-coach'; end if;
+  if new_head = auth.uid() then return; end if;
+  if not exists (select 1 from public.team_members m where m.team_id = team and m.user_id = new_head) then raise exception 'not-on-team'; end if;
+  update public.team_members m
+     set role = case when m.user_id = new_head then 'head_coach' else 'coach' end
+   where m.team_id = team and m.user_id in (new_head, auth.uid());
+end;
+$$;
+revoke all on function public.hand_over_team(uuid, uuid) from public;
+grant execute on function public.hand_over_team(uuid, uuid) to authenticated;
+
 revoke all on function public.leave_team(uuid) from public;
 grant execute on function public.leave_team(uuid) to authenticated;
 revoke all on function public.join_team(text) from public;
