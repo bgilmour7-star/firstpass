@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { createContext, useContext, useEffect, useRef } from 'react';
-import { BLOCK_FOR, PART_LABEL, shapeLabel, type Drill } from '@/lib/drills/schema';
+import { BLOCK_FOR, PART_LABEL, shapeLabel, type Drill, type Group } from '@/lib/drills/schema';
 import type { Favorite } from '@/lib/app/store';
 import { DrillDetail } from '@/components/drill-detail';
 import { FavoriteButton } from '@/components/favorite-button';
@@ -21,7 +21,9 @@ export function DrillDrawer({
   favorite,
   onFavorite,
   onClose,
+  groupNames,
 }: {
+  groupNames?: Record<Group, string>;
   drill: Drill;
   from: string;
   backLabel: string;
@@ -70,7 +72,7 @@ export function DrillDrawer({
           </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          <DrillDetail drill={d} wide={false} after={<SuggestChange key={d.id} drillId={d.id} drillName={d.funName} />} />
+          <DrillDetail drill={d} wide={false} groupNames={groupNames} after={<SuggestChange key={d.id} drillId={d.id} drillName={d.funName} />} />
         </div>
         <footer className="flex items-center justify-between gap-3 border-t border-border-100 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <Link href={`/drills/${d.id}?from=${encodeURIComponent(from)}`} className="text-sm font-medium text-rink-100 hover:underline">

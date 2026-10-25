@@ -1,7 +1,7 @@
 import { levelCount, type Drill } from '../drills/schema';
 import type { Checkin, RateUnit } from './checkin';
 import type { DrillFeedback } from './feedback';
-import { blockLevels, type Block } from './schema';
+import { activeGroups, blockLevels, groupLabel, type Block, type Team } from './schema';
 import { mainSkill } from './variety';
 
 // Suggestions on the next plan from the latest check-in (decision 0022). Rules, no AI: the same
@@ -64,6 +64,8 @@ export type SuggestInput = {
   feedback: Record<string, DrillFeedback>;
   /** How many earlier practices each drill ran in. */
   runs: Record<string, number>;
+  /** What the team calls each group, and which it uses (decision 0026). Default: the slot names, all three. */
+  team?: Pick<Team, 'groups'>;
 };
 
 export type SuggestResult = {
@@ -213,7 +215,8 @@ export function suggestions(i: SuggestInput): SuggestResult {
   }
 
   // --- Ready for harder: one drill they know, the one they've done most.
-  const ready = [...new Set(i.checkins.flatMap((c) => c.ready))];
+  const inUse = i.team ? activeGroups(i.team) : null;
+  const ready = [...new Set(i.checkins.flatMap((c) => c.ready))].filter((g) => !inUse || inUse.includes(g));
   if (ready.length) {
     const lastLevels = new Map<string, number>();
     for (const b of i.last.blocks) if (b.kind === 'drill' && b.drillId) lastLevels.set(b.drillId, Math.max(lastLevels.get(b.drillId) ?? 0, ...b.levels));
@@ -232,7 +235,8 @@ export function suggestions(i: SuggestInput): SuggestResult {
     const pick = cands[0];
     if (pick) {
       const by = [...new Set(i.checkins.filter((c) => c.ready.length).map((c) => c.editor))];
-      const groups = ready.length === 3 ? 'Every group was' : `${list(ready)} were`;
+      const all = inUse ? inUse.length : 3;
+      const groups = ready.length === all && all > 1 ? 'Every group was' : `${list(ready.map((g) => groupLabel(i.team, g)))} were`;
       const lv = blockLevels(pick.d, pick.b as Extract<Block, { kind: 'drill' }>);
       const each = Math.floor(pick.b.minutes / (lv.length + 1));
       out.push({

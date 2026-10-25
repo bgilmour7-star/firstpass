@@ -1,4 +1,4 @@
-import { levelCount, levelOf, type Drill } from "@/lib/drills/schema";
+import { levelCount, levelOf, type Drill, type Group } from "@/lib/drills/schema";
 import { Pips, Rink, RinkStepper } from "@/components/ds";
 
 // Everything about a drill, read-only (v1: coaches never edit drills). One component for the
@@ -9,10 +9,13 @@ export function DrillDetail({
   drill: d,
   wide = true,
   after,
+  groupNames,
 }: {
   drill: Drill;
   wide?: boolean;
   after?: React.ReactNode;
+  /** The team's names for its groups (decision 0026); the drill's own slot names without one. */
+  groupNames?: Record<Group, string>;
 }) {
   return (
     <div
@@ -96,7 +99,7 @@ export function DrillDetail({
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-ink-100 font-mono text-xs text-surface-100">
                     {s.station}
                   </span>
-                  <b>{s.group}</b>
+                  <b className="truncate">{groupNames?.[s.group] ?? s.group}</b>
                   <span>{s.version}</span>
                 </li>
               ))}

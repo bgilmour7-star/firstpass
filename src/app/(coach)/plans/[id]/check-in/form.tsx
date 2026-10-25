@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { GROUPS } from '@/lib/drills/schema';
+import type { Group } from '@/lib/drills/schema';
 import { OVERALL, OVERALL_LABEL, REASONS, REASON_LABEL, STEAM, STEAM_LABEL, type Checkin, type CheckinInput, type Mark, type RateUnit } from '@/lib/plans/checkin';
 import { saveCheckin } from '../../actions';
 
@@ -17,6 +17,7 @@ export function CheckinForm({
   stats,
   units,
   initial,
+  groups,
   others,
 }: {
   practiceId: string;
@@ -25,6 +26,8 @@ export function CheckinForm({
   stats: { minutes: number; drills: number; skaters: number };
   units: RateUnit[];
   initial: Checkin | null;
+  /** The team's groups in use, easiest first, with the team's names for them (decision 0026). */
+  groups: { slot: Group; label: string }[];
   others: Other[];
 }) {
   const router = useRouter();
@@ -187,11 +190,12 @@ export function CheckinForm({
           Ready for harder? <span className="ml-1 font-body text-[13px] font-normal text-ink-200">Tap any that are.</span>
         </h2>
         <div role="group" aria-label="Groups ready for harder" className="flex flex-wrap gap-1.5">
-          {GROUPS.slice()
+          {groups
+            .slice()
             .reverse()
-            .map((g) => (
+            .map(({ slot: g, label }) => (
               <Choice key={g} pill on={c.ready.includes(g)} marks={by((o) => o.ready.includes(g))} onClick={() => setC((x) => ({ ...x, ready: x.ready.includes(g) ? x.ready.filter((y) => y !== g) : [...x.ready, g] }))}>
-                {g}
+                {label}
               </Choice>
             ))}
         </div>
