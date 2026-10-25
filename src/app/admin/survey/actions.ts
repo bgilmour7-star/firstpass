@@ -67,5 +67,7 @@ export async function addNote(personId: string, kind: string, body: string): Pro
     console.error('[coaches] note failed:', e instanceof Error ? e.message : e);
     return { ok: false, error: SAVE_FAILED };
   }
-  return done([`/admin/coaches/${personId}`, '/admin/coaches', '/admin/survey']);
+  // Coach pages are addressed by code (c-0101), so refresh them all rather than one id.
+  revalidatePath('/admin/coaches/[id]', 'page');
+  return done(['/admin/coaches', '/admin/survey']);
 }

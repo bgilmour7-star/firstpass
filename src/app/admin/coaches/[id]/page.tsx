@@ -21,7 +21,8 @@ export default async function CoachPage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const { people, responses, notes, themes, usage, missing } = await loadDiscovery();
   if (missing) return <MigrationMissing />;
-  const p = people.find((x) => x.id === id);
+  // The person's code (c-0101) is their id everywhere: in this URL, the repo file and the daily summary.
+  const p = people.find((x) => x.code === id || x.id === id);
   if (!p) notFound();
   const mine = responses.filter((r) => r.personId === p.id);
   const myNotes = notes.filter((n) => n.personId === p.id);
@@ -72,7 +73,9 @@ export default async function CoachPage({ params }: { params: Promise<{ id: stri
           <Link href="/admin/coaches" className="inline-flex min-h-8 items-center text-[13px] text-rink-100 hover:underline">
             ← All coaches
           </Link>
-          <h1 className="break-words text-[32px] font-extrabold leading-9 tracking-[-0.02em]">{name}</h1>
+          <h1 className="break-words text-[32px] font-extrabold leading-9 tracking-[-0.02em]">
+            {name} <span className="font-mono text-base font-medium tracking-normal text-ink-200">{p.code}</span>
+          </h1>
           <p className="break-words text-sm text-ink-200">{subtitle}</p>
         </div>
 

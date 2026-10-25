@@ -79,7 +79,7 @@ export default async function SurveyPage({ searchParams }: { searchParams: Promi
                     <span className="text-[13px] text-ink-200">
                       <span className="font-mono">{shortDay(r.createdAt)}</span> ·{' '}
                       {p ? (
-                        <Link href={`/admin/coaches/${p.id}`} className="text-rink-100 hover:underline">
+                        <Link href={`/admin/coaches/${p.code}`} className="text-rink-100 hover:underline">
                           {displayName(p)}
                         </Link>
                       ) : (

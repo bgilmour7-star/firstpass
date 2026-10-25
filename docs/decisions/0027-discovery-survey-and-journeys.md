@@ -8,6 +8,11 @@ Date: 2026-10-29 · Decided by: Brett (technical design "Teams and discovery", o
   `audience` (`waitlist` or `coach`). Rows are made by database triggers: after insert on `waitlist` and after insert on
   `auth.users`, upserting on email. A trigger can never fail a sign-up: errors become warnings. Survey answers, notes,
   themes and email sends all hang off `person_id`, and deleting the person cascades to all of them.
+- **The code is everyone's research id (confirmed by Brett, 2026-10-25).** Every person in the system, waitlist or
+  account, gets one `code` for life, and it is how discovery research is joined up: the repo file
+  (`research/coaches/<code>.md`), the Admin → Coaches URL (`/admin/coaches/<code>`, which also still accepts the row id),
+  the survey CSV, the daily summary and any notes or prompts that mention a person. Never an email, phone or auth user id
+  in their place.
 - **The repo only ever sees the code, first name, team and age group.** `npm run research -- sync`
   (`scripts/research.ts`, service role key) writes `research/coaches/<code>.md` and `research/themes.md`, deletes files
   for removed people, and scrubs emails and phone numbers out of free text too. A test feeds it contact details hidden in

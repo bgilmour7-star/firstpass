@@ -37,8 +37,10 @@ export default async function CoachesPage() {
               const u = use.get(p.id);
               return (
                 <li key={p.id} className="border-t border-border-100">
-                  <Link href={`/admin/coaches/${p.id}`} className="flex min-h-16 flex-col justify-center gap-0.5 py-3">
-                    <span className="font-semibold text-rink-100">{displayName(p)}</span>
+                  <Link href={`/admin/coaches/${p.code}`} className="flex min-h-16 flex-col justify-center gap-0.5 py-3">
+                    <span className="font-semibold text-rink-100">
+                      {displayName(p)} <span className="font-mono text-xs font-normal text-ink-200">{p.code}</span>
+                    </span>
                     <span className="text-[13px] text-ink-200">
                       {[p.audience === 'coach' ? (u?.teams[0]?.name ?? 'Account') : 'Waitlist', answered.has(p.id) ? 'Answered' : null, noteCount.get(p.id) ? `${noteCount.get(p.id)} notes` : null].filter(Boolean).join(' · ')}
                     </span>
@@ -64,9 +66,10 @@ export default async function CoachesPage() {
                   return (
                     <tr key={p.id}>
                       <td className={td}>
-                        <Link href={`/admin/coaches/${p.id}`} className="font-medium text-rink-100 hover:underline">
+                        <Link href={`/admin/coaches/${p.code}`} className="font-medium text-rink-100 hover:underline">
                           {displayName(p)}
                         </Link>
+                        <span className="ml-2 font-mono text-xs text-ink-200">{p.code}</span>
                         {p.unsubscribedAt && <span className="ml-2 text-xs text-ink-200">unsubscribed</span>}
                       </td>
                       <td className={td}>{p.audience === 'coach' ? 'Using it' : 'Waitlist'}</td>
