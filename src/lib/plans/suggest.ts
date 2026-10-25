@@ -54,8 +54,10 @@ export type SuggestInput = {
   checkins: Checkin[];
   /** What could be rated at that practice (rateUnits). */
   units: RateUnit[];
-  /** The live library. */
+  /** The live library, to look up drills already in the plans. */
   byId: Map<string, Drill>;
+  /** The drills that may be proposed: the team's age (drillsForAge, decision 0025). Default: everything in byId. */
+  pool?: Drill[];
   /** Drills the kids have done before this plan. */
   known: Set<string>;
   /** What coaches said about each drill before this plan (drillFeedback). */
@@ -78,11 +80,11 @@ const list = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1)
 type Want = { format?: 'everyone'; known?: boolean; effort?: 'easier' | 'harder' };
 
 /** The one drill to propose instead of `cur` in `block`, or null when nothing fits. */
-export function pickSwap(cur: Drill, block: Block, want: Want, i: Pick<SuggestInput, 'blocks' | 'byId' | 'known' | 'feedback'>): Drill | null {
+export function pickSwap(cur: Drill, block: Block, want: Want, i: Pick<SuggestInput, 'blocks' | 'byId' | 'known' | 'feedback' | 'pool'>): Drill | null {
   const inPlan = new Set(i.blocks.flatMap((b) => (b.kind === 'activity' ? [] : b.kind === 'rotation' ? [b.drillId ?? ''] : [b.drillId])));
   const main = mainSkill(cur);
   const rank = (d: Drill) => (d.effort ? EFFORT_RANK[d.effort] : 1);
-  const ok = [...i.byId.values()].filter((d) => {
+  const ok = (i.pool ?? [...i.byId.values()]).filter((d) => {
     if (d.id === cur.id || inPlan.has(d.id)) return false;
     if (d.groupModel !== cur.groupModel || d.part !== cur.part) return false;
     if (main && mainSkill(d) !== main) return false;
@@ -192,7 +194,7 @@ export function suggestions(i: SuggestInput): SuggestResult {
         const gameBefore = (prevDrill && (prevDrill.part === 'game' || prevDrill.format === 'everyone')) || (prev?.kind === 'activity' && (prev.activity === 'scrimmage' || prev.activity === 'free_skate'));
         if (!gameBefore) {
           const inPlan = new Set(i.blocks.flatMap((x) => (x.kind === 'activity' ? [] : [x.drillId ?? ''])));
-          const games = [...i.byId.values()].filter((d) => d.groupModel === 'basic' && d.part === 'game' && !inPlan.has(d.id) && !i.feedback[d.id]?.warn && d.minutes <= 8);
+          const games = (i.pool ?? [...i.byId.values()]).filter((d) => d.groupModel === 'basic' && d.part === 'game' && !inPlan.has(d.id) && !i.feedback[d.id]?.warn && d.minutes <= 8);
           const score = (d: Drill) => (i.feedback[d.id]?.loved ? 0 : 10) + (i.known.has(d.id) ? 0 : 5) + d.minutes / 10;
           const g = games.sort((a, c) => score(a) - score(c) || a.funName.localeCompare(c.funName))[0];
           out.push({

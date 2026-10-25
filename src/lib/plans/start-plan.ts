@@ -2,6 +2,7 @@ import 'server-only';
 import type { AppStore } from '../app/store';
 import { copyBlocks, type Practice, type Team } from './schema';
 import { firstPlan } from './first-plan';
+import { drillsForAge } from '../drills/age';
 
 /**
  * A new plan starts as a copy of the most recent one before it (design decision). With nothing to
@@ -10,7 +11,7 @@ import { firstPlan } from './first-plan';
 export async function startPlan(store: AppStore, team: Team, coachId: string, at: { date: string; startTime: string; minutes?: number; ice?: Practice['ice'] }) {
   const last = (await store.listPractices(team.id)).filter((p) => p.date <= at.date)[0];
   const groups = team.groups.filter((g) => !g.off && g.skaters > 0).length || 3;
-  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, await store.libraryDrills(), groups);
+  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, drillsForAge(await store.libraryDrills(), team.ageGroup).drills, groups, team.ageGroup);
   const p = await store.createPractice(
     {
       teamId: team.id,
