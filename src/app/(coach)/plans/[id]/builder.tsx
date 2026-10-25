@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Pips } from '@/components/ds';
-import { FOCUS_ATTRIBUTES, levelOf, type Drill } from '@/lib/drills/schema';
+import { FOCUS_ATTRIBUTES, levelOf, startLevelFor, type Drill } from '@/lib/drills/schema';
 import {
   addMinutes,
   attendanceLabel,
@@ -64,6 +64,8 @@ export function Builder({
   initial,
   team,
   drills,
+  pool,
+  ageNotice,
   known,
   lastRun,
   recent,
@@ -75,7 +77,12 @@ export function Builder({
 }: {
   initial: Practice;
   team: Team;
+  /** The live library, to read the drills already in the plan. */
   drills: Drill[];
+  /** What can be picked, swapped in or suggested: drills for the team's age (drillsForAge, decision 0025). */
+  pool: Drill[];
+  /** The U9 fallback line, when it's on. */
+  ageNotice: string | null;
   known: string[];
   lastRun: Record<string, string>;
   recent: string[];
@@ -108,6 +115,10 @@ export function Builder({
   const [armed, setArmed] = useState<string | null>(null);
   const [, start] = useTransition();
   const byId = useMemo(() => new Map(drills.map((d) => [d.id, d])), [drills]);
+  // A drill goes in at its start level for the team's age (decision 0025). The pool carries the
+  // U9 fallback's top-level start for borrowed U7 drills, so it is read from there first.
+  const poolById = useMemo(() => new Map(pool.map((d) => [d.id, d])), [pool]);
+  const startAt = useCallback((d: Drill) => startLevelFor(poolById.get(d.id) ?? d, team.ageGroup), [poolById, team.ageGroup]);
   const knownSet = useMemo(() => new Set(known), [known]);
   const recentSet = useMemo(() => new Set(recent), [recent]);
   // "Keep as is" on a variety warning, remembered on this device for this plan.
@@ -184,7 +195,7 @@ export function Builder({
   // one that's been acted on simply stops appearing; this visit remembers what was done, for Undo.
   const [applied, setApplied] = useState<Applied[]>([]);
   const [keptBy, setKeptBy] = useState<Map<string, string>>(() => new Map((suggest?.kept ?? []).map((k) => [k.key, k.editor])));
-  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, known: knownSet, feedback, runs: suggest.runs }) : { list: [], stays: [] };
+  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, pool, known: knownSet, feedback, runs: suggest.runs }) : { list: [], stays: [] };
   const appliedKeys = new Set(applied.map((a) => a.key));
   const openSug = sug.list.filter((x) => !keptBy.has(x.key) && !appliedKeys.has(x.key));
   const keptSug = sug.list.filter((x) => keptBy.has(x.key)).map((x) => ({ ...x, editor: keptBy.get(x.key)! }));
@@ -193,7 +204,7 @@ export function Builder({
   const fixesToo = new Map<string, string>();
   for (const x of openSug) {
     if (!x.drillId || (x.kind !== 'swap' && x.kind !== 'game-before')) continue;
-    const after = varietyWarnings(applySuggestion(blocks, x, byId), byId);
+    const after = varietyWarnings(applySuggestion(blocks, x, byId, startAt), byId);
     const what = x.kind === 'swap' ? `Swapping ${byId.get((blocks.find((b) => b.id === x.blockId) as { drillId?: string })?.drillId ?? '')?.funName ?? 'the drill'} above` : `The game before ${name0(blocks.find((b) => b.id === x.blockId))}`;
     for (const [id] of variety) if (!after.has(id) && !fixesToo.has(id)) fixesToo.set(id, `${what} fixes this too.`);
   }
@@ -206,7 +217,7 @@ export function Builder({
     const oldName = name0(b);
     const done =
       x.kind === 'add-level' ? `Added Level ${x.level}` : x.kind === 'drop-level' ? `Turned off Level ${x.level}` : x.kind === 'water-before' ? 'Added a water break before it' : x.kind === 'game-before' ? `Added ${byId.get(x.drillId!)?.funName ?? 'a game'} before it` : `Swapped in for ${oldName}`;
-    const next = applySuggestion(blocks, x, byId);
+    const next = applySuggestion(blocks, x, byId, startAt);
     const added = next.find((y) => !blocks.some((o) => o.id === y.id))?.id;
     setApplied((prev) => [...prev, { key: x.key, blockId: x.blockId, done, why: x.title.replace(/\.$/, ''), before: b, added, short: x.kind === 'swap' ? `${byId.get(x.drillId!)?.funName ?? oldName} · swapped in` : x.short }]);
     setBlocks(() => next);
@@ -294,12 +305,12 @@ export function Builder({
     if (!picker) return;
     const d = byId.get(drillId);
     if (!d) return;
-    if (picker.mode === 'add') insert(picker.at, blockForDrill(d));
+    if (picker.mode === 'add') insert(picker.at, blockForDrill(d, d.minutes, startAt(d)));
     if (picker.mode === 'fill')
       update(picker.blockId, (b) => {
         // A rotation keeps its minutes per station; an activity takes the drill's own minutes.
         const keep = b.kind === 'activity' ? d.minutes : b.kind === 'rotation' ? (d.groupModel === 'rotation' ? b.minutes : d.minutes) : d.groupModel === 'rotation' ? d.minutes : b.minutes;
-        return { ...blockForDrill(d, keep), id: b.id };
+        return { ...blockForDrill(d, keep, startAt(d)), id: b.id };
       });
     setPicker(null);
   }
@@ -686,7 +697,9 @@ export function Builder({
       )}
       {picker && (
         <LibraryDrawer
-          drills={drills}
+          drills={pool}
+          ageGroup={team.ageGroup}
+          notice={ageNotice}
           known={knownSet}
           inPlan={inPlan}
           title={picker.mode === 'add' ? 'Add a drill' : picker.filter === 'rotation' ? 'Choose a rotation' : picker.filter === 'stations' ? 'Choose a split-by-skill drill' : 'Choose a drill'}
@@ -1192,7 +1205,7 @@ function VarietyBox({ w, also, onSwap, onBreak, onKeep }: { w: VarietyWarning; a
 }
 
 /** A suggestion from the check-in, carried out on the plan (decision 0022). */
-function applySuggestion(blocks: Block[], x: Suggestion, byId: Map<string, Drill>): Block[] {
+function applySuggestion(blocks: Block[], x: Suggestion, byId: Map<string, Drill>, startAt: (d: Drill) => number = () => 1): Block[] {
   const i = blocks.findIndex((b) => b.id === x.blockId);
   if (i < 0) return blocks;
   const b = blocks[i];
@@ -1201,8 +1214,8 @@ function applySuggestion(blocks: Block[], x: Suggestion, byId: Map<string, Drill
     const levels = x.kind === 'add-level' ? [...new Set([...b.levels, x.level!])].sort((m, n) => m - n) : b.levels.filter((l) => l !== x.level);
     return blocks.map((y) => (y.id === b.id ? { ...b, levels: levels.length ? levels : [1] } : y));
   }
-  if (x.kind === 'swap' && d) return blocks.map((y) => (y.id === b.id ? { ...blockForDrill(d, b.minutes), id: b.id } : y));
-  if (x.kind === 'game-before' && d) return [...blocks.slice(0, i), blockForDrill(d), ...blocks.slice(i)];
+  if (x.kind === 'swap' && d) return blocks.map((y) => (y.id === b.id ? { ...blockForDrill(d, b.minutes, startAt(d)), id: b.id } : y));
+  if (x.kind === 'game-before' && d) return [...blocks.slice(0, i), blockForDrill(d, d.minutes, startAt(d)), ...blocks.slice(i)];
   if (x.kind === 'water-before') return [...blocks.slice(0, i), newActivity('water'), ...blocks.slice(i)];
   return blocks;
 }

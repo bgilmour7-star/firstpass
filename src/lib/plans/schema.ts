@@ -299,11 +299,14 @@ export function newId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-/** A drill from the library goes in as the block its group model calls for. For a rotation, minutes are per zone. */
-export function blockForDrill(d: Pick<Drill, 'id' | 'minutes' | 'groupModel' | 'zones'>, minutes = d.minutes): Block {
+/**
+ * A drill from the library goes in as the block its group model calls for. For a rotation, minutes are per zone.
+ * A Drill block starts at `level`: the drill's start level for the team's age (decision 0025, startLevelFor).
+ */
+export function blockForDrill(d: Pick<Drill, 'id' | 'minutes' | 'groupModel' | 'zones'>, minutes = d.minutes, level = 1): Block {
   if (d.groupModel === 'rotation')
     return { id: newId(), kind: 'rotation', drillId: d.id, minutes: Math.min(20, Math.max(2, minutes)), stations: (d.zones ?? []).map((z) => ({ station: z.station, drillId: null, coach: '' })), drop: [] };
-  return d.groupModel === 'stations' ? { id: newId(), kind: 'stations', drillId: d.id, minutes, zones: {} } : { id: newId(), kind: 'drill', drillId: d.id, minutes, levels: [1] };
+  return d.groupModel === 'stations' ? { id: newId(), kind: 'stations', drillId: d.id, minutes, zones: {} } : { id: newId(), kind: 'drill', drillId: d.id, minutes, levels: [Math.min(MAX_LEVELS, Math.max(1, Math.round(level)))] };
 }
 
 /** An empty rotation: the coach picks one rotation drill for it. */

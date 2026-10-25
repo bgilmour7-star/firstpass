@@ -1,5 +1,5 @@
-import type { Drill } from '../drills/schema';
-import { blockForDrill, newActivity, starterBlocks, totalMinutes, type Block } from './schema';
+import { startLevelFor, type Drill } from '../drills/schema';
+import { blockForDrill as blockFor, newActivity, starterBlocks, totalMinutes, type Block } from './schema';
 import { mainSkill } from './variety';
 
 // A team's first plan (decision 0023): a practice that could run tomorrow, built from the live
@@ -12,7 +12,9 @@ const effort = (d: Drill) => (d.effort === 'easy' ? 0 : d.effort === 'medium' ? 
 const lesson = (d: Drill) => (d.lessons?.length ? Math.min(...d.lessons) : 99);
 const first = (ds: Drill[], score: (d: Drill) => number) => [...ds].sort((a, b) => score(a) - score(b) || a.minutes - b.minutes || a.funName.localeCompare(b.funName))[0];
 
-export function firstPlan(minutes: number, library: Drill[], groupCount = 3): Block[] {
+/** `library` is the team's drills (drillsForAge); `ageGroup` sets where each Drill block starts (decision 0025). */
+export function firstPlan(minutes: number, library: Drill[], groupCount = 3, ageGroup?: string): Block[] {
+  const blockForDrill = (d: Drill) => blockFor(d, d.minutes, startLevelFor(d, ageGroup));
   const basic = library.filter((d) => d.groupModel === 'basic' && d.minutes <= 10);
   const warmup = first(basic.filter((d) => d.part === 'warmup' && d.effort !== 'hard'), (d) => effort(d) * 10 + lesson(d));
   const rotation = first(library.filter((d) => d.groupModel === 'rotation' && (d.zones?.length ?? 0) >= 2), (d) => effort(d) * 100 + lesson(d));

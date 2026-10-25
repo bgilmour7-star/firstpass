@@ -6,6 +6,7 @@ import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { copyBlocks, practiceSchema, type Practice, type Team } from '@/lib/plans/schema';
 import { firstPlan } from '@/lib/plans/first-plan';
+import { drillsForAge } from '@/lib/drills/age';
 import { SESSION_MS, describeChange, type Snapshot } from '@/lib/plans/activity';
 import type { AppStore } from '@/lib/app/store';
 import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
@@ -41,7 +42,7 @@ async function startPlan(team: Team, coachId: string, at: { date: string; startT
   const last = (await store.listPractices(team.id)).filter((p) => p.date <= at.date)[0];
   // No plan to copy yet: the first one comes ready to run (decision 0023).
   const groups = team.groups.filter((g) => g.skaters > 0).length || 3;
-  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, await store.libraryDrills(), groups);
+  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, drillsForAge(await store.libraryDrills(), team.ageGroup).drills, groups, team.ageGroup);
   const p = await store.createPractice(
     {
       teamId: team.id,
