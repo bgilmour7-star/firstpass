@@ -4,18 +4,20 @@ import { getDiscoveryStore } from '@/lib/discovery/store';
 import { REGISTRY, SECTIONS, entry as findEntry, type Entry } from '@/lib/email/journeys';
 import type { SendStats } from '@/lib/discovery/schema';
 import { TestSend } from './test-send';
+import { EmailDrawer } from './email-drawer';
 
 export const dynamic = 'force-dynamic';
 
 // Admin → Emails (decision 0027; canvas A3): every email Firstpass sends, drawn from the registry
-// (src/lib/email/journeys.ts), with the selected one rendered in the margin at reading size.
+// (src/lib/email/journeys.ts). Picking one opens it at reading size in a drawer from the right, so
+// the journeys keep the full width and their scroll position.
 
 const DAY = 86_400_000;
 
 export default async function EmailsPage({ searchParams }: { searchParams: Promise<{ email?: string }> }) {
   const admin = await requireAnalytics('/admin/emails');
   const { email: picked } = await searchParams;
-  const selected = findEntry(picked ?? '') ?? REGISTRY[0];
+  const selected = picked ? findEntry(picked) : undefined;
   let stats: SendStats = [];
   try {
     stats = await (await getDiscoveryStore()).sendStats(new Date(Date.now() - 30 * DAY).toISOString());
@@ -26,7 +28,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
   const started = (section: string) => stats.filter((s) => s.journey === section && (s.step === 'welcome' || s.step === 'first-practice')).reduce((n, s) => n + s.sent + s.queued + s.skipped, 0);
 
   return (
-    <div className="grid gap-x-10 gap-y-8 pb-16 xl:grid-cols-[minmax(0,1fr)_540px]">
+    <div className="pb-16">
       <div className="flex min-w-0 flex-col gap-7">
         <div className="flex flex-col gap-1">
           <h1 className="text-[30px] font-bold leading-[1.1]">Emails</h1>
@@ -46,7 +48,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
               </div>
               <ol className="flex flex-wrap items-stretch gap-2">
                 {list.map((e, i) => {
-                  const on = e.id === selected.id;
+                  const on = e.id === selected?.id;
                   const conditional = e.sentBy === 'outbox' && e.condition !== 'Not unsubscribed' && e.step !== 'welcome';
                   const s = stat(e);
                   return (
@@ -74,7 +76,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
         })}
       </div>
 
-      <Preview e={selected} stat={stat(selected)} to={admin.email} />
+      {selected && <Preview e={selected} stat={stat(selected)} to={admin.email} />}
     </div>
   );
 }
@@ -84,19 +86,31 @@ function Preview({ e, stat, to }: { e: Entry; stat?: SendStats[number]; to: stri
   const sec = SECTIONS.find((s) => s.id === e.section)!;
   const siblings = REGISTRY.filter((x) => x.section === e.section);
   const sentBy = { outbox: 'The 10-minute timer, from the outbox', app: 'The app, when it happens', cron: 'The 10-minute timer', supabase: 'Supabase, from supabase/templates' }[e.sentBy];
+  const at = siblings.indexOf(e);
+  const step = (x: Entry | undefined, label: string) =>
+    x && (
+      <Link href={`/admin/emails?email=${encodeURIComponent(x.id)}`} scroll={false} replace className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium hover:bg-surface-200">
+        {label}
+      </Link>
+    );
   return (
-    <aside aria-label={`${e.name} email`} className="flex min-w-0 flex-col gap-4 self-start rounded-xl bg-surface-200 p-5 xl:sticky xl:top-6">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs text-ink-200">
-            {sec.title} · {siblings.indexOf(e) + 1} of {siblings.length}
+    <EmailDrawer
+      title={e.name}
+      kicker={`${sec.title} · ${at + 1} of ${siblings.length}`}
+      footer={
+        <>
+          <TestSend id={e.id} to={to} />
+          <span className="ml-auto flex items-center gap-1">
+            {step(siblings[at - 1], '← Previous')}
+            {step(siblings[at + 1], 'Next →')}
           </span>
-          <h2 className="text-xl font-bold leading-tight">{e.name}</h2>
-        </div>
-        <a href={`/admin/emails/preview/${encodeURIComponent(e.id)}`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 shrink-0 items-center text-sm text-rink-100 hover:underline">
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <a href={`/admin/emails/preview/${encodeURIComponent(e.id)}`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center self-start text-sm text-rink-100 hover:underline">
           Open full size
         </a>
-      </div>
       <dl className="grid grid-cols-[92px_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-[13px]">
         <dt className="text-ink-200">Sent</dt>
         <dd className="m-0">
@@ -133,7 +147,7 @@ function Preview({ e, stat, to }: { e: Entry; stat?: SendStats[number]; to: stri
         {/* The email itself, sandboxed: no scripts, no navigation from inside it. Emails are always light. */}
         <iframe title={`${e.name}: the email`} srcDoc={email.html} sandbox="" className="h-[720px] w-full border-0 bg-[#F3F6F7]" />
       </div>
-      <TestSend id={e.id} to={to} />
-    </aside>
+      </div>
+    </EmailDrawer>
   );
 }
