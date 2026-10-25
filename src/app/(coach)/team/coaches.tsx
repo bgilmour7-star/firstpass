@@ -16,7 +16,7 @@ function joinedLabel(at: string): string {
 }
 
 /** Who coaches the team, and the join link that adds more (decisions 0011, 0013). */
-export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches: TeamCoach[]; me: string; isHead: boolean; initialCode: string | null; origin: string }) {
+export function Coaches({ coaches, me, isHead, initialCode, origin, embedded = false }: { coaches: TeamCoach[]; me: string; isHead: boolean; initialCode: string | null; origin: string; /** Inside the Team page's drawer (decision 0026). */ embedded?: boolean }) {
   const [list, setList] = useState(coaches);
   const [code, setCode] = useState(initialCode);
   const [copied, setCopied] = useState(false);
@@ -39,8 +39,8 @@ export function Coaches({ coaches, me, isHead, initialCode, origin }: { coaches:
     });
 
   return (
-    <section id="coaches" className="flex scroll-mt-24 flex-col gap-3 border-t-2 border-ink-100 pt-3">
-      <div className="flex items-baseline justify-between gap-3">
+    <section className={embedded ? 'flex flex-col gap-3' : 'flex scroll-mt-24 flex-col gap-3 border-t-2 border-ink-100 pt-3'}>
+      <div className={embedded ? 'sr-only' : 'flex items-baseline justify-between gap-3'}>
         <h2 className="text-[17px] font-extrabold">Coaches</h2>
         <span className="text-sm text-ink-200">
           {list.length} coach{list.length === 1 ? '' : 'es'}

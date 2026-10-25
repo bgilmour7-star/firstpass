@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { rateUnits, summarize } from '@/lib/plans/checkin';
-import { addMinutes, clock, todayUnits, withStationDrills } from '@/lib/plans/schema';
+import { activeGroups, addMinutes, clock, groupLabel, todayUnits, withStationDrills } from '@/lib/plans/schema';
 import { initials } from '@/lib/plans/activity';
 import { CheckinForm } from './form';
+import type { Group } from '@/lib/drills/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,7 +81,7 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
                 </Change>
               )}
               {s.ready.length > 0 && (
-                <Change icon="up" title={`${s.ready.join(' and ')} ready for harder`}>
+                <Change icon="up" title={`${s.ready.map((g) => groupLabel(team, g as Group)).join(' and ')} ready for harder`}>
                   Switch on the next level of a drill they know.
                 </Change>
               )}
@@ -136,6 +137,7 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
       stats={{ minutes: p.minutes, drills: units.length, skaters }}
       units={units}
       initial={mine}
+      groups={activeGroups(team).map((g) => ({ slot: g, label: groupLabel(team, g) }))}
       others={others.map((c) => ({ initial: initials(c.editor), name: c.editor, overall: c.overall, steam: c.steam, ready: c.ready, marks: c.marks }))}
     />
   );

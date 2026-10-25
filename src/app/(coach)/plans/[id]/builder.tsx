@@ -21,6 +21,7 @@ import {
   rotationToday,
   startTimes,
   todayUnits,
+  groupLabels,
   totalMinutes,
   unusedZones,
   ZONES,
@@ -184,7 +185,7 @@ export function Builder({
   // one that's been acted on simply stops appearing; this visit remembers what was done, for Undo.
   const [applied, setApplied] = useState<Applied[]>([]);
   const [keptBy, setKeptBy] = useState<Map<string, string>>(() => new Map((suggest?.kept ?? []).map((k) => [k.key, k.editor])));
-  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, known: knownSet, feedback, runs: suggest.runs }) : { list: [], stays: [] };
+  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, known: knownSet, feedback, runs: suggest.runs, team }) : { list: [], stays: [] };
   const appliedKeys = new Set(applied.map((a) => a.key));
   const openSug = sug.list.filter((x) => !keptBy.has(x.key) && !appliedKeys.has(x.key));
   const keptSug = sug.list.filter((x) => keptBy.has(x.key)).map((x) => ({ ...x, editor: keptBy.get(x.key)! }));
@@ -703,6 +704,7 @@ export function Builder({
       )}
       {viewing && byId.get(viewing) && (
         <DrillDrawer
+          groupNames={groupLabels(team)}
           drill={byId.get(viewing)!}
           from={`/plans/${plan.id}`}
           backLabel="Back to the plan"

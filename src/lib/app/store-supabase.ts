@@ -5,42 +5,95 @@ import { attendanceSchema, blockSchema, practiceSchema, teamSchema, type Practic
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { checkinInput, type Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach, type Favorite, type JoinPreview } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type MyTeam, type NewPractice, type OlderInterest, type Share, type SharedPractice, type TeamCoach, type TeamSetup, type Favorite, type JoinPreview } from './store';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
-type TeamRow = { id: string; name: string; age_group: string; groups: Team['groups']; coaches_on_ice: number; practice_minutes: number; ice: Team['ice']; new_drills_per_week: number };
+type TeamRow = { id: string; name: string; age_group: string; groups: Team['groups']; coaches_on_ice: number; practice_minutes: number; ice: Team['ice']; new_drills_per_week: number; gear?: Team['gear'] | null; focus?: string[] | null };
 type PracticeRow = { id: string; team_id: string; date: string; start_time: string; minutes: number; ice: Practice['ice']; status: Practice['status']; blocks: Practice['blocks']; attendance?: Practice['attendance'] };
 
 const toTeam = (r: TeamRow): Team =>
-  teamSchema.parse({ id: r.id, name: r.name, ageGroup: r.age_group, groups: r.groups, coachesOnIce: r.coaches_on_ice, practiceMinutes: r.practice_minutes, ice: r.ice, newDrillsPerWeek: r.new_drills_per_week });
+  teamSchema.parse({ id: r.id, name: r.name, ageGroup: r.age_group, groups: r.groups, coachesOnIce: r.coaches_on_ice, practiceMinutes: r.practice_minutes, ice: r.ice, newDrillsPerWeek: r.new_drills_per_week, gear: r.gear ?? {}, focus: r.focus ?? [] });
+
+/** The team row to save. gear and focus arrive with the 20261028 migration: callers retry without them before it has run. */
+const teamRow = (t: TeamSetup & { name?: string }) => ({
+  ...(t.name !== undefined ? { name: t.name } : {}),
+  ...(t.ageGroup !== undefined ? { age_group: t.ageGroup } : {}),
+  ...(t.groups !== undefined ? { groups: t.groups } : {}),
+  ...(t.coachesOnIce !== undefined ? { coaches_on_ice: t.coachesOnIce } : {}),
+  ...(t.practiceMinutes !== undefined ? { practice_minutes: t.practiceMinutes } : {}),
+  ...(t.ice !== undefined ? { ice: t.ice } : {}),
+  ...(t.newDrillsPerWeek !== undefined ? { new_drills_per_week: t.newDrillsPerWeek } : {}),
+  ...(t.gear !== undefined ? { gear: t.gear } : {}),
+  ...(t.focus !== undefined ? { focus: t.focus } : {}),
+});
+const missingColumn = (m: string) => /\b(gear|focus)\b|schema cache/i.test(m);
 const toPractice = (r: PracticeRow): Practice =>
   practiceSchema.parse({ id: r.id, teamId: r.team_id, date: r.date, startTime: r.start_time.slice(0, 5), minutes: r.minutes, ice: r.ice, status: r.status, blocks: r.blocks, attendance: r.attendance ?? null });
 
 export class SupabaseAppStore implements AppStore {
-  async myTeam(userId: string) {
+  async myTeams(userId: string): Promise<MyTeam[]> {
     const db = await supabaseServer();
-    const { data } = await db.from('team_members').select('teams(*)').eq('user_id', userId).order('created_at').limit(1).maybeSingle();
+    const { data, error } = await db.from('team_members').select('role, created_at, teams(*)').eq('user_id', userId).order('created_at', { ascending: false });
+    if (error) throw error;
+    return ((data ?? []) as unknown as { role: string; teams: TeamRow | null }[]).flatMap((r) => (r.teams ? [{ ...toTeam(r.teams), role: r.role === 'head_coach' ? ('head_coach' as const) : ('coach' as const) }] : []));
+  }
+  async myTeam(userId: string, teamId?: string) {
+    const db = await supabaseServer();
+    // Always through team_members for this user, so a team id from a cookie is never trusted on its own.
+    let q = db.from('team_members').select('teams(*)').eq('user_id', userId);
+    if (teamId) q = q.eq('team_id', teamId);
+    const { data } = await q.order('created_at', { ascending: false }).limit(1).maybeSingle();
     const row = (data as { teams: TeamRow | null } | null)?.teams;
     return row ? toTeam(row) : null;
   }
-  async createTeam(name: string, _userId: string, setup?: { ageGroup: string; ice: Team['ice'] }) {
+  async createTeam(name: string, _userId: string, setup: TeamSetup = {}) {
     const db = await supabaseServer();
     const { data: id, error } = await db.rpc('create_team', { team_name: name });
     if (error) throw error;
-    // The new head coach may edit their own team (RLS), so the first setup step saves straight on.
-    if (setup) await db.from('teams').update({ age_group: setup.ageGroup, ice: setup.ice }).eq('id', id);
+    // The new head coach may edit their own team (RLS), so the wizard's answers save straight on.
+    const row = teamRow(setup);
+    if (Object.keys(row).length) {
+      const { error: e1 } = await db.from('teams').update(row).eq('id', id);
+      if (e1 && missingColumn(e1.message)) {
+        const { gear: _g, focus: _f, ...rest } = row as Record<string, unknown>;
+        void _g;
+        void _f;
+        await db.from('teams').update(rest).eq('id', id);
+      } else if (e1) throw e1;
+    }
     const { data, error: e2 } = await db.from('teams').select('*').eq('id', id).single();
     if (e2) throw e2;
     return toTeam(data as TeamRow);
   }
   async updateTeam(t: Team) {
     const db = await supabaseServer();
-    const { error } = await db
-      .from('teams')
-      .update({ name: t.name, groups: t.groups, coaches_on_ice: t.coachesOnIce, practice_minutes: t.practiceMinutes, ice: t.ice, new_drills_per_week: t.newDrillsPerWeek })
-      .eq('id', t.id);
+    const row = teamRow(t);
+    let { error } = await db.from('teams').update(row).eq('id', t.id);
+    if (error && missingColumn(error.message)) {
+      const { gear: _g, focus: _f, ...rest } = row as Record<string, unknown>;
+      void _g;
+      void _f;
+      ({ error } = await db.from('teams').update(rest).eq('id', t.id));
+    }
     if (error) throw error;
+  }
+  async leaveTeam(teamId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('leave_team', { team: teamId });
+    if (error) throw new Error(/head-coach-leaves/.test(error.message) ? 'head-coach-leaves' : /function|schema cache/i.test(error.message) ? 'teams-migration-missing' : error.message);
+  }
+  async deleteTeam(teamId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('teams').delete().eq('id', teamId).select('id');
+    if (error) throw error;
+    // RLS lets only the head coach delete (after the 20261028 migration); anyone else deletes nothing.
+    if (!data?.length) throw new Error('not-head-coach');
+  }
+  async saveOlderInterest(_userId: string, a: OlderInterest) {
+    const db = await supabaseServer();
+    const { error } = await db.from('older_team_interest').insert({ age_group: a.ageGroup, hardest_part: a.hardestPart, wants_call: a.wantsCall });
+    if (error) throw new Error(/older_team_interest|relation|schema cache/i.test(error.message) ? 'older-migration-missing' : error.message);
   }
   async listPractices(teamId: string) {
     const db = await supabaseServer();
@@ -362,7 +415,7 @@ export class SupabaseAppStore implements AppStore {
 }
 
 function joinError(message: string): string {
-  for (const known of ['link-off', 'on-another-team', 'not-head-coach', 'not-yourself']) if (message.includes(known)) return known;
+  for (const known of ['link-off', 'not-head-coach', 'not-yourself']) if (message.includes(known)) return known;
   if (/function|schema cache|join_code/i.test(message)) return 'join-migration-missing';
   return message;
 }

@@ -2,6 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { TEAM_COOKIE } from '@/lib/nav';
 import { requireTeam, requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { teamSchema } from '@/lib/plans/schema';
@@ -9,18 +11,22 @@ import { readCalendar, syncCalendar, todayLocal } from '@/lib/calendar/sync';
 import { inviteEmail } from '@/lib/email/account-emails';
 import { SITE, sendEmail } from '@/lib/email/layout';
 
-export async function createTeam(formData: FormData) {
-  const coach = await requireUser('/team/new');
-  const name = String(formData.get('name') ?? '').trim();
-  if (!name) redirect('/team/new?error=name');
-  const ageGroup = formData.get('age') === 'U9' ? 'U9' : 'U7';
-  const iceRaw = String(formData.get('ice') ?? 'half');
-  const ice = iceRaw === 'full' || iceRaw === 'varies' ? iceRaw : 'half';
-  const store = await getAppStore();
-  if (!(await store.myTeam(coach.id))) await store.createTeam(name.slice(0, 80), coach.id, { ageGroup, ice });
-  redirect('/team?welcome=1');
+/** Make a team the active one (decision 0026). Only a team the coach is on; anything else is ignored. */
+export async function setActiveTeam(teamId: string): Promise<boolean> {
+  const coach = await requireUser('/team');
+  if (!(await (await getAppStore()).myTeam(coach.id, teamId))) return false;
+  (await cookies()).set(TEAM_COOKIE, teamId, { path: '/', maxAge: 31536000, sameSite: 'lax', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+  return true;
 }
 
+/** The team switcher (rail and phone drawer): switch, then land on that team's page or where they asked. */
+export async function switchTeam(teamId: string, next = '/team') {
+  await setActiveTeam(teamId);
+  revalidatePath('/', 'layout');
+  redirect(next.startsWith('/') && !next.startsWith('//') ? next : '/team');
+}
+
+/** Save one section of the team from its drawer (decision 0026). Head coach only (RLS too). */
 export async function saveTeam(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
   const { team } = await requireTeam('/team');
   const parsed = teamSchema.safeParse(input);
@@ -33,6 +39,40 @@ export async function saveTeam(input: unknown): Promise<{ ok: true } | { ok: fal
   }
   revalidatePath('/', 'layout');
   return { ok: true };
+}
+
+/** A coach leaves the active team; the next team they're on becomes active. */
+export async function leaveTeam(): Promise<{ ok: false; error: string } | void> {
+  const { coach, team } = await requireTeam('/team');
+  try {
+    await (await getAppStore()).leaveTeam(team.id, coach.id);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : '';
+    if (m === 'head-coach-leaves') return { ok: false, error: 'You’re the head coach, so the team can’t be left without you. Delete it instead.' };
+    if (m === 'teams-migration-missing') return { ok: false, error: 'Leaving a team needs a one-time database update (supabase/migrations/20261028000000_multi_team_and_older_interest.sql).' };
+    console.error('[team] leaving failed:', m);
+    return { ok: false, error: 'Couldn’t leave just now. Try again in a minute.' };
+  }
+  (await cookies()).delete(TEAM_COOKIE);
+  revalidatePath('/', 'layout');
+  redirect('/team');
+}
+
+/** Head coach: delete the active team, its plans and check-ins. They type the team's name to confirm. */
+export async function deleteTeam(typedName: string): Promise<{ ok: false; error: string } | void> {
+  const { team } = await requireTeam('/team');
+  if (typedName.trim().toLowerCase() !== team.name.trim().toLowerCase()) return { ok: false, error: `Type ${team.name} to confirm.` };
+  try {
+    await (await getAppStore()).deleteTeam(team.id);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : '';
+    if (m === 'not-head-coach') return { ok: false, error: 'Only the head coach can delete the team.' };
+    console.error('[team] deleting failed:', m);
+    return { ok: false, error: 'Couldn’t delete it just now. Try again in a minute.' };
+  }
+  (await cookies()).delete(TEAM_COOKIE);
+  revalidatePath('/', 'layout');
+  redirect('/team');
 }
 
 export type CalendarCheck = { ok: true; practices: number; games: number; next: { date: string; startTime: string; title: string; rink: string; sharedWith: string | null }[] } | { ok: false; error: string };

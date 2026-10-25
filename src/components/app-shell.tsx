@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { signOut } from '@/app/auth/actions';
+import { switchTeam } from '@/app/(coach)/team/actions';
 import { AppWorker } from './pwa';
 import { NAV_COOKIE } from '@/lib/nav';
 import type { NavPractice } from '@/lib/nav-practice';
@@ -13,6 +14,12 @@ import type { NavPractice } from '@/lib/nav-practice';
 // the logo or the [ key. Pages fill the space to its right. Phones get a slim top bar and the same
 // navigation as a drawer. The rail's width is exposed as --rail-w so bars fixed to the bottom of
 // the screen can start where the page starts.
+//
+// Team comes first (decision 0026): the team switcher sits under the logo, lists the coach's teams
+// and ends with Create a team. Switching sets the active-team cookie on the server.
+
+/** A team in the switcher. */
+export type SwitcherTeam = { id: string; name: string; ageGroup: string; role: 'head_coach' | 'coach' };
 
 
 type Props = {
@@ -20,6 +27,9 @@ type Props = {
   isAdmin: boolean;
   local: boolean;
   teamName?: string;
+  /** Every team the coach is on, newest first, for the switcher. Without it the team shows as a plain link. */
+  teams?: SwitcherTeam[];
+  activeTeamId?: string;
   next: NavPractice;
   reviewCount?: number;
   /** Shows Admin → Analytics (decision 0019). */
@@ -28,7 +38,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function AppShell({ email, isAdmin, local, teamName, next, reviewCount = 0, analytics = false, initialCollapsed, children }: Props) {
+export function AppShell({ email, isAdmin, local, teamName, teams, activeTeamId, next, reviewCount = 0, analytics = false, initialCollapsed, children }: Props) {
   const path = usePathname();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [peek, setPeek] = useState(false);
@@ -81,7 +91,7 @@ export function AppShell({ email, isAdmin, local, teamName, next, reviewCount = 
           expanded ? 'w-[248px]' : 'w-16'
         } ${peek ? 'shadow-[0_12px_40px_rgba(14,27,30,0.18),0_2px_6px_rgba(14,27,30,0.08)]' : ''}`}
       >
-        <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} reviewCount={reviewCount} analytics={analytics} expanded={expanded} pin={{ collapsed, toggle }} />
+        <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} teams={teams} activeTeamId={activeTeamId} next={next} reviewCount={reviewCount} analytics={analytics} expanded={expanded} pin={{ collapsed, toggle }} />
       </aside>
 
       {/* Phone top bar */}
@@ -91,7 +101,7 @@ export function AppShell({ email, isAdmin, local, teamName, next, reviewCount = 
             <path d="M4 7h16M4 12h16M4 17h16" />
           </svg>
         </button>
-        <Link href="/plans" className="flex items-center gap-2 font-display text-[17px] font-bold">
+        <Link href="/team" className="flex items-center gap-2 font-display text-[17px] font-bold">
           <Mark />
           Firstpass
         </Link>
@@ -103,7 +113,7 @@ export function AppShell({ email, isAdmin, local, teamName, next, reviewCount = 
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <button type="button" aria-label="Close menu" onClick={() => setDrawer(false)} className="absolute inset-0 bg-ink-100/40" />
           <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-surface-200 pb-[env(safe-area-inset-bottom,0px)] pt-[env(safe-area-inset-top,0px)] shadow-xl">
-            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} next={next} reviewCount={reviewCount} analytics={analytics} expanded />
+            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} teams={teams} activeTeamId={activeTeamId} next={next} reviewCount={reviewCount} analytics={analytics} expanded />
           </div>
         </div>
       )}
@@ -122,6 +132,8 @@ function Nav({
   isAdmin,
   local,
   teamName,
+  teams,
+  activeTeamId,
   next,
   reviewCount,
   analytics,
@@ -133,6 +145,8 @@ function Nav({
   isAdmin: boolean;
   local: boolean;
   teamName?: string;
+  teams?: SwitcherTeam[];
+  activeTeamId?: string;
   next: NavPractice;
   reviewCount: number;
   analytics: boolean;
@@ -155,16 +169,18 @@ function Nav({
   }, [menu]);
   useEffect(() => setMenu(false), [path]);
 
+  // Team first (decision 0026), then the practice coming up, plans and drills.
   const items = [
+    { href: '/team', label: 'Team', icon: <Icon d="M9 11.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4M17 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM16.5 14.4c2.4.2 4 1.8 4.5 4.6" /> },
     { href: '/today', label: next.label, sub: next.sub, icon: <CalendarDay day={next.day} /> },
     { href: '/plans', label: 'Plans', icon: <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 10h6M9 14h6M9 18h3" /> },
     { href: '/drills', label: 'Drills', icon: <RinkIcon /> },
-    { href: '/team', label: 'Team', icon: <Icon d="M9 11.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4M17 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM16.5 14.4c2.4.2 4 1.8 4.5 4.6" /> },
   ];
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';
   const link = (href: string, label: string, icon: React.ReactNode, sub?: string, badge = 0) => {
-    const on = path === href || path.startsWith(href + '/');
+    // /team/new is Create a team, not the Team page.
+    const on = (path === href || path.startsWith(href + '/')) && !(href === '/team' && path === '/team/new');
     return (
       <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
         <span className="relative grid size-6 place-items-center">
@@ -193,7 +209,7 @@ function Nav({
   return (
     <div className="flex h-full w-[248px] max-w-full flex-col gap-1 px-[10px] py-3">
       <div className="flex h-11 items-center gap-3 pl-[10px]">
-        <Link href="/plans" className="flex min-w-0 items-center gap-3 font-display text-lg font-bold" aria-label="Firstpass home">
+        <Link href="/team" className="flex min-w-0 items-center gap-3 font-display text-lg font-bold" aria-label="Firstpass home">
           <Mark />
           <span className={fade}>Firstpass</span>
         </Link>
@@ -215,13 +231,15 @@ function Nav({
         )}
       </div>
 
-      {teamName && (
-        <Link href="/team" className="mb-3 mt-1 grid grid-cols-[24px_minmax(0,1fr)] items-center gap-3 rounded-[10px] px-[10px] py-2 hover:bg-surface-300" aria-label={expanded ? undefined : `Team: ${teamName}`}>
-          <span aria-hidden="true" className="grid size-6 place-items-center rounded-md bg-rink-100 font-display text-[11px] font-bold text-surface-100">
-            {initials(teamName)}
-          </span>
-          <span className={`truncate text-sm font-medium ${fade}`}>{teamName}</span>
-        </Link>
+      {teams ? (
+        <TeamSwitcher teams={teams} activeId={activeTeamId} path={path} expanded={expanded} fade={fade} />
+      ) : (
+        teamName && (
+          <Link href="/team" className="mb-3 mt-1 grid grid-cols-[24px_minmax(0,1fr)] items-center gap-3 rounded-[10px] px-[10px] py-2 hover:bg-surface-300" aria-label={expanded ? undefined : `Team: ${teamName}`}>
+            <TeamBadge name={teamName} />
+            <span className={`truncate text-sm font-medium ${fade}`}>{teamName}</span>
+          </Link>
+        )
       )}
 
       <nav aria-label="Main" className="flex flex-col gap-0.5">
@@ -268,6 +286,123 @@ function Nav({
         )}
       </div>
     </div>
+  );
+}
+
+function TeamBadge({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) {
+  return (
+    <span aria-hidden="true" className={`grid shrink-0 place-items-center rounded-md bg-rink-100 font-display text-[11px] font-bold text-surface-100 ${size === 'md' ? 'size-7' : 'size-6'}`}>
+      {initials(name)}
+    </span>
+  );
+}
+
+const ROLE = { head_coach: 'Head coach', coach: 'Coach' } as const;
+// Top-level pages stay put when the team changes; anything inside one team (a plan) goes to Team.
+const STAYS = ['/team', '/today', '/plans', '/drills'];
+
+/**
+ * The active team, and every team the coach is on (W1-Switcher): tap to open the list, tap a team
+ * to switch (sets fp_team on the server), or Create a team.
+ */
+function TeamSwitcher({ teams, activeId, path, expanded, fade }: { teams: SwitcherTeam[]; activeId?: string; path: string; expanded: boolean; fade: string }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const active = teams.find((t) => t.id === activeId) ?? teams[0];
+  useEffect(() => setOpen(false), [path, expanded]);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !box.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('pointerdown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, [open]);
+  const stay = STAYS.includes(path) ? path : '/team';
+
+  if (!active)
+    return (
+      <Link href="/team/new" className="mb-3 mt-1 grid grid-cols-[24px_minmax(0,1fr)] items-center gap-3 rounded-[10px] px-[10px] py-2 hover:bg-surface-300" aria-label={expanded ? undefined : 'Create a team'}>
+        <PlusBadge />
+        <span className={`truncate text-sm font-medium ${fade}`}>Create a team</span>
+      </Link>
+    );
+
+  return (
+    <div ref={box} className="mb-3 mt-1 flex flex-col">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-label={expanded ? undefined : `Team: ${active.name}. Switch team`}
+        className="grid grid-cols-[24px_minmax(0,1fr)_16px] items-center gap-3 rounded-[10px] px-[10px] py-2 text-left hover:bg-surface-300"
+      >
+        <TeamBadge name={active.name} />
+        <span className={`flex min-w-0 flex-col ${fade}`}>
+          <span className="truncate text-sm font-medium leading-5">{active.name}</span>
+          <span className="truncate text-xs leading-4 text-ink-200">{teams.length === 1 ? 'Switch or create a team' : `${teams.length} teams`}</span>
+        </span>
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" className={`text-ink-200 ${fade}`}>
+          <path d="M5 6l3-3 3 3M5 10l3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && expanded && (
+        <div className="mt-1.5 rounded-xl border border-border-100 bg-surface-100 p-1.5 shadow-sm">
+          <p className="px-2.5 pb-1.5 pt-2 text-xs text-ink-200">Your teams</p>
+          <ul className="flex flex-col">
+            {teams.map((t) => {
+              const on = t.id === active.id;
+              return (
+                <li key={t.id}>
+                  <form action={switchTeam.bind(null, t.id, stay)}>
+                    <button
+                      type="submit"
+                      aria-current={on ? 'true' : undefined}
+                      className={`grid min-h-[52px] w-full grid-cols-[28px_minmax(0,1fr)_20px] items-center gap-2.5 rounded-lg px-2.5 text-left ${on ? 'bg-surface-200' : 'hover:bg-surface-200'}`}
+                    >
+                      <TeamBadge name={t.name} size="md" />
+                      <span className="flex min-w-0 flex-col">
+                        <b className="truncate text-sm font-semibold">{t.name}</b>
+                        <span className="truncate text-xs text-ink-200">
+                          {t.ageGroup} · {ROLE[t.role]}
+                        </span>
+                      </span>
+                      {on && (
+                        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="text-rink-100">
+                          <path d="M3.5 9.5 7 13l7.5-8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </button>
+                  </form>
+                </li>
+              );
+            })}
+          </ul>
+          <div aria-hidden="true" className="mx-2.5 my-1.5 h-px bg-border-100" />
+          <Link href="/team/new" className="grid min-h-14 grid-cols-[28px_minmax(0,1fr)] items-center gap-2.5 rounded-lg px-2.5 hover:bg-surface-200">
+            <PlusBadge />
+            <span className="flex min-w-0 flex-col">
+              <b className="text-sm font-semibold">Create a team</b>
+              <span className="text-xs leading-4 text-ink-200">Set up a new team you&apos;ll run</span>
+            </span>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlusBadge() {
+  return (
+    <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-md border-[1.5px] border-dashed border-border-200 text-whistle-100">
+      <svg width="14" height="14" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      </svg>
+    </span>
   );
 }
 

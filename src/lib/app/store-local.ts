@@ -6,12 +6,12 @@ import { drillIds, practiceSchema, teamSchema, type Practice, type Team } from '
 import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import type { Checkin } from '../plans/checkin';
-import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type NewPractice, type Share, type SharedPractice, type TeamCoach, type Favorite } from './store';
+import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type MyTeam, type NewPractice, type OlderInterest, type Share, type SharedPractice, type TeamCoach, type TeamSetup, type Favorite } from './store';
 
 const FILE = join(process.cwd(), '.local', 'app.json');
 type ShareRow = { token: string; practiceId: string; teamId: string; expiresAt: string; revokedAt: string | null };
 type EditRow = { id: string; practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null; at: string };
-type State = { kept?: { practiceId: string; key: string; editor: string; at: string }[]; favorites?: Record<string, Record<string, Favorite>>; joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; teams: Team[]; members: { teamId: string; userId: string; role: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
+type State = { kept?: { practiceId: string; key: string; editor: string; at: string }[]; favorites?: Record<string, Record<string, Favorite>>; joinCodes?: Record<string, string>; emailsOff?: string[]; checkins?: Checkin[]; edits?: EditRow[]; views?: Record<string, string>; older?: (OlderInterest & { userId: string; at: string })[]; teams: Team[]; members: { teamId: string; userId: string; role: string; at?: string }[]; practices: Practice[]; shares?: ShareRow[]; calendars?: Record<string, { url: string; syncedAt: string | null }>; iceTimes?: IceTime[] };
 
 async function read(): Promise<State> {
   try {
@@ -25,18 +25,36 @@ async function write(s: State) {
   await fs.writeFile(FILE, JSON.stringify(s, null, 2));
 }
 
+/** Memberships newest first: by join time, then by the order they were added (older files have no times). */
+function newestFirst<T extends { at?: string }>(rows: T[]): T[] {
+  return rows
+    .map((m, i) => ({ m, i }))
+    .sort((a, b) => (b.m.at ?? '').localeCompare(a.m.at ?? '') || b.i - a.i)
+    .map((x) => x.m);
+}
+
 export class LocalAppStore implements AppStore {
-  async myTeam(userId: string) {
+  async myTeams(userId: string): Promise<MyTeam[]> {
     const s = await read();
-    const m = s.members.find((x) => x.userId === userId);
-    return m ? (s.teams.find((t) => t.id === m.teamId) ?? null) : null;
+    return newestFirst(s.members.filter((m) => m.userId === userId)).flatMap((m) => {
+      const t = s.teams.find((x) => x.id === m.teamId);
+      return t ? [{ ...teamSchema.parse(t), role: m.role === 'head_coach' ? ('head_coach' as const) : ('coach' as const) }] : [];
+    });
   }
-  async createTeam(name: string, userId: string, setup?: { ageGroup: string; ice: Team['ice'] }) {
+  async myTeam(userId: string, teamId?: string) {
+    const teams = await this.myTeams(userId);
+    const t = teamId ? teams.find((x) => x.id === teamId) : teams[0];
+    if (!t) return null;
+    const { role: _r, ...team } = t;
+    void _r;
+    return team;
+  }
+  async createTeam(name: string, userId: string, setup: TeamSetup = {}) {
     const s = await read();
     const team = teamSchema.parse({
       id: randomUUID(),
       name,
-      ageGroup: setup?.ageGroup ?? 'U7',
+      ageGroup: 'U7',
       groups: [
         { group: 'Eagles', skaters: 4 },
         { group: 'Bears', skaters: 4 },
@@ -44,13 +62,38 @@ export class LocalAppStore implements AppStore {
       ],
       coachesOnIce: 3,
       practiceMinutes: 60,
-      ice: setup?.ice ?? 'half',
+      ice: 'half',
       newDrillsPerWeek: 2,
+      ...setup,
     });
     s.teams.push(team);
-    s.members.push({ teamId: team.id, userId, role: 'head_coach' });
+    s.members.push({ teamId: team.id, userId, role: 'head_coach', at: new Date().toISOString() });
     await write(s);
     return team;
+  }
+  async leaveTeam(teamId: string, userId: string) {
+    const s = await read();
+    const m = s.members.find((x) => x.teamId === teamId && x.userId === userId);
+    if (m?.role === 'head_coach') throw new Error('head-coach-leaves');
+    s.members = s.members.filter((x) => !(x.teamId === teamId && x.userId === userId));
+    await write(s);
+  }
+  async deleteTeam(teamId: string) {
+    const s = await read();
+    s.teams = s.teams.filter((t) => t.id !== teamId);
+    s.members = s.members.filter((m) => m.teamId !== teamId);
+    s.practices = s.practices.filter((p) => p.teamId !== teamId);
+    s.iceTimes = (s.iceTimes ?? []).filter((x) => x.teamId !== teamId);
+    s.checkins = (s.checkins ?? []).filter((c) => c.teamId !== teamId);
+    if (s.calendars) delete s.calendars[teamId];
+    if (s.joinCodes) delete s.joinCodes[teamId];
+    if (s.favorites) delete s.favorites[teamId];
+    await write(s);
+  }
+  async saveOlderInterest(userId: string, answer: OlderInterest) {
+    const s = await read();
+    (s.older ??= []).push({ ...answer, userId, at: new Date().toISOString() });
+    await write(s);
   }
   async updateTeam(team: Team) {
     const s = await read();
@@ -252,8 +295,8 @@ export class LocalAppStore implements AppStore {
     const id = Object.entries(s.joinCodes ?? {}).find(([, c]) => c === code)?.[0];
     if (!id) throw new Error('link-off');
     if (s.members.some((m) => m.userId === userId && m.teamId === id)) return id;
-    if (s.members.some((m) => m.userId === userId)) throw new Error('on-another-team');
-    s.members.push({ teamId: id, userId, role: 'coach' });
+    // A coach can be on several teams (decision 0026).
+    s.members.push({ teamId: id, userId, role: 'coach', at: new Date().toISOString() });
     await write(s);
     return id;
   }

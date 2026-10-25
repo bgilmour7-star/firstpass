@@ -117,15 +117,46 @@ export const practiceSchema = z.object({
   attendance: attendanceSchema.nullable().default(null),
 });
 
+/**
+ * A team's skill groups (decision 0026): always three slots, easiest first by key (Sharks, Bears, Eagles).
+ * The slot is the internal key plans, drills and check-ins store; `name` is what the team calls the
+ * group (defaults to the slot). A slot the team doesn't use is `off` (and has 0 skaters): hidden everywhere.
+ * Names are team-chosen labels like "Eagles", never kids' names.
+ */
+export const teamGroupSchema = z.object({
+  group: z.enum(GROUPS),
+  skaters: z.number().int().min(0).max(20),
+  name: z.string().trim().max(24).optional(),
+  off: z.boolean().optional(),
+});
+export const groupsSchema = z
+  .array(teamGroupSchema)
+  .length(3)
+  .refine((gs) => gs.some((g) => !g.off), 'Keep at least one group');
+
+/** The gear bag, counts only (decision 0026). */
+export const GEAR = [
+  ['pucks', 'pucks'],
+  ['bluePucks', 'light blue pucks'],
+  ['cones', 'cones'],
+  ['nets', 'mini nets'],
+] as const;
+export type GearKey = (typeof GEAR)[number][0];
+const count = z.number().int().min(0).max(200);
+export const gearSchema = z.object({ pucks: count, bluePucks: count, cones: count, nets: count }).partial();
+
 export const teamSchema = z.object({
   id: z.string(),
-  name: z.string().min(1, 'Give the team a name').max(80),
+  name: z.string().trim().min(1, 'Give the team a name').max(80),
   ageGroup: z.string(),
-  groups: z.array(z.object({ group: z.enum(GROUPS), skaters: z.number().int().min(0).max(20) })).length(3),
+  groups: groupsSchema,
   coachesOnIce: z.number().int().min(1).max(10),
   practiceMinutes: z.number().int().min(20).max(120),
   ice: z.enum(['half', 'full', 'varies']),
   newDrillsPerWeek: z.number().int().min(0).max(10),
+  gear: gearSchema.default({}),
+  /** What the team works on to start (up to two), shown on the Team page. */
+  focus: z.array(z.enum(FOCUS_ATTRIBUTES)).max(2).default([]),
 });
 
 export type Block = z.infer<typeof blockSchema>;
@@ -139,20 +170,42 @@ export type Team = z.infer<typeof teamSchema>;
 
 // ---------------------------------------------------------------- who's here today
 
-/** A group as it skates today: one skill group, or several merged. Ordered easiest first. */
-export type Unit = { key: string; label: string; groups: Group[]; skaters: number };
+/** A group as it skates today: one skill group, or several merged. Ordered easiest first. `names` are the team's names for `groups`. */
+export type Unit = { key: string; label: string; groups: Group[]; names: string[]; skaters: number };
 
-export function usualCounts(team: Pick<Team, 'groups'>): Attendance['counts'] {
+type TeamGroups = { groups: readonly { group: Group; skaters: number; name?: string; off?: boolean }[] };
+
+/**
+ * What the team calls a group slot (decision 0026). Every screen that shows a group name reads it
+ * through here, so a team's "Wolves" shows on plans, Today, print, the parent link and check-ins.
+ */
+export function groupLabel(team: TeamGroups | null | undefined, slot: Group): string {
+  return team?.groups.find((g) => g.group === slot)?.name?.trim() || slot;
+}
+
+/** The slots a team uses, easiest first. Groups turned off are left out. */
+export function activeGroups(team: TeamGroups): Group[] {
+  const on = GROUPS.filter((g) => !team.groups.find((x) => x.group === g)?.off);
+  return on.length ? on : [...GROUPS];
+}
+
+/** Every slot's name, for screens that list groups. */
+export function groupLabels(team: TeamGroups): Record<Group, string> {
+  return { Sharks: groupLabel(team, 'Sharks'), Bears: groupLabel(team, 'Bears'), Eagles: groupLabel(team, 'Eagles') };
+}
+
+export function usualCounts(team: TeamGroups): Attendance['counts'] {
   const c = { Sharks: 0, Bears: 0, Eagles: 0 };
-  team.groups.forEach((g) => (c[g.group] = g.skaters));
+  team.groups.forEach((g) => (c[g.group] = g.off ? 0 : g.skaters));
   return c;
 }
 
-/** Today's groups, easiest first (Sharks, Bears, Eagles). Empty groups drop out; merged groups join. */
-export function todayUnits(team: Pick<Team, 'groups'>, attendance: Attendance | null): Unit[] {
+/** Today's groups, easiest first (Sharks, Bears, Eagles). Empty and turned-off groups drop out; merged groups join. */
+export function todayUnits(team: TeamGroups, attendance: Attendance | null): Unit[] {
   const counts = attendance?.counts ?? usualCounts(team);
-  let present = GROUPS.filter((g) => counts[g] > 0);
-  if (!present.length) present = [...GROUPS];
+  const on = activeGroups(team);
+  let present = on.filter((g) => counts[g] > 0);
+  if (!present.length) present = on;
   const root = new Map<Group, Group>(present.map((g) => [g, g]));
   const find = (g: Group): Group => (root.get(g) === g ? g : find(root.get(g)!));
   for (const [a, b] of attendance?.merges ?? []) {
@@ -162,7 +215,10 @@ export function todayUnits(team: Pick<Team, 'groups'>, attendance: Attendance | 
   }
   const units = new Map<Group, Group[]>();
   present.forEach((g) => units.set(find(g), [...(units.get(find(g)) ?? []), g]));
-  return [...units.values()].map((gs) => ({ key: gs.join('+'), label: gs.join(' + '), groups: gs, skaters: gs.reduce((n, g) => n + counts[g], 0) }));
+  return [...units.values()].map((gs) => {
+    const names = gs.map((g) => groupLabel(team, g));
+    return { key: gs.join('+'), label: names.join(' + '), groups: gs, names, skaters: gs.reduce((n, g) => n + counts[g], 0) };
+  });
 }
 
 export function attendanceLabel(units: Unit[]): string {
@@ -171,10 +227,10 @@ export function attendanceLabel(units: Unit[]): string {
 }
 
 /** Is today different from the team's usual groups? */
-export function isAdapted(team: Pick<Team, 'groups'>, attendance: Attendance | null): boolean {
+export function isAdapted(team: TeamGroups, attendance: Attendance | null): boolean {
   if (!attendance) return false;
   const u = usualCounts(team);
-  return attendance.merges.length > 0 || GROUPS.some((g) => attendance.counts[g] !== u[g]);
+  return attendance.merges.length > 0 || activeGroups(team).some((g) => attendance.counts[g] !== u[g]);
 }
 
 // ---------------------------------------------------------------- how blocks adapt

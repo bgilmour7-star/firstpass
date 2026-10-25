@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Rink } from '@/components/ds';
 import { FORMAT_NAME, FormatLabel, formatWhat } from './format';
-import { FOCUS_ATTRIBUTES, GROUPS, type Drill, type Group } from '@/lib/drills/schema';
-import { usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
+import { FOCUS_ATTRIBUTES, type Drill, type Group } from '@/lib/drills/schema';
+import { activeGroups, groupLabel, usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
 import type { Favorite } from '@/lib/app/store';
 import { StarIcon, starredBy } from '@/components/favorite-button';
@@ -499,6 +499,10 @@ export function AttendanceDialog({
   const merged = (x: Group, y: Group) => a.merges.some(([p, q]) => (p === x && q === y) || (p === y && q === x));
   const toggle = (x: Group, y: Group) => setA((s) => ({ ...s, merges: merged(x, y) ? s.merges.filter(([p, q]) => !((p === x && q === y) || (p === y && q === x))) : [...s.merges, [x, y]] }));
   const changes = preview(a);
+  // Only the groups the team uses (decision 0026), by the team's names; merges pair neighbours.
+  const on = activeGroups(team);
+  const pairs = on.slice(1).map((g, i) => [on[i], g] as const);
+  const name = (g: Group) => groupLabel(team, g);
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', esc);
@@ -515,26 +519,21 @@ export function AttendanceDialog({
           <p className="text-sm text-ink-200">Only this practice. Your team&apos;s usual groups don&apos;t change.</p>
         </div>
         <div className="flex flex-col gap-2">
-          {GROUPS.map((g) => (
+          {on.map((g) => (
             <div key={g} className="grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-2 text-sm">
-              <b>{g}</b>
+              <b className="truncate">{name(g)}</b>
               <span className="text-xs text-ink-200">usually {usual[g]}</span>
               <Stepper value={a.counts[g]} min={0} max={20} label="" onChange={(n) => setA((s) => ({ ...s, counts: { ...s.counts, [g]: n } }))} />
             </div>
           ))}
         </div>
         <div className="flex flex-col gap-2">
-          {(
-            [
-              ['Sharks', 'Bears'],
-              ['Bears', 'Eagles'],
-            ] as const
-          ).map(([x, y]) => (
+          {pairs.map(([x, y]) => (
             <label key={x + y} className="flex cursor-pointer items-center gap-3 rounded-md bg-surface-200 px-3 py-2.5 text-sm">
               <input type="checkbox" role="switch" checked={merged(x, y)} onChange={() => toggle(x, y)} className="h-5 w-5 accent-[var(--rink-100)]" />
               <span>
                 <b>
-                  Merge {x} and {y} today
+                  Merge {name(x)} and {name(y)} today
                 </b>
                 <br />
                 <span className="text-xs text-ink-200">One group of {a.counts[x] + a.counts[y]}, at the easier group&apos;s level.</span>
