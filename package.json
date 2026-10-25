@@ -11,6 +11,7 @@
     "test": "vitest run",
     "check": "npm run typecheck && npm run lint && npm test && npm run drills -- validate",
     "drills": "tsx scripts/drills.ts",
+    "research": "tsx scripts/research.ts",
     "ds:sync": "node scripts/sync-design-system.mjs",
     "seed:sql": "node scripts/seed-sql.mjs",
     "email:templates": "tsx scripts/email-templates.ts"

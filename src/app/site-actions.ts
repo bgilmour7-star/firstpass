@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import { cleanSource, deviceOf, isBot, regionOf, waitlistInput, type EventName } from '@/lib/site/schema';
 import { getSiteStore } from '@/lib/site/store';
 import { sendEmail } from '@/lib/email/layout';
-import { WAITLIST_ALERT_TO, waitlistAlertEmail, waitlistConfirmationEmail } from '@/lib/email/waitlist-emails';
+import { WAITLIST_ALERT_TO, waitlistAlertEmail } from '@/lib/email/waitlist-emails';
 
 // The landing page's two actions (decision 0019): join the waitlist, and count a visit.
 
@@ -41,9 +41,10 @@ export async function joinWaitlist(raw: { kind: string; email: string; ageGroup?
     return { ok: false, error: 'Something went wrong on our side. Try again in a minute, or email hello@firstpass.coach.' };
   }
   const v = await visit();
+  // The person's welcome + survey email is queued by the database when the row is new (the
+  // discovery migration's trigger) and sent by /api/cron/emails within 10 minutes (decision 0027).
   await Promise.all([
     v.bot ? null : store.record({ name: 'signup', path: '/', ip: v.ip, agent: v.agent, source: input.source, device: v.device, region: v.region }),
-    isNew ? sendEmail(input.email, waitlistConfirmationEmail(input), 'waitlist-confirmation') : null,
     sendEmail(WAITLIST_ALERT_TO, waitlistAlertEmail(input, isNew), 'waitlist-alert'),
   ]);
   return { ok: true };

@@ -28,7 +28,11 @@ export class LocalSiteStore implements SiteStore {
     if (found) {
       Object.assign(found, { kind: i.kind, ageGroup: i.ageGroup ?? found.ageGroup, orgName: i.orgName ?? found.orgName, teamCount: i.teamCount ?? found.teamCount });
     } else {
-      d.waitlist.unshift({ id: randomUUID(), email: i.email, kind: i.kind, ageGroup: i.ageGroup, orgName: i.orgName, teamCount: i.teamCount, source: i.source, status: 'new', createdAt: new Date().toISOString() });
+      const id = randomUUID();
+      d.waitlist.unshift({ id, email: i.email, kind: i.kind, ageGroup: i.ageGroup, orgName: i.orgName, teamCount: i.teamCount, source: i.source, status: 'new', createdAt: new Date().toISOString() });
+      // What the discovery migration's trigger does in the database (decision 0027).
+      const { linkLocalPerson } = await import('../discovery/store-local');
+      await linkLocalPerson(i.email, id);
     }
     await write(d);
     return { isNew: !found };

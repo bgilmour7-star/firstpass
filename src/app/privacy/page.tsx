@@ -23,7 +23,7 @@ export default function Privacy() {
       </header>
       <main className="mx-auto max-w-[680px] px-[clamp(16px,4vw,48px)] pb-24 pt-8">
         <h1 className="font-display text-[clamp(40px,6vw,56px)] font-extrabold leading-[1] tracking-[-0.03em]">Privacy</h1>
-        <p className="mt-3 text-sm text-ink-200">Last updated October 20, 2026</p>
+        <p className="mt-3 text-sm text-ink-200">Last updated October 29, 2026</p>
         <p className={p}>Firstpass is a practice planner for volunteer hockey coaches, run by Brett in Nanaimo, BC. This page says what we collect, why, and how to have it removed.</p>
 
         <h2 className={h2}>No kids’ information, ever</h2>
@@ -38,6 +38,11 @@ export default function Privacy() {
           <li className={li}>the link that brought you, if it had a tag (like a shared plan)</li>
         </ul>
         <p className={p}>We use it to email you about Firstpass and to set up a call. Only Brett sees the list. We don’t sell it or share it with anyone.</p>
+
+        <h2 className={h2}>If you answer the survey or talk with Brett</h2>
+        <p className={p}>
+          We may email you a short survey about how you plan practices, to decide what to build. We keep your answers, and if you’d like a call, the times that suit you and your phone number if you give one. Brett keeps notes from calls and chats, and only he sees them. A copy filed under a code, with your first name and team but never your email or phone number, is kept with Firstpass’s code so we can look across everyone’s answers. Your data stays in Canada. Every survey email has a link to stop them, and asking us to delete your information removes your answers and notes too.
+        </p>
 
         <h2 className={h2}>When you visit this site</h2>
         <p className={p}>We count visits without cookies. For each visit we keep the page, the time, the type of device (phone, tablet or computer), the city and province your connection appears to come from, and the site or link that sent you.</p>

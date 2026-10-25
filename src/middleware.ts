@@ -37,11 +37,12 @@ export async function middleware(request: NextRequest) {
   // /join/ shows who invited you and signs you in on the spot (decision 0013); joining itself
   // needs a session. /email/ holds the logo the emails load, /og/ the share card. / is the public landing page and
   // /privacy its privacy page (decision 0019); / sends signed-in coaches on to their plans itself.
+  // /s/ is the survey and /unsubscribe/ stops survey emails, both by token, no sign-in (decision 0027).
   const path = request.nextUrl.pathname;
   // The installable app's files (decision 0021) load before anyone signs in: the manifest, icons, the
   // service worker and the offline page.
   const app = ['/manifest.webmanifest', '/sw.js', '/offline.html', '/apple-icon.png', '/icon.svg'].includes(path) || path.startsWith('/icons/');
-  const open = app || path === '/' || path === '/privacy' || path.startsWith('/og/') || ['/login', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/join/', '/email/'].some((p) => path.startsWith(p));
+  const open = app || path === '/' || path === '/privacy' || path.startsWith('/og/') || ['/login', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/join/', '/email/', '/s/', '/unsubscribe/'].some((p) => path.startsWith(p));
   if (!data.user && !open) {
     const login = request.nextUrl.clone();
     login.pathname = '/login';
