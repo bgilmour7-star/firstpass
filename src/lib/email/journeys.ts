@@ -11,7 +11,7 @@
 //   templates. Registered so the page shows everything, with a sample to preview.
 
 import { type Email } from './layout';
-import { coachJoinedEmail, inviteEmail } from './account-emails';
+import { coachJoinedEmail, headCoachEmail, inviteEmail } from './account-emails';
 import { checkinEmail } from './checkin-email';
 import { coachFirstPracticeEmail, coachNudgeEmail, waitlistLastAskEmail, waitlistNudgeEmail, waitlistWelcomeEmail, type DiscoveryInput } from './discovery-emails';
 import { draftReadyEmail, outcomeEmail } from './request-emails';
@@ -125,6 +125,11 @@ export const REGISTRY: Entry[] = [
     id: 'coach.joined', section: 'coach', journey: 'coach', step: 'joined', name: 'A coach joined', when: 'When they join',
     trigger: 'Someone joins with the team’s link', condition: 'Not the head coach themselves', audience: 'other', to: 'The head coach', from: FIRSTPASS,
     file: 'src/lib/email/account-emails.ts', fn: 'coachJoinedEmail', sentBy: 'app', tag: 'coach-joined', preview: () => coachJoinedEmail({ name: 'Kara', email: 'kara@example.com', teamName: 'Nanaimo U7 Avalanche', coachesUrl: `${SITE}/team#coaches` }),
+  },
+  {
+    id: 'coach.head-coach', section: 'coach', journey: 'coach', step: 'head-coach', name: 'You’re head coach now', when: 'When the team is handed over',
+    trigger: 'The head coach hands the team to another coach', condition: 'The new head coach is already on the team', audience: 'other', to: 'The new head coach', from: FIRSTPASS,
+    file: 'src/lib/email/account-emails.ts', fn: 'headCoachEmail', sentBy: 'app', tag: 'head-coach', preview: () => headCoachEmail({ from: 'Brett', teamName: 'Nanaimo U7 Avalanche', teamUrl: `${SITE}/team` }),
   },
   queued({
     section: 'coach', journey: 'coach', step: 'first-practice', name: 'How did it go? + survey', when: '2 days after 1st practice',
