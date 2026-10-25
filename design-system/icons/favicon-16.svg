@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Firstpass favicon, 16px drawing: one-dash pass on a 16px grid.</title>
+  <rect width="16" height="16" rx="3.6" fill="#084F68"/>
+  <ellipse cx="3.6" cy="10.6" rx="2.6" ry="1.75" fill="#FFFFFF"/>
+  <circle cx="12.00" cy="5.60" r="2.30" fill="none" stroke="#FFFFFF" stroke-width="1.70"/>
+  <path d="M6.91 8.63L8.35 7.77" stroke="#FFFFFF" stroke-width="1.70" stroke-linecap="butt" fill="none"/>
+</svg>

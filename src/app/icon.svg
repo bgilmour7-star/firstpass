@@ -1,12 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Firstpass mark, "Puck to teammate": puck, dashed pass, teammate ring. One colour (rink-200), flips for dark tabs. -->
-  <style>
-    .m { color: #084F68 }
-    @media (prefers-color-scheme: dark) { .m { color: #7AD4EC } }
-  </style>
-  <g class="m" transform="translate(1 6.5) scale(1.15)">
-    <ellipse cx="4" cy="12" rx="3.4" ry="2.2" fill="currentColor"/>
-    <path d="M8.4 10.8 L16.6 7.2" stroke="currentColor" stroke-width="2.3" stroke-dasharray="2.6 2.2" stroke-linecap="butt" fill="none"/>
-    <circle cx="21" cy="6" r="3.9" stroke="currentColor" stroke-width="2.3" fill="none"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Firstpass</title>
+  <!-- Puck to teammate, 16px drawing on a deep teal tile (decision 0025). Same in light and dark tabs. -->
+  <rect width="16" height="16" rx="3.6" fill="#084F68"/>
+  <ellipse cx="3.6" cy="10.6" rx="2.6" ry="1.75" fill="#FFFFFF"/>
+  <circle cx="12.00" cy="5.60" r="2.30" fill="none" stroke="#FFFFFF" stroke-width="1.70"/>
+  <path d="M6.91 8.63L8.35 7.77" stroke="#FFFFFF" stroke-width="1.70" stroke-linecap="butt" fill="none"/>
 </svg>
