@@ -95,11 +95,12 @@ function Preview({ e, stat, to }: { e: Entry; stat?: SendStats[number]; to: stri
     );
   return (
     <EmailDrawer
+      id={e.id}
       title={e.name}
       kicker={`${sec.title} · ${at + 1} of ${siblings.length}`}
       footer={
         <>
-          <TestSend id={e.id} to={to} />
+          <TestSend key={e.id} id={e.id} to={to} />
           <span className="ml-auto flex items-center gap-1">
             {step(siblings[at - 1], '← Previous')}
             {step(siblings[at + 1], 'Next →')}
