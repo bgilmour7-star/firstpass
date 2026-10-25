@@ -11,15 +11,15 @@ const when = (date: string, time: string) => {
 };
 
 /** The team's calendar link: ice times show up in Plans, ready to plan. */
-export function CalendarSettings({ initial, syncedAt }: { initial: string | null; syncedAt: string | null }) {
+export function CalendarSettings({ initial, syncedAt, embedded = false }: { initial: string | null; syncedAt: string | null; /** Inside the Team page's drawer: no section heading of its own (decision 0026). */ embedded?: boolean }) {
   const [url, setUrl] = useState(initial ?? '');
   const [saved, setSaved] = useState(initial);
   const [check, setCheck] = useState<CalendarCheck | null>(null);
   const [pending, start] = useTransition();
   return (
-    <section className="flex flex-col gap-3 border-t-2 border-ink-100 pt-3">
+    <section className={embedded ? 'flex flex-col gap-3' : 'flex flex-col gap-3 border-t-2 border-ink-100 pt-3'}>
       <div className="flex flex-col gap-0.5">
-        <h2 className="text-[17px] font-extrabold">Calendar link</h2>
+        {embedded ? <h3 className="text-sm font-semibold">Calendar link</h3> : <h2 className="text-[17px] font-extrabold">Calendar link</h2>}
         <p className="text-sm text-ink-200">
           Paste your schedule&apos;s calendar (iCal) link from TeamSnap, Google Calendar or your association. Practices show up in Plans, ready to plan, and move when the schedule moves. We read dates, times, rinks and event names only.
         </p>

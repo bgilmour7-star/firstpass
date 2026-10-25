@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
     callback.pathname = '/auth/callback';
     callback.search = '';
     callback.searchParams.set('code', code);
-    callback.searchParams.set('next', request.nextUrl.pathname === '/' ? '/plans' : request.nextUrl.pathname);
+    callback.searchParams.set('next', request.nextUrl.pathname);
     return NextResponse.redirect(callback);
   }
 

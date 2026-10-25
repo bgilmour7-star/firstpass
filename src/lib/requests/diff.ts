@@ -14,6 +14,7 @@ const FIELDS: { label: string; get: (d: Drill) => string }[] = [
   { label: 'Say this', get: (d) => list(d.cues) },
   { label: 'Works on', get: (d) => d.focus.map((f) => `${f.attribute}${f.level === 2 ? ' (main)' : ''}`).join(', ') },
   { label: 'Levels', get: (d) => d.levels.map((l, i) => `Level ${i + 2}: ${l.name}. Adds: ${l.adds}`).join('\n') },
+  { label: 'Age groups', get: (d) => [d.ageGroups.join(', '), ...Object.entries(d.startLevel ?? {}).map(([a, n]) => `${a} starts at Level ${n}`)].join('\n') },
 ];
 
 export function drillChanges(before: Drill, after: Drill): FieldChange[] {

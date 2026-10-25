@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { coachJoinedEmail, inviteEmail } from './account-emails';
+import { coachJoinedEmail, headCoachEmail, inviteEmail } from './account-emails';
+
+describe('head coach email', () => {
+  const e = headCoachEmail({ from: 'Brett', teamName: 'U7 <Clippers>', teamUrl: 'https://firstpass.coach/team' });
+  it('says who handed which team over', () => expect(e.subject).toBe('Brett made you head coach of U7 <Clippers>'));
+  it('says what a head coach can do, and links to the team', () => {
+    expect(e.text).toContain('edit the team, invite and remove coaches, and turn the join link on or off');
+    expect(e.html).toContain('href="https://firstpass.coach/team"');
+  });
+  it('escapes the team name in html', () => expect(e.html).toContain('U7 &lt;Clippers&gt;'));
+});
 import { shell } from './layout';
 
 describe('invite email', () => {

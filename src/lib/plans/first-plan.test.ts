@@ -36,6 +36,17 @@ describe('the first plan', () => {
     expect(short.filter((b) => b.kind === 'drill').length).toBeLessThan(firstPlan(60, library).filter((b) => b.kind === 'drill').length);
   });
 
+  it('starts each drill at its start level for the team age', () => {
+    const lib = library.map((d) => (d.groupModel === 'basic' && d.levels.length ? { ...d, startLevel: { U9: d.levels.length + 1 } } : d));
+    const u9 = firstPlan(60, lib, 3, 'U9').filter((b) => b.kind === 'drill');
+    const u7 = firstPlan(60, lib, 3, 'U7').filter((b) => b.kind === 'drill');
+    for (const b of u7) expect(b.kind === 'drill' && b.levels).toEqual([1]);
+    for (const b of u9) {
+      const d = lib.find((x) => x.id === (b.kind === 'drill' ? b.drillId : ''))!;
+      expect(b.kind === 'drill' && b.levels).toEqual([d.levels.length + 1]);
+    }
+  });
+
   it('falls back to the plain template with no library', () => {
     const blocks = firstPlan(60, []);
     expect(totalMinutes(blocks)).toBe(60);

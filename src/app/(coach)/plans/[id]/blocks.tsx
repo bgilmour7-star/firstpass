@@ -59,7 +59,7 @@ export function StationsCard({ block, drill, units, onZone }: { block: StationsB
           </div>
         ) : (
           <p className="pt-2 text-xs text-ink-200">
-            {merged ? `${merged.label} play the ${merged.groups[0]} station. ` : 'All at once, each group at its own station. '}
+            {merged ? `${merged.label} play the ${merged.names[0]} station. ` : 'All at once, each group at its own station. '}
             <button type="button" onClick={() => setEdit(true)} className="text-rink-100 hover:underline">
               Change
             </button>

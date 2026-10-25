@@ -38,3 +38,23 @@ export function coachJoinedEmail(i: CoachJoinedInput): Email {
   const text = [subject, '', lead, '', `See your coaches: ${i.coachesUrl}`, '', safety].join('\n');
   return { subject, html, text };
 }
+
+export type HeadCoachEmailInput = { from: string; teamName: string; teamUrl: string };
+
+/** "Brett made you head coach of U7 Clippers" (decision 0026, handing over a team). Needs registering in PR 3's journey registry. */
+export function headCoachEmail(i: HeadCoachEmailInput): Email {
+  const subject = `${i.from} made you head coach of ${i.teamName}`;
+  const lead = `You run ${i.teamName} on Firstpass now. The team, its plans and its practice history stay as they were.`;
+  const can = 'As head coach you can edit the team, invite and remove coaches, and turn the join link on or off.';
+  const stays = `${i.from} stays on the team as a coach, unless they leave.`;
+  const html = shell({
+    preheader: 'You can edit the team and manage its coaches now.',
+    heading: subject,
+    paragraphs: [esc(lead), esc(can)],
+    button: { label: 'Open the team', url: esc(i.teamUrl) },
+    note: esc(stays),
+    footer: [`You get this because ${esc(i.from)} handed ${esc(i.teamName)} to you on Firstpass.`],
+  });
+  const text = [subject, '', lead, '', can, '', `Open the team: ${i.teamUrl}`, '', stays].join('\n');
+  return { subject, html, text };
+}

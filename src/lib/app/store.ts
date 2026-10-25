@@ -19,8 +19,14 @@ export type Favorite = { by: string; at: string };
 export type TeamCoach = { userId: string; email: string; firstName: string | null; role: 'head_coach' | 'coach'; joinedAt: string };
 /** What a join link is for, shown before joining, even signed out (decisions 0011, 0013). */
 export type JoinPreview = { id: string; name: string; inviter: string | null; next: { date: string; startTime: string; ice: 'half' | 'full'; blocks: number } | null };
-/** Why joining through a link failed (decision 0011). */
-export type JoinError = 'link-off' | 'on-another-team' | 'join-migration-missing';
+/** Why joining through a link failed (decision 0011). A coach may be on several teams (decision 0026). */
+export type JoinError = 'link-off' | 'join-migration-missing';
+/** A team the coach is on, with their role on it (decision 0026). */
+export type MyTeam = Team & { role: 'head_coach' | 'coach' };
+/** Everything the Create a team wizard sets up front (decision 0026). */
+export type TeamSetup = Partial<Pick<Team, 'ageGroup' | 'ice' | 'groups' | 'practiceMinutes' | 'coachesOnIce' | 'newDrillsPerWeek' | 'gear' | 'focus'>>;
+/** A U11+ coach's answer on the "not yet" screen (decision 0026). Never kids' names. */
+export type OlderInterest = { ageGroup: 'U11' | 'U13' | 'U15+'; hardestPart: string; wantsCall: boolean };
 /** What a parent link shows: no ids beyond the drills, no coach names. */
 export type SharedPractice = { team: string; groups: Team['groups'] | null; practice: Pick<Practice, 'date' | 'startTime' | 'minutes' | 'ice' | 'blocks' | 'attendance'>; drills: Drill[] };
 
@@ -29,9 +35,24 @@ export type IceTime = Omit<IceEvent, never> & { id: string; teamId: string; igno
 export type IceTimeRow = Omit<IceTime, 'id' | 'teamId'>;
 
 export interface AppStore {
-  myTeam(userId: string): Promise<Team | null>;
-  createTeam(name: string, userId: string, setup?: { ageGroup: string; ice: Team['ice'] }): Promise<Team>;
+  /** Every team the coach is on, newest membership first (decision 0026). */
+  myTeams(userId: string): Promise<MyTeam[]>;
+  /** With teamId: that team, only if the coach is on it. Without: their most recently joined team. */
+  myTeam(userId: string, teamId?: string): Promise<Team | null>;
+  /** Create a team with this coach as head coach. */
+  createTeam(name: string, userId: string, setup?: TeamSetup): Promise<Team>;
   updateTeam(team: Team): Promise<void>;
+  /** A coach leaves a team. The head coach can't leave (they delete it instead): throws 'head-coach-leaves'. */
+  leaveTeam(teamId: string, userId: string): Promise<void>;
+  /**
+   * Head coach: make another coach on the team head coach; the caller becomes a coach (decision 0026).
+   * Throws 'not-head-coach' or 'not-on-team'.
+   */
+  handOverTeam(teamId: string, fromUserId: string, toUserId: string): Promise<void>;
+  /** Head coach: delete the team and everything on it. Throws 'not-head-coach'. */
+  deleteTeam(teamId: string): Promise<void>;
+  /** The "U11 or older" discovery answer. Throws 'older-migration-missing' before the SQL has run. */
+  saveOlderInterest(userId: string, answer: OlderInterest): Promise<void>;
   listPractices(teamId: string): Promise<Practice[]>;
   getPractice(id: string): Promise<Practice | null>;
   createPractice(p: NewPractice, userId: string): Promise<Practice>;

@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { usingSupabase } from '@/lib/drills/store';
-import { optionalUser } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { currentTeam, optionalUser } from '@/lib/auth';
+import { getAppStore } from '@/lib/app/store';
+import { isPhone, landingPath } from '@/lib/landing';
 import { Landing } from '@/components/landing/landing';
 
 // firstpass.coach: the public landing page for visitors (decision 0019). Signed-in coaches go
-// straight to their plans, as before.
+// straight to their team (decision 0026), or to Today on a phone on practice day.
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
@@ -28,6 +31,18 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  if (usingSupabase() && (await optionalUser())) redirect('/plans');
+  const coach = usingSupabase() ? await optionalUser() : null;
+  if (coach) redirect(await homeFor(coach.id));
   return <Landing />;
+}
+
+/** Signed-in coaches land on their team (decision 0026); a phone on practice day opens Today. */
+async function homeFor(userId: string): Promise<string> {
+  const team = await currentTeam(userId);
+  if (!team) return '/team/new';
+  const phone = isPhone((await headers()).get('user-agent'));
+  if (!phone) return '/team';
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
+  const practices = await (await getAppStore()).listPractices(team.id).catch(() => []);
+  return landingPath({ phone, practiceToday: practices.some((p) => p.date === today) });
 }
