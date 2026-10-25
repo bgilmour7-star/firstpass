@@ -135,3 +135,32 @@ export function change(now: number, before: number, as: 'percent' | 'count' | 'p
   const pct = Math.round(((now - before) / before) * 100);
   return pct === 0 ? 'No change' : `${pct > 0 ? '↑' : '↓'} ${Math.abs(pct)}%`;
 }
+
+export type GrowthSummary = {
+  teams: GrowthMetric;
+  coaches: GrowthMetric;
+  /** One row per Vancouver day in the period: the running totals at the end of that day. */
+  daily: { day: string; teams: number; coaches: number }[];
+};
+type GrowthMetric = { total: number; inPeriod: number; before: number };
+
+/** Teams created and coaches joined: all-time totals, the period's additions, and running totals per day. */
+export function summarizeGrowth(g: { teams: string[]; coaches: string[] }, opts: { days: number; now?: Date }): GrowthSummary {
+  const end = (opts.now ?? new Date()).getTime();
+  const start = end - opts.days * DAY;
+  const prevStart = start - opts.days * DAY;
+  const ms = (t: string) => new Date(t).getTime();
+  const metric = (list: string[]): GrowthMetric => ({
+    total: list.filter((t) => ms(t) <= end).length,
+    inPeriod: list.filter((t) => ms(t) > start && ms(t) <= end).length,
+    before: list.filter((t) => ms(t) > prevStart && ms(t) <= start).length,
+  });
+  const days: string[] = [];
+  for (let t = start + DAY; t <= end + 1; t += DAY) days.push(vanDay(new Date(t)));
+  const upTo = (list: string[], day: string) => list.filter((t) => ms(t) <= end && vanDay(t) <= day).length;
+  return {
+    teams: metric(g.teams),
+    coaches: metric(g.coaches),
+    daily: [...new Set(days)].map((day) => ({ day, teams: upTo(g.teams, day), coaches: upTo(g.coaches, day) })),
+  };
+}

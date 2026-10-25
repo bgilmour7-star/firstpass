@@ -17,7 +17,11 @@ export interface SiteStore {
   waitlist(): Promise<WaitlistEntry[]>;
   events(sinceIso: string): Promise<PageEvent[]>;
   setStatus(id: string, status: WaitlistStatus): Promise<void>;
+  /** When each team was created and each coach first joined a team, as ISO timestamps. Timestamps only, no names. Throws 'growth-migration-missing' before the SQL has run. */
+  growth(): Promise<Growth>;
 }
+
+export type Growth = { teams: string[]; coaches: string[] };
 
 export async function getSiteStore(): Promise<SiteStore> {
   if (usingSupabase()) {

@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import type { PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
-import type { NewEvent, SiteStore } from './store';
+import type { Growth, NewEvent, SiteStore } from './store';
 
 // Local mode: the waitlist and visits live in .local/site.json.
 const FILE = join(process.cwd(), '.local', 'site.json');
@@ -63,5 +63,24 @@ export class LocalSiteStore implements SiteStore {
     const w = d.waitlist.find((x) => x.id === id);
     if (w) w.status = status;
     await write(d);
+  }
+
+  // Local mode reads the app's own file. Memberships made before this change have no time, so
+  // they count from the day the file was first used.
+  async growth(): Promise<Growth> {
+    let app: { members?: { userId: string; role: string; at?: string }[] } = {};
+    try {
+      app = JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'app.json'), 'utf8'));
+    } catch {
+      return { teams: [], coaches: [] };
+    }
+    const members = app.members ?? [];
+    const fallback = '2026-10-14T00:00:00Z';
+    const first = new Map<string, string>();
+    for (const m of members) {
+      const at = m.at ?? fallback;
+      if (!first.has(m.userId) || at < first.get(m.userId)!) first.set(m.userId, at);
+    }
+    return { teams: members.filter((m) => m.role === 'head_coach').map((m) => m.at ?? fallback), coaches: [...first.values()] };
   }
 }
