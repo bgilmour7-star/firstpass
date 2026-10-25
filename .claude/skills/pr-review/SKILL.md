@@ -27,8 +27,12 @@ Say at the top of the verdict which kind it was.
 ```bash
 gh api repos/bgilmour7-star/firstpass/pulls/<n> --jq '.title, .head.ref, .base.ref, .body'
 gh api repos/bgilmour7-star/firstpass/pulls/<n>/files --paginate --jq '.[] | "\(.status) \(.additions)+ \(.deletions)- \(.filename)"'
-git fetch origin && git checkout -q --detach origin/<head-ref>
+# The clone only fetches main by default, so fetch the PR's branch by name:
+git fetch origin main +refs/heads/<head-ref>:refs/remotes/origin/<head-ref>
+git checkout -q --detach origin/<head-ref>
 git diff origin/main...HEAD
+# Other open PRs (for step 4):
+gh api 'repos/bgilmour7-star/firstpass/pulls?state=open' --jq '.[] | "#\(.number) \(.head.ref) \(.title)"'
 ```
 
 (GitHub GraphQL is blocked here, so `gh pr view`/`gh pr list` fail: use `gh api` REST routes.)
@@ -99,6 +103,8 @@ report problems you can point to; "consider adding tests" without a concrete gap
   only through the RinkDiagram module. Touch targets at least 44px on phones.
 
 **Scope**
+- The PR body describes this diff: what changed, the SQL if any, and how it was checked. A body that
+  describes something else, or is missing, is a fix-before-merge item (Brett merges from it).
 - The PR does what its title and body say and nothing unrelated. A drive-by refactor or a
   reformatted file (for example running prettier, which this repo doesn't use) is called out:
   it hides real changes in the diff.
@@ -106,12 +112,14 @@ report problems you can point to; "consider adding tests" without a concrete gap
 
 ## 3. Run the checks
 
+Run these from the repo root (in an agent worktree, the worktree's root):
+
 ```bash
 npm ci
 npx tsc --noEmit
-npx eslint --ignore-pattern '.claude/**' .
-npx vitest run --exclude '.claude/**'
-npm run drills -- validate
+npx eslint .                                   # main checkout with worktrees in it: add --ignore-pattern '.claude/**'
+npx vitest run                                 # main checkout with worktrees in it: add --exclude '.claude/**'
+npm run drills -- validate | grep -c '^ok'     # prints one "ok <id>" per drill; any other line is a problem
 ```
 
 (`npm run check` runs all of these but picks up `.claude/worktrees/` if any exist.) Report the
@@ -120,19 +128,23 @@ counts. A failing check is always a blocker.
 ## 4. Merge order and conflicts
 
 If other PRs are open, say whether this one merges cleanly on main and with them:
-`git merge-tree --write-tree origin/main HEAD` (and against the other heads). Name the order Brett
-should merge and run SQL in.
+`git merge-tree --write-tree origin/main HEAD` prints a tree id and exits 0 when it merges cleanly,
+and lists the conflicts and exits 1 when it doesn't. Run it once per command (fetch each other PR's
+branch as in step 1 and run it against `origin/<other-ref>`), or compare the PRs' changed-file lists
+when only overlap matters. Name the order Brett should merge and run SQL in.
 
 ## 5. Look at the screens
 
 For any UI change, run it in local mode and look:
 
-```bash
-PORT=3100 npx next dev -p 3100   # in the background; local mode needs no env vars
-```
+Start `npx next dev -p 3100` as a background task (local mode needs no env vars), wait for
+`curl -s localhost:3100` to answer, and stop it with TaskStop when you're done. Don't kill it with a
+`pkill -f` pattern: it can match your own shell.
 
-Screenshot each changed screen with Playwright (`require('playwright')`, Chromium is pre-installed)
-at 1440×900 and 390×844, and open the images with Read. Try the main path and one edge: empty state,
+Screenshot each changed screen with Playwright at 1440×900 and 390×844, and open the images with
+Read. Playwright and Chromium are installed globally, not in the repo, so require them by path:
+`require('/home/claude/.npm-global/lib/node_modules/playwright')` (if that moved:
+`npm root -g`). Write the script in the scratchpad, not the repo. Try the main path and one edge: empty state,
 a long name, Escape and back for drawers, keyboard focus. Stop the server when done. Say what you
 looked at; a screen you didn't see is "not checked", not "fine".
 
@@ -165,8 +177,18 @@ order · SQL in the body matches the file
 Not checked: ...
 ```
 
-Blockers are things that would break production, leak data, lose data, or leave the database out of
-step with the code. Leave a section out when it's empty. Keep it short; Brett reads it on his phone.
+Already there (not from this PR)
+- Problems you noticed that this PR didn't cause, one line each. They don't change the verdict.
+
+The verdict:
+- **Ready to merge**: no blockers, and nothing in Worth fixing that should hold the merge.
+- **Merge after fixes**: no blockers, but something should be fixed first because it's cheap and
+  merging without it leaves a real problem (a PR body that doesn't match the diff, a bug a user will
+  hit, a missing test for new logic).
+- **Don't merge**: any blocker. Blockers are things that would break production, leak data, lose
+  data, or leave the database out of step with the code, plus any failing check.
+
+Leave a section out when it's empty. Keep it short; Brett reads it on his phone.
 
 Then tell Brett in the conversation: the verdict line, the blockers if any, and that the review is on
 the PR. If it's Ready to merge, he can merge on GitHub or say "merge it".
