@@ -124,3 +124,15 @@ describe('suggestions from the check-in', () => {
     expect(r.stays).toEqual(['Toilet Bowl Tag']);
   });
 });
+
+describe('suggestions only propose drills for the team age (decision 0025)', () => {
+  it('a swap comes from the pool, not the whole library', () => {
+    const want = { format: 'everyone' as const };
+    const all = pickSwap(byId.get('snake-in-the-forest')!, thursday[3], want, { blocks: thursday, byId, known, feedback: {} });
+    expect(all).not.toBeNull();
+    const pool = drills.filter((d) => d.id !== all!.id);
+    const s = pickSwap(byId.get('snake-in-the-forest')!, thursday[3], want, { blocks: thursday, byId, known, feedback: {}, pool });
+    expect(s?.id).not.toBe(all!.id);
+    expect(pickSwap(byId.get('snake-in-the-forest')!, thursday[3], want, { blocks: thursday, byId, known, feedback: {}, pool: [] })).toBeNull();
+  });
+});

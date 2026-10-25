@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireTeam } from "@/lib/auth";
 import { getAppStore } from "@/lib/app/store";
-import { FOCUS_ATTRIBUTES, shapeLabel } from "@/lib/drills/schema";
+import { FOCUS_ATTRIBUTES, levelCount, shapeLabel, startLevelFor } from "@/lib/drills/schema";
+import { drillsForAge } from "@/lib/drills/age";
 import { Pips, Rink } from "@/components/ds";
 import { FavoriteButton, StarIcon } from "@/components/favorite-button";
 import { LibrarySearch } from "./search";
@@ -21,14 +22,16 @@ export default async function Library({
   const filter = FOCUS_ATTRIBUTES.find((a) => a === focus) ?? null;
   const onlyFavs = fav === "1";
   const store = await getAppStore();
-  const [all, favs, requests] = await Promise.all([
+  const [live, favs, requests] = await Promise.all([
     store.libraryDrills(),
     store.favorites(team.id),
     getRequestStore()
       .then((r) => r.forTeam(team.id))
       .catch(() => []),
   ]);
-  const names = new Map(all.map((d) => [d.id, d.funName]));
+  const names = new Map(live.map((d) => [d.id, d.funName]));
+  // Only drills for the team's age (decision 0025). No age toggle for coaches.
+  const { drills: all, notice } = drillsForAge(live, team.ageGroup);
   const favCount = all.filter((d) => favs[d.id]).length;
   // Team favourites first (decision 0012), then by how much the drill works on the chosen skill.
   const shown = all
@@ -79,11 +82,13 @@ export default async function Library({
         <div>
           <h1 className="text-2xl font-bold">Drills</h1>
           <p className="text-sm text-ink-200">
-            {all.length} drills, each from a coaching source and checked by a
-            coach.
+            {all.length} drill{all.length === 1 ? "" : "s"} for the {team.name}
+            {team.ageGroup ? ` (${team.ageGroup})` : ""}, each from a coaching
+            source and checked by a coach.
             {coach.isAdmin &&
               " Only drills marked Live in Drill review show here."}
           </p>
+          {notice && <p className="mt-1 text-sm">{notice}</p>}
         </div>
         <RequestDrill />
       </div>
@@ -93,7 +98,9 @@ export default async function Library({
           {filters}
           <p className="rounded-md border border-dashed border-border-100 p-8 text-center text-sm text-ink-200">
             {all.length === 0
-              ? "No live drills yet. Approve drills in Drill review, then mark them Live."
+              ? live.length > 0
+                ? `No ${team.ageGroup} drills yet. New ones show up here as they're added.`
+                : "No live drills yet. Approve drills in Drill review, then mark them Live."
               : onlyFavs
                 ? "No team favourites yet. Star a drill and it shows first for every coach on the team."
                 : "No drills work on that yet."}
@@ -144,7 +151,11 @@ export default async function Library({
                           <Pips level={2} /> {f.attribute}
                         </span>
                       ))}
-                      <span className="text-ink-200">{shapeLabel(d)}</span>
+                      <span className="text-ink-200">
+                        {startLevelFor(d, team.ageGroup) > 1
+                          ? `${team.ageGroup} starts at Level ${startLevelFor(d, team.ageGroup)} of ${levelCount(d)}`
+                          : shapeLabel(d)}
+                      </span>
                     </span>
                   </Link>
                 </>
@@ -152,6 +163,12 @@ export default async function Library({
             };
           })}
         />
+      )}
+
+      {team.ageGroup === "U9" && all.length > 0 && (
+        <p className="border-t border-border-100 pt-4 text-sm text-ink-200">
+          New U9 drills show up here as they&apos;re added.
+        </p>
       )}
 
       {requests.length > 0 && (
