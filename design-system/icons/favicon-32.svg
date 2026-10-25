@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <title>Firstpass favicon, 32px and up: two-dash pass on a rounded tile.</title>
+  <rect width="48" height="48" rx="10.8" fill="#084F68"/>
+  <ellipse cx="10.5" cy="31" rx="6.4" ry="4.2" fill="#FFFFFF"/>
+  <circle cx="36.00" cy="17.50" r="6.20" fill="none" stroke="#FFFFFF" stroke-width="4.40"/>
+  <path d="M17.57 27.26L20.60 25.65" stroke="#FFFFFF" stroke-width="4.40" stroke-linecap="butt" fill="none"/>
+  <path d="M23.07 24.34L26.10 22.74" stroke="#FFFFFF" stroke-width="4.40" stroke-linecap="butt" fill="none"/>
+</svg>
