@@ -1,24 +1,11 @@
-// Waitlist emails (decision 0019): a confirmation to the person who joined, and an alert to
-// hello@firstpass.coach so Brett can email them to book a call.
+// The waitlist alert (decision 0019) to hello@firstpass.coach, so Brett sees every sign-up. The
+// person who joined gets the welcome + survey email from the waitlist journey instead
+// (discovery-emails.ts, decision 0027), which replaced the old confirmation.
 
 import type { WaitlistInput } from '../site/schema';
 import { SITE, esc, shell, type Email } from './layout';
 
 export const WAITLIST_ALERT_TO = process.env.WAITLIST_ALERT_TO ?? 'hello@firstpass.coach';
-
-export function waitlistConfirmationEmail(i: Pick<WaitlistInput, 'kind' | 'email'>): Email {
-  const subject = 'You’re on the Firstpass waitlist';
-  const lead = i.kind === 'association' ? 'Thanks for joining. I’ll email you in the next few days to set up a call about a pilot for your teams.' : 'Thanks for joining. I’ll email you in the next few days to set up a quick call about your team.';
-  const more = 'Firstpass plans U5–U9 practices for volunteer coaches: set up your team once, and every practice arrives planned, timed to your ice and ready on your phone at the rink.';
-  const html = shell({
-    preheader: 'I’ll be in touch to book a quick call.',
-    heading: 'You’re on the list',
-    paragraphs: [esc(lead), esc(more), '— Brett'],
-    footer: [`You got this because ${esc(i.email)} joined the waitlist at firstpass.coach. Not you? Reply and we’ll take it off.`],
-  });
-  const text = [subject, '', lead, '', more, '', '— Brett', '', '—', `You got this because ${i.email} joined the waitlist at firstpass.coach. Not you? Reply and we’ll take it off.`].join('\n');
-  return { subject, html, text };
-}
 
 export function waitlistAlertEmail(i: WaitlistInput, isNew: boolean): Email {
   const who = i.kind === 'association' ? `association${i.orgName ? `, ${i.orgName}` : ''}` : `coach${i.orgName ? `, ${i.orgName}` : ''}`;

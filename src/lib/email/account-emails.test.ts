@@ -32,6 +32,6 @@ describe('email frame', () => {
     const html = shell({ preheader: 'p', heading: 'Sign in', paragraphs: ['x'], code: '481920', footer: ['why'], site: 'https://firstpass.coach' });
     expect(html).toContain('src="https://firstpass.coach/email/firstpass-lockup.png"');
     expect(html).toContain('481920');
-    expect(html).toContain('Practice plans for U7 and U9 hockey');
+    expect(html).toContain('Practice plans for U5–U9 hockey');
   });
 });
