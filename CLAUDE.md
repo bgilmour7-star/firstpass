@@ -32,3 +32,6 @@ Reviewers ask for diagram changes on the drill review screen; new drills need a 
 
 ## Drill requests from coaches
 Coaches ask for new drills or suggest changes (decision 0018). Once a day a scheduled run works them with the **drill-requests** skill (`.claude/skills/drill-requests/SKILL.md`): draft a new drill In review, or store a change as a proposal; never make anything live. "Work the drill requests" means: run that skill.
+
+## Reviewing pull requests
+Brett merges; Claude reviews first with the **pr-review** skill (`.claude/skills/pr-review/SKILL.md`) and posts the verdict on the PR. A PR that touches the database, sign-in, emails, `/admin`, `scripts/` or a public route gets a full review from a fresh agent that didn't write it; UI-only changes get a light review (checks and screenshots). "Review PR #n" means: run that skill.
