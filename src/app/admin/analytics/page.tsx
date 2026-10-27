@@ -416,7 +416,7 @@ function TeamsAndCoaches({ g, days, missing }: { g: GrowthSummary; days: number;
       </h2>
       {missing ? (
         <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
-          Teams and coaches need one more bit of SQL. Run <code className="font-mono">supabase/migrations/20261028000000_analytics_growth.sql</code> in the Supabase SQL editor, then reload.
+          Teams and coaches need one more bit of SQL. Run <code className="font-mono">supabase/migrations/20261030000000_analytics_growth.sql</code> in the Supabase SQL editor, then reload.
         </p>
       ) : (
         <>
