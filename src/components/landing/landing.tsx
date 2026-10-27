@@ -125,6 +125,62 @@ function Pill({ on, children, className = '' }: { on?: boolean; children: React.
   return <span className={`rounded-full py-[9px] text-center ${on ? 'border-[1.5px] border-ink-100 bg-surface-300 font-semibold' : 'border border-border-200'} ${className}`}>{children}</span>;
 }
 
+// Saturday's 50 minutes, block by block (the plan in How it works), and the 14 skaters in their groups.
+const BLOCKS: { name: string; min: number; tone: 'a' | 'b' | 'gap' }[] = [
+  { name: 'Warm-up', min: 5, tone: 'b' },
+  { name: 'Ski Racer', min: 8, tone: 'a' },
+  { name: 'Puck Party', min: 12, tone: 'b' },
+  { name: 'Water', min: 2, tone: 'gap' },
+  { name: 'Snake in the Forest', min: 10, tone: 'a' },
+  { name: 'Toilet Bowl Tag', min: 10, tone: 'b' },
+  { name: 'Huddle', min: 3, tone: 'gap' },
+];
+const GROUPS: { name: string; n: number; dot: string }[] = [
+  { name: 'Sharks', n: 5, dot: 'bg-ink-200' },
+  { name: 'Bears', n: 5, dot: 'bg-rink-200' },
+  { name: 'Eagles', n: 4, dot: 'bg-rink-100' },
+];
+
+function Saturday() {
+  const tone = { a: 'bg-rink-100', b: 'bg-rink-200', gap: 'bg-surface-300' };
+  return (
+    <figure aria-label="A Saturday practice: 50 minutes of ice split into warm-up, drills, a rotation, water, a game and a huddle, for 14 kids in three skill groups, with one volunteer coach" className="m-0 flex min-w-0 flex-[1_1_440px] flex-col gap-7 rounded-2xl bg-surface-200 p-[clamp(20px,3vw,32px)]">
+      <span className={`${mono} text-[13px] text-ink-200`}>Saturday · 9:45</span>
+      <div className="flex flex-col gap-3">
+        <span className="flex items-baseline gap-2.5">
+          <b className={`${mono} text-[44px] font-medium leading-none tracking-[-0.03em]`}>50</b>
+          <span className="text-[17px]">minutes of ice</span>
+        </span>
+        <div aria-hidden="true" className="flex h-7 gap-[3px] overflow-hidden rounded-md">
+          {BLOCKS.map((b) => (
+            <span key={b.name} title={`${b.name} · ${b.min} min`} className={tone[b.tone]} style={{ flex: b.min }} />
+          ))}
+        </div>
+        <span className="text-[13px] text-ink-200">Warm-up, a drill, stations, water, two games and a huddle, timed to fit.</span>
+      </div>
+      <div className="flex flex-col gap-3">
+        <span className="flex items-baseline gap-2.5">
+          <b className={`${mono} text-[44px] font-medium leading-none tracking-[-0.03em]`}>14</b>
+          <span className="text-[17px]">kids at three skill levels</span>
+        </span>
+        <div aria-hidden="true" className="flex flex-wrap gap-x-6 gap-y-3">
+          {GROUPS.map((g) => (
+            <span key={g.name} className="flex flex-col gap-1.5">
+              <span className="flex gap-1">
+                {Array.from({ length: g.n }, (_, i) => (
+                  <span key={i} className={`size-3.5 rounded-full ${g.dot}`} />
+                ))}
+              </span>
+              <span className="text-xs text-ink-200">{g.name}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+      <p className="m-0 border-t border-border-100 pt-5 font-display text-[22px] font-bold leading-[1.2]">One of you, with a whistle. Firstpass plans the rest.</p>
+    </figure>
+  );
+}
+
 export function Landing() {
   return (
     <div className="min-h-dvh bg-surface-100 text-ink-100">
@@ -148,19 +204,18 @@ export function Landing() {
             <Rail top="64px" />
             <div aria-hidden="true" className="absolute hidden left-[calc(var(--railx)-var(--railpad)-6.5px)] top-[52px] size-4 rounded-full bg-ink-100 sm:block" />
             <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-6">
-              <h1 id="hero-title" className="font-display text-[clamp(60px,8.4vw,112px)] font-extrabold leading-[0.92] tracking-[-0.035em]">
-                Show up ready.
+              <p className="font-display text-lg font-bold tracking-[-0.01em] text-rink-100">Show up ready.</p>
+              <h1 id="hero-title" className="-mt-2 max-w-[17ch] font-display text-[clamp(42px,4.6vw,66px)] font-extrabold leading-[1] tracking-[-0.03em]">
+                Hockey practice plans for parents who said yes to coaching.
               </h1>
-              <p className="max-w-[34ch] text-[clamp(18px,1.6vw,21px)] leading-normal">
-                Practice plans for U5–U9 hockey. Set up your team once, and every practice arrives planned: timed to your ice, split for your skill groups, and on your phone at the rink.
+              <p className="max-w-[36ch] text-[clamp(18px,1.6vw,21px)] leading-normal">
+                No drill hunting the night before. Firstpass builds each U5–U9 practice for your ice time and your kids, and you run it from your phone.
               </p>
-              <div className="flex flex-col items-start gap-3.5 pt-2">
+              <div className="flex flex-col items-start gap-3 pt-2">
                 <a href="#join" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200">
-                  Join the waitlist
+                  Get early access
                 </a>
-                <a href="#join-association" className="py-1.5 text-[15px] text-ink-200 underline underline-offset-[3px] hover:text-ink-100">
-                  Run an association? Get your teams on the list.
-                </a>
+                <p className="text-[15px] text-ink-200">Free during the pilot. Brett will set you up this week.</p>
               </div>
             </div>
             <div className="relative min-w-0 flex-[1_1_440px] sm:pb-[max(200px,14vw)]">
@@ -169,26 +224,19 @@ export function Landing() {
             </div>
           </section>
 
-          {/* Rink math */}
-          <section aria-label="The problem" className="relative border-t border-border-100 py-[clamp(48px,7vw,88px)]">
+          {/* The problem: a real Saturday, the numbers drawn as what they mean, beside the coach's question. */}
+          <section aria-labelledby="problem-title" className="relative flex flex-wrap items-center gap-x-[clamp(40px,6vw,96px)] gap-y-10 border-t border-border-100 py-[clamp(56px,8vw,104px)]">
             <Rail />
-            <Cone top="clamp(52px, 7vw, 92px)" />
-            <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,140px),1fr))] gap-x-10 gap-y-8">
-              {(
-                [
-                  ['50', 'minutes of ice'],
-                  ['14', 'kids under nine'],
-                  ['3', 'skill levels'],
-                  ['1', 'volunteer with a whistle'],
-                ] as const
-              ).map(([n, l]) => (
-                <div key={l} className="flex flex-col-reverse justify-end gap-1">
-                  <dt className="text-[17px] text-ink-200">{l}</dt>
-                  <dd className={`${mono} m-0 text-[clamp(52px,6vw,76px)] font-medium leading-none tracking-[-0.03em]`}>{n}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-10 font-display text-[clamp(26px,3vw,36px)] font-bold leading-[1.15] tracking-[-0.01em]">Firstpass handles the planning.</p>
+            <Cone top="clamp(60px, 8vw, 108px)" />
+            <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-5">
+              <h2 id="problem-title" className="font-display text-[clamp(30px,3.6vw,46px)] font-bold leading-[1.08] tracking-[-0.02em]">
+                Not sure how to plan practices that keep kids engaged while they build skills?
+              </h2>
+              <p className="max-w-[44ch] text-lg text-ink-200">
+                Most volunteer coaches piece drills together from YouTube and PDFs the night before. Firstpass builds the whole practice for you: every group busy, every drill at the right level, and each one shows you how to run it.
+              </p>
+            </div>
+            <Saturday />
           </section>
 
           {/* How it works */}
@@ -280,7 +328,7 @@ export function Landing() {
                   </div>
                 </Crop>
                 <Step n={3} title="Run it from the boards.">
-                  See what’s on now and what’s next on your phone, or print it for the glass.
+                  See what’s on now and what’s next on your phone, or print it for the glass. Every coach on your team sees the same plan, so nobody’s guessing what happens next.
                 </Step>
               </li>
             </ol>

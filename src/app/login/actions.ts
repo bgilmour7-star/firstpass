@@ -39,7 +39,7 @@ async function confirmUrl(ctx: Ctx, nextOverride?: string) {
   return `${origin}/auth/confirm?next=${encodeURIComponent(safeNext(nextOverride ?? ctx.next))}${join}`;
 }
 
-const INVITE_ONLY = 'Firstpass is invite-only for now. Join the waitlist at firstpass.coach and Brett will be in touch.';
+const INVITE_ONLY = 'Firstpass is invite-only for now. Get early access at firstpass.coach and Brett will set you up.';
 
 /** May this email create an account? With a working team join link, or once Brett has marked them Onboarded on the waitlist. */
 async function invited(address: string, joinCode?: string): Promise<boolean> {
