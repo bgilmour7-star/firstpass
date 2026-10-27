@@ -26,8 +26,10 @@ export function visitSource(): string | null {
 }
 
 /** Signs of a person, not a robot loading the page: monitoring and scanning services open it in a
- *  real browser (often a phone and a desktop size a few seconds apart) and never touch it. */
-const HUMAN = ['scroll', 'pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel'] as const;
+ *  real browser (often a phone and a desktop size a few seconds apart) and never touch it. Input
+ *  events only: a script can scroll the page (and some robots do), but it can't make a trusted tap,
+ *  key or wheel. People who scroll get here through touchstart or wheel. */
+const HUMAN = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel'] as const;
 
 export function VisitTracker() {
   useEffect(() => {
@@ -37,8 +39,8 @@ export function VisitTracker() {
     let counted = false;
     let seen: IntersectionObserver | undefined;
     const stopListening = () => HUMAN.forEach((e) => window.removeEventListener(e, count));
-    function count() {
-      if (counted) return;
+    function count(e: Event) {
+      if (counted || !e.isTrusted) return;
       counted = true;
       stopListening();
       void track('view', location.pathname, source);

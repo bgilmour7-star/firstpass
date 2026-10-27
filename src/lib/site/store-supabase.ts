@@ -55,7 +55,7 @@ export class SupabaseSiteStore implements SiteStore {
         return q.order('occurred_at').range(from, from + 999);
       };
       let { data, error } = await page(this.hasAutomated);
-      if (error && this.hasAutomated && error.code === '42703') {
+      if (error && this.hasAutomated && (error.code === '42703' || /automated/i.test(error.message))) {
         this.hasAutomated = false;
         ({ data, error } = await page(false));
       }
