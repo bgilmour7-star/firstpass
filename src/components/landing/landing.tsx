@@ -217,7 +217,7 @@ export function Landing() {
                 <a href="#join" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200">
                   Get early access
                 </a>
-                <p className="text-[15px] text-ink-200">Free during the pilot. Brett will set you up this week.</p>
+                <p className="text-[15px] text-ink-200">Your first team is free.</p>
               </div>
             </div>
             <div className="relative min-w-0 flex-[1_1_440px] sm:pb-[max(200px,14vw)]">

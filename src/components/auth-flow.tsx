@@ -122,7 +122,7 @@ export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = '
         <p className="mt-2 text-[15px] leading-[22px] text-ink-200">
           {join
             ? `There’s no account for ${email} yet, and the link to ${join.teamName} has been turned off. Ask your head coach for a new one.`
-            : `There’s no account for ${email}. While we pilot Firstpass, new coaches get early access from firstpass.coach, and Brett sets them up.`}
+            : `There’s no account for ${email}. While we pilot Firstpass, new coaches get early access from firstpass.coach.`}
         </p>
         {!join && (
           <Link href="/#join" className={`${primary} mt-7`}>
