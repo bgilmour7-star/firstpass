@@ -26,9 +26,9 @@ export function waitlistAlertEmail(i: WaitlistInput, isNew: boolean): Email {
     preheader: `${i.email} joined the waitlist.`,
     heading: isNew ? 'New on the waitlist' : 'Joined the waitlist again',
     paragraphs: [table, esc(next)],
-    button: { label: 'Open the waitlist', url: `${SITE}/admin/analytics#waitlist` },
+    button: { label: 'Open the waitlist', url: `${SITE}/admin/waitlist` },
     footer: ['Sent to the Firstpass inbox for every waitlist sign-up.'],
   });
-  const text = [subject, '', ...rows.map(([k, v]) => `${k}: ${v}`), '', next, '', `Open the waitlist: ${SITE}/admin/analytics#waitlist`].join('\n');
+  const text = [subject, '', ...rows.map(([k, v]) => `${k}: ${v}`), '', next, '', `Open the waitlist: ${SITE}/admin/waitlist`].join('\n');
   return { subject, html, text };
 }

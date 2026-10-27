@@ -39,7 +39,7 @@ Date: 2026-10-29 · Decided by: Brett (technical design "Teams and discovery", o
   your way?" (stored in `extra`). Every free-text field says "No kids' names, please." `submit_survey` marks the invite used,
   owes a gift card, sets the call to book when they said yes, and skips the rest of their survey emails.
 - **Brett only.** Every new table has RLS on `can_see_analytics()`, and the admin pages call `requireAnalytics()`. Admin
-  has tabs Analytics · Survey · Coaches · Emails on those pages (the waitlist stays inside Analytics). Coaches' usage comes
+  has tabs Analytics · Waitlist · Survey · Coaches · Emails on those pages (the waitlist got its own tab in PR #21). Coaches' usage comes
   from `discovery_usage()`, a security-definer function that returns counts only. `older_team_interest` (PR 2) is read if
   it exists and shown as U11+.
 - **Themes** are counted on the page; the daily "Firstpass daily sign-ups" task tags them from `insight_themes`. A theme Brett

@@ -26,7 +26,8 @@ Date: 2026-10-20 · Decided by: Brett
   every few hours. Earlier robot visits are marked `automated` (not deleted) and left out of Analytics.
 - **Admin → Analytics is Brett's only** (`admins.analytics`, `can_see_analytics()`), because the waitlist holds
   personal emails: headline numbers against the previous period, visits per day with sign-ups, the funnel, sources,
-  who's signing up, and the waitlist with a status per row (New → Emailed → Call booked → Onboarded / Not a fit).
+  who's signing up. The waitlist, with a status per row (New → Emailed → Call booked → Onboarded / Not a fit), was at
+  the bottom of Analytics and has had its own tab, Admin → Waitlist (`/admin/waitlist`), since PR #21.
 - A plain **privacy page** at `/privacy`.
 - **Share card** (`public/og/firstpass-landing.png`, 1200×630): the hero's Puck Party rotation drawn by RinkDiagram in
   the light palette beside "Show up ready." on `rink-200`. A static render; redo it if the hero drill changes.

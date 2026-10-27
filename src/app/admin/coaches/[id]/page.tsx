@@ -128,7 +128,7 @@ export default async function CoachPage({ params }: { params: Promise<{ id: stri
               <Row k="Last active" mono>{u.lastActive ? shortDay(u.lastActive) : '–'}</Row>
             </dl>
           ) : (
-            <p className="text-sm leading-5 text-ink-200">Once they’re in, this shows practices run, check-ins, drills swapped and last active, so you can read their answers against what they actually do. Mark them Onboarded on the Analytics waitlist to let them sign up.</p>
+            <p className="text-sm leading-5 text-ink-200">Once they’re in, this shows practices run, check-ins, drills swapped and last active, so you can read their answers against what they actually do. Mark them Onboarded on the Waitlist tab to let them sign up.</p>
           )}
         </section>
 
