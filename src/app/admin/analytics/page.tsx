@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import { requireAnalytics } from '@/lib/auth';
 import { getSiteStore } from '@/lib/site/store';
-import { change, summarize, summarizeGrowth, vanDay, type GrowthSummary, type Summary } from '@/lib/site/summary';
+import { change, summarize, summarizeGrowth, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
 import type { Growth } from '@/lib/site/store';
-import { StatusSelect } from './status-select';
 
 export const dynamic = 'force-dynamic';
 
 // Admin → Analytics (decision 0019; canvas "Admin · Analytics"). The landing page's visits,
-// counted without cookies, and the waitlist Brett works through. Brett only.
+// counted without cookies, sign-ups, and teams and coaches. Brett only. The waitlist itself, with a
+// status per person, has its own tab (/admin/waitlist).
 
 const PERIODS = [7, 30] as const;
 const DAY = 86_400_000;
@@ -84,7 +84,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       </div>
 
       <Who s={s} />
-      <Waitlist list={waitlist} />
     </div>
   );
 }
@@ -323,63 +322,6 @@ function Who({ s }: { s: Summary }) {
         {col('Visitors’ devices', s.devices.map((d) => ({ label: d.label, value: pct(d.share) })))}
         {col('Visitors’ regions', s.regions.map((r) => ({ label: r.label, value: pct(r.share) })))}
       </div>
-    </section>
-  );
-}
-
-function Waitlist({ list }: { list: WaitlistEntry[] }) {
-  const counts = (['new', 'emailed', 'call_booked', 'onboarded', 'not_a_fit'] as const).map((k) => [k, list.filter((w) => w.status === k).length] as const);
-  const words = (k: string, n: number) => ({ new: 'new', emailed: 'emailed', call_booked: n === 1 ? 'call booked' : 'calls booked', onboarded: 'onboarded', not_a_fit: 'not a fit' })[k];
-  const th = 'border-b border-border-100 pb-2 pr-3 font-medium';
-  const td = 'border-b border-border-100 py-2.5 pr-3';
-  return (
-    <section id="waitlist" aria-labelledby="wl-title" className="flex scroll-mt-6 flex-col gap-3.5 border-t border-border-100 pt-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="wl-title" className="text-lg font-semibold">
-          Waitlist <span className="font-mono text-sm font-normal text-ink-200">{list.length}</span>
-        </h2>
-        <span className="text-sm text-ink-200">
-          {counts
-            .filter(([, n]) => n > 0)
-            .map(([k, n]) => `${n} ${words(k, n)}`)
-            .join(' · ') || 'Nobody yet'}
-        </span>
-      </div>
-      <p className="text-sm text-ink-200">Email each person to book a call. Onboarded lets that email create an account; everyone else is shown the waitlist when they try to sign up.</p>
-      {list.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[880px] border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-ink-200">
-                {['Joined', 'Email', 'Kind', 'Team or association', 'Age / teams', 'Source', 'Status'].map((h) => (
-                  <th key={h} scope="col" className={th}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((w) => (
-                <tr key={w.id}>
-                  <td className={`${td} font-mono text-ink-200`}>{shortDay(vanDay(w.createdAt))}</td>
-                  <td className={td}>
-                    <a href={`mailto:${w.email}`} className="underline-offset-2 hover:underline">
-                      {w.email}
-                    </a>
-                  </td>
-                  <td className={`${td} ${w.kind === 'association' ? 'font-semibold' : ''}`}>{w.kind === 'association' ? 'Association' : 'Coach'}</td>
-                  <td className={`${td} ${w.orgName ? '' : 'text-ink-200'}`}>{w.orgName ?? 'Not given'}</td>
-                  <td className={td}>{w.kind === 'association' ? `${w.teamCount ?? '?'} teams` : (w.ageGroup ?? '–')}</td>
-                  <td className={`${td} font-mono text-[13px]`}>{w.source ?? 'direct'}</td>
-                  <td className="border-b border-border-100 py-1.5">
-                    <StatusSelect id={w.id} email={w.email} status={w.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </section>
   );
 }
