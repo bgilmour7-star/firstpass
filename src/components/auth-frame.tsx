@@ -1,3 +1,4 @@
+import Link from "next/link";
 import puckParty from "../../content/drills/rotation-puck-party.json";
 import { Rink } from "./ds";
 import { Mark } from "./app-shell";
@@ -19,10 +20,11 @@ export function AuthFrame({
     >
       <main className="flex min-h-dvh w-full justify-center px-6 pb-7 pt-5 lg:px-16 lg:pt-10">
         <div className="flex w-full max-w-[440px] flex-col">
-          <p className="flex h-11 items-center gap-2 font-display text-xl font-extrabold tracking-[-0.01em]">
+          {/* Home: the landing page when signed out; signed-in coaches are sent on to their team. */}
+          <Link href="/" aria-label="Firstpass home" className="flex h-11 items-center gap-2 self-start rounded-md font-display text-xl font-extrabold tracking-[-0.01em] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-rink-100">
             <Mark />
             Firstpass
-          </p>
+          </Link>
           <div className="flex flex-1 flex-col">{children}</div>
           <p className="mt-8 text-xs leading-[17px] text-ink-200">
             Firstpass keeps team details only, never kids&apos; names.
