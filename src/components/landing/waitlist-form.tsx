@@ -7,7 +7,7 @@ import { visitSource } from './visit-tracker';
 
 // The waitlist form (decision 0019; canvas "Waitlist form · other states"). One form, two paths:
 // coaches give an age group and, optionally, their team; associations give their name and how many
-// U5–U9 teams. The button label never changes. Once they've joined, the whole card becomes the
+// U5–U9 teams. The button label never changes ("Get early access"). Once they've joined, the whole card becomes the
 // confirmation: a pass from puck to teammate that turns into a check mark (WaitlistDone).
 
 type Kind = 'coach' | 'association';
@@ -24,7 +24,7 @@ export function WaitlistForm() {
   const [pending, start] = useTransition();
   const started = useRef(false);
 
-  // "Run an association?" in the hero links to #join-association.
+  // A link to /#join-association opens the form with Association picked.
   useEffect(() => {
     const pick = () => {
       if (location.hash === '#join-association') setKind('association');
@@ -138,7 +138,7 @@ export function WaitlistForm() {
       )}
 
       <button type="submit" disabled={pending} className="mt-1 min-h-[52px] rounded-full bg-rink-100 text-[17px] font-medium text-surface-100 hover:bg-rink-200 disabled:opacity-[var(--opacity-disabled)]">
-        {pending ? 'Joining…' : 'Join the waitlist'}
+        {pending ? 'Joining…' : 'Get early access'}
       </button>
       <p className="text-center text-sm text-ink-200">
         Already a coach?{' '}
