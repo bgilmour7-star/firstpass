@@ -24,7 +24,7 @@ export function WaitlistForm() {
   const [pending, start] = useTransition();
   const started = useRef(false);
 
-  // "Run an association?" in the hero links to #join-association.
+  // A link to /#join-association opens the form with Association picked.
   useEffect(() => {
     const pick = () => {
       if (location.hash === '#join-association') setKind('association');

@@ -144,7 +144,8 @@ const GROUPS: { name: string; n: number; dot: string }[] = [
 function Saturday() {
   const tone = { a: 'bg-rink-100', b: 'bg-rink-200', gap: 'bg-surface-300' };
   return (
-    <figure aria-label="A Saturday practice: 50 minutes of ice split into warm-up, drills, a rotation, water, a game and a huddle, for 14 kids in three skill groups, with one volunteer coach" className="m-0 flex min-w-0 flex-[1_1_440px] flex-col gap-7 rounded-2xl bg-surface-200 p-[clamp(20px,3vw,32px)]">
+    <figure aria-label="A Saturday practice: 50 minutes of ice split into a warm-up, two drills, stations, water, a game and a huddle, for 14 kids in three skill groups, with one volunteer coach. Firstpass plans the rest." className="m-0 flex min-w-0 flex-[1_1_440px] flex-col gap-7 rounded-2xl bg-surface-200 p-[clamp(20px,3vw,32px)]">
+      <div aria-hidden="true" className="contents">
       <span className={`${mono} text-[13px] text-ink-200`}>Saturday · 9:45</span>
       <div className="flex flex-col gap-3">
         <span className="flex items-baseline gap-2.5">
@@ -156,7 +157,7 @@ function Saturday() {
             <span key={b.name} title={`${b.name} · ${b.min} min`} className={tone[b.tone]} style={{ flex: b.min }} />
           ))}
         </div>
-        <span className="text-[13px] text-ink-200">Warm-up, a drill, stations, water, two games and a huddle, timed to fit.</span>
+        <span className="text-[13px] text-ink-200">Warm-up, two drills, stations, water, a game and a huddle, timed to fit.</span>
       </div>
       <div className="flex flex-col gap-3">
         <span className="flex items-baseline gap-2.5">
@@ -177,6 +178,7 @@ function Saturday() {
         </div>
       </div>
       <p className="m-0 border-t border-border-100 pt-5 font-display text-[22px] font-bold leading-[1.2]">One of you, with a whistle. Firstpass plans the rest.</p>
+      </div>
     </figure>
   );
 }
