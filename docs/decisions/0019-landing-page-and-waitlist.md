@@ -9,9 +9,9 @@ Date: 2026-10-20 · Decided by: Brett
   "Firstpass landing page plan" project doc and the "Firstpass Landing Page" design canvas.
 - **U5–U9** in the copy. **No affiliations** named on public pages: drills are "adapted from the skills young
   players already learn", and each drill still credits its source inside the app.
-- **One action: Join the waitlist** (labelled "Get early access" since 2026-10-26, PR #19; still the waitlist underneath). The header
-  sticks to the top and shows the same button once the hero's has scrolled away (hidden again while the form is on
-  screen), so the one action is always in reach. One form, two paths: *I coach a team* (email, age group, team optional) or
+- **One action: Join the waitlist** (labelled "Get early access" since 2026-10-26, PR #19; still the waitlist underneath). Once the
+  hero's button has scrolled away, a solid bar slides in at the top with the same button (hidden again while the form
+  is on screen), so the one action is always in reach. Above that point the header is ordinary and scrolls away. One form, two paths: *I coach a team* (email, age group, team optional) or
   *I run an association* (email, association, number of U5–U9 teams). Joining again updates the row, never errors.
   The person gets a confirmation email; every sign-up also emails **hello@firstpass.coach** (`WAITLIST_ALERT_TO`
   to change it), and Brett emails each person himself to book a call.
