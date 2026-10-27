@@ -7,6 +7,7 @@ import { VisitTracker } from './visit-tracker';
 import { WaitlistForm } from './waitlist-form';
 import { Mark } from './mark';
 import { HeroRink } from './hero-rink';
+import { StickyHeader } from './sticky-header';
 
 // The public landing page (decision 0019; canvas "Firstpass Landing Page"). One promise, "Show up
 // ready", proved with the product: real drills from the library drawn by RinkDiagram, and crops of
@@ -187,17 +188,7 @@ export function Landing() {
   return (
     <div className="min-h-dvh bg-surface-100 text-ink-100">
       <VisitTracker />
-      <header className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 sm:px-[clamp(16px,4vw,48px)] py-5">
-        <Link href="/" aria-label="Firstpass home" className="inline-flex items-center gap-2.5">
-          <Mark className="size-[30px]" />
-          <span className="font-display text-2xl font-extrabold leading-none tracking-[-0.01em]">Firstpass</span>
-        </Link>
-        <nav aria-label="Account">
-          <Link href="/login" className="inline-flex min-h-11 items-center px-3.5 text-[15px] font-medium hover:underline">
-            Sign in
-          </Link>
-        </nav>
-      </header>
+      <StickyHeader />
 
       <main className="mx-auto max-w-[1200px] px-5 sm:px-[clamp(16px,4vw,48px)]">
         <div className="relative pl-[var(--railpad)] [--railpad:0px] [--railx:clamp(4px,1.4vw,20px)] sm:[--railpad:clamp(28px,5vw,76px)]">
@@ -214,7 +205,7 @@ export function Landing() {
                 No drill hunting the night before. Firstpass builds each U5–U9 practice for your ice time and your kids, and you run it from your phone.
               </p>
               <div className="flex flex-col items-start gap-3 pt-2">
-                <a href="#join" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200">
+                <a id="hero-cta" href="#join" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200">
                   Get early access
                 </a>
                 <p className="text-[15px] text-ink-200">Your first team is free.</p>
