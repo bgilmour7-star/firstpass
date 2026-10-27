@@ -13,4 +13,6 @@ as $$
 $$;
 
 revoke all on function public.analytics_growth() from public;
+-- Supabase grants new functions to anon directly, so revoking from public isn't enough.
+revoke execute on function public.analytics_growth() from anon;
 grant execute on function public.analytics_growth() to authenticated;

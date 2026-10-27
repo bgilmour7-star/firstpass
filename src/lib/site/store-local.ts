@@ -68,7 +68,7 @@ export class LocalSiteStore implements SiteStore {
   // Local mode reads the app's own file. Memberships made before this change have no time, so
   // they count from the day the file was first used.
   async growth(): Promise<Growth> {
-    let app: { members?: { userId: string; role: string; at?: string }[] } = {};
+    let app: { members?: { teamId: string; userId: string; role: string; at?: string }[] } = {};
     try {
       app = JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'app.json'), 'utf8'));
     } catch {
@@ -76,11 +76,17 @@ export class LocalSiteStore implements SiteStore {
     }
     const members = app.members ?? [];
     const fallback = '2026-10-14T00:00:00Z';
-    const first = new Map<string, string>();
-    for (const m of members) {
-      const at = m.at ?? fallback;
-      if (!first.has(m.userId) || at < first.get(m.userId)!) first.set(m.userId, at);
-    }
-    return { teams: members.filter((m) => m.role === 'head_coach').map((m) => m.at ?? fallback), coaches: [...first.values()] };
+    // Earliest membership per key: a coach counts from their first team, and a team from its first
+    // coach (so handing a team over doesn't move its date).
+    const earliest = (key: (m: (typeof members)[number]) => string) => {
+      const first = new Map<string, string>();
+      for (const m of members) {
+        const at = m.at ?? fallback;
+        const k = key(m);
+        if (!first.has(k) || at < first.get(k)!) first.set(k, at);
+      }
+      return [...first.values()];
+    };
+    return { teams: earliest((m) => m.teamId), coaches: earliest((m) => m.userId) };
   }
 }
