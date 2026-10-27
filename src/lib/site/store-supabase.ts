@@ -1,7 +1,7 @@
 import 'server-only';
 import { supabaseServer } from '../supabase/server';
 import type { PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
-import type { NewEvent, SiteStore } from './store';
+import type { Growth, NewEvent, SiteStore } from './store';
 
 type WaitlistRow = { id: string; email: string; kind: WaitlistEntry['kind']; age_group: string | null; org_name: string | null; team_count: number | null; source: string | null; status: WaitlistStatus; created_at: string };
 type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null };
@@ -58,5 +58,13 @@ export class SupabaseSiteStore implements SiteStore {
     const db = await supabaseServer();
     const { error } = await db.from('waitlist').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
     if (error) throw new Error(error.message);
+  }
+
+  async growth(): Promise<Growth> {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('analytics_growth');
+    if (error) throw new Error(missing(error) ? 'growth-migration-missing' : error.message);
+    const rows = (data ?? []) as { kind: 'team' | 'coach'; at: string }[];
+    return { teams: rows.filter((r) => r.kind === 'team').map((r) => r.at), coaches: rows.filter((r) => r.kind === 'coach').map((r) => r.at) };
   }
 }

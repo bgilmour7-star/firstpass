@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import type { PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
-import type { NewEvent, SiteStore } from './store';
+import type { Growth, NewEvent, SiteStore } from './store';
 
 // Local mode: the waitlist and visits live in .local/site.json.
 const FILE = join(process.cwd(), '.local', 'site.json');
@@ -63,5 +63,30 @@ export class LocalSiteStore implements SiteStore {
     const w = d.waitlist.find((x) => x.id === id);
     if (w) w.status = status;
     await write(d);
+  }
+
+  // Local mode reads the app's own file. Memberships made before this change have no time, so
+  // they count from the day the file was first used.
+  async growth(): Promise<Growth> {
+    let app: { members?: { teamId: string; userId: string; role: string; at?: string }[] } = {};
+    try {
+      app = JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'app.json'), 'utf8'));
+    } catch {
+      return { teams: [], coaches: [] };
+    }
+    const members = app.members ?? [];
+    const fallback = '2026-10-14T00:00:00Z';
+    // Earliest membership per key: a coach counts from their first team, and a team from its first
+    // coach (so handing a team over doesn't move its date).
+    const earliest = (key: (m: (typeof members)[number]) => string) => {
+      const first = new Map<string, string>();
+      for (const m of members) {
+        const at = m.at ?? fallback;
+        const k = key(m);
+        if (!first.has(k) || at < first.get(k)!) first.set(k, at);
+      }
+      return [...first.values()];
+    };
+    return { teams: earliest((m) => m.teamId), coaches: earliest((m) => m.userId) };
   }
 }
