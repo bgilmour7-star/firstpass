@@ -231,7 +231,7 @@ function Funnel({ s }: { s: Summary }) {
         {s.funnel.map((f) => (
           <div key={f.label} className="contents">
             <span>{f.label}</span>
-            <span className="h-3.5 rounded bg-rink-100" style={{ width: `${Math.max((f.visitors / top) * 100, f.visitors ? 1.5 : 0)}%` }} />
+            <span className="h-3.5 rounded bg-rink-100" style={{ width: `${Math.min(100, Math.max((f.visitors / top) * 100, f.visitors ? 1.5 : 0))}%` }} />
             <span className="text-right font-mono">{f.visitors}</span>
           </div>
         ))}

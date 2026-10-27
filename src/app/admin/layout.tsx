@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const next = navPractice(team ? await store.listPractices(team.id).catch(() => []) : []);
   return (
     <AppShell email={admin.email} isAdmin local={admin.local} teamName={team?.name} next={next} reviewCount={reviewCount} analytics={admin.analytics} initialCollapsed={jar.get(NAV_COOKIE)?.value === 'collapsed'}>
-      {/* Brett's pages: Analytics, Survey, Coaches, Emails (decision 0027). */}
+      {/* Brett's pages: Analytics, Waitlist, Survey, Coaches, Emails (decision 0027). */}
       {admin.analytics && <AdminTabs />}
       {children}
     </AppShell>
