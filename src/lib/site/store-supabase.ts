@@ -9,6 +9,8 @@ type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string;
 const missing = (e: { code?: string; message: string }) => e.code === 'PGRST202' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the function/i.test(e.message);
 
 export class SupabaseSiteStore implements SiteStore {
+  private hasAutomated = true;
+
   async join(i: WaitlistInput) {
     const db = await supabaseServer();
     const { data, error } = await db.rpc('join_waitlist', { address: i.email, joining_as: i.kind, age: i.ageGroup, org: i.orgName, teams: i.teamCount, came_from: i.source });
@@ -45,7 +47,18 @@ export class SupabaseSiteStore implements SiteStore {
     const out: PageEvent[] = [];
     // Supabase returns at most 1,000 rows a request; page through.
     for (let from = 0; ; from += 1000) {
-      const { data, error } = await db.from('page_events').select('occurred_at, name, visitor, source, device, region').gte('occurred_at', sinceIso).order('occurred_at').range(from, from + 999);
+      // Automated visits are marked, not deleted (20261031000000_automated_visits.sql). Before that
+      // SQL has run the column doesn't exist, so read without the filter rather than fail.
+      const page = (skipAutomated: boolean) => {
+        let q = db.from('page_events').select('occurred_at, name, visitor, source, device, region').gte('occurred_at', sinceIso);
+        if (skipAutomated) q = q.eq('automated', false);
+        return q.order('occurred_at').range(from, from + 999);
+      };
+      let { data, error } = await page(this.hasAutomated);
+      if (error && this.hasAutomated && (error.code === '42703' || /automated/i.test(error.message))) {
+        this.hasAutomated = false;
+        ({ data, error } = await page(false));
+      }
       if (error) throw new Error(missing(error) ? 'waitlist-migration-missing' : error.message);
       const rows = (data ?? []) as EventRow[];
       out.push(...rows.map((r) => ({ occurredAt: r.occurred_at, name: r.name, visitor: r.visitor, source: r.source, device: r.device, region: r.region })));

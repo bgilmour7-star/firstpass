@@ -21,6 +21,9 @@ Date: 2026-10-20 · Decided by: Brett
   a SHA-256 of IP + browser + a salt that changes every Vancouver day; salts live in `private.visit_salts` and old
   ones are deleted, and the IP and browser string are never stored. Uniques are exact within a day and an estimate
   across days. Bots and headless browsers aren't counted. Events: view, reached the form, started the form, signed up.
+  Since 2026-10-26 a visit is recorded only after a sign of a person (scroll, tap, key, mouse move), and not
+  at all for browsers that report automation: monitoring services were loading the page from data centres
+  every few hours. Earlier robot visits are marked `automated` (not deleted) and left out of Analytics.
 - **Admin → Analytics is Brett's only** (`admins.analytics`, `can_see_analytics()`), because the waitlist holds
   personal emails: headline numbers against the previous period, visits per day with sign-ups, the funnel, sources,
   who's signing up, and the waitlist with a status per row (New → Emailed → Call booked → Onboarded / Not a fit).
