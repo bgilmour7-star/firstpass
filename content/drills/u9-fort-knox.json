@@ -1,0 +1,422 @@
+{
+  "id": "u9-fort-knox",
+  "funName": "Fort Knox",
+  "plainName": "Race to carry pucks to your corner",
+  "sourceTitle": "Fort Knox",
+  "minutes": 8,
+  "gear": "2 pylons, all the pucks",
+  "worksAsStation": true,
+  "description": "Split into two teams, one lined up at the top face-off circle and one at the bottom, each with a pylon beside them. All the pucks (the gold) sit in the middle at the blue line. One skater from each team at a time skates around their pylon, grabs one puck and carries it to their team's corner. When the gold is gone, the team with more pucks in its corner wins.",
+  "steps": [
+    "On the whistle, skate all the way around your pylon.",
+    "Grab one puck from the middle and carry it to your corner.",
+    "Next skater goes when the puck is in the corner. Most pucks wins."
+  ],
+  "cues": [
+    "Tight turn around the pylon!",
+    "One puck at a time."
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "A team race everyone cheers for."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "A tight turn and quick starts."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Carry it forward",
+  "levels": [
+    {
+      "name": "Skate backward to your corner",
+      "adds": "After you grab the puck, skate backward with it to your corner.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 36,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 29,
+            "y": 10,
+            "role": "O"
+          },
+          {
+            "x": 36,
+            "y": 75,
+            "role": "O"
+          },
+          {
+            "x": 29,
+            "y": 75,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                39,
+                10
+              ],
+              [
+                50,
+                7.5
+              ],
+              [
+                56,
+                14
+              ],
+              [
+                50,
+                20
+              ],
+              [
+                44,
+                15
+              ],
+              [
+                47,
+                23
+              ],
+              [
+                58,
+                32
+              ],
+              [
+                66,
+                39
+              ]
+            ],
+            "step": 1,
+            "caption": "On the whistle, skate all the way around your pylon.",
+            "stepAt": 0.8
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                39,
+                75
+              ],
+              [
+                50,
+                77.5
+              ],
+              [
+                56,
+                71
+              ],
+              [
+                50,
+                65
+              ],
+              [
+                44,
+                70
+              ],
+              [
+                47,
+                62
+              ],
+              [
+                58,
+                53
+              ],
+              [
+                66,
+                46
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                67,
+                37
+              ],
+              [
+                50,
+                31
+              ],
+              [
+                30,
+                24
+              ],
+              [
+                16,
+                15
+              ]
+            ],
+            "step": 2,
+            "caption": "Grab one puck and skate backward with it to your corner.",
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                67,
+                48
+              ],
+              [
+                50,
+                54
+              ],
+              [
+                30,
+                61
+              ],
+              [
+                16,
+                70
+              ]
+            ],
+            "stepWith": 2,
+            "fromPlayer": false
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                31,
+                12
+              ],
+              [
+                39,
+                15
+              ]
+            ],
+            "step": 3,
+            "caption": "Next skater goes when the puck is in the corner. Most pucks wins.",
+            "stepSide": "left"
+          }
+        ],
+        "cones": [
+          {
+            "x": 50,
+            "y": 14
+          },
+          {
+            "x": 50,
+            "y": 71
+          }
+        ],
+        "piles": [
+          {
+            "x": 71,
+            "y": 42.5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plan 05 · skill 1.6.04",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-05-e.pdf",
+    "note": "The source lines the teams up at the hash marks and refers to a layout drawing we don't have; we put each team's pylon just inside its circle and the pucks just inside the blue line. Its skate-backward variation is Level 2."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 36,
+        "y": 10,
+        "role": "O"
+      },
+      {
+        "x": 29,
+        "y": 10,
+        "role": "O"
+      },
+      {
+        "x": 36,
+        "y": 75,
+        "role": "O"
+      },
+      {
+        "x": 29,
+        "y": 75,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            39,
+            10
+          ],
+          [
+            50,
+            7.5
+          ],
+          [
+            56,
+            14
+          ],
+          [
+            50,
+            20
+          ],
+          [
+            44,
+            15
+          ],
+          [
+            47,
+            23
+          ],
+          [
+            58,
+            32
+          ],
+          [
+            66,
+            39
+          ]
+        ],
+        "step": 1,
+        "caption": "On the whistle, skate all the way around your pylon.",
+        "stepAt": 0.8
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            39,
+            75
+          ],
+          [
+            50,
+            77.5
+          ],
+          [
+            56,
+            71
+          ],
+          [
+            50,
+            65
+          ],
+          [
+            44,
+            70
+          ],
+          [
+            47,
+            62
+          ],
+          [
+            58,
+            53
+          ],
+          [
+            66,
+            46
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            67,
+            37
+          ],
+          [
+            50,
+            31
+          ],
+          [
+            30,
+            24
+          ],
+          [
+            16,
+            15
+          ]
+        ],
+        "step": 2,
+        "caption": "Grab one puck from the middle and carry it to your corner.",
+        "fromPlayer": false
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            67,
+            48
+          ],
+          [
+            50,
+            54
+          ],
+          [
+            30,
+            61
+          ],
+          [
+            16,
+            70
+          ]
+        ],
+        "stepWith": 2,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            31,
+            12
+          ],
+          [
+            39,
+            15
+          ]
+        ],
+        "step": 3,
+        "caption": "Next skater goes when the puck is in the corner. Most pucks wins.",
+        "stepSide": "left"
+      }
+    ],
+    "cones": [
+      {
+        "x": 50,
+        "y": 14
+      },
+      {
+        "x": 50,
+        "y": 71
+      }
+    ],
+    "piles": [
+      {
+        "x": 71,
+        "y": 42.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}
