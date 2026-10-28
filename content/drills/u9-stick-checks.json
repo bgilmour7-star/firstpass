@@ -237,8 +237,8 @@
         "step": 1,
         "caption": "First whistle: O handles the puck, standing still.",
         "fromPlayer": false,
-        "stepSide": "left",
-        "stepAt": 0.2
+        "stepSide": "right",
+        "stepAt": 0.75
       },
       {
         "type": "skate",
