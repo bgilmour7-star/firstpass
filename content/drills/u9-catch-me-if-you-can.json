@@ -1,0 +1,75 @@
+{
+  "id": "u9-catch-me-if-you-can",
+  "funName": "Catch Me If You Can",
+  "plainName": "Breakaway with a backchecker",
+  "sourceTitle": "Shootout",
+  "minutes": 10,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Two lines face each net from centre ice, so both ends run at once. In each pair of lines, one line has pucks and stands; the other line has no pucks and starts on one knee. On the signal the puck carrier attacks the net and the kneeling skater jumps up and backchecks (chases back to stop the shot). If the backchecker steals the puck, they attack instead; the lines take turns with the puck.",
+  "steps": [
+    "On the signal, the puck carrier attacks the net and shoots.",
+    "The kneeling skater jumps up and chases to stop the shot.",
+    "Steal the puck? Now you attack. Lines switch roles each turn."
+  ],
+  "cues": [
+    "Quick feet off the start!",
+    "Protect the puck, then shoot fast."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "Finishing quickly with someone chasing."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Reading the chaser and switching between attack and defence."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 08 · fun game (Shootout), also Plan 25 (Shootout Competition)",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-08-e.pdf",
+    "note": "Plan 08 uses both ends of the ice, so we draw a pair of lines facing each net. Plan 25 turns it into a race: the first team with every player scoring wins; coaches can add that."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      { "x": 93, "y": 22, "role": "O" },
+      { "x": 93, "y": 63, "role": "X" },
+      { "x": 107, "y": 63, "role": "O" },
+      { "x": 107, "y": 22, "role": "X" },
+      { "x": 100, "y": 8, "role": "C" }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [[90, 23], [60, 28], [34, 36], [24, 41]],
+        "step": 1,
+        "caption": "On the signal, the puck carrier attacks the net and shoots."
+      },
+      { "type": "shot", "points": [[22, 42], [13, 42.5]], "stepWith": 1, "fromPlayer": false },
+      { "type": "puck", "points": [[110, 62], [140, 57], [166, 49], [176, 44]], "stepWith": 1 },
+      { "type": "shot", "points": [[178, 43], [187, 42.5]], "stepWith": 1, "fromPlayer": false },
+      {
+        "type": "skate",
+        "points": [[90, 62], [64, 58], [40, 52], [30, 47]],
+        "step": 2,
+        "caption": "The kneeling skater jumps up and chases to stop the shot."
+      },
+      { "type": "skate", "points": [[110, 23], [136, 27], [160, 33], [170, 38]], "stepWith": 2 }
+    ],
+    "cones": [],
+    "nets": []
+  },
+  "status": "in_review",
+  "ageGroups": ["U9"]
+}

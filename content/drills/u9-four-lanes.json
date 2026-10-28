@@ -1,0 +1,173 @@
+{
+  "id": "u9-four-lanes",
+  "funName": "Four Lanes",
+  "plainName": "Balance and skating skills in lanes",
+  "sourceTitle": "Warm-up",
+  "minutes": 10,
+  "gear": "9 cones to mark the lanes",
+  "worksAsStation": false,
+  "description": "Mark four lanes that run the length of the ice, each with its own skill. Skaters start at the goal line, one in each lane, and the next ones go when the lane is half clear. At the far end, move over one lane and come back with that lane's skill. Second time through, lane 2 becomes a glide with knees bent and lane 3 a glide pumping your arms.",
+  "steps": [
+    "Lane 1: fall to your knees, get up fast, keep going.",
+    "Lane 2: glide on one skate, then the other.",
+    "Lane 3: jump every line, on one foot, then two.",
+    "Lane 4: C-cuts all the way down."
+  ],
+  "cues": [
+    "Knees, hands, up!",
+    "Bend your knees, arms out for balance."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Balance, edges and getting up fast, a full length at a time."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Everyone keeps moving with a new skill in every lane."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "groups",
+  "source": {
+    "label": "Hockey Canada U9 Plan 02 · skills 1.1.02, 1.1.04, 1.1.05, 1.1.07, 1.1.08, 1.1.09, 1.4.02, 1.5.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-02-e.pdf",
+    "note": "The plan lists six skills for four lanes and doesn't say which goes where; we put one in each lane and swap the two glides in on the second time through. The lane pylons are our choice."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "x": 20,
+        "y": 11,
+        "role": "O"
+      },
+      {
+        "x": 20,
+        "y": 32,
+        "role": "O"
+      },
+      {
+        "x": 20,
+        "y": 53,
+        "role": "O"
+      },
+      {
+        "x": 20,
+        "y": 74,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            23,
+            11
+          ],
+          [
+            180,
+            11
+          ]
+        ],
+        "step": 1,
+        "caption": "Lane 1: fall to your knees, get up fast, keep going."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            23,
+            32
+          ],
+          [
+            180,
+            32
+          ]
+        ],
+        "step": 2,
+        "caption": "Lane 2: glide on one skate, then the other."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            23,
+            53
+          ],
+          [
+            180,
+            53
+          ]
+        ],
+        "step": 3,
+        "caption": "Lane 3: jump every line, on one foot, then two."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            23,
+            74
+          ],
+          [
+            180,
+            74
+          ]
+        ],
+        "step": 4,
+        "caption": "Lane 4: C-cuts all the way down."
+      }
+    ],
+    "cones": [
+      {
+        "x": 55,
+        "y": 21.5
+      },
+      {
+        "x": 100,
+        "y": 21.5
+      },
+      {
+        "x": 145,
+        "y": 21.5
+      },
+      {
+        "x": 55,
+        "y": 42.5
+      },
+      {
+        "x": 100,
+        "y": 42.5
+      },
+      {
+        "x": 145,
+        "y": 42.5
+      },
+      {
+        "x": 55,
+        "y": 63.5
+      },
+      {
+        "x": 100,
+        "y": 63.5
+      },
+      {
+        "x": 145,
+        "y": 63.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ],
+  "lessons": [],
+  "levelName": "",
+  "levels": []
+}

@@ -5,7 +5,9 @@ import { drillSchema, levelCount, startLevelFor, type Drill } from './schema';
 import { drillsForAge, U9_FALLBACK_BELOW, U9_FALLBACK_NOTICE } from './age';
 
 const dir = join(__dirname, '../../../content/drills');
-const library: Drill[] = readdirSync(dir).map((f) => drillSchema.parse(JSON.parse(readFileSync(join(dir, f), 'utf8'))));
+const all: Drill[] = readdirSync(dir).map((f) => drillSchema.parse(JSON.parse(readFileSync(join(dir, f), 'utf8'))));
+// The tests build their own U9 drills on top of the U7 library, so the U9 drills in content/drills stay out of it.
+const library = all.filter((d) => !d.ageGroups.includes('U9'));
 const base = library.find((d) => d.id === 'ski-racer')!;
 const plain = library.find((d) => d.groupModel === 'basic' && d.levels.length === 0)!;
 const as = (d: Drill, id: string, over: Partial<Drill>): Drill => ({ ...d, id, ...over });

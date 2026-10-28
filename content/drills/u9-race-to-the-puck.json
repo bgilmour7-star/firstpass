@@ -1,0 +1,207 @@
+{
+  "id": "u9-race-to-the-puck",
+  "funName": "Race to the Puck",
+  "plainName": "Weave, race and shoot",
+  "sourceTitle": "Relay Race",
+  "minutes": 8,
+  "gear": "6 pylons, pucks",
+  "worksAsStation": false,
+  "description": "Two lines, one in each corner, with a row of pylons in front of each. The coach puts a puck in the middle of the ice. On the whistle, the first skater in each line weaves through the pylons and races to the puck. Whoever gets there first shoots on the net; the other one tries to stop the shot.",
+  "steps": [
+    "On the whistle, weave through the pylons and race to the puck.",
+    "First one there shoots. Second one tries to stop the shot."
+  ],
+  "cues": [
+    "Quick feet through the pylons!",
+    "Get there first!",
+    "Second? Get between the puck and the net."
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "A head-to-head race every turn."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "A quick shot with someone chasing."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 15 · fun game",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-15-e.pdf",
+    "note": "The plan doesn't place the pylons; we use three in a zig-zag along each side boards. No goalie is shown; add one if you have one."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 18,
+        "y": 8
+      },
+      {
+        "role": "O",
+        "x": 10,
+        "y": 16
+      },
+      {
+        "role": "O",
+        "x": 18,
+        "y": 77
+      },
+      {
+        "role": "O",
+        "x": 10,
+        "y": 69
+      },
+      {
+        "role": "C",
+        "x": 64,
+        "y": 42
+      }
+    ],
+    "cones": [
+      {
+        "x": 30,
+        "y": 12
+      },
+      {
+        "x": 40,
+        "y": 18
+      },
+      {
+        "x": 50,
+        "y": 12
+      },
+      {
+        "x": 30,
+        "y": 73
+      },
+      {
+        "x": 40,
+        "y": 67
+      },
+      {
+        "x": 50,
+        "y": 73
+      }
+    ],
+    "pucks": [
+      {
+        "x": 52,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            21,
+            9
+          ],
+          [
+            30,
+            17
+          ],
+          [
+            40,
+            13
+          ],
+          [
+            50,
+            18
+          ],
+          [
+            56,
+            30
+          ],
+          [
+            53,
+            39
+          ]
+        ],
+        "step": 1,
+        "caption": "On the whistle, weave through the pylons and race to the puck.",
+        "stepAt": 0.85
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            21,
+            76
+          ],
+          [
+            30,
+            68
+          ],
+          [
+            40,
+            72
+          ],
+          [
+            50,
+            67
+          ],
+          [
+            56,
+            56
+          ],
+          [
+            55,
+            47
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            50,
+            41
+          ],
+          [
+            15,
+            42.5
+          ]
+        ],
+        "step": 2,
+        "caption": "First one there shoots. Second one tries to stop the shot."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            53,
+            49
+          ],
+          [
+            40,
+            47
+          ],
+          [
+            34,
+            45
+          ]
+        ],
+        "stepWith": 2
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "id": "u9-rabbit-and-coyote",
+  "funName": "Rabbit and Coyote",
+  "plainName": "Protect the puck from a chaser",
+  "sourceTitle": "Rabbit/Coyote",
+  "minutes": 8,
+  "gear": "One puck per pair",
+  "worksAsStation": false,
+  "description": "Skaters pair up with one puck between them. The rabbit has the puck and skates anywhere on the ice; the coyote chases and tries to take it. After a short burst, blow the whistle, rest for 30 seconds and switch roles.",
+  "steps": [
+    "On the whistle, the rabbit carries the puck anywhere on the ice.",
+    "The coyote chases and tries to take the puck.",
+    "Second whistle: rest 30 seconds, then switch."
+  ],
+  "cues": [
+    "Keep your body between the coyote and the puck.",
+    "Head up, find open ice!"
+  ],
+  "focus": [
+    {
+      "attribute": "Puck control",
+      "level": 2,
+      "why": "Shielding the puck with the body while moving."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Heads up to find space and avoid traffic."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "everyone",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 10 · skill 5.1.4.1",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-10-e.pdf",
+    "note": "The source doesn't say how long each burst lasts; keep it short (about 20–30 seconds) so the rest matches the work. Pairs use the whole ice."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      { "x": 46, "y": 26, "role": "O" },
+      { "x": 38, "y": 32, "role": "X" },
+      { "x": 104, "y": 66, "role": "O" },
+      { "x": 95, "y": 70, "role": "X" },
+      { "x": 150, "y": 24, "role": "O" },
+      { "x": 142, "y": 30, "role": "X" }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [[49, 25], [62, 18], [76, 22], [84, 34]],
+        "step": 1,
+        "caption": "On the whistle, the rabbit carries the puck anywhere on the ice."
+      },
+      {
+        "type": "puck",
+        "points": [[107, 65], [122, 60], [132, 66], [140, 58]],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [[153, 23], [164, 30], [168, 42], [160, 52]],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [[40, 35], [56, 30], [70, 32], [78, 40]],
+        "step": 2,
+        "caption": "The coyote chases and tries to take the puck."
+      },
+      {
+        "type": "skate",
+        "points": [[98, 72], [116, 70], [128, 72], [134, 66]],
+        "stepWith": 2
+      },
+      {
+        "type": "skate",
+        "points": [[144, 33], [154, 38], [156, 50]],
+        "stepWith": 2
+      }
+    ],
+    "cones": [],
+    "nets": []
+  },
+  "status": "in_review",
+  "ageGroups": ["U9"]
+}

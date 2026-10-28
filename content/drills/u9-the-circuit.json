@@ -1,0 +1,628 @@
+{
+  "id": "u9-the-circuit",
+  "funName": "The Circuit",
+  "plainName": "Crossovers, long strides and a shot",
+  "sourceTitle": "Barteaux Set-Up",
+  "minutes": 10,
+  "gear": "4 cones, a pile of pucks",
+  "worksAsStation": false,
+  "description": "A skating circuit around the whole ice: crossovers around the circles, long strides down the side boards, and a weave back through cones in the middle. Each skater does it twice from each side. The next skater goes when the one ahead reaches the side boards.",
+  "steps": [
+    "Crossovers around the circle.",
+    "Long, strong strides down the side.",
+    "Crossovers around the far circle.",
+    "Weave back through the middle cones on your outside skate's inside edge. Next lap, use the other side."
+  ],
+  "cues": [
+    "Cross over, push, push!",
+    "Long strides, full push.",
+    "Hold that edge."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Crossovers, long strides and holding an edge through turns."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Level 2 handles the puck through the cones."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "Level 3 finishes with a shot on the move."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "line",
+  "levelName": "Skate the circuit",
+  "levels": [
+    {
+      "name": "Add a puck",
+      "adds": "On laps 3 and 4, pick up a puck by the far circle and stickhandle it back through the middle cones.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "x": 53,
+            "y": 22,
+            "role": "O"
+          },
+          {
+            "x": 57,
+            "y": 27,
+            "role": "O"
+          },
+          {
+            "x": 61,
+            "y": 31,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                50,
+                24
+              ],
+              [
+                44,
+                31
+              ],
+              [
+                31,
+                35.5
+              ],
+              [
+                20.4,
+                31.1
+              ],
+              [
+                16,
+                20.5
+              ],
+              [
+                20.4,
+                9.9
+              ],
+              [
+                31,
+                5.5
+              ],
+              [
+                44,
+                6.5
+              ]
+            ],
+            "step": 1,
+            "caption": "Crossovers around the circle."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                50,
+                6.5
+              ],
+              [
+                148,
+                6.5
+              ]
+            ],
+            "step": 2,
+            "caption": "Long, strong strides down the side.",
+            "fromPlayer": false
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                154,
+                6
+              ],
+              [
+                169,
+                5.5
+              ],
+              [
+                179.6,
+                9.9
+              ],
+              [
+                184,
+                20.5
+              ],
+              [
+                179.6,
+                31.1
+              ],
+              [
+                169,
+                35.5
+              ],
+              [
+                160,
+                39
+              ]
+            ],
+            "step": 3,
+            "caption": "Crossovers around the far circle.",
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                154,
+                42.5
+              ],
+              [
+                140,
+                37
+              ],
+              [
+                130,
+                42.5
+              ],
+              [
+                120,
+                48
+              ],
+              [
+                110,
+                42.5
+              ],
+              [
+                100,
+                37
+              ],
+              [
+                90,
+                42.5
+              ],
+              [
+                80,
+                48
+              ],
+              [
+                70,
+                42.5
+              ],
+              [
+                64,
+                36
+              ]
+            ],
+            "step": 4,
+            "caption": "Pick up a puck by the circle and stickhandle it back through the cones.",
+            "fromPlayer": false
+          }
+        ],
+        "cones": [
+          {
+            "x": 140,
+            "y": 42.5
+          },
+          {
+            "x": 120,
+            "y": 42.5
+          },
+          {
+            "x": 100,
+            "y": 42.5
+          },
+          {
+            "x": 80,
+            "y": 42.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 158,
+            "y": 45
+          }
+        ]
+      }
+    },
+    {
+      "name": "Finish with a shot",
+      "adds": "After the cones, keep going with the puck and shoot on the net.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "x": 53,
+            "y": 22,
+            "role": "O"
+          },
+          {
+            "x": 57,
+            "y": 27,
+            "role": "O"
+          },
+          {
+            "x": 61,
+            "y": 31,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                50,
+                24
+              ],
+              [
+                44,
+                31
+              ],
+              [
+                31,
+                35.5
+              ],
+              [
+                20.4,
+                31.1
+              ],
+              [
+                16,
+                20.5
+              ],
+              [
+                20.4,
+                9.9
+              ],
+              [
+                31,
+                5.5
+              ],
+              [
+                44,
+                6.5
+              ]
+            ],
+            "step": 1,
+            "caption": "Crossovers around the circle."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                50,
+                6.5
+              ],
+              [
+                148,
+                6.5
+              ]
+            ],
+            "step": 2,
+            "caption": "Long, strong strides down the side.",
+            "fromPlayer": false
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                154,
+                6
+              ],
+              [
+                169,
+                5.5
+              ],
+              [
+                179.6,
+                9.9
+              ],
+              [
+                184,
+                20.5
+              ],
+              [
+                179.6,
+                31.1
+              ],
+              [
+                169,
+                35.5
+              ],
+              [
+                160,
+                39
+              ]
+            ],
+            "step": 3,
+            "caption": "Crossovers around the far circle.",
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                154,
+                42.5
+              ],
+              [
+                140,
+                37
+              ],
+              [
+                130,
+                42.5
+              ],
+              [
+                120,
+                48
+              ],
+              [
+                110,
+                42.5
+              ],
+              [
+                100,
+                37
+              ],
+              [
+                90,
+                42.5
+              ],
+              [
+                80,
+                48
+              ],
+              [
+                62,
+                42.5
+              ],
+              [
+                40,
+                42.5
+              ]
+            ],
+            "step": 4,
+            "caption": "Pick up a puck by the circle and stickhandle it back through the cones.",
+            "fromPlayer": false
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                38,
+                42.5
+              ],
+              [
+                15,
+                42.5
+              ]
+            ],
+            "step": 5,
+            "caption": "Keep going and shoot on the net.",
+            "fromPlayer": false
+          }
+        ],
+        "cones": [
+          {
+            "x": 140,
+            "y": 42.5
+          },
+          {
+            "x": 120,
+            "y": 42.5
+          },
+          {
+            "x": 100,
+            "y": 42.5
+          },
+          {
+            "x": 80,
+            "y": 42.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 158,
+            "y": 45
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 18, 20 · skills 1.6.08, 1.6.09, 1.6.10, 1.6.13, 1.4.02, 1.4.11, 2.2.08",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-20-e.pdf",
+    "note": "The plans describe the circuit but not its path, so we drew one lap: circles at one end, the top side, the far circles, then back through the middle. Level 1 and the pucks on laps 3 and 4 follow Plan 20; the shot follows Plan 18. Plan 18's C-cut and backward C-cut versions are left out."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "x": 53,
+        "y": 22,
+        "role": "O"
+      },
+      {
+        "x": 57,
+        "y": 27,
+        "role": "O"
+      },
+      {
+        "x": 61,
+        "y": 31,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            50,
+            24
+          ],
+          [
+            44,
+            31
+          ],
+          [
+            31,
+            35.5
+          ],
+          [
+            20.4,
+            31.1
+          ],
+          [
+            16,
+            20.5
+          ],
+          [
+            20.4,
+            9.9
+          ],
+          [
+            31,
+            5.5
+          ],
+          [
+            44,
+            6.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Crossovers around the circle."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            50,
+            6.5
+          ],
+          [
+            148,
+            6.5
+          ]
+        ],
+        "step": 2,
+        "caption": "Long, strong strides down the side.",
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            154,
+            6
+          ],
+          [
+            169,
+            5.5
+          ],
+          [
+            179.6,
+            9.9
+          ],
+          [
+            184,
+            20.5
+          ],
+          [
+            179.6,
+            31.1
+          ],
+          [
+            169,
+            35.5
+          ],
+          [
+            160,
+            39
+          ]
+        ],
+        "step": 3,
+        "caption": "Crossovers around the far circle.",
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            154,
+            42.5
+          ],
+          [
+            140,
+            37
+          ],
+          [
+            130,
+            42.5
+          ],
+          [
+            120,
+            48
+          ],
+          [
+            110,
+            42.5
+          ],
+          [
+            100,
+            37
+          ],
+          [
+            90,
+            42.5
+          ],
+          [
+            80,
+            48
+          ],
+          [
+            70,
+            42.5
+          ],
+          [
+            64,
+            36
+          ]
+        ],
+        "step": 4,
+        "caption": "Weave back through the middle cones on your outside skate's inside edge. Next lap, use the other side.",
+        "fromPlayer": false
+      }
+    ],
+    "cones": [
+      {
+        "x": 140,
+        "y": 42.5
+      },
+      {
+        "x": 120,
+        "y": 42.5
+      },
+      {
+        "x": 100,
+        "y": 42.5
+      },
+      {
+        "x": 80,
+        "y": 42.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ],
+  "lessons": []
+}

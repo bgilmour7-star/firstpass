@@ -1,0 +1,423 @@
+{
+  "id": "u9-quick-feet",
+  "funName": "Quick Feet",
+  "plainName": "Fast feet over a stick",
+  "sourceTitle": "4 Step Quick Feet",
+  "minutes": 6,
+  "gear": "Players’ own sticks",
+  "worksAsStation": true,
+  "description": "Each player lays their stick on the ice in their own space. First they step side to side over it as fast as they can, then cross over it from the end with a tight turn back, then go forward and backward along it with a pivot at each end. Blow the whistle to start and stop each part.",
+  "steps": [
+    "Step side to side over your stick, touching the ice on each side, until the whistle.",
+    "From the end of the stick, cross over it, touch the ice, tight turn and cross back.",
+    "Skate forward to the blade, pivot, skate backward to the knob, and pivot again."
+  ],
+  "cues": [
+    "Quick feet, little steps!",
+    "Touch the ice and go.",
+    "Turn your hips to pivot."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Quick feet, tight turns and pivots."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Short, fast bursts everyone does at once."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "everyone",
+  "lessons": [],
+  "levelName": "Three stick steps",
+  "levels": [
+    {
+      "name": "Catch the stick",
+      "adds": "Partners face each other, each holding a stick upright with the knob on the ice. On the whistle, let go and use a quick V-start to catch your partner’s stick before it drops.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 22,
+            "y": 14
+          },
+          {
+            "role": "O",
+            "x": 50,
+            "y": 12
+          },
+          {
+            "role": "O",
+            "x": 18,
+            "y": 55
+          },
+          {
+            "role": "C",
+            "x": 56,
+            "y": 44
+          },
+          {
+            "role": "O",
+            "x": 80,
+            "y": 42
+          },
+          {
+            "role": "O",
+            "x": 92,
+            "y": 42
+          }
+        ],
+        "sticks": [
+          {
+            "points": [
+              [
+                18,
+                21
+              ],
+              [
+                27,
+                21
+              ]
+            ]
+          },
+          {
+            "points": [
+              [
+                50,
+                18
+              ],
+              [
+                59,
+                26
+              ]
+            ]
+          },
+          {
+            "points": [
+              [
+                22,
+                63
+              ],
+              [
+                31,
+                63
+              ]
+            ]
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                17,
+                17
+              ],
+              [
+                19,
+                27
+              ],
+              [
+                22,
+                17
+              ],
+              [
+                24,
+                27
+              ],
+              [
+                27,
+                17
+              ],
+              [
+                29,
+                27
+              ]
+            ],
+            "step": 1,
+            "caption": "Step side to side over your stick, touching the ice on each side, until the whistle.",
+            "fromPlayer": false,
+            "stepAt": 0.95,
+            "stepSide": "right"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                51,
+                15
+              ],
+              [
+                58,
+                19
+              ],
+              [
+                62,
+                24
+              ],
+              [
+                60,
+                28
+              ],
+              [
+                55,
+                28
+              ],
+              [
+                51,
+                24
+              ]
+            ],
+            "step": 2,
+            "caption": "From the end of the stick, cross over it, touch the ice, tight turn and cross back.",
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                21,
+                59
+              ],
+              [
+                32,
+                59
+              ]
+            ],
+            "step": 3,
+            "caption": "Skate forward to the blade, pivot, skate backward to the knob, and pivot again.",
+            "fromPlayer": false,
+            "stepSide": "right",
+            "stepAt": 0.9
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                32,
+                67
+              ],
+              [
+                21,
+                67
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                83,
+                39
+              ],
+              [
+                90,
+                39
+              ]
+            ],
+            "step": 4,
+            "caption": "Partners: let go on the whistle and race to catch the other stick before it falls.",
+            "stepSide": "right"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                89,
+                45
+              ],
+              [
+                82,
+                45
+              ]
+            ],
+            "stepWith": 4
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plan 20 · skill 1.1.13",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-20-e.pdf",
+    "note": "The source runs it in the neutral zone; we draw it on half ice. We drew each of the first three steps on a different player so all three show at once. The source's fourth step (catch the partner's stick) is Level 2."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 22,
+        "y": 14
+      },
+      {
+        "role": "O",
+        "x": 50,
+        "y": 12
+      },
+      {
+        "role": "O",
+        "x": 18,
+        "y": 55
+      },
+      {
+        "role": "C",
+        "x": 56,
+        "y": 44
+      }
+    ],
+    "sticks": [
+      {
+        "points": [
+          [
+            18,
+            21
+          ],
+          [
+            27,
+            21
+          ]
+        ]
+      },
+      {
+        "points": [
+          [
+            50,
+            18
+          ],
+          [
+            59,
+            26
+          ]
+        ]
+      },
+      {
+        "points": [
+          [
+            22,
+            63
+          ],
+          [
+            31,
+            63
+          ]
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            17,
+            17
+          ],
+          [
+            19,
+            27
+          ],
+          [
+            22,
+            17
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            27,
+            17
+          ],
+          [
+            29,
+            27
+          ]
+        ],
+        "step": 1,
+        "caption": "Step side to side over your stick, touching the ice on each side, until the whistle.",
+        "fromPlayer": false,
+        "stepAt": 0.95,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            51,
+            15
+          ],
+          [
+            58,
+            19
+          ],
+          [
+            62,
+            24
+          ],
+          [
+            60,
+            28
+          ],
+          [
+            55,
+            28
+          ],
+          [
+            51,
+            24
+          ]
+        ],
+        "step": 2,
+        "caption": "From the end of the stick, cross over it, touch the ice, tight turn and cross back.",
+        "stepSide": "left"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            21,
+            59
+          ],
+          [
+            32,
+            59
+          ]
+        ],
+        "step": 3,
+        "caption": "Skate forward to the blade, pivot, skate backward to the knob, and pivot again.",
+        "fromPlayer": false,
+        "stepSide": "right",
+        "stepAt": 0.9
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            32,
+            67
+          ],
+          [
+            21,
+            67
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

@@ -1,0 +1,423 @@
+{
+  "id": "u9-backwards-zigzag",
+  "funName": "Backwards Zig-Zag",
+  "plainName": "Backward lateral crossovers",
+  "sourceTitle": "Backwards Lateral Crossovers",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "Everyone lines up on the goal line and skates backward down the ice. A lateral crossover is a sideways step where one foot crosses over the other, so skaters zig-zag as they go back. Do two crossovers one way, two the other, and keep the pattern going to the far end. Three lengths in all.",
+  "steps": [
+    "Skate backward: two crossovers one way, two the other, all the way down.",
+    "Do three lengths of the ice."
+  ],
+  "cues": [
+    "Cross over, cross over, switch!",
+    "Sit low, chest up.",
+    "Look up the ice, not at your feet."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Backward skating and crossovers on both sides."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "everyone",
+  "lessons": [],
+  "levelName": "Two crossovers each way",
+  "levels": [
+    {
+      "name": "Three crossovers each way",
+      "adds": "Three crossovers before you switch sides, so each zig is longer.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "role": "O",
+            "x": 13,
+            "y": 13
+          },
+          {
+            "role": "O",
+            "x": 13,
+            "y": 32
+          },
+          {
+            "role": "O",
+            "x": 13,
+            "y": 53
+          },
+          {
+            "role": "O",
+            "x": 13,
+            "y": 72
+          }
+        ],
+        "paths": [
+          {
+            "type": "backward",
+            "points": [
+              [
+                17,
+                13
+              ],
+              [
+                44,
+                6
+              ],
+              [
+                72,
+                20
+              ],
+              [
+                100,
+                6
+              ],
+              [
+                128,
+                20
+              ],
+              [
+                156,
+                6
+              ],
+              [
+                184,
+                13
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate backward: three crossovers one way, three the other."
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                17,
+                32
+              ],
+              [
+                44,
+                25
+              ],
+              [
+                72,
+                39
+              ],
+              [
+                100,
+                25
+              ],
+              [
+                128,
+                39
+              ],
+              [
+                156,
+                25
+              ],
+              [
+                184,
+                32
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                17,
+                53
+              ],
+              [
+                44,
+                46
+              ],
+              [
+                72,
+                60
+              ],
+              [
+                100,
+                46
+              ],
+              [
+                128,
+                60
+              ],
+              [
+                156,
+                46
+              ],
+              [
+                184,
+                53
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                17,
+                72
+              ],
+              [
+                44,
+                65
+              ],
+              [
+                72,
+                79
+              ],
+              [
+                100,
+                65
+              ],
+              [
+                128,
+                79
+              ],
+              [
+                156,
+                65
+              ],
+              [
+                184,
+                72
+              ]
+            ],
+            "stepWith": 1
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plan 15 · skill 1.6.17",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-15-e.pdf",
+    "note": "Close to the source. Level 2 is the source’s own variation (three crossovers each way). The source doesn’t say whether skaters go all at once; we send the whole line together."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 13,
+        "y": 13
+      },
+      {
+        "role": "O",
+        "x": 13,
+        "y": 32
+      },
+      {
+        "role": "O",
+        "x": 13,
+        "y": 53
+      },
+      {
+        "role": "O",
+        "x": 13,
+        "y": 72
+      }
+    ],
+    "paths": [
+      {
+        "type": "backward",
+        "points": [
+          [
+            17,
+            13
+          ],
+          [
+            36,
+            8
+          ],
+          [
+            56,
+            18
+          ],
+          [
+            76,
+            8
+          ],
+          [
+            96,
+            18
+          ],
+          [
+            116,
+            8
+          ],
+          [
+            136,
+            18
+          ],
+          [
+            156,
+            8
+          ],
+          [
+            176,
+            18
+          ],
+          [
+            184,
+            13
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate backward: two crossovers one way, two the other, all the way down."
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            17,
+            32
+          ],
+          [
+            36,
+            27
+          ],
+          [
+            56,
+            37
+          ],
+          [
+            76,
+            27
+          ],
+          [
+            96,
+            37
+          ],
+          [
+            116,
+            27
+          ],
+          [
+            136,
+            37
+          ],
+          [
+            156,
+            27
+          ],
+          [
+            176,
+            37
+          ],
+          [
+            184,
+            32
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            17,
+            53
+          ],
+          [
+            36,
+            48
+          ],
+          [
+            56,
+            58
+          ],
+          [
+            76,
+            48
+          ],
+          [
+            96,
+            58
+          ],
+          [
+            116,
+            48
+          ],
+          [
+            136,
+            58
+          ],
+          [
+            156,
+            48
+          ],
+          [
+            176,
+            58
+          ],
+          [
+            184,
+            53
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            17,
+            72
+          ],
+          [
+            36,
+            67
+          ],
+          [
+            56,
+            77
+          ],
+          [
+            76,
+            67
+          ],
+          [
+            96,
+            77
+          ],
+          [
+            116,
+            67
+          ],
+          [
+            136,
+            77
+          ],
+          [
+            156,
+            67
+          ],
+          [
+            176,
+            77
+          ],
+          [
+            184,
+            72
+          ]
+        ],
+        "stepWith": 1
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "id": "u9-bank-pass",
+  "funName": "Bank Pass",
+  "plainName": "Pass to yourself off the boards",
+  "sourceTitle": "Bank Pass",
+  "minutes": 8,
+  "gear": "3 pylons, 1 puck each",
+  "worksAsStation": true,
+  "description": "Line up on the side boards, each with a puck, with a row of pylons a few feet off the boards. Skate along the row. At each pylon, slide the puck off the boards past the pylon and pick it up on the far side, then do the same on the way back. Go one after another, and keep the puck under control between pylons.",
+  "steps": [
+    "Skate along the pylons. At each one, bank the puck off the boards and pick it up past the pylon.",
+    "Turn at the end and bank it at every pylon on the way back.",
+    "Next skater goes when the one ahead reaches the second pylon."
+  ],
+  "cues": [
+    "Pass it to the boards, not the pylon.",
+    "Get there first and pick it up.",
+    "Head up between pylons."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Banking the puck off the boards to get past someone."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Picking up your own pass and carrying it to the next pylon."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 16 · skills 2.2.08, 2.4.11, 2.4.12",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-16-e.pdf",
+    "note": "The plan's text doesn't place the pylons. We set them in a row a few feet off the side boards so every bank pass has boards to use, and kept it inside one corner so it runs as a station."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 62,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 67,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 72,
+        "y": 6
+      }
+    ],
+    "cones": [
+      {
+        "x": 50,
+        "y": 10
+      },
+      {
+        "x": 37,
+        "y": 10
+      },
+      {
+        "x": 24,
+        "y": 10
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            59,
+            8
+          ],
+          [
+            56,
+            19
+          ],
+          [
+            18,
+            19
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate along the pylons. At each one, bank the puck off the boards and pick it up past the pylon.",
+        "stepAt": 0.15
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            55,
+            18
+          ],
+          [
+            50,
+            3
+          ],
+          [
+            45,
+            18
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            42,
+            18
+          ],
+          [
+            37,
+            3
+          ],
+          [
+            32,
+            18
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            29,
+            18
+          ],
+          [
+            24,
+            3.5
+          ],
+          [
+            19,
+            18
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            17,
+            20
+          ],
+          [
+            13,
+            26
+          ],
+          [
+            18,
+            32
+          ],
+          [
+            46,
+            32
+          ]
+        ],
+        "step": 2,
+        "caption": "Turn at the end and bank it at every pylon on the way back.",
+        "fromPlayer": false
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}
