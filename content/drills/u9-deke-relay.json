@@ -1,0 +1,289 @@
+{
+  "id": "u9-deke-relay",
+  "funName": "Deke Relay",
+  "plainName": "Fakes and dekes across the ice",
+  "sourceTitle": "Fakes and Dekes",
+  "minutes": 8,
+  "gear": "1 puck per group of three",
+  "worksAsStation": true,
+  "description": "The coach shows one move: pulling the puck back through the legs, a toe drag (pulling the puck in with the tip of the blade), a spin-o-rama, a 360 or a heel-to-heel turn. In groups of three, one player carries the puck across the ice, makes the move on the way and leaves the puck for the next player, who brings it back. Change the move every few turns.",
+  "steps": [
+    "Coach shows one move first.",
+    "Carry the puck across, make the move in the middle, and leave the puck for the next player.",
+    "The next player picks it up and brings it back the same way."
+  ],
+  "cues": [
+    "Slow down for the move, speed up after.",
+    "Keep the puck close to you.",
+    "Head up when you come out of it."
+  ],
+  "focus": [
+    {
+      "attribute": "Puck control",
+      "level": 2,
+      "why": "Trying real dekes with the puck while skating."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Learning moves to get past a defender."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "Make the move in open ice",
+  "levels": [
+    {
+      "name": "Fake the pylon, then pass",
+      "adds": "A pylon in each lane is the defender. Fake one way, go around it the other, then pass to the next player instead of leaving the puck.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 81,
+            "y": 8
+          },
+          {
+            "role": "O",
+            "x": 89,
+            "y": 8
+          },
+          {
+            "role": "O",
+            "x": 93,
+            "y": 78
+          },
+          {
+            "role": "C",
+            "x": 88,
+            "y": 42
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                85,
+                42
+              ],
+              [
+                82,
+                42
+              ]
+            ],
+            "step": 1,
+            "caption": "Coach shows one move first.",
+            "fromPlayer": false,
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                81,
+                11
+              ],
+              [
+                81,
+                30
+              ],
+              [
+                79,
+                40
+              ],
+              [
+                83,
+                46
+              ],
+              [
+                81,
+                56
+              ],
+              [
+                81,
+                71
+              ]
+            ],
+            "step": 2,
+            "caption": "Carry the puck across, make the move in the middle, and leave the puck for the next player."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                93,
+                75
+              ],
+              [
+                93,
+                58
+              ],
+              [
+                95,
+                48
+              ],
+              [
+                91,
+                40
+              ],
+              [
+                93,
+                30
+              ],
+              [
+                93,
+                14
+              ]
+            ],
+            "step": 3,
+            "caption": "The next player picks it up and brings it back the same way."
+          }
+        ],
+        "pucks": [
+          {
+            "x": 81,
+            "y": 74
+          }
+        ],
+        "cones": [
+          {
+            "x": 81,
+            "y": 46
+          },
+          {
+            "x": 93,
+            "y": 38
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 27, 30, 25 · skills 5.1.5.3–5.1.5.17, 5.1.1.1–5.1.1.4",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-27-e.pdf",
+    "note": "The plans list the moves and the carry-and-drop pattern but not the layout. We run it across the neutral strip in two lanes. Level 2 borrows Plan 25's Offensive Fakes (a move on a pylon, then a pass)."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 81,
+        "y": 8
+      },
+      {
+        "role": "O",
+        "x": 89,
+        "y": 8
+      },
+      {
+        "role": "O",
+        "x": 93,
+        "y": 78
+      },
+      {
+        "role": "C",
+        "x": 88,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            85,
+            42
+          ],
+          [
+            82,
+            42
+          ]
+        ],
+        "step": 1,
+        "caption": "Coach shows one move first.",
+        "fromPlayer": false,
+        "stepSide": "right"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            81,
+            11
+          ],
+          [
+            81,
+            30
+          ],
+          [
+            79,
+            40
+          ],
+          [
+            83,
+            46
+          ],
+          [
+            81,
+            56
+          ],
+          [
+            81,
+            71
+          ]
+        ],
+        "step": 2,
+        "caption": "Carry the puck across, make the move in the middle, and leave the puck for the next player."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            93,
+            75
+          ],
+          [
+            93,
+            58
+          ],
+          [
+            95,
+            48
+          ],
+          [
+            91,
+            40
+          ],
+          [
+            93,
+            30
+          ],
+          [
+            93,
+            14
+          ]
+        ],
+        "step": 3,
+        "caption": "The next player picks it up and brings it back the same way."
+      }
+    ],
+    "pucks": [
+      {
+        "x": 81,
+        "y": 74
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

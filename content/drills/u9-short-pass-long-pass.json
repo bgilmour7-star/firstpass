@@ -1,0 +1,370 @@
+{
+  "id": "u9-short-pass-long-pass",
+  "funName": "Short Pass, Long Pass",
+  "plainName": "Passing to support and to open ice",
+  "sourceTitle": "Short Pass – Long Pass",
+  "minutes": 8,
+  "gear": "1 puck per pair, 3 pylons",
+  "worksAsStation": false,
+  "description": "Partners share one puck and start close together. The carrier makes a short pass (about 5 feet), then skates ahead into open ice. The partner makes a long pass (about 15–20 feet) and follows it, so the two are close again for the next short pass. They work up the ice this way, trading jobs, and the next pair goes at the second pylon.",
+  "steps": [
+    "Short pass to your partner.",
+    "Skate ahead into open ice.",
+    "Partner makes a long pass to you.",
+    "Partner follows the pass so you’re close again. Repeat up the ice.",
+    "Next pair goes when the first reaches the second pylon."
+  ],
+  "cues": [
+    "Short, then long!",
+    "Get open, show your stick.",
+    "Keep your feet moving."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Short and long passes to a moving partner."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Getting open and staying close for support."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "Pass up the ice",
+  "levels": [
+    {
+      "name": "One-on-one at the end",
+      "adds": "At the far end the pair plays one-on-one: whoever has the puck attacks the net, the partner defends. Swap roles next time.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "role": "O",
+            "x": 40,
+            "y": 34
+          },
+          {
+            "role": "O",
+            "x": 46,
+            "y": 22
+          },
+          {
+            "role": "O",
+            "x": 14,
+            "y": 26
+          },
+          {
+            "role": "O",
+            "x": 14,
+            "y": 34
+          },
+          {
+            "role": "O",
+            "x": 150,
+            "y": 22
+          },
+          {
+            "role": "X",
+            "x": 156,
+            "y": 33
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                43,
+                32
+              ],
+              [
+                46,
+                25
+              ]
+            ],
+            "step": 1,
+            "caption": "Short pass to your partner.",
+            "fromPlayer": false,
+            "stepSide": "right"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                43,
+                35
+              ],
+              [
+                66,
+                37
+              ],
+              [
+                90,
+                32
+              ]
+            ],
+            "step": 2,
+            "caption": "Skate ahead into open ice."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                50,
+                23
+              ],
+              [
+                88,
+                30
+              ]
+            ],
+            "step": 3,
+            "caption": "Partner makes a long pass to you.",
+            "fromPlayer": false
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                49,
+                21
+              ],
+              [
+                70,
+                18
+              ],
+              [
+                88,
+                25
+              ]
+            ],
+            "step": 4,
+            "caption": "Partner follows the pass so you’re close again. Repeat up the ice."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                17,
+                30
+              ],
+              [
+                32,
+                30
+              ]
+            ],
+            "step": 5,
+            "caption": "Next pair goes when the first reaches the second pylon.",
+            "stepSide": "left"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                153,
+                22
+              ],
+              [
+                168,
+                30
+              ],
+              [
+                178,
+                38
+              ]
+            ],
+            "step": 6,
+            "caption": "At the far end, play one-on-one: the puck carrier attacks the net, the partner defends."
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                180,
+                39
+              ],
+              [
+                186,
+                41.5
+              ]
+            ],
+            "stepWith": 6,
+            "fromPlayer": false
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                159,
+                34
+              ],
+              [
+                172,
+                40
+              ]
+            ],
+            "stepWith": 6,
+            "team": "X"
+          }
+        ],
+        "cones": [
+          {
+            "x": 65,
+            "y": 42.5
+          },
+          {
+            "x": 115,
+            "y": 42.5
+          },
+          {
+            "x": 160,
+            "y": 42.5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 10, 12, 18 · skills 2.4.01–2.4.03",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-10-e.pdf",
+    "note": "The source doesn’t place the pylons; we put three down the middle as markers and run pairs in the top half. Level 2 comes from Plan 10, which says it can become a one-on-one game."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 40,
+        "y": 34
+      },
+      {
+        "role": "O",
+        "x": 46,
+        "y": 22
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 26
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 34
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            43,
+            32
+          ],
+          [
+            46,
+            25
+          ]
+        ],
+        "step": 1,
+        "caption": "Short pass to your partner.",
+        "fromPlayer": false,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            43,
+            35
+          ],
+          [
+            66,
+            37
+          ],
+          [
+            90,
+            32
+          ]
+        ],
+        "step": 2,
+        "caption": "Skate ahead into open ice."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            50,
+            23
+          ],
+          [
+            88,
+            30
+          ]
+        ],
+        "step": 3,
+        "caption": "Partner makes a long pass to you.",
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            49,
+            21
+          ],
+          [
+            70,
+            18
+          ],
+          [
+            88,
+            25
+          ]
+        ],
+        "step": 4,
+        "caption": "Partner follows the pass so you’re close again. Repeat up the ice."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            17,
+            30
+          ],
+          [
+            32,
+            30
+          ]
+        ],
+        "step": 5,
+        "caption": "Next pair goes when the first reaches the second pylon.",
+        "stepSide": "left"
+      }
+    ],
+    "cones": [
+      {
+        "x": 65,
+        "y": 42.5
+      },
+      {
+        "x": 115,
+        "y": 42.5
+      },
+      {
+        "x": 160,
+        "y": 42.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

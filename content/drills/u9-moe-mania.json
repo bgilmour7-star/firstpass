@@ -1,0 +1,682 @@
+{
+  "id": "u9-moe-mania",
+  "funName": "Moe Mania",
+  "plainName": "Forward-to-backward pivots through cones",
+  "sourceTitle": "Moe Mania",
+  "minutes": 10,
+  "gear": "10 cones, tape or spray paint for the halfway marks",
+  "worksAsStation": false,
+  "description": "Two lines of cones run the length of the ice, one line of skaters at each end. Skate forward past a cone, turn to skating backward at a mark halfway to the next cone, then turn forward again at that cone. Repeat to the end of the course.",
+  "steps": [
+    "Skate forward past the first cone.",
+    "Pivot to backward at the halfway mark, eyes on the next cone.",
+    "Pivot to forward at the cone, and keep going to the end."
+  ],
+  "cues": [
+    "Eyes on the next cone.",
+    "Stick leads the turn."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Lots of forward-to-backward pivots both ways."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Level 2 carries a puck through the pivots."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "line",
+  "levelName": "Pivot through the cones",
+  "levels": [
+    {
+      "name": "With a puck",
+      "adds": "Carry a puck the whole way, forward and backward, through every pivot.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "x": 16,
+            "y": 29,
+            "role": "O"
+          },
+          {
+            "x": 9,
+            "y": 29,
+            "role": "O"
+          },
+          {
+            "x": 184,
+            "y": 56,
+            "role": "O"
+          },
+          {
+            "x": 191,
+            "y": 56,
+            "role": "O"
+          },
+          {
+            "x": 100,
+            "y": 42.5,
+            "role": "C"
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                19,
+                29
+              ],
+              [
+                57.5,
+                29
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate forward past the first cone."
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                57.5,
+                29
+              ],
+              [
+                73,
+                29
+              ]
+            ],
+            "step": 2,
+            "caption": "Pivot to backward at the halfway mark, eyes on the next cone.",
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                75,
+                29
+              ],
+              [
+                92.5,
+                29
+              ]
+            ],
+            "step": 3,
+            "caption": "Pivot to forward at the cone, and keep going to the end.",
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                92.5,
+                29
+              ],
+              [
+                108,
+                29
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                110,
+                29
+              ],
+              [
+                127.5,
+                29
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                127.5,
+                29
+              ],
+              [
+                143,
+                29
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                145,
+                29
+              ],
+              [
+                162.5,
+                29
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                162.5,
+                29
+              ],
+              [
+                178,
+                29
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                181,
+                56
+              ],
+              [
+                142.5,
+                56
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                142.5,
+                56
+              ],
+              [
+                127,
+                56
+              ]
+            ],
+            "stepWith": 2,
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                125,
+                56
+              ],
+              [
+                107.5,
+                56
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                107.5,
+                56
+              ],
+              [
+                92,
+                56
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                90,
+                56
+              ],
+              [
+                72.5,
+                56
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                72.5,
+                56
+              ],
+              [
+                57,
+                56
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                55,
+                56
+              ],
+              [
+                37.5,
+                56
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                37.5,
+                56
+              ],
+              [
+                22,
+                56
+              ]
+            ],
+            "stepWith": 3,
+            "fromPlayer": false
+          }
+        ],
+        "cones": [
+          {
+            "x": 40,
+            "y": 26
+          },
+          {
+            "x": 75,
+            "y": 26
+          },
+          {
+            "x": 110,
+            "y": 26
+          },
+          {
+            "x": 145,
+            "y": 26
+          },
+          {
+            "x": 180,
+            "y": 26
+          },
+          {
+            "x": 160,
+            "y": 59
+          },
+          {
+            "x": 125,
+            "y": 59
+          },
+          {
+            "x": 90,
+            "y": 59
+          },
+          {
+            "x": 55,
+            "y": 59
+          },
+          {
+            "x": 20,
+            "y": 59
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plan 23 · skill 1.6.21",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-23-e.pdf",
+    "note": "The plan's course is in a diagram we can't see, so we run two lines of cones down the full length, with a line of skaters at each end. The plan uses pucks; we made that Level 2."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "x": 16,
+        "y": 29,
+        "role": "O"
+      },
+      {
+        "x": 9,
+        "y": 29,
+        "role": "O"
+      },
+      {
+        "x": 184,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 191,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 100,
+        "y": 42.5,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            19,
+            29
+          ],
+          [
+            57.5,
+            29
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate forward past the first cone."
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            57.5,
+            29
+          ],
+          [
+            73,
+            29
+          ]
+        ],
+        "step": 2,
+        "caption": "Pivot to backward at the halfway mark, eyes on the next cone.",
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            75,
+            29
+          ],
+          [
+            92.5,
+            29
+          ]
+        ],
+        "step": 3,
+        "caption": "Pivot to forward at the cone, and keep going to the end.",
+        "fromPlayer": false
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            92.5,
+            29
+          ],
+          [
+            108,
+            29
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            110,
+            29
+          ],
+          [
+            127.5,
+            29
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            127.5,
+            29
+          ],
+          [
+            143,
+            29
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            145,
+            29
+          ],
+          [
+            162.5,
+            29
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            162.5,
+            29
+          ],
+          [
+            178,
+            29
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            181,
+            56
+          ],
+          [
+            142.5,
+            56
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            142.5,
+            56
+          ],
+          [
+            127,
+            56
+          ]
+        ],
+        "stepWith": 2,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            125,
+            56
+          ],
+          [
+            107.5,
+            56
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            107.5,
+            56
+          ],
+          [
+            92,
+            56
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            90,
+            56
+          ],
+          [
+            72.5,
+            56
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            72.5,
+            56
+          ],
+          [
+            57,
+            56
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            55,
+            56
+          ],
+          [
+            37.5,
+            56
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            37.5,
+            56
+          ],
+          [
+            22,
+            56
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      }
+    ],
+    "cones": [
+      {
+        "x": 40,
+        "y": 26
+      },
+      {
+        "x": 75,
+        "y": 26
+      },
+      {
+        "x": 110,
+        "y": 26
+      },
+      {
+        "x": 145,
+        "y": 26
+      },
+      {
+        "x": 180,
+        "y": 26
+      },
+      {
+        "x": 160,
+        "y": 59
+      },
+      {
+        "x": 125,
+        "y": 59
+      },
+      {
+        "x": 90,
+        "y": 59
+      },
+      {
+        "x": 55,
+        "y": 59
+      },
+      {
+        "x": 20,
+        "y": 59
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ],
+  "lessons": []
+}

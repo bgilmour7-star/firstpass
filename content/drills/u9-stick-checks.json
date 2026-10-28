@@ -1,0 +1,259 @@
+{
+  "id": "u9-stick-checks",
+  "funName": "Stick Checks",
+  "plainName": "Poke, press, lift and sweep",
+  "sourceTitle": "Stationary Stick Checking",
+  "minutes": 8,
+  "gear": "1 puck per pair",
+  "worksAsStation": true,
+  "description": "The coach shows the press (pinning the puck flat with your blade) and the lift (lifting the other stick off the puck). Partners stand side by side. On the first whistle one player handles the puck in place; on the second the partner tries to press the puck or lift the stick. This is stick checking only: no body contact, and sticks stay below the knees.",
+  "steps": [
+    "First whistle: O handles the puck, standing still.",
+    "Second whistle: X presses the puck flat or lifts O’s stick.",
+    "Switch jobs and go again."
+  ],
+  "cues": [
+    "Stick checks only, no bodies.",
+    "Lift from under the other stick.",
+    "Win the puck, then switch."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Learning to win the puck back with the stick."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Protecting the puck from a stick check."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "easy",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "Standing still",
+  "levels": [
+    {
+      "name": "1-on-1 in a box",
+      "adds": "Each pair gets a marked box and plays keep-away. The checker adds the poke and the sweep, still with the stick only.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 26,
+            "y": 18
+          },
+          {
+            "role": "X",
+            "x": 34,
+            "y": 18
+          },
+          {
+            "role": "O",
+            "x": 54,
+            "y": 18
+          },
+          {
+            "role": "X",
+            "x": 62,
+            "y": 18
+          },
+          {
+            "role": "C",
+            "x": 44,
+            "y": 36
+          }
+        ],
+        "pucks": [],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                26,
+                21
+              ],
+              [
+                22,
+                26
+              ],
+              [
+                30,
+                27
+              ],
+              [
+                36,
+                22
+              ]
+            ],
+            "step": 1,
+            "caption": "O keeps the puck away inside the box."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                34,
+                15
+              ],
+              [
+                30,
+                13
+              ],
+              [
+                26,
+                15
+              ]
+            ],
+            "step": 2,
+            "caption": "X uses only the stick: poke, sweep, press or lift.",
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                54,
+                21
+              ],
+              [
+                58,
+                26
+              ],
+              [
+                64,
+                25
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                62,
+                15
+              ],
+              [
+                58,
+                12
+              ],
+              [
+                54,
+                14
+              ]
+            ],
+            "stepWith": 2
+          }
+        ],
+        "areas": [
+          {
+            "x": 16,
+            "y": 6,
+            "w": 26,
+            "h": 24
+          },
+          {
+            "x": 46,
+            "y": 6,
+            "w": 26,
+            "h": 24
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 18, 30 · skills 4.2.01–4.2.04",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-18-e.pdf",
+    "note": "Level 1 is Plan 18's stationary press and lift; Level 2 is Plan 30's 1-on-1 keep-away in marked boxes with poke and sweep checks added. We added the no-contact and sticks-low rules for clarity."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 26,
+        "y": 18
+      },
+      {
+        "role": "X",
+        "x": 34,
+        "y": 18
+      },
+      {
+        "role": "O",
+        "x": 54,
+        "y": 18
+      },
+      {
+        "role": "X",
+        "x": 62,
+        "y": 18
+      },
+      {
+        "role": "C",
+        "x": 44,
+        "y": 36
+      }
+    ],
+    "pucks": [
+      {
+        "x": 54,
+        "y": 22
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            24,
+            22
+          ],
+          [
+            27,
+            23
+          ],
+          [
+            24,
+            25
+          ],
+          [
+            27,
+            26
+          ]
+        ],
+        "step": 1,
+        "caption": "First whistle: O handles the puck, standing still.",
+        "fromPlayer": false,
+        "stepSide": "left"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            33,
+            21
+          ],
+          [
+            29,
+            25
+          ]
+        ],
+        "step": 2,
+        "caption": "Second whistle: X presses the puck flat or lifts O’s stick."
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

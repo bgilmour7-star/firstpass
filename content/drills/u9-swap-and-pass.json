@@ -1,0 +1,238 @@
+{
+  "id": "u9-swap-and-pass",
+  "funName": "Swap and Pass",
+  "plainName": "Pass and follow in pairs",
+  "sourceTitle": "Pass and Follow",
+  "minutes": 8,
+  "gear": "Pucks, 2 pylons",
+  "worksAsStation": false,
+  "description": "Partners start side by side in two lines on the goal line, one puck between them. The puck carrier cuts across in front of the partner as they swap lanes, then passes to the partner. They swap again with the partner in front, and keep going up the ice. At the far end, each skater makes a tight turn around a pylon and comes back to the other line.",
+  "steps": [
+    "Carry the puck across in front of your partner; they cross behind you.",
+    "Pass to your partner.",
+    "Swap again: your partner carries across in front.",
+    "Tight turn around the pylon at the far end, then come back along the boards to the other line."
+  ],
+  "cues": [
+    "Cross in front, then pass!",
+    "Stick on the ice, ready for it.",
+    "Tight turn, knees bent."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Passing to a partner who is moving."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Crossing paths and tight turns at speed."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 15 · skill 2.4.13",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-15-e.pdf",
+    "note": "The source doesn’t say where the lines start or where the pylons go; we start on the goal line, put the pylons inside the far blue line, and bring skaters back along the boards."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 14,
+        "y": 31
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 24
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 54
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 61
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            17,
+            31
+          ],
+          [
+            38,
+            38
+          ],
+          [
+            58,
+            54
+          ]
+        ],
+        "step": 1,
+        "caption": "Carry the puck across in front of your partner; they cross behind you."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            17,
+            54
+          ],
+          [
+            36,
+            48
+          ],
+          [
+            56,
+            32
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            62,
+            54
+          ],
+          [
+            73,
+            33
+          ]
+        ],
+        "step": 2,
+        "caption": "Pass to your partner.",
+        "fromPlayer": false
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            77,
+            32
+          ],
+          [
+            98,
+            40
+          ],
+          [
+            120,
+            54
+          ]
+        ],
+        "step": 3,
+        "caption": "Swap again: your partner carries across in front."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            65,
+            56
+          ],
+          [
+            95,
+            46
+          ],
+          [
+            116,
+            31
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            124,
+            54
+          ],
+          [
+            150,
+            50
+          ],
+          [
+            160,
+            52
+          ],
+          [
+            161,
+            60
+          ],
+          [
+            148,
+            66
+          ],
+          [
+            118,
+            73
+          ]
+        ],
+        "step": 4,
+        "caption": "Tight turn around the pylon at the far end, then come back along the boards to the other line.",
+        "stepAt": 0.2
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            120,
+            31
+          ],
+          [
+            150,
+            35
+          ],
+          [
+            160,
+            33
+          ],
+          [
+            161,
+            25
+          ],
+          [
+            148,
+            19
+          ],
+          [
+            118,
+            12
+          ]
+        ],
+        "stepWith": 4
+      }
+    ],
+    "cones": [
+      {
+        "x": 155,
+        "y": 57
+      },
+      {
+        "x": 155,
+        "y": 28
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

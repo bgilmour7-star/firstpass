@@ -1,0 +1,179 @@
+{
+  "id": "u9-follow-your-pass",
+  "funName": "Follow Your Pass",
+  "plainName": "Pass up the ice and follow it",
+  "sourceTitle": "Follow Your Pass",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Skaters line up in a corner with pucks. One skater carries the puck up the ice and, at centre, passes on the diagonal to a skater waiting near the far blue line, then follows the pass. The receiver moves quickly across the ice and passes back. The first skater drives to the net and taps the post to finish.",
+  "steps": [
+    "Carry the puck out of the corner to centre ice.",
+    "Pass on the diagonal to the skater by the far blue line, then follow your pass.",
+    "The receiver skates quickly across the ice and passes back to you.",
+    "Drive the net with the puck and tap the post."
+  ],
+  "cues": [
+    "Pass and go!",
+    "Quick feet!",
+    "Drive the net, tap the post."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Passing on the move and following the pass."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "Driving the net with the puck."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 18 · skills 2.4.01, 2.4.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-18-e.pdf",
+    "note": "The source names one receiver on the diagonal but doesn’t say where or who the next pass goes to; we read it as a give-and-go (the receiver passes back) and finish with a post tap, not a shot. Rotate: the receiver joins the line, the finisher becomes the next receiver."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 25,
+        "y": 73
+      },
+      {
+        "role": "O",
+        "x": 19,
+        "y": 70
+      },
+      {
+        "role": "O",
+        "x": 16,
+        "y": 64
+      },
+      {
+        "role": "O",
+        "x": 130,
+        "y": 21
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            28,
+            72
+          ],
+          [
+            60,
+            66
+          ],
+          [
+            96,
+            62
+          ]
+        ],
+        "step": 1,
+        "caption": "Carry the puck out of the corner to centre ice."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            99,
+            60
+          ],
+          [
+            127,
+            24
+          ]
+        ],
+        "step": 2,
+        "caption": "Pass on the diagonal to the skater by the far blue line, then follow your pass.",
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            101,
+            63
+          ],
+          [
+            130,
+            59
+          ],
+          [
+            158,
+            51
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            133,
+            23
+          ],
+          [
+            149,
+            31
+          ]
+        ],
+        "step": 3,
+        "caption": "The receiver skates quickly across the ice and passes back to you."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            151,
+            33
+          ],
+          [
+            161,
+            47
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            163,
+            50
+          ],
+          [
+            176,
+            49
+          ],
+          [
+            185,
+            46.5
+          ]
+        ],
+        "step": 4,
+        "caption": "Drive the net with the puck and tap the post.",
+        "end": "stop"
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}
