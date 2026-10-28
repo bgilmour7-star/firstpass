@@ -4,7 +4,7 @@
   "plainName": "Forward-to-backward pivots through cones",
   "sourceTitle": "Moe Mania",
   "minutes": 10,
-  "gear": "10 cones, tape or spray paint for the halfway marks",
+  "gear": "8 cones, tape or spray paint for the halfway marks",
   "worksAsStation": false,
   "description": "Two lines of cones run the length of the ice, one line of skaters at each end. Skate forward past a cone, turn to skating backward at a mark halfway to the next cone, then turn forward again at that cone. Repeat to the end of the course.",
   "steps": [
@@ -75,7 +75,7 @@
                 29
               ],
               [
-                57.5,
+                62.5,
                 29
               ]
             ],
@@ -86,11 +86,11 @@
             "type": "backward",
             "points": [
               [
-                57.5,
+                62.5,
                 29
               ],
               [
-                73,
+                83,
                 29
               ]
             ],
@@ -102,11 +102,11 @@
             "type": "puck",
             "points": [
               [
-                75,
+                85,
                 29
               ],
               [
-                92.5,
+                107.5,
                 29
               ]
             ],
@@ -118,11 +118,11 @@
             "type": "backward",
             "points": [
               [
-                92.5,
+                107.5,
                 29
               ],
               [
-                108,
+                128,
                 29
               ]
             ],
@@ -133,11 +133,11 @@
             "type": "puck",
             "points": [
               [
-                110,
+                130,
                 29
               ],
               [
-                127.5,
+                152.5,
                 29
               ]
             ],
@@ -148,41 +148,11 @@
             "type": "backward",
             "points": [
               [
-                127.5,
+                152.5,
                 29
               ],
               [
-                143,
-                29
-              ]
-            ],
-            "stepWith": 3,
-            "fromPlayer": false
-          },
-          {
-            "type": "puck",
-            "points": [
-              [
-                145,
-                29
-              ],
-              [
-                162.5,
-                29
-              ]
-            ],
-            "stepWith": 3,
-            "fromPlayer": false
-          },
-          {
-            "type": "backward",
-            "points": [
-              [
-                162.5,
-                29
-              ],
-              [
-                178,
+                173,
                 29
               ]
             ],
@@ -197,7 +167,7 @@
                 56
               ],
               [
-                142.5,
+                137.5,
                 56
               ]
             ],
@@ -207,11 +177,11 @@
             "type": "backward",
             "points": [
               [
-                142.5,
+                137.5,
                 56
               ],
               [
-                127,
+                117,
                 56
               ]
             ],
@@ -222,11 +192,11 @@
             "type": "puck",
             "points": [
               [
-                125,
+                115,
                 56
               ],
               [
-                107.5,
+                92.5,
                 56
               ]
             ],
@@ -237,11 +207,11 @@
             "type": "backward",
             "points": [
               [
-                107.5,
+                92.5,
                 56
               ],
               [
-                92,
+                72,
                 56
               ]
             ],
@@ -252,11 +222,11 @@
             "type": "puck",
             "points": [
               [
-                90,
+                70,
                 56
               ],
               [
-                72.5,
+                47.5,
                 56
               ]
             ],
@@ -267,41 +237,11 @@
             "type": "backward",
             "points": [
               [
-                72.5,
+                47.5,
                 56
               ],
               [
-                57,
-                56
-              ]
-            ],
-            "stepWith": 3,
-            "fromPlayer": false
-          },
-          {
-            "type": "puck",
-            "points": [
-              [
-                55,
-                56
-              ],
-              [
-                37.5,
-                56
-              ]
-            ],
-            "stepWith": 3,
-            "fromPlayer": false
-          },
-          {
-            "type": "backward",
-            "points": [
-              [
-                37.5,
-                56
-              ],
-              [
-                22,
+                27,
                 56
               ]
             ],
@@ -315,19 +255,15 @@
             "y": 26
           },
           {
-            "x": 75,
+            "x": 85,
             "y": 26
           },
           {
-            "x": 110,
+            "x": 130,
             "y": 26
           },
           {
-            "x": 145,
-            "y": 26
-          },
-          {
-            "x": 180,
+            "x": 175,
             "y": 26
           },
           {
@@ -335,19 +271,15 @@
             "y": 59
           },
           {
-            "x": 125,
+            "x": 115,
             "y": 59
           },
           {
-            "x": 90,
+            "x": 70,
             "y": 59
           },
           {
-            "x": 55,
-            "y": 59
-          },
-          {
-            "x": 20,
+            "x": 25,
             "y": 59
           }
         ]
@@ -397,7 +329,7 @@
             29
           ],
           [
-            57.5,
+            62.5,
             29
           ]
         ],
@@ -408,11 +340,11 @@
         "type": "backward",
         "points": [
           [
-            57.5,
+            62.5,
             29
           ],
           [
-            73,
+            83,
             29
           ]
         ],
@@ -424,11 +356,11 @@
         "type": "skate",
         "points": [
           [
-            75,
+            85,
             29
           ],
           [
-            92.5,
+            107.5,
             29
           ]
         ],
@@ -440,11 +372,11 @@
         "type": "backward",
         "points": [
           [
-            92.5,
+            107.5,
             29
           ],
           [
-            108,
+            128,
             29
           ]
         ],
@@ -455,11 +387,11 @@
         "type": "skate",
         "points": [
           [
-            110,
+            130,
             29
           ],
           [
-            127.5,
+            152.5,
             29
           ]
         ],
@@ -470,41 +402,11 @@
         "type": "backward",
         "points": [
           [
-            127.5,
+            152.5,
             29
           ],
           [
-            143,
-            29
-          ]
-        ],
-        "stepWith": 3,
-        "fromPlayer": false
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            145,
-            29
-          ],
-          [
-            162.5,
-            29
-          ]
-        ],
-        "stepWith": 3,
-        "fromPlayer": false
-      },
-      {
-        "type": "backward",
-        "points": [
-          [
-            162.5,
-            29
-          ],
-          [
-            178,
+            173,
             29
           ]
         ],
@@ -519,7 +421,7 @@
             56
           ],
           [
-            142.5,
+            137.5,
             56
           ]
         ],
@@ -529,11 +431,11 @@
         "type": "backward",
         "points": [
           [
-            142.5,
+            137.5,
             56
           ],
           [
-            127,
+            117,
             56
           ]
         ],
@@ -544,11 +446,11 @@
         "type": "skate",
         "points": [
           [
-            125,
+            115,
             56
           ],
           [
-            107.5,
+            92.5,
             56
           ]
         ],
@@ -559,11 +461,11 @@
         "type": "backward",
         "points": [
           [
-            107.5,
+            92.5,
             56
           ],
           [
-            92,
+            72,
             56
           ]
         ],
@@ -574,11 +476,11 @@
         "type": "skate",
         "points": [
           [
-            90,
+            70,
             56
           ],
           [
-            72.5,
+            47.5,
             56
           ]
         ],
@@ -589,41 +491,11 @@
         "type": "backward",
         "points": [
           [
-            72.5,
+            47.5,
             56
           ],
           [
-            57,
-            56
-          ]
-        ],
-        "stepWith": 3,
-        "fromPlayer": false
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            55,
-            56
-          ],
-          [
-            37.5,
-            56
-          ]
-        ],
-        "stepWith": 3,
-        "fromPlayer": false
-      },
-      {
-        "type": "backward",
-        "points": [
-          [
-            37.5,
-            56
-          ],
-          [
-            22,
+            27,
             56
           ]
         ],
@@ -637,19 +509,15 @@
         "y": 26
       },
       {
-        "x": 75,
+        "x": 85,
         "y": 26
       },
       {
-        "x": 110,
+        "x": 130,
         "y": 26
       },
       {
-        "x": 145,
-        "y": 26
-      },
-      {
-        "x": 180,
+        "x": 175,
         "y": 26
       },
       {
@@ -657,19 +525,15 @@
         "y": 59
       },
       {
-        "x": 125,
+        "x": 115,
         "y": 59
       },
       {
-        "x": 90,
+        "x": 70,
         "y": 59
       },
       {
-        "x": 55,
-        "y": 59
-      },
-      {
-        "x": 20,
+        "x": 25,
         "y": 59
       }
     ]

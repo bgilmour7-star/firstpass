@@ -55,8 +55,8 @@
           },
           {
             "role": "O",
-            "x": 24,
-            "y": 56
+            "x": 18,
+            "y": 55
           },
           {
             "role": "C",
@@ -117,12 +117,12 @@
             "type": "skate",
             "points": [
               [
-                18,
+                17,
                 17
               ],
               [
-                20,
-                25
+                19,
+                27
               ],
               [
                 22,
@@ -130,21 +130,22 @@
               ],
               [
                 24,
-                25
+                27
               ],
               [
-                26,
+                27,
                 17
               ],
               [
-                28,
-                25
+                29,
+                27
               ]
             ],
             "step": 1,
             "caption": "Step side to side over your stick, touching the ice on each side, until the whistle.",
             "fromPlayer": false,
-            "stepSide": "left"
+            "stepAt": 0.95,
+            "stepSide": "right"
           },
           {
             "type": "skate",
@@ -183,28 +184,29 @@
             "points": [
               [
                 21,
-                60
+                59
               ],
               [
                 32,
-                60
+                59
               ]
             ],
             "step": 3,
             "caption": "Skate forward to the blade, pivot, skate backward to the knob, and pivot again.",
             "fromPlayer": false,
-            "stepSide": "left"
+            "stepSide": "right",
+            "stepAt": 0.9
           },
           {
             "type": "backward",
             "points": [
               [
                 32,
-                66
+                67
               ],
               [
                 21,
-                66
+                67
               ]
             ],
             "stepWith": 3,
@@ -265,8 +267,8 @@
       },
       {
         "role": "O",
-        "x": 24,
-        "y": 56
+        "x": 18,
+        "y": 55
       },
       {
         "role": "C",
@@ -317,12 +319,12 @@
         "type": "skate",
         "points": [
           [
-            18,
+            17,
             17
           ],
           [
-            20,
-            25
+            19,
+            27
           ],
           [
             22,
@@ -330,21 +332,22 @@
           ],
           [
             24,
-            25
+            27
           ],
           [
-            26,
+            27,
             17
           ],
           [
-            28,
-            25
+            29,
+            27
           ]
         ],
         "step": 1,
         "caption": "Step side to side over your stick, touching the ice on each side, until the whistle.",
         "fromPlayer": false,
-        "stepSide": "left"
+        "stepAt": 0.95,
+        "stepSide": "right"
       },
       {
         "type": "skate",
@@ -383,28 +386,29 @@
         "points": [
           [
             21,
-            60
+            59
           ],
           [
             32,
-            60
+            59
           ]
         ],
         "step": 3,
         "caption": "Skate forward to the blade, pivot, skate backward to the knob, and pivot again.",
         "fromPlayer": false,
-        "stepSide": "left"
+        "stepSide": "right",
+        "stepAt": 0.9
       },
       {
         "type": "backward",
         "points": [
           [
             32,
-            66
+            67
           ],
           [
             21,
-            66
+            67
           ]
         ],
         "stepWith": 3,

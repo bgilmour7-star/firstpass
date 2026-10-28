@@ -8,9 +8,9 @@
   "worksAsStation": true,
   "description": "The coach shows one move: pulling the puck back through the legs, a toe drag (pulling the puck in with the tip of the blade), a spin-o-rama, a 360 or a heel-to-heel turn. In groups of three, one player carries the puck across the ice, makes the move on the way and leaves the puck for the next player, who brings it back. Change the move every few turns.",
   "steps": [
-    "Coach shows one move first.",
     "Carry the puck across, make the move in the middle, and leave the puck for the next player.",
-    "The next player picks it up and brings it back the same way."
+    "The next player picks it up and brings it back the same way.",
+    "Coach shows a new move every few turns."
   ],
   "cues": [
     "Slow down for the move, speed up after.",
@@ -46,119 +46,130 @@
           {
             "role": "O",
             "x": 81,
-            "y": 8
-          },
-          {
-            "role": "O",
-            "x": 89,
-            "y": 8
+            "y": 7
           },
           {
             "role": "O",
             "x": 93,
-            "y": 78
+            "y": 7
           },
           {
-            "role": "C",
-            "x": 88,
-            "y": 42
+            "role": "O",
+            "x": 87,
+            "y": 78
           }
         ],
         "paths": [
           {
-            "type": "skate",
+            "type": "puck",
             "points": [
               [
+                81,
+                10
+              ],
+              [
+                81,
+                34
+              ],
+              [
+                78,
+                39
+              ],
+              [
                 85,
-                42
+                44
               ],
               [
                 82,
-                42
+                50
+              ],
+              [
+                81,
+                66
               ]
             ],
             "step": 1,
-            "caption": "Coach shows one move first.",
-            "fromPlayer": false,
-            "stepSide": "right"
+            "caption": "Fake one way at the pylon and go around it the other way.",
+            "stepSide": "right",
+            "stepAt": 0.25
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                82,
+                68
+              ],
+              [
+                86,
+                75
+              ]
+            ],
+            "stepWith": 1,
+            "fromPlayer": false
           },
           {
             "type": "puck",
             "points": [
               [
-                81,
-                11
+                90,
+                76
               ],
               [
-                81,
-                30
+                93,
+                70
               ],
               [
-                79,
-                40
+                93,
+                52
               ],
               [
-                83,
-                46
+                96,
+                47
               ],
               [
-                81,
-                56
+                89,
+                42
               ],
               [
-                81,
-                71
+                92,
+                36
+              ],
+              [
+                93,
+                17
               ]
             ],
             "step": 2,
-            "caption": "Carry the puck across, make the move in the middle, and leave the puck for the next player."
+            "caption": "The next player does the same and passes back across.",
+            "fromPlayer": false,
+            "stepAt": 0.75
           },
           {
-            "type": "puck",
+            "type": "pass",
             "points": [
               [
                 93,
-                75
+                15
               ],
               [
                 93,
-                58
-              ],
-              [
-                95,
-                48
-              ],
-              [
-                91,
-                40
-              ],
-              [
-                93,
-                30
-              ],
-              [
-                93,
-                14
+                10
               ]
             ],
-            "step": 3,
-            "caption": "The next player picks it up and brings it back the same way."
+            "stepWith": 2,
+            "fromPlayer": false
           }
         ],
-        "pucks": [
-          {
-            "x": 81,
-            "y": 74
-          }
-        ],
+        "pucks": [],
         "cones": [
           {
             "x": 81,
-            "y": 46
+            "y": 44
           },
           {
             "x": 93,
-            "y": 38
+            "y": 42
           }
         ]
       }
@@ -176,52 +187,30 @@
       {
         "role": "O",
         "x": 81,
-        "y": 8
-      },
-      {
-        "role": "O",
-        "x": 89,
-        "y": 8
+        "y": 7
       },
       {
         "role": "O",
         "x": 93,
-        "y": 78
+        "y": 7
       },
       {
-        "role": "C",
-        "x": 88,
-        "y": 42
+        "role": "O",
+        "x": 87,
+        "y": 78
       }
     ],
     "paths": [
-      {
-        "type": "skate",
-        "points": [
-          [
-            85,
-            42
-          ],
-          [
-            82,
-            42
-          ]
-        ],
-        "step": 1,
-        "caption": "Coach shows one move first.",
-        "fromPlayer": false,
-        "stepSide": "right"
-      },
       {
         "type": "puck",
         "points": [
           [
             81,
-            11
+            10
           ],
           [
             81,
-            30
+            34
           ],
           [
             79,
@@ -233,30 +222,36 @@
           ],
           [
             81,
-            56
+            52
           ],
           [
             81,
-            71
+            70
           ]
         ],
-        "step": 2,
-        "caption": "Carry the puck across, make the move in the middle, and leave the puck for the next player."
+        "step": 1,
+        "caption": "Carry the puck across, make the move in the middle, and leave the puck for the next player.",
+        "stepSide": "right",
+        "stepAt": 0.25
       },
       {
         "type": "puck",
         "points": [
           [
-            93,
-            75
+            90,
+            76
           ],
           [
             93,
-            58
+            70
+          ],
+          [
+            93,
+            52
           ],
           [
             95,
-            48
+            46
           ],
           [
             91,
@@ -264,20 +259,22 @@
           ],
           [
             93,
-            30
+            34
           ],
           [
             93,
-            14
+            11
           ]
         ],
-        "step": 3,
-        "caption": "The next player picks it up and brings it back the same way."
+        "step": 2,
+        "caption": "The next player picks it up and brings it back the same way.",
+        "fromPlayer": false,
+        "stepAt": 0.75
       }
     ],
     "pucks": [
       {
-        "x": 81,
+        "x": 82,
         "y": 74
       }
     ]
