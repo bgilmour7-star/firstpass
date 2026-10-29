@@ -30,7 +30,8 @@ const TOTAL = 7;
 const h1 = 'font-display text-[28px] font-extrabold leading-8 tracking-[-0.02em]';
 const hint = 'mt-2 block text-[15px] leading-[22px] text-ink-200';
 
-export function Survey({ token, audience, email }: { token: string; audience: Audience; email: string }) {
+/** preview: Brett's look at the survey from Admin → Survey (/s/preview/<audience>). Same screens, nothing saved. */
+export function Survey({ token, audience, email, preview = false }: { token: string; audience: Audience; email: string; preview?: boolean }) {
   const [step, setStep] = useState(1);
   const [s, setS] = useState<State>(EMPTY);
   const [error, setError] = useState('');
@@ -51,6 +52,10 @@ export function Survey({ token, audience, email }: { token: string; audience: Au
   }
   function send() {
     setError('');
+    if (preview) {
+      setDone(true);
+      return;
+    }
     start(async () => {
       const r = await submitSurvey(token, { ...s, wantsCall: s.wantsCall === true });
       if (r.ok) setDone(true);
@@ -58,7 +63,7 @@ export function Survey({ token, audience, email }: { token: string; audience: Au
     });
   }
 
-  if (done) return <Thanks email={email} audience={audience} s={s} />;
+  if (done) return <Thanks email={email} audience={audience} s={s} preview={preview} />;
 
   const back =
     step > 1 ? (
@@ -134,6 +139,7 @@ export function Survey({ token, audience, email }: { token: string; audience: Au
 
   return (
     <PublicFrame back={back} progress={`${step} of ${TOTAL}`}>
+      {preview && <PreviewNote audience={audience} />}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -299,11 +305,20 @@ function when(times: string[]) {
   return `, on ${words.length === 1 ? words[0] : `${words.slice(0, -1).join(', ')} or ${words[words.length - 1]}`}`;
 }
 
-function Thanks({ email, audience, s }: { email: string; audience: Audience; s: State }) {
+function PreviewNote({ audience }: { audience: Audience }) {
+  return (
+    <p role="note" className="mx-6 mt-2 rounded-lg bg-surface-200 px-3.5 py-2.5 text-[13px] leading-[19px] text-ink-200">
+      Preview of the {audience === 'coach' ? 'coach' : 'waitlist'} survey. Answers aren’t saved.
+    </p>
+  );
+}
+
+function Thanks({ email, audience, s, preview = false }: { email: string; audience: Audience; s: State; preview?: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
   return (
     <PublicFrame>
+      {preview && <PreviewNote audience={audience} />}
       <div className="flex flex-1 flex-col gap-[22px] px-7 pt-16">
         <svg width="160" height="60" viewBox="0 0 160 60" aria-hidden="true">
           <ellipse cx="18" cy="44" rx="11" ry="6.5" fill="var(--ink-100)" />
