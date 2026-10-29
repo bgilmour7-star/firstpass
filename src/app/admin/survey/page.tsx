@@ -33,6 +33,17 @@ export default async function SurveyPage({ searchParams }: { searchParams: Promi
         <div className="flex flex-col gap-1">
           <h1 className="text-[30px] font-bold leading-[1.1]">Survey results</h1>
           <p className="text-sm text-ink-200">Visible to Brett only{since ? ` · Answers since ${since}` : ''}</p>
+          <p className="flex flex-wrap items-center gap-x-1 text-sm">
+            <span className="text-ink-200">See the survey:</span>
+            <Link href="/s/preview/waitlist" target="_blank" className="inline-flex min-h-11 items-center px-1 font-medium text-rink-100 hover:underline">
+              Waitlist
+            </Link>
+            <span aria-hidden="true" className="text-ink-200">·</span>
+            <Link href="/s/preview/coach" target="_blank" className="inline-flex min-h-11 items-center px-1 font-medium text-rink-100 hover:underline">
+              Coach
+            </Link>
+            <span className="text-ink-200">(opens in a new tab, answers aren’t saved)</span>
+          </p>
         </div>
         {missing && <MigrationMissing />}
 
