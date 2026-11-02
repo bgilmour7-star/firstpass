@@ -1,7 +1,7 @@
 import { drillIds, type Block } from '../plans/schema';
 import { vanDay } from './summary';
 
-// Admin → Analytics → In the app (decision 0025): how coaches use Firstpass, from rows the app
+// Admin → Analytics → In the app (decision 0029): how coaches use Firstpass, from rows the app
 // already keeps (plans, edits, check-ins, shares) plus one "opened the app today" row per coach.
 // Teams, coaches and drills are counted; nothing here names a child, and coaches only by count.
 

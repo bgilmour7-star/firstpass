@@ -1,0 +1,132 @@
+{
+  "id": "u9-blue-line-box",
+  "funName": "Blue Line Box",
+  "plainName": "Backward skating, stops and lateral crossovers",
+  "sourceTitle": "Agility Skate",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": true,
+  "description": "Skaters skate a box around the neutral zone, the middle of the ice between the blue lines. Start on the boards at one blue line, skate backward to the other blue line and do a two-foot stop. Then crossover sideways along that blue line to the far boards, skate forward back to the first blue line, stop, and join the back of the line.",
+  "steps": [
+    "Skate backward along the boards to the far blue line and stop.",
+    "Crossovers along the blue line to the other boards.",
+    "Skate forward back to your blue line and stop.",
+    "Go to the back of the line."
+  ],
+  "cues": [
+    "Two feet, snow spray!",
+    "Stay low on the crossovers."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Backward skating, two-foot stops and crossovers in one loop."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 10 · skills 1.3.11, 1.1.12, 1.3.08",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-10-e.pdf",
+    "note": "The source doesn’t say when the next skater goes or how they get back to the line; we send them up their own blue line to the back of the line."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 77,
+        "y": 7
+      },
+      {
+        "role": "O",
+        "x": 70,
+        "y": 7
+      },
+      {
+        "role": "O",
+        "x": 63,
+        "y": 7
+      }
+    ],
+    "paths": [
+      {
+        "type": "backward",
+        "points": [
+          [
+            81,
+            7
+          ],
+          [
+            121,
+            7
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate backward along the boards to the far blue line and stop.",
+        "end": "stop"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            128,
+            11
+          ],
+          [
+            128,
+            75
+          ]
+        ],
+        "step": 2,
+        "caption": "Crossovers along the blue line to the other boards.",
+        "end": "stop"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            124,
+            78
+          ],
+          [
+            80,
+            78
+          ]
+        ],
+        "step": 3,
+        "caption": "Skate forward back to your blue line and stop.",
+        "end": "stop"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            75,
+            74
+          ],
+          [
+            68,
+            40
+          ],
+          [
+            62,
+            13
+          ]
+        ],
+        "step": 4,
+        "caption": "Go to the back of the line."
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

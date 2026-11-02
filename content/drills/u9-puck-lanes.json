@@ -1,0 +1,447 @@
+{
+  "id": "u9-puck-lanes",
+  "funName": "Puck Lanes",
+  "plainName": "Stickhandling skills in lanes",
+  "sourceTitle": "Warm-up",
+  "minutes": 10,
+  "gear": "9 cones to mark the lanes, a puck for every skater",
+  "worksAsStation": false,
+  "description": "Mark four lanes that run the length of the ice. Each skater starts in a corner with a puck, goes down lane 1, back up lane 2, down lane 3 and back up lane 4, with a different puck skill in each lane. The next skater goes when the one ahead is halfway down lane 1.",
+  "steps": [
+    "Lane 1, down: narrow-wide, close to you then far out.",
+    "Lane 2, back: toe drags, in front and to the side.",
+    "Lane 3, down: drop the puck to your skates, kick it back to your stick.",
+    "Lane 4, back: your own best moves."
+  ],
+  "cues": [
+    "Eyes up, feel the puck.",
+    "Try your own moves!"
+  ],
+  "focus": [
+    {
+      "attribute": "Puck control",
+      "level": 2,
+      "why": "A new stickhandling skill every length of the ice."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Turns at each end and skating while you handle."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "line",
+  "levelName": "Narrow-wide and toe drags",
+  "levels": [
+    {
+      "name": "Crossovers and heel C-cuts",
+      "adds": "New lane skills: carry in open ice, three crossovers while stickhandling, heel C-cuts, and a narrow-to-wide weave with a toe drag.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "x": 21,
+            "y": 11,
+            "role": "O"
+          },
+          {
+            "x": 179,
+            "y": 32,
+            "role": "O"
+          },
+          {
+            "x": 21,
+            "y": 53,
+            "role": "O"
+          },
+          {
+            "x": 179,
+            "y": 74,
+            "role": "O"
+          },
+          {
+            "x": 12,
+            "y": 22,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                24,
+                11
+              ],
+              [
+                174,
+                11
+              ]
+            ],
+            "step": 1,
+            "caption": "Lane 1, down: carry the puck in open ice, head up."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                176,
+                32
+              ],
+              [
+                26,
+                32
+              ]
+            ],
+            "step": 2,
+            "caption": "Lane 2, back: three crossovers while you stickhandle."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                24,
+                53
+              ],
+              [
+                174,
+                53
+              ]
+            ],
+            "step": 3,
+            "caption": "Lane 3, down: C-cuts pushing with your heel, puck on your stick."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                176,
+                74
+              ],
+              [
+                26,
+                74
+              ]
+            ],
+            "step": 4,
+            "caption": "Lane 4, back: weave narrow, then wide with a toe drag."
+          }
+        ],
+        "cones": [
+          {
+            "x": 55,
+            "y": 21.5
+          },
+          {
+            "x": 100,
+            "y": 21.5
+          },
+          {
+            "x": 145,
+            "y": 21.5
+          },
+          {
+            "x": 55,
+            "y": 42.5
+          },
+          {
+            "x": 100,
+            "y": 42.5
+          },
+          {
+            "x": 145,
+            "y": 42.5
+          },
+          {
+            "x": 55,
+            "y": 63.5
+          },
+          {
+            "x": 100,
+            "y": 63.5
+          },
+          {
+            "x": 145,
+            "y": 63.5
+          }
+        ]
+      }
+    },
+    {
+      "name": "Through the legs, hands together",
+      "adds": "New lane skills: puck through the legs from behind, hands together, hands wide, and side to side behind your body.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "x": 21,
+            "y": 11,
+            "role": "O"
+          },
+          {
+            "x": 179,
+            "y": 32,
+            "role": "O"
+          },
+          {
+            "x": 21,
+            "y": 53,
+            "role": "O"
+          },
+          {
+            "x": 179,
+            "y": 74,
+            "role": "O"
+          },
+          {
+            "x": 12,
+            "y": 22,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                24,
+                11
+              ],
+              [
+                174,
+                11
+              ]
+            ],
+            "step": 1,
+            "caption": "Lane 1, down: pull the puck through your legs from behind."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                176,
+                32
+              ],
+              [
+                26,
+                32
+              ]
+            ],
+            "step": 2,
+            "caption": "Lane 2, back: hands together on the stick."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                24,
+                53
+              ],
+              [
+                174,
+                53
+              ]
+            ],
+            "step": 3,
+            "caption": "Lane 3, down: hands wide on the stick."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                176,
+                74
+              ],
+              [
+                26,
+                74
+              ]
+            ],
+            "step": 4,
+            "caption": "Lane 4, back: move the puck side to side behind you."
+          }
+        ],
+        "cones": [
+          {
+            "x": 55,
+            "y": 21.5
+          },
+          {
+            "x": 100,
+            "y": 21.5
+          },
+          {
+            "x": 145,
+            "y": 21.5
+          },
+          {
+            "x": 55,
+            "y": 42.5
+          },
+          {
+            "x": 100,
+            "y": 42.5
+          },
+          {
+            "x": 145,
+            "y": 42.5
+          },
+          {
+            "x": 55,
+            "y": 63.5
+          },
+          {
+            "x": 100,
+            "y": 63.5
+          },
+          {
+            "x": 145,
+            "y": 63.5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 25, 27, 30 · skills 2.2.03, 2.2.07, 2.2.13, 2.2.16–2.2.18, 2.2.21, 2.2.23, 2.2.26, 2.2.27, 2.2.29",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-25-e.pdf",
+    "note": "Each plan gives the lanes a different set of skills, so the three plans are the three levels (25, 27, 30). Plan 25 has only three skills plus \"be creative\", so lane 4 is the skater's own moves. We read \"start in a corner and skate the lanes\" as down one lane and back the next."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "x": 21,
+        "y": 11,
+        "role": "O"
+      },
+      {
+        "x": 179,
+        "y": 32,
+        "role": "O"
+      },
+      {
+        "x": 21,
+        "y": 53,
+        "role": "O"
+      },
+      {
+        "x": 179,
+        "y": 74,
+        "role": "O"
+      },
+      {
+        "x": 12,
+        "y": 22,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            24,
+            11
+          ],
+          [
+            174,
+            11
+          ]
+        ],
+        "step": 1,
+        "caption": "Lane 1, down: narrow-wide, close to you then far out."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            176,
+            32
+          ],
+          [
+            26,
+            32
+          ]
+        ],
+        "step": 2,
+        "caption": "Lane 2, back: toe drags, in front and to the side."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            24,
+            53
+          ],
+          [
+            174,
+            53
+          ]
+        ],
+        "step": 3,
+        "caption": "Lane 3, down: drop the puck to your skates, kick it back to your stick."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            176,
+            74
+          ],
+          [
+            26,
+            74
+          ]
+        ],
+        "step": 4,
+        "caption": "Lane 4, back: your own best moves."
+      }
+    ],
+    "cones": [
+      {
+        "x": 55,
+        "y": 21.5
+      },
+      {
+        "x": 100,
+        "y": 21.5
+      },
+      {
+        "x": 145,
+        "y": 21.5
+      },
+      {
+        "x": 55,
+        "y": 42.5
+      },
+      {
+        "x": 100,
+        "y": 42.5
+      },
+      {
+        "x": 145,
+        "y": 42.5
+      },
+      {
+        "x": 55,
+        "y": 63.5
+      },
+      {
+        "x": 100,
+        "y": 63.5
+      },
+      {
+        "x": 145,
+        "y": 63.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ],
+  "lessons": []
+}

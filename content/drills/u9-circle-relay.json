@@ -1,0 +1,336 @@
+{
+  "id": "u9-circle-relay",
+  "funName": "Circle Relay",
+  "plainName": "Skate the circles, then play 3 on 3",
+  "sourceTitle": "Circle Relay, 3-on-3",
+  "minutes": 8,
+  "gear": "2 pylons, pucks",
+  "worksAsStation": false,
+  "description": "Two teams of three line up outside the blue line, one by each side boards. On the whistle, each team skates a lap of the face-off circle on its side and comes back out around a pylon. The coach dumps a puck in toward the net and the two teams play 3 on 3 until someone scores. Change how they skate the circle every time: forwards, backwards, or turning from forwards to backwards.",
+  "steps": [
+    "On the whistle, skate around your circle and out around the pylon.",
+    "The coach dumps a puck in toward the net.",
+    "Play 3 on 3 until someone scores."
+  ],
+  "cues": [
+    "Race back to the puck!",
+    "Head up, find the net.",
+    "No puck? Get open."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "A quick 3 on 3 after the race: support, open ice, finish."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Tight laps of the circle, forwards, backwards and with turns."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 27 · skill 1.6.10, 1.6.16, 1.6.25",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-27-e.pdf",
+    "note": "The plan dumps the puck toward the goalies and doesn't say which net each team attacks. We play it on one half: both teams go for the one net, first goal wins, then the next two teams go."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 79,
+        "y": 12
+      },
+      {
+        "role": "O",
+        "x": 87,
+        "y": 12
+      },
+      {
+        "role": "O",
+        "x": 95,
+        "y": 12
+      },
+      {
+        "role": "X",
+        "x": 79,
+        "y": 73
+      },
+      {
+        "role": "X",
+        "x": 87,
+        "y": 73
+      },
+      {
+        "role": "X",
+        "x": 95,
+        "y": 73
+      },
+      {
+        "role": "C",
+        "x": 92,
+        "y": 42
+      },
+      {
+        "role": "G",
+        "x": 13,
+        "y": 42.5
+      }
+    ],
+    "cones": [
+      {
+        "x": 66,
+        "y": 30
+      },
+      {
+        "x": 66,
+        "y": 55
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            77,
+            14
+          ],
+          [
+            58,
+            16
+          ],
+          [
+            43.9,
+            11.8
+          ],
+          [
+            39.2,
+            7.4
+          ],
+          [
+            33.2,
+            5.2
+          ],
+          [
+            26.7,
+            5.6
+          ],
+          [
+            21.0,
+            8.6
+          ],
+          [
+            17.1,
+            13.7
+          ],
+          [
+            15.5,
+            20.0
+          ],
+          [
+            16.6,
+            26.3
+          ],
+          [
+            20.2,
+            31.6
+          ],
+          [
+            25.7,
+            35.1
+          ],
+          [
+            32.1,
+            36.0
+          ],
+          [
+            38.3,
+            34.2
+          ],
+          [
+            43.2,
+            30.0
+          ],
+          [
+            46.0,
+            24.2
+          ],
+          [
+            46.3,
+            17.8
+          ],
+          [
+            52,
+            22
+          ],
+          [
+            66,
+            34
+          ],
+          [
+            70,
+            28
+          ],
+          [
+            62,
+            26
+          ]
+        ],
+        "step": 1,
+        "caption": "On the whistle, skate around your circle and out around the pylon."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            77,
+            71
+          ],
+          [
+            58,
+            69
+          ],
+          [
+            43.9,
+            73.2
+          ],
+          [
+            39.2,
+            77.6
+          ],
+          [
+            33.2,
+            79.8
+          ],
+          [
+            26.7,
+            79.4
+          ],
+          [
+            21.0,
+            76.4
+          ],
+          [
+            17.1,
+            71.3
+          ],
+          [
+            15.5,
+            65.0
+          ],
+          [
+            16.6,
+            58.7
+          ],
+          [
+            20.2,
+            53.4
+          ],
+          [
+            25.7,
+            49.9
+          ],
+          [
+            32.1,
+            49.0
+          ],
+          [
+            38.3,
+            50.8
+          ],
+          [
+            43.2,
+            55.0
+          ],
+          [
+            46.0,
+            60.8
+          ],
+          [
+            46.3,
+            67.2
+          ],
+          [
+            52,
+            63
+          ],
+          [
+            66,
+            51
+          ],
+          [
+            70,
+            57
+          ],
+          [
+            62,
+            59
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            89,
+            43
+          ],
+          [
+            48,
+            41
+          ]
+        ],
+        "step": 2,
+        "caption": "The coach dumps a puck in toward the net.",
+        "stepSide": "right"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            60,
+            28
+          ],
+          [
+            48,
+            38
+          ],
+          [
+            30,
+            41
+          ]
+        ],
+        "step": 3,
+        "caption": "Play 3 on 3 until someone scores."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            26,
+            41.5
+          ],
+          [
+            15,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

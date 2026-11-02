@@ -2,7 +2,7 @@ import { change } from '@/lib/site/summary';
 import type { Usage } from '@/lib/site/usage';
 import { METRIC_INFO, formatVital, rate, type MetricName, type Rating, type SpeedSummary } from '@/lib/site/vitals';
 
-// Admin → Analytics, the two sections from decision 0025: how coaches use the app, and how fast
+// Admin → Analytics, the two sections from decision 0029: how coaches use the app, and how fast
 // it is for them. Counts only: teams, coaches and drills, never a name.
 
 const pct = (n: number | null) => (n == null ? '–' : `${Math.round(n * 100)}%`);
@@ -46,7 +46,7 @@ export function InTheApp({ u, days, names, missing }: { u: Usage; days: number; 
       <SectionTitle id="app-title" title="In the app" sub="How coaches use Firstpass: teams, coaches and drills are counted, never named." />
       {missing && (
         <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
-          The usage tables aren’t set up yet. Run <code className="font-mono">supabase/migrations/20261028000000_app_usage_and_speed.sql</code> in the Supabase SQL editor, then reload.
+          The usage tables aren’t set up yet. Run <code className="font-mono">supabase/migrations/20261101000000_app_usage_and_speed.sql</code> in the Supabase SQL editor, then reload.
         </p>
       )}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-6">

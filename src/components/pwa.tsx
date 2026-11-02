@@ -59,7 +59,7 @@ function useDevice(): Device | null {
 export function AppWorker() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
   const [later, setLater] = useState(false);
-  // Counts the coach as active today, and whether they came from the home screen (decision 0025).
+  // Counts the coach as active today, and whether they came from the home screen (decision 0029).
   useEffect(() => {
     const installed = window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
     const key = `fp_open_${installed ? 'app' : 'web'}`;

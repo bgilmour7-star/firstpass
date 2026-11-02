@@ -1,0 +1,422 @@
+{
+  "id": "u9-drive-the-net",
+  "funName": "Drive the Net",
+  "plainName": "Attack the net from outside and inside",
+  "sourceTitle": "Outside In, Inside Out, Drive, Delay",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Skaters line up along the side boards near the blue line, with a pile of pucks at centre. One at a time, skate to centre, pick up a puck and curl out wide toward the boards. Then drive down the outside to the net and shoot without stopping. The next skater goes when the one ahead picks up a puck.",
+  "steps": [
+    "Skate to centre and pick up a puck.",
+    "Curl out wide toward the boards.",
+    "Drive down the outside to the net and shoot in stride."
+  ],
+  "cues": [
+    "Wide, then hard to the net!",
+    "Shoot while you're moving.",
+    "Head up, look at the net."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "Shooting in stride at speed."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Choosing outside or inside, and when to wait."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Wide and drive",
+  "levels": [
+    {
+      "name": "Inside, down the wall, wait",
+      "adds": "Cut inside first, then go down the wall. Stop and wait (a delay), look for an opening, then drive the net.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 77,
+            "y": 78
+          },
+          {
+            "role": "O",
+            "x": 84,
+            "y": 79
+          },
+          {
+            "role": "O",
+            "x": 91,
+            "y": 79
+          }
+        ],
+        "piles": [
+          {
+            "x": 95,
+            "y": 42
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                77,
+                75
+              ],
+              [
+                86,
+                62
+              ],
+              [
+                93,
+                47
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate to centre and pick up a puck."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                92,
+                44
+              ],
+              [
+                78,
+                44
+              ],
+              [
+                66,
+                52
+              ],
+              [
+                56,
+                66
+              ],
+              [
+                46,
+                74
+              ],
+              [
+                36,
+                76
+              ]
+            ],
+            "step": 2,
+            "caption": "Cut inside, then down the wall. Stop, look, then drive to the net.",
+            "end": "stop"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                36,
+                74
+              ],
+              [
+                40,
+                66
+              ],
+              [
+                30,
+                56
+              ],
+              [
+                22,
+                52
+              ]
+            ],
+            "step": 3,
+            "caption": "Find an opening, drive the net and shoot."
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                21,
+                50
+              ],
+              [
+                13,
+                44
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    },
+    {
+      "name": "Coach pressure",
+      "adds": "A coach skates alongside with easy pressure (no checking). Keep your body between the coach and the puck.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 77,
+            "y": 78
+          },
+          {
+            "role": "O",
+            "x": 84,
+            "y": 79
+          },
+          {
+            "role": "O",
+            "x": 91,
+            "y": 79
+          },
+          {
+            "role": "C",
+            "x": 46,
+            "y": 60
+          }
+        ],
+        "piles": [
+          {
+            "x": 95,
+            "y": 42
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                77,
+                75
+              ],
+              [
+                86,
+                62
+              ],
+              [
+                93,
+                47
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate to centre and pick up a puck."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                92,
+                44
+              ],
+              [
+                78,
+                44
+              ],
+              [
+                66,
+                52
+              ],
+              [
+                56,
+                66
+              ],
+              [
+                46,
+                74
+              ],
+              [
+                36,
+                76
+              ]
+            ],
+            "step": 2,
+            "caption": "Cut inside, then down the wall. Stop, look, then drive to the net.",
+            "end": "stop"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                36,
+                74
+              ],
+              [
+                40,
+                66
+              ],
+              [
+                30,
+                56
+              ],
+              [
+                22,
+                52
+              ]
+            ],
+            "step": 3,
+            "caption": "Find an opening, drive the net and shoot."
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                21,
+                50
+              ],
+              [
+                13,
+                44
+              ]
+            ],
+            "stepWith": 3
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                44,
+                58
+              ],
+              [
+                34,
+                52
+              ],
+              [
+                28,
+                48
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 20, 27 · skill 5.4.1.1, 5.4.1.2, 5.4.1.4",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-20-e.pdf",
+    "note": "From Parts I and II in Plan 20 and Net Drive in Plan 27. The plan doesn't place the line; we start it on the side boards near the blue line with the pucks near the red line. In the plan, coach pressure is added to the wide route; we add it to Level 2's route so each level builds on the last."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 77,
+        "y": 78
+      },
+      {
+        "role": "O",
+        "x": 84,
+        "y": 79
+      },
+      {
+        "role": "O",
+        "x": 91,
+        "y": 79
+      }
+    ],
+    "piles": [
+      {
+        "x": 95,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            77,
+            75
+          ],
+          [
+            86,
+            62
+          ],
+          [
+            93,
+            47
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate to centre and pick up a puck."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            92,
+            44
+          ],
+          [
+            84,
+            50
+          ],
+          [
+            78,
+            64
+          ],
+          [
+            64,
+            74
+          ]
+        ],
+        "step": 2,
+        "caption": "Curl out wide toward the boards."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            62,
+            74
+          ],
+          [
+            44,
+            70
+          ],
+          [
+            28,
+            60
+          ],
+          [
+            22,
+            52
+          ]
+        ],
+        "step": 3,
+        "caption": "Drive down the outside to the net and shoot in stride."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            21,
+            50
+          ],
+          [
+            13,
+            44
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

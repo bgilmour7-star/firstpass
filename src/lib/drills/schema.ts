@@ -27,6 +27,9 @@ export const GROUP_MODELS = ['basic', 'stations', 'rotation'] as const;
 export const GROUP_MODEL_LABEL: Record<(typeof GROUP_MODELS)[number], string> = { basic: 'Basic', stations: 'Stations', rotation: 'Rotation' };
 /** A basic drill plus at most two added levels: one level per group. */
 export const MAX_LEVELS = 3;
+/** The ages a drill can suit (decision 0025). A coach's library shows only drills for their team's age. */
+export const AGE_GROUPS = ['U5', 'U7', 'U9'] as const;
+export type AgeGroup = (typeof AGE_GROUPS)[number];
 
 const point = z.tuple([z.number(), z.number()]);
 const xy = z.object({ x: z.number(), y: z.number() }).passthrough();
@@ -96,6 +99,14 @@ const drillObject = z.object({
   source: z.object({ label: z.string(), url: z.string().url().nullable(), note: z.string().optional() }),
   diagram: diagramSchema,
   status: z.enum(STATUSES),
+  /** The ages it suits (decision 0025). Drills saved before age groups read as U7. */
+  ageGroups: z
+    .array(z.enum(AGE_GROUPS))
+    .min(1, 'Pick at least one age group')
+    .refine((a) => new Set(a).size === a.length, 'Each age group once')
+    .default(['U7']),
+  /** The level a team of that age starts at, e.g. Ski Racer { U9: 2 }. Missing: Level 1. */
+  startLevel: z.record(z.enum(AGE_GROUPS), z.number().int().min(1).max(MAX_LEVELS)).optional(),
 });
 
 export const drillSchema = z.preprocess((raw) => fromZones(upgradeDrill(raw)), drillObject);
@@ -182,6 +193,12 @@ export const BLOCK_FOR: Record<(typeof GROUP_MODELS)[number], string> = { basic:
 /** How many levels a drill has: 1 for a drill with nothing added, up to 3. */
 export function levelCount(d: Pick<Drill, 'groupModel' | 'levels'>): number {
   return d.groupModel === 'basic' ? 1 + (d.levels?.length ?? 0) : 1;
+}
+
+/** The level a team of this age starts the drill at: its startLevel for the age, kept within the levels it has. */
+export function startLevelFor(d: Pick<Drill, 'groupModel' | 'levels'> & { startLevel?: Drill['startLevel'] }, ageGroup: string | null | undefined): number {
+  const n = ageGroup ? (d.startLevel?.[ageGroup as AgeGroup] ?? 1) : 1;
+  return Math.min(Math.max(1, n), levelCount(d));
 }
 
 /** Level n of a drill (1-based). Level 1 is the drill itself. */

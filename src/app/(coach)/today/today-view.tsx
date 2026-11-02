@@ -7,7 +7,7 @@ import type { Favorite } from '@/lib/app/store';
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { addMinutes, blockLevels, blockMinutes, clock, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import { addMinutes, blockLevels, blockMinutes, clock, groupLabels, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../../../design-system/index';
 
 // The practice timeline on a phone at the rink: done blocks greyed, the current block open with a
@@ -139,6 +139,7 @@ export function TodayView({ practice, team, drills, favorites, isToday }: { prac
       </Link>
       {open && (
         <DrillDrawer
+          groupNames={groupLabels(team)}
           drill={open}
           from="/today"
           backLabel="Back to the practice"

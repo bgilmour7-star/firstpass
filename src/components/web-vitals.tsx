@@ -2,16 +2,27 @@
 
 import { useReportWebVitals } from 'next/web-vitals';
 
-// Page speed from real visits (decision 0025): Core Web Vitals, batched per page and sent once
+// Page speed from real visits (decision 0029): Core Web Vitals, batched per page and sent once
 // the page is hidden, with sendBeacon so it survives the tab closing. Production only.
+// Like visit counts (visit-tracker.tsx), only for a person: nothing is sent until there's been a
+// trusted tap, key, wheel or pointer move, and never from a browser that reports automation, so the
+// monitoring services that load the site from data centres don't skew the numbers.
 
 const KEEP = new Set(['LCP', 'INP', 'CLS', 'FCP', 'TTFB']);
 let queue: Record<string, { name: string; value: number }[]> = {};
 let listening = false;
+let person = false;
+const HUMAN = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel'] as const;
+function sawPerson(e: Event) {
+  if (!e.isTrusted) return;
+  person = true;
+  HUMAN.forEach((t) => removeEventListener(t, sawPerson));
+}
 
 function flush() {
   const batches = queue;
   queue = {};
+  if (!person || navigator.webdriver) return;
   for (const [path, metrics] of Object.entries(batches)) {
     const body = JSON.stringify({ path, metrics: metrics.slice(0, 10) });
     try {
@@ -31,6 +42,7 @@ export function WebVitals() {
     (queue[path] ??= []).push({ name: m.name, value: Math.round(m.value * (m.name === 'CLS' ? 1000 : 1)) / (m.name === 'CLS' ? 1000 : 1) });
     if (!listening) {
       listening = true;
+      HUMAN.forEach((t) => addEventListener(t, sawPerson, { passive: true }));
       addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flush());
       addEventListener('pagehide', flush);
     }

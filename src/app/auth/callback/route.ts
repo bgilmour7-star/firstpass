@@ -4,8 +4,8 @@ import { supabaseServer } from '@/lib/supabase/server';
 // Magic-link landing: swap the one-time code for a session, then continue.
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
-  const nextParam = request.nextUrl.searchParams.get('next') ?? '/plans';
-  const next = nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/plans';
+  const nextParam = request.nextUrl.searchParams.get('next') ?? '/';
+  const next = nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/';
   if (code) {
     const supabase = await supabaseServer();
     const { error } = await supabase.auth.exchangeCodeForSession(code);

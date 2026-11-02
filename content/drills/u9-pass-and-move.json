@@ -1,0 +1,180 @@
+{
+  "id": "u9-pass-and-move",
+  "funName": "Pass and Move",
+  "plainName": "Give-and-go with two passers for a shot",
+  "sourceTitle": "Pass and Move",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": true,
+  "description": "Two lines in opposite corners, and two passers (D1 and D2) up near the blue line. The first skater passes to D1, then skates out around D1. D1 passes across to D2, and D2 passes to the skater coming through the middle, who shoots. The shooter joins the other corner's line, and the next skater goes from that corner.",
+  "steps": [
+    "Pass to the first passer (D1).",
+    "D1 passes across to D2. You skate out around D1.",
+    "D2 passes to you in the middle.",
+    "Shoot, then join the other corner's line."
+  ],
+  "cues": [
+    "Pass, then move!",
+    "Stick on the ice, ready for the pass.",
+    "Passers: forehand and backhand."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Pass, move and catch a pass on the move."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "A shot right off the pass."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 15 · skill drill",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-15-e.pdf",
+    "note": "The plan says the passers should use both forehand and backhand. Swap in new passers every few turns so everyone shoots; that rotation is our choice."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 19,
+        "y": 9
+      },
+      {
+        "role": "O",
+        "x": 11,
+        "y": 17
+      },
+      {
+        "role": "O",
+        "x": 19,
+        "y": 76
+      },
+      {
+        "role": "O",
+        "x": 11,
+        "y": 68
+      },
+      {
+        "role": "D",
+        "x": 66,
+        "y": 22,
+        "label": "D1"
+      },
+      {
+        "role": "D",
+        "x": 66,
+        "y": 63,
+        "label": "D2"
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            21,
+            11
+          ],
+          [
+            63,
+            21
+          ]
+        ],
+        "step": 1,
+        "caption": "Pass to the first passer (D1)."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            66,
+            26
+          ],
+          [
+            66,
+            59
+          ]
+        ],
+        "step": 2,
+        "caption": "D1 passes across to D2. You skate out around D1.",
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            21,
+            9
+          ],
+          [
+            50,
+            10
+          ],
+          [
+            70,
+            13
+          ],
+          [
+            74,
+            22
+          ],
+          [
+            68,
+            31
+          ],
+          [
+            54,
+            40
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            63,
+            61
+          ],
+          [
+            54,
+            44
+          ]
+        ],
+        "step": 3,
+        "caption": "D2 passes to you in the middle."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            51,
+            42
+          ],
+          [
+            15,
+            42.5
+          ]
+        ],
+        "step": 4,
+        "caption": "Shoot, then join the other corner's line."
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

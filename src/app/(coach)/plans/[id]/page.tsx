@@ -7,6 +7,7 @@ import { CheckinNudge } from './check-in/nudge';
 import { practiceOver, rateUnits } from '@/lib/plans/checkin';
 import type { SuggestContext } from './suggestions';
 import { drillFeedback, type DrillFeedback } from '@/lib/plans/feedback';
+import { drillsForAge } from '@/lib/drills/age';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,8 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   for (const p of earlier) for (const d of p.blocks.flatMap(drillIds)) lastRun[d] ??= p.date;
   const recent = [...new Set(earlier.slice(0, 2).flatMap((p) => p.blocks.flatMap(drillIds)))];
   const byId = new Map(drills.map((d) => [d.id, d]));
+  // What can be picked, swapped in or suggested: drills for the team's age (decision 0025).
+  const forAge = drillsForAge(drills, team.ageGroup);
   // The practice just before this one, if it happened in the last two weeks and you haven't checked in on it.
   const prev = earlier.find((p) => practiceOver(p));
   const recentEnough = prev && (Date.parse(practice.date) - Date.parse(prev.date)) / 864e5 <= 14;
@@ -60,7 +63,7 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   return (
     <>
       {nudge}
-      <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} known={known} lastRun={lastRun} recent={recent} feedback={feedback} suggest={suggest} favorites={favorites} copiedFrom={copied ?? null} initialShare={share} />
+      <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} pool={forAge.drills} ageNotice={forAge.notice} known={known} lastRun={lastRun} recent={recent} feedback={feedback} suggest={suggest} favorites={favorites} copiedFrom={copied ?? null} initialShare={share} />
     </>
   );
 }

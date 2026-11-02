@@ -1,0 +1,388 @@
+{
+  "id": "u9-asteroids",
+  "funName": "Asteroids",
+  "plainName": "Dodge pucks end to end",
+  "sourceTitle": "Asteroids",
+  "minutes": 10,
+  "gear": "A bucket of pucks or tennis balls for the coaches",
+  "worksAsStation": false,
+  "description": "Skaters line up along the end boards. On the whistle they skate to the far end while coaches on the blue lines slide pucks (the asteroids) at their skates. Coaches slide pucks along the ice only, never raised. A skater who gets hit becomes a helper and slides pucks too; the last skater left wins.",
+  "steps": [
+    "On the whistle, skate to the far end.",
+    "Coaches slide pucks along the ice at your skates.",
+    "Hit? Grab a puck and help the coaches. Last skater left wins."
+  ],
+  "cues": [
+    "Eyes up, jump the asteroid!",
+    "Keep your feet moving!"
+  ],
+  "focus": [
+    {
+      "attribute": "Effort & fun",
+      "level": 2,
+      "why": "Everyone races and dodges, and the outs help."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Quick feet and balance while dodging."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "everyone",
+  "lessons": [],
+  "levelName": "Skate end to end",
+  "levels": [
+    {
+      "name": "Carry a puck",
+      "adds": "Every skater carries a puck end to end while dodging.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "x": 7,
+            "y": 26,
+            "role": "O"
+          },
+          {
+            "x": 7,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 7,
+            "y": 51,
+            "role": "O"
+          },
+          {
+            "x": 7,
+            "y": 59,
+            "role": "O"
+          },
+          {
+            "x": 75,
+            "y": 16,
+            "role": "C"
+          },
+          {
+            "x": 125,
+            "y": 69,
+            "role": "C"
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                10,
+                26
+              ],
+              [
+                60,
+                28
+              ],
+              [
+                130,
+                25
+              ],
+              [
+                188,
+                26
+              ]
+            ],
+            "step": 1,
+            "caption": "On the whistle, carry your puck to the far end.",
+            "stepAt": 0.15
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                10,
+                34
+              ],
+              [
+                60,
+                36
+              ],
+              [
+                130,
+                33
+              ],
+              [
+                188,
+                34
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                10,
+                51
+              ],
+              [
+                60,
+                53
+              ],
+              [
+                130,
+                50
+              ],
+              [
+                188,
+                51
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                10,
+                59
+              ],
+              [
+                60,
+                61
+              ],
+              [
+                130,
+                58
+              ],
+              [
+                188,
+                59
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                77,
+                19
+              ],
+              [
+                88,
+                33
+              ]
+            ],
+            "step": 2,
+            "caption": "Coaches slide pucks along the ice at your skates."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                123,
+                66
+              ],
+              [
+                114,
+                52
+              ]
+            ],
+            "stepWith": 2
+          }
+        ],
+        "piles": [
+          {
+            "x": 82,
+            "y": 11
+          },
+          {
+            "x": 118,
+            "y": 74
+          }
+        ],
+        "cones": [],
+        "nets": []
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plan 20 · fun game",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-20-e.pdf",
+    "note": "The source says coaches shoot at the skaters' skates; we spell out that pucks are slid along the ice, never raised, and tennis balls work too. Its carry-a-puck variation is Level 2."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "x": 7,
+        "y": 26,
+        "role": "O"
+      },
+      {
+        "x": 7,
+        "y": 34,
+        "role": "O"
+      },
+      {
+        "x": 7,
+        "y": 51,
+        "role": "O"
+      },
+      {
+        "x": 7,
+        "y": 59,
+        "role": "O"
+      },
+      {
+        "x": 75,
+        "y": 16,
+        "role": "C"
+      },
+      {
+        "x": 125,
+        "y": 69,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            10,
+            26
+          ],
+          [
+            60,
+            28
+          ],
+          [
+            130,
+            25
+          ],
+          [
+            188,
+            26
+          ]
+        ],
+        "step": 1,
+        "caption": "On the whistle, skate to the far end.",
+        "stepAt": 0.15
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            10,
+            34
+          ],
+          [
+            60,
+            36
+          ],
+          [
+            130,
+            33
+          ],
+          [
+            188,
+            34
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            10,
+            51
+          ],
+          [
+            60,
+            53
+          ],
+          [
+            130,
+            50
+          ],
+          [
+            188,
+            51
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            10,
+            59
+          ],
+          [
+            60,
+            61
+          ],
+          [
+            130,
+            58
+          ],
+          [
+            188,
+            59
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            77,
+            19
+          ],
+          [
+            88,
+            33
+          ]
+        ],
+        "step": 2,
+        "caption": "Coaches slide pucks along the ice at your skates."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            123,
+            66
+          ],
+          [
+            114,
+            52
+          ]
+        ],
+        "stepWith": 2
+      }
+    ],
+    "piles": [
+      {
+        "x": 82,
+        "y": 11
+      },
+      {
+        "x": 118,
+        "y": 74
+      }
+    ],
+    "cones": [],
+    "nets": []
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

@@ -43,3 +43,6 @@ next-env.d.ts
 # local review state and previews
 .local/
 !.env.example
+
+# PR screenshots (attached to PRs, never committed)
+/.screenshots/

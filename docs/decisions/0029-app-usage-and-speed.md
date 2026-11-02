@@ -1,4 +1,4 @@
-# 0025 · Analytics shows how coaches use the app, and how fast it is
+# 0029 · Analytics shows how coaches use the app, and how fast it is
 
 Date: 2026-10-22 · Decided by: Brett ("can we add the performance metrics")
 
@@ -25,10 +25,12 @@ Date: 2026-10-22 · Decided by: Brett ("can we add the performance metrics")
 The landing page numbers say whether coaches are interested; they don't say whether the app works for them. The pilot's
 question is whether teams keep planning and checking in, and whether the planner is fast enough on a phone at the rink.
 
-## Also
-The first analytics migration gave access to brett@paddio.ca, but Brett signs in as bgilmour7@gmail.com, so the
-Analytics link never showed. Both migrations now name both addresses.
-
 ## Not done
 - Rink-side opens and parent-link views (no events yet).
 - Per-team drill-downs. With a handful of pilot teams, counts are enough.
+
+## Later (2026-11-01, PR #9 brought up to date)
+- Speed reports, like visit counts, are only sent after a trusted tap, key, wheel or pointer move and never from a
+  browser reporting automation, so the data-centre monitors that load the site don't skew the numbers.
+- Teams and coaches (running totals) sits inside In the app. The waitlist has its own tab, so it's not linked here.
+- Analytics access for bgilmour7@gmail.com was already set in the database, so the migration no longer touches it.

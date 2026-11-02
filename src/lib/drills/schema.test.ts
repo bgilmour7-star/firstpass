@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { canMove, drillSchema, groupModelProblem, levelCount, levelOf, type Drill } from './schema';
+import { canMove, drillSchema, groupModelProblem, levelCount, levelOf, startLevelFor, type Drill } from './schema';
 
 const dir = join(__dirname, '../../../content/drills');
 const drills: Drill[] = readdirSync(dir)
@@ -106,5 +106,31 @@ describe('rotation diagram badges', () => {
     const d = drillSchema.parse(JSON.parse(readFileSync(join(process.cwd(), 'content/drills/rotation-backwards-day.json'), 'utf8')));
     const labels = (d.diagram.paths ?? []).filter((p) => typeof p.step === 'number').map((p) => (p as { stepLabel?: string }).stepLabel);
     expect(labels).toEqual(['A', 'B', 'C']);
+  });
+});
+
+describe('age groups', () => {
+  const ski = drills.find((d) => d.id === 'ski-racer')!;
+  it('drills saved before age groups read as U7, starting at Level 1', () => {
+    const { ageGroups: _a, startLevel: _s, ...old } = ski as Drill;
+    void _a;
+    void _s;
+    const d = drillSchema.parse(old);
+    expect(d.ageGroups).toEqual(['U7']);
+    expect(startLevelFor(d, 'U7')).toBe(1);
+    expect(startLevelFor(d, 'U9')).toBe(1);
+  });
+  it('needs at least one age group, each once, from U5 U7 U9', () => {
+    expect(drillSchema.safeParse({ ...ski, ageGroups: [] }).success).toBe(false);
+    expect(drillSchema.safeParse({ ...ski, ageGroups: ['U7', 'U7'] }).success).toBe(false);
+    expect(drillSchema.safeParse({ ...ski, ageGroups: ['U11'] }).success).toBe(false);
+    expect(drillSchema.parse({ ...ski, ageGroups: ['U7', 'U9'] }).ageGroups).toEqual(['U7', 'U9']);
+  });
+  it('a start level is per age, 1 to 3, kept within the levels the drill has', () => {
+    const d = drillSchema.parse({ ...ski, ageGroups: ['U7', 'U9'], startLevel: { U9: 2 } });
+    expect(startLevelFor(d, 'U9')).toBe(2);
+    expect(startLevelFor(d, 'U7')).toBe(1);
+    expect(drillSchema.safeParse({ ...ski, startLevel: { U9: 4 } }).success).toBe(false);
+    expect(startLevelFor({ ...d, startLevel: { U9: 3 }, levels: [] }, 'U9')).toBe(1);
   });
 });

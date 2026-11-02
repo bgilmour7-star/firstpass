@@ -19,14 +19,18 @@ export interface SiteStore {
   waitlist(): Promise<WaitlistEntry[]>;
   events(sinceIso: string): Promise<PageEvent[]>;
   setStatus(id: string, status: WaitlistStatus): Promise<void>;
-  /** Page speed from a real visit (decision 0025). Anyone; never throws. */
+  /** Page speed from a real visit (decision 0029). Anyone; never throws. */
   recordVitals(page: PageGroup, device: Device, metrics: { name: MetricName; value: number }[]): Promise<void>;
   /** The signed-in coach opened the app today, from the home screen or not. Never throws. */
   recordAppOpen(userId: string, installed: boolean, device: Device): Promise<void>;
   /** Analytics viewers only. Throw 'usage-migration-missing' before the SQL has run. */
   vitals(sinceIso: string): Promise<Vital[]>;
   usage(sinceIso: string): Promise<UsageRows>;
+  /** When each team was created and each coach first joined a team, as ISO timestamps. Timestamps only, no names. Throws 'growth-migration-missing' before the SQL has run. */
+  growth(): Promise<Growth>;
 }
+
+export type Growth = { teams: string[]; coaches: string[] };
 
 export async function getSiteStore(): Promise<SiteStore> {
   if (usingSupabase()) {

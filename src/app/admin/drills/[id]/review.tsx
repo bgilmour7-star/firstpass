@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pips, Rink, RinkStepper } from '@/components/ds';
 import { DiagramFlag, StatusPill } from '@/components/status';
-import { BLOCK_FOR, FOCUS_ATTRIBUTES, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, EFFORTS, EFFORT_LABEL, FORMATS, FORMAT_LABEL, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
+import { AGE_GROUPS, BLOCK_FOR, FOCUS_ATTRIBUTES, levelCount, levelOf, startLevelFor, type AgeGroup, GROUPS, MAX_LEVELS, firstSentenceOf, fromZones, shapeLabel, nextStatuses, PART_LABEL, PARTS, EFFORTS, EFFORT_LABEL, FORMATS, FORMAT_LABEL, type DiagramRequest, type Drill, type Status } from '@/lib/drills/schema';
 import type { DrillDetail } from '@/lib/drills/store';
 import { sameDrill } from '@/lib/drills/same';
 import type { DrillRequest } from '@/lib/requests/schema';
@@ -339,6 +339,10 @@ export function DrillReview({ detail, asked = null }: { detail: DrillDetail; ask
 
         {/* Right: the words coaches read */}
         <div className="flex min-w-0 flex-col gap-6">
+          <Section title="Age groups" hint="Pick every age it works for. Coaches only see it when their team's age is ticked.">
+            <AgeGroups drill={draft} error={errors.ageGroups} onChange={(patch) => setDraft((d) => ({ ...d, ...patch }))} />
+          </Section>
+
           <Section title="Names">
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Fun name" help="What the coach shouts. 1–3 words a kid can picture." error={errors.funName}>
@@ -439,6 +443,71 @@ export function DrillReview({ detail, asked = null }: { detail: DrillDetail; ask
               {pending ? 'Saving…' : 'Save'}
             </button>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Which ages the drill suits (decision 0025): pill toggles, at least one. With U9 ticked and levels
+ * added, the level U9 teams start at. Unticking an age drops its start level.
+ */
+function AgeGroups({ drill, error, onChange }: { drill: Drill; error?: string; onChange: (patch: Pick<Drill, 'ageGroups' | 'startLevel'>) => void }) {
+  const levels = levelCount(drill);
+  const without = (a: AgeGroup) => Object.fromEntries(Object.entries(drill.startLevel ?? {}).filter(([k]) => k !== a)) as Partial<Record<AgeGroup, number>>;
+  const starts = (start: Partial<Record<AgeGroup, number>>) => (Object.keys(start).length ? start : undefined);
+  function toggle(a: AgeGroup) {
+    const on = drill.ageGroups.includes(a);
+    if (on && drill.ageGroups.length === 1) return;
+    const ageGroups = on ? drill.ageGroups.filter((x) => x !== a) : AGE_GROUPS.filter((x) => x === a || drill.ageGroups.includes(x));
+    onChange({ ageGroups, startLevel: on ? starts(without(a)) : drill.startLevel });
+  }
+  function setStart(a: AgeGroup, n: number) {
+    const rest = without(a);
+    onChange({ ageGroups: drill.ageGroups, startLevel: starts(n > 1 ? { ...rest, [a]: n } : rest) });
+  }
+  const others = drill.ageGroups.filter((a) => a !== 'U9');
+  return (
+    <div className="flex flex-col gap-4">
+      <div role="group" aria-label="Age groups" className="flex flex-wrap gap-2">
+        {AGE_GROUPS.map((a) => {
+          const on = drill.ageGroups.includes(a);
+          const last = on && drill.ageGroups.length === 1;
+          return (
+            <button
+              key={a}
+              type="button"
+              aria-pressed={on}
+              aria-disabled={last || undefined}
+              title={last ? 'A drill needs at least one age group.' : undefined}
+              onClick={() => toggle(a)}
+              className={`inline-flex min-h-11 items-center gap-2 rounded-full border-[1.5px] px-[18px] text-[15px] ${on ? 'border-ink-100 bg-ink-100 font-semibold text-surface-100' : 'border-border-200 bg-surface-100 font-medium text-ink-100 hover:bg-surface-200'}`}
+            >
+              {on && (
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                  <path d="M2.5 7.5 5.5 10.5 11.5 3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+              {a}
+            </button>
+          );
+        })}
+      </div>
+      {error && <span className="text-xs font-medium text-flag-100">{error}</span>}
+      {drill.ageGroups.includes('U9') && levels > 1 && (
+        <div className="flex flex-col gap-2 border-t border-border-100 pt-4">
+          <label htmlFor="start-u9" className="text-sm font-semibold">
+            U9 teams start at
+          </label>
+          <select id="start-u9" className={`${input} min-h-12`} value={startLevelFor(drill, 'U9')} onChange={(e) => setStart('U9', Number(e.target.value))}>
+            {Array.from({ length: levels }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                Level {n} · {n === 1 ? drill.levelName || drill.plainName || 'Basic' : levelOf(drill, n).name || `Level ${n}`}
+              </option>
+            ))}
+          </select>
+          {others.length > 0 && <span className="text-[13px] text-ink-200">{others.map((a) => `${a} teams start at Level ${startLevelFor(drill, a)}`).join('. ')}.</span>}
         </div>
       )}
     </div>

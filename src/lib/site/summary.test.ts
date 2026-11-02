@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { change, summarize } from './summary';
+import { change, summarize, summarizeGrowth } from './summary';
 import type { PageEvent, WaitlistEntry } from './schema';
 
 const NOW = new Date('2026-10-20T19:00:00Z'); // noon in Vancouver
@@ -68,5 +68,23 @@ describe('change', () => {
     expect(change(19, 12, 'count')).toBe('↑ 7');
     expect(change(0.071, 0.057, 'points')).toBe('↑ 1.4 pts');
     expect(change(4, 4, 'count')).toBe('No change');
+  });
+});
+
+describe('summarizeGrowth', () => {
+  it('gives all-time totals, the period and the period before, and running totals per day', () => {
+    const g = { teams: [ago(30), ago(2)], coaches: [ago(30), ago(10), ago(2), ago(0, 1)] };
+    const s = summarizeGrowth(g, { days: 7, now: NOW });
+    expect(s.teams).toEqual({ total: 2, inPeriod: 1, before: 0 });
+    expect(s.coaches).toEqual({ total: 4, inPeriod: 2, before: 1 });
+    expect(s.daily).toHaveLength(7);
+    expect(s.daily[0]).toEqual({ day: '2026-10-14', teams: 1, coaches: 2 });
+    expect(s.daily.at(-1)).toEqual({ day: '2026-10-20', teams: 2, coaches: 4 });
+  });
+
+  it('is all zeros with nobody yet', () => {
+    const s = summarizeGrowth({ teams: [], coaches: [] }, { days: 7, now: NOW });
+    expect(s.coaches.total).toBe(0);
+    expect(s.daily.every((d) => d.teams === 0 && d.coaches === 0)).toBe(true);
   });
 });

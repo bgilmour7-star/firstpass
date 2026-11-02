@@ -1,0 +1,196 @@
+{
+  "id": "u9-triangle-attack",
+  "funName": "Triangle Attack",
+  "plainName": "Three players drive the net together",
+  "sourceTitle": "3 Man Drive",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Three lines at centre: one by each side boards (the wingers) and one in the middle, with a coach in the middle holding the puck. Both wingers take off and the coach passes to one of them. The puck carrier drives hard to the net. The middle skater comes up the middle but stays back near the top of the circles, ready for a pass. The other winger heads to the far post: the side of the net away from the puck, where rebounds and passes across end up.",
+  "steps": [
+    "Both wingers take off up the sides.",
+    "The coach passes to one winger in stride.",
+    "Puck carrier drives the net. Middle stays high, far winger goes to the far post.",
+    "Shoot and follow it in, drop it to the middle, or pass across."
+  ],
+  "cues": [
+    "Drive the net hard!",
+    "Middle: stay high, stick on the ice.",
+    "Far winger: far post!"
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Three jobs in an attack: carry, support high, go to the far post."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Catching a pass in stride, and the drop or pass across."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 23 · skill 5.4.1.5, 5.4.1.6",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-23-e.pdf",
+    "note": "The plan builds on a two-player drive. We start the lines just inside the red line on half ice and draw the shot; the drop pass and the pass across are the other choices in the last step."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 90,
+        "y": 14
+      },
+      {
+        "role": "O",
+        "x": 90,
+        "y": 71
+      },
+      {
+        "role": "O",
+        "x": 96,
+        "y": 54
+      },
+      {
+        "role": "C",
+        "x": 95,
+        "y": 34
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            87,
+            14
+          ],
+          [
+            74,
+            16
+          ]
+        ],
+        "step": 1,
+        "caption": "Both wingers take off up the sides."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            87,
+            71
+          ],
+          [
+            74,
+            69
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            92,
+            33
+          ],
+          [
+            66,
+            19
+          ]
+        ],
+        "step": 2,
+        "caption": "The coach passes to one winger in stride."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            64,
+            18
+          ],
+          [
+            46,
+            22
+          ],
+          [
+            28,
+            32
+          ]
+        ],
+        "step": 3,
+        "caption": "Puck carrier drives the net. Middle stays high, far winger goes to the far post."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            93,
+            53
+          ],
+          [
+            70,
+            46
+          ],
+          [
+            54,
+            43
+          ]
+        ],
+        "stepWith": 3,
+        "end": "stop"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            72,
+            68
+          ],
+          [
+            44,
+            64
+          ],
+          [
+            22,
+            54
+          ],
+          [
+            15,
+            47
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            26,
+            34
+          ],
+          [
+            13,
+            41
+          ]
+        ],
+        "step": 4,
+        "caption": "Shoot and follow it in, drop it to the middle, or pass across."
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

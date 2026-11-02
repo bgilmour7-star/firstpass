@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireUser } from '@/lib/auth';
+import { currentTeam, requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { signOut } from '@/app/auth/actions';
 import { Profile } from './profile';
@@ -12,7 +12,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   const coach = await requireUser('/account');
   const { email: emailState } = await searchParams;
   const store = await getAppStore();
-  const team = await store.myTeam(coach.id);
+  const team = await currentTeam(coach.id);
   const role = team ? (await store.coaches(team.id)).find((c) => c.userId === coach.id)?.role : undefined;
   const meta = coach.local ? null : await namedYet();
 

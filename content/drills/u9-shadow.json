@@ -1,0 +1,186 @@
+{
+  "id": "u9-shadow",
+  "funName": "Shadow",
+  "plainName": "Angling a skater along the boards",
+  "sourceTitle": "Angling",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "Angling means steering a skater toward the boards by staying on their inside, so they have less room to get by. Pair skaters of similar speed. One skates along the boards with quick starts, stops and changes of direction; the partner mirrors them on the inside, keeping them out near the boards. Go all the way around the ice, then switch direction after a couple of laps.",
+  "steps": [
+    "Skate along the boards with quick starts, stops and turns.",
+    "Your partner mirrors you on the inside and keeps you near the boards.",
+    "Next pair goes when there’s room. Everyone goes the same way around.",
+    "After a couple of laps, swap jobs and switch direction."
+  ],
+  "cues": [
+    "Stay on their inside hip!",
+    "Keep them on the boards.",
+    "Small steps, stay with them."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Learning to angle: steer a skater to the boards."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Quick starts, stops and changes of direction."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 18 · skill 4.1.04",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-18-e.pdf",
+    "note": "The source has coaches show control skating, mirroring and the hip pocket first; we fold that into the description. Swapping jobs is our addition so both partners angle."
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 42,
+        "y": 7
+      },
+      {
+        "role": "X",
+        "x": 42,
+        "y": 15
+      },
+      {
+        "role": "O",
+        "x": 158,
+        "y": 78
+      },
+      {
+        "role": "X",
+        "x": 158,
+        "y": 70
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            46,
+            7
+          ],
+          [
+            100,
+            7
+          ],
+          [
+            148,
+            8
+          ],
+          [
+            170,
+            13
+          ],
+          [
+            183,
+            26
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate along the boards with quick starts, stops and turns.",
+        "end": "stop"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            46,
+            15
+          ],
+          [
+            100,
+            15
+          ],
+          [
+            146,
+            16
+          ],
+          [
+            164,
+            21
+          ],
+          [
+            174,
+            32
+          ]
+        ],
+        "step": 2,
+        "caption": "Your partner mirrors you on the inside and keeps you near the boards.",
+        "team": "X"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            154,
+            78
+          ],
+          [
+            100,
+            78
+          ],
+          [
+            52,
+            77
+          ],
+          [
+            30,
+            72
+          ],
+          [
+            17,
+            60
+          ]
+        ],
+        "step": 3,
+        "caption": "Next pair goes when there’s room. Everyone goes the same way around."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            154,
+            70
+          ],
+          [
+            100,
+            70
+          ],
+          [
+            54,
+            69
+          ],
+          [
+            36,
+            64
+          ],
+          [
+            26,
+            54
+          ]
+        ],
+        "stepWith": 3,
+        "team": "X"
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

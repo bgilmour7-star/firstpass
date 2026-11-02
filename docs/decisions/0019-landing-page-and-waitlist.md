@@ -9,7 +9,9 @@ Date: 2026-10-20 · Decided by: Brett
   "Firstpass landing page plan" project doc and the "Firstpass Landing Page" design canvas.
 - **U5–U9** in the copy. **No affiliations** named on public pages: drills are "adapted from the skills young
   players already learn", and each drill still credits its source inside the app.
-- **One action: Join the waitlist.** One form, two paths: *I coach a team* (email, age group, team optional) or
+- **One action: Join the waitlist** (labelled "Get early access" since 2026-10-26, PR #19; still the waitlist underneath). Once the
+  hero's button has scrolled away, a solid bar slides in at the top with the same button (hidden again while the form
+  is on screen), so the one action is always in reach. Above that point the header is ordinary and scrolls away. One form, two paths: *I coach a team* (email, age group, team optional) or
   *I run an association* (email, association, number of U5–U9 teams). Joining again updates the row, never errors.
   The person gets a confirmation email; every sign-up also emails **hello@firstpass.coach** (`WAITLIST_ALERT_TO`
   to change it), and Brett emails each person himself to book a call.
@@ -21,9 +23,13 @@ Date: 2026-10-20 · Decided by: Brett
   a SHA-256 of IP + browser + a salt that changes every Vancouver day; salts live in `private.visit_salts` and old
   ones are deleted, and the IP and browser string are never stored. Uniques are exact within a day and an estimate
   across days. Bots and headless browsers aren't counted. Events: view, reached the form, started the form, signed up.
+  Since 2026-10-26 a visit is recorded only after a sign of a person (scroll, tap, key, mouse move), and not
+  at all for browsers that report automation: monitoring services were loading the page from data centres
+  every few hours. Earlier robot visits are marked `automated` (not deleted) and left out of Analytics.
 - **Admin → Analytics is Brett's only** (`admins.analytics`, `can_see_analytics()`), because the waitlist holds
   personal emails: headline numbers against the previous period, visits per day with sign-ups, the funnel, sources,
-  who's signing up, and the waitlist with a status per row (New → Emailed → Call booked → Onboarded / Not a fit).
+  who's signing up. The waitlist, with a status per row (New → Emailed → Call booked → Onboarded / Not a fit), was at
+  the bottom of Analytics and has had its own tab, Admin → Waitlist (`/admin/waitlist`), since PR #21.
 - A plain **privacy page** at `/privacy`.
 - **Share card** (`public/og/firstpass-landing.png`, 1200×630): the hero's Puck Party rotation drawn by RinkDiagram in
   the light palette beside "Show up ready." on `rink-200`. A static render; redo it if the hero drill changes.

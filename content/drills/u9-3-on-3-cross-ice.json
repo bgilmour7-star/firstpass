@@ -1,0 +1,440 @@
+{
+  "id": "u9-3-on-3-cross-ice",
+  "funName": "3 on 3 Cross-Ice",
+  "plainName": "Small-area scrimmage across one end",
+  "sourceTitle": "3 on 3 Cross Ice Scrimmage",
+  "minutes": 10,
+  "gear": "4 small nets, pucks (or tennis balls)",
+  "worksAsStation": false,
+  "description": "Each end of the ice becomes its own small rink, with two small nets facing each other across the width. Play 3 on 3 in each end. Everyone else waits on the blue line and swaps in when the coach blows the whistle, so shifts stay short.",
+  "steps": [
+    "Win the puck and carry it toward the other team's net.",
+    "Shoot when you're close. Lose it? Get it back.",
+    "On the whistle, spares on the blue line swap in."
+  ],
+  "cues": [
+    "Keep your feet moving.",
+    "Head up, find the open ice.",
+    "Lose it? Go get it back!"
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Real game reads in a small space: open ice, support, who has the puck."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Short shifts, lots of touches and goals."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "everyone",
+  "lessons": [],
+  "levelName": "One puck",
+  "levels": [
+    {
+      "name": "Two pucks",
+      "adds": "Put a second puck in play. Both can score.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "nets": [
+          {
+            "x": 38,
+            "y": 7,
+            "facing": "down"
+          },
+          {
+            "x": 38,
+            "y": 78,
+            "facing": "up"
+          }
+        ],
+        "players": [
+          {
+            "role": "O",
+            "x": 26,
+            "y": 60
+          },
+          {
+            "role": "O",
+            "x": 50,
+            "y": 66
+          },
+          {
+            "role": "O",
+            "x": 20,
+            "y": 36
+          },
+          {
+            "role": "X",
+            "x": 44,
+            "y": 28
+          },
+          {
+            "role": "X",
+            "x": 58,
+            "y": 44
+          },
+          {
+            "role": "X",
+            "x": 24,
+            "y": 27
+          },
+          {
+            "role": "O",
+            "x": 84,
+            "y": 72
+          },
+          {
+            "role": "X",
+            "x": 84,
+            "y": 14
+          },
+          {
+            "role": "C",
+            "x": 88,
+            "y": 42
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                28,
+                57
+              ],
+              [
+                32,
+                44
+              ],
+              [
+                36,
+                26
+              ]
+            ],
+            "step": 1,
+            "caption": "Win the puck and carry it toward the other team's net."
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                37,
+                23
+              ],
+              [
+                38,
+                11
+              ]
+            ],
+            "step": 2,
+            "caption": "Shoot when you're close. Lose it? Get it back."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                82,
+                70
+              ],
+              [
+                66,
+                66
+              ]
+            ],
+            "step": 3,
+            "caption": "On the whistle, spares on the blue line swap in.",
+            "stepSide": "right"
+          }
+        ],
+        "labels": [
+          {
+            "x": 90,
+            "y": 80,
+            "text": "Spares"
+          }
+        ],
+        "pucks": [
+          {
+            "x": 56,
+            "y": 58
+          }
+        ]
+      }
+    },
+    {
+      "name": "Three pucks",
+      "adds": "Put a third puck in play. Heads up: pucks are everywhere.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "nets": [
+          {
+            "x": 38,
+            "y": 7,
+            "facing": "down"
+          },
+          {
+            "x": 38,
+            "y": 78,
+            "facing": "up"
+          }
+        ],
+        "players": [
+          {
+            "role": "O",
+            "x": 26,
+            "y": 60
+          },
+          {
+            "role": "O",
+            "x": 50,
+            "y": 66
+          },
+          {
+            "role": "O",
+            "x": 20,
+            "y": 36
+          },
+          {
+            "role": "X",
+            "x": 44,
+            "y": 28
+          },
+          {
+            "role": "X",
+            "x": 58,
+            "y": 44
+          },
+          {
+            "role": "X",
+            "x": 24,
+            "y": 27
+          },
+          {
+            "role": "O",
+            "x": 84,
+            "y": 72
+          },
+          {
+            "role": "X",
+            "x": 84,
+            "y": 14
+          },
+          {
+            "role": "C",
+            "x": 88,
+            "y": 42
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                28,
+                57
+              ],
+              [
+                32,
+                44
+              ],
+              [
+                36,
+                26
+              ]
+            ],
+            "step": 1,
+            "caption": "Win the puck and carry it toward the other team's net."
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                37,
+                23
+              ],
+              [
+                38,
+                11
+              ]
+            ],
+            "step": 2,
+            "caption": "Shoot when you're close. Lose it? Get it back."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                82,
+                70
+              ],
+              [
+                66,
+                66
+              ]
+            ],
+            "step": 3,
+            "caption": "On the whistle, spares on the blue line swap in.",
+            "stepSide": "right"
+          }
+        ],
+        "labels": [
+          {
+            "x": 90,
+            "y": 80,
+            "text": "Spares"
+          }
+        ],
+        "pucks": [
+          {
+            "x": 56,
+            "y": 58
+          },
+          {
+            "x": 18,
+            "y": 52
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 02, 05, 20 · scrimmage",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-02-e.pdf",
+    "note": "The plans run two cross-ice games, one in each end; we draw one end and the other runs the same game. Net spots and the swap on the whistle are our layout choice; the source also allows tennis balls or hockey balls instead of pucks."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "nets": [
+      {
+        "x": 38,
+        "y": 7,
+        "facing": "down"
+      },
+      {
+        "x": 38,
+        "y": 78,
+        "facing": "up"
+      }
+    ],
+    "players": [
+      {
+        "role": "O",
+        "x": 26,
+        "y": 60
+      },
+      {
+        "role": "O",
+        "x": 50,
+        "y": 66
+      },
+      {
+        "role": "O",
+        "x": 20,
+        "y": 36
+      },
+      {
+        "role": "X",
+        "x": 44,
+        "y": 28
+      },
+      {
+        "role": "X",
+        "x": 58,
+        "y": 44
+      },
+      {
+        "role": "X",
+        "x": 24,
+        "y": 27
+      },
+      {
+        "role": "O",
+        "x": 84,
+        "y": 72
+      },
+      {
+        "role": "X",
+        "x": 84,
+        "y": 14
+      },
+      {
+        "role": "C",
+        "x": 88,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            28,
+            57
+          ],
+          [
+            32,
+            44
+          ],
+          [
+            36,
+            26
+          ]
+        ],
+        "step": 1,
+        "caption": "Win the puck and carry it toward the other team's net."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            37,
+            23
+          ],
+          [
+            38,
+            11
+          ]
+        ],
+        "step": 2,
+        "caption": "Shoot when you're close. Lose it? Get it back."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            82,
+            70
+          ],
+          [
+            66,
+            66
+          ]
+        ],
+        "step": 3,
+        "caption": "On the whistle, spares on the blue line swap in.",
+        "stepSide": "right"
+      }
+    ],
+    "labels": [
+      {
+        "x": 90,
+        "y": 80,
+        "text": "Spares"
+      }
+    ],
+    "pucks": []
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

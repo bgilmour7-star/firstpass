@@ -5,7 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
 import type { UsageRows } from './usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
-import type { NewEvent, SiteStore } from './store';
+import type { Growth, NewEvent, SiteStore } from './store';
 
 // Local mode: the waitlist and visits live in .local/site.json.
 const FILE = join(process.cwd(), '.local', 'site.json');
@@ -31,7 +31,11 @@ export class LocalSiteStore implements SiteStore {
     if (found) {
       Object.assign(found, { kind: i.kind, ageGroup: i.ageGroup ?? found.ageGroup, orgName: i.orgName ?? found.orgName, teamCount: i.teamCount ?? found.teamCount });
     } else {
-      d.waitlist.unshift({ id: randomUUID(), email: i.email, kind: i.kind, ageGroup: i.ageGroup, orgName: i.orgName, teamCount: i.teamCount, source: i.source, status: 'new', createdAt: new Date().toISOString() });
+      const id = randomUUID();
+      d.waitlist.unshift({ id, email: i.email, kind: i.kind, ageGroup: i.ageGroup, orgName: i.orgName, teamCount: i.teamCount, source: i.source, status: 'new', createdAt: new Date().toISOString() });
+      // What the discovery migration's trigger does in the database (decision 0027).
+      const { linkLocalPerson } = await import('../discovery/store-local');
+      await linkLocalPerson(i.email, id);
     }
     await write(d);
     return { isNew: !found };
@@ -105,6 +109,31 @@ export class LocalSiteStore implements SiteStore {
         .flatMap((c) => (c.marks ?? []).filter((m) => m.rating === 'hit' || m.rating === 'flop').map((m) => ({ drillId: m.drillId, rating: m.rating as 'hit' | 'flop', at: c.savedAt }))),
       actions: (app.kept ?? []).filter((k) => k.at >= sinceIso).map((k) => ({ kind: 'kept' as const, at: k.at })),
     };
+  }
+
+  // Local mode reads the app's own file. Memberships made before this change have no time, so
+  // they count from the day the file was first used.
+  async growth(): Promise<Growth> {
+    let app: { members?: { teamId: string; userId: string; role: string; at?: string }[] } = {};
+    try {
+      app = JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'app.json'), 'utf8'));
+    } catch {
+      return { teams: [], coaches: [] };
+    }
+    const members = app.members ?? [];
+    const fallback = '2026-10-14T00:00:00Z';
+    // Earliest membership per key: a coach counts from their first team, and a team from its first
+    // coach (so handing a team over doesn't move its date).
+    const earliest = (key: (m: (typeof members)[number]) => string) => {
+      const first = new Map<string, string>();
+      for (const m of members) {
+        const at = m.at ?? fallback;
+        const k = key(m);
+        if (!first.has(k) || at < first.get(k)!) first.set(k, at);
+      }
+      return [...first.values()];
+    };
+    return { teams: earliest((m) => m.teamId), coaches: earliest((m) => m.userId) };
   }
 }
 

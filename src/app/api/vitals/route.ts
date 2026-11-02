@@ -3,7 +3,7 @@ import { deviceOf, isBot } from '@/lib/site/schema';
 import { getSiteStore } from '@/lib/site/store';
 import { pageGroup, vitalsInput } from '@/lib/site/vitals';
 
-// Page speed from real visits (decision 0025). The browser posts a few numbers when a page is
+// Page speed from real visits (decision 0029). The browser posts a few numbers when a page is
 // hidden or closed. Open to signed-out visitors (the landing page); nothing about the visitor is
 // kept but the kind of device. Always answers 204 so a beacon never retries.
 

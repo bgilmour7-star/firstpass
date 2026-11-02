@@ -3,6 +3,7 @@ import { createClient, type Session, type SupabaseClient } from '@supabase/supab
 import { editorLabel } from './plans/activity';
 import { coachJoinedEmail } from './email/account-emails';
 import { SITE, sendEmail } from './email/layout';
+import { TEAM_COOKIE } from './nav';
 
 // Where every successful sign-in goes next (decision 0013), whether it came from a password, a
 // typed code or a tapped email link:
@@ -15,7 +16,7 @@ import { SITE, sendEmail } from './email/layout';
 // it talks to the database with the new session's token rather than through the cookie client.
 
 /** Only same-site paths: never //evil.com or https://… */
-export function safeNext(next: string | null | undefined, fallback = '/plans'): string {
+export function safeNext(next: string | null | undefined, fallback = '/'): string {
   return next && next.startsWith('/') && !next.startsWith('//') ? next : fallback;
 }
 
@@ -41,18 +42,31 @@ export async function afterSignIn(session: Session | null, opts: { next?: string
     const { data: before } = await db.from('team_members').select('team_id').eq('user_id', user.id);
     const { data: teamId, error } = await db.rpc('join_team', { code });
     if (error) {
+      // Before the 20261028 migration, join_team still refuses a coach who's on another team.
       const m = /link-off|on-another-team/.exec(error.message)?.[0] ?? 'failed';
       if (m === 'failed') console.error('[join] joining failed: %s', error.message);
       return `/join/${code}?error=${m}`;
     }
     const already = ((before ?? []) as { team_id: string }[]).some((r) => r.team_id === teamId);
     if (!already) await notifyHeadCoach(db, teamId as string, user.id);
+    // The team they just joined is the one they're looking at now (decision 0026).
+    await activateTeam(teamId as string);
     return `/join/${code}/joined`;
   }
 
   const meta = (user.user_metadata ?? {}) as { has_password?: boolean; pw_prompted?: boolean };
   if (!opts.viaPassword && !meta.has_password && !meta.pw_prompted) return `/account/password?offer=1&next=${encodeURIComponent(next)}`;
   return next;
+}
+
+/** Set the active-team cookie (decision 0026). Membership is checked again on every read. */
+export async function activateTeam(teamId: string) {
+  try {
+    const { cookies } = await import('next/headers');
+    (await cookies()).set(TEAM_COOKIE, teamId, { path: '/', maxAge: 31536000, sameSite: 'lax', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+  } catch (e) {
+    console.error('[join] setting the active team failed:', e instanceof Error ? e.message : e);
+  }
 }
 
 /** "Kara joined U7 Clippers" to the head coach. Never blocks joining. */

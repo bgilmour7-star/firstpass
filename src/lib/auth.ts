@@ -1,8 +1,10 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
 import { usingSupabase } from './drills/store';
-import { getAppStore } from './app/store';
+import { cookies } from 'next/headers';
+import { getAppStore, type AppStore } from './app/store';
 import type { Team } from './plans/schema';
+import { TEAM_COOKIE } from './nav';
 import { editorLabel } from './plans/activity';
 
 /** analytics: may see Admin → Analytics (Brett only; the waitlist holds personal emails, decision 0019). */
@@ -51,10 +53,29 @@ export async function requireUser(nextPath = '/plans'): Promise<Coach> {
   return currentUser(nextPath);
 }
 
-/** Signed in and on a team. No team yet → the one-step team setup. */
+/**
+ * The coach's active team (decision 0026): the team in the fp_team cookie if they are still on it,
+ * else their most recently joined team. The cookie is only a preference: membership is checked
+ * through the store (and RLS) on every read, so a stale or forged id falls back.
+ */
+export async function activeTeam(store: Pick<AppStore, 'myTeam'>, userId: string, cookieTeamId: string | undefined): Promise<Team | null> {
+  if (cookieTeamId) {
+    const chosen = await store.myTeam(userId, cookieTeamId);
+    if (chosen) return chosen;
+  }
+  return store.myTeam(userId);
+}
+
+/** The active team for a signed-in coach, from the request's cookie. Null when they're on no team. */
+export async function currentTeam(userId: string): Promise<Team | null> {
+  const jar = await cookies();
+  return activeTeam(await getAppStore(), userId, jar.get(TEAM_COOKIE)?.value);
+}
+
+/** Signed in and on a team. No team yet → Create a team. */
 export async function requireTeam(nextPath = '/plans'): Promise<{ coach: Coach; team: Team }> {
   const coach = await currentUser(nextPath);
-  const team = await (await getAppStore()).myTeam(coach.id);
+  const team = await currentTeam(coach.id);
   if (!team) redirect('/team/new');
   return { coach, team };
 }

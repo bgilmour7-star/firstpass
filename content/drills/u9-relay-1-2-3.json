@@ -1,0 +1,202 @@
+{
+  "id": "u9-relay-1-2-3",
+  "funName": "1, 2, 3 on 0",
+  "plainName": "Relay that grows from 1-on-0 to 3-on-0",
+  "sourceTitle": "1-2-3 on 0 Relay Race",
+  "minutes": 10,
+  "gear": "Pucks, one net per team",
+  "worksAsStation": true,
+  "description": "Teams of equal size line up outside the blue line, each with pucks and its own net, and race each other. The first skater goes in alone and shoots until they score, then skates back out past the blue line and goes again with the next skater, 2-on-0 (two attackers, no defenders). Then it's 3-on-0, and so on, adding one skater each time. Everyone in the group touches the puck before a shot; when the last skater scores, the whole team dives across the blue line to finish.",
+  "steps": [
+    "Skater 1 goes in alone and shoots until they score.",
+    "Score? Skate back out past the blue line.",
+    "Go again 2-on-0 with the next skater; both touch the puck before a shot.",
+    "Keep adding one skater: 3-on-0, then 4-on-0.",
+    "Last skater scores? Everyone dives across the blue line."
+  ],
+  "cues": [
+    "Everybody touches it!",
+    "Shoot till it goes in!"
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "Lots of shots, and you keep going until you score."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Everyone touches the puck before the shot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "game",
+  "effort": "hard",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada U9 Plan 10 · fun game",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-10-e.pdf",
+    "note": "The source moves the nets to the goal line below the face-off dots, up to four nets; we draw one team on one half with the net in its usual spot. The other team races on the other half."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 84,
+        "y": 50,
+        "role": "O"
+      },
+      {
+        "x": 84,
+        "y": 57,
+        "role": "O"
+      },
+      {
+        "x": 84,
+        "y": 64,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            81,
+            50
+          ],
+          [
+            56,
+            50
+          ],
+          [
+            36,
+            47
+          ],
+          [
+            26,
+            45
+          ]
+        ],
+        "step": 1,
+        "caption": "Skater 1 goes in alone and shoots until they score."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            24,
+            44.5
+          ],
+          [
+            13,
+            43
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            24,
+            39
+          ],
+          [
+            40,
+            27
+          ],
+          [
+            62,
+            22
+          ],
+          [
+            80,
+            27
+          ]
+        ],
+        "step": 2,
+        "caption": "Score? Skate back out past the blue line.",
+        "fromPlayer": false
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            81,
+            57
+          ],
+          [
+            60,
+            60
+          ],
+          [
+            44,
+            60
+          ]
+        ],
+        "step": 3,
+        "caption": "Go again 2-on-0 with the next skater; both touch the puck before a shot."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            79,
+            31
+          ],
+          [
+            58,
+            35
+          ],
+          [
+            42,
+            39
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            43,
+            58
+          ],
+          [
+            41,
+            42
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            39,
+            40
+          ],
+          [
+            13,
+            42
+          ]
+        ],
+        "stepWith": 3,
+        "fromPlayer": false
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

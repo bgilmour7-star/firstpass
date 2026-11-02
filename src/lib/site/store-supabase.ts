@@ -3,7 +3,7 @@ import { supabaseServer } from '../supabase/server';
 import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
 import type { UsageRows } from './usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
-import type { NewEvent, SiteStore } from './store';
+import type { Growth, NewEvent, SiteStore } from './store';
 
 type WaitlistRow = { id: string; email: string; kind: WaitlistEntry['kind']; age_group: string | null; org_name: string | null; team_count: number | null; source: string | null; status: WaitlistStatus; created_at: string };
 type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null };
@@ -11,6 +11,8 @@ type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string;
 const missing = (e: { code?: string; message: string }) => e.code === 'PGRST202' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the function/i.test(e.message);
 
 export class SupabaseSiteStore implements SiteStore {
+  private hasAutomated = true;
+
   async join(i: WaitlistInput) {
     const db = await supabaseServer();
     const { data, error } = await db.rpc('join_waitlist', { address: i.email, joining_as: i.kind, age: i.ageGroup, org: i.orgName, teams: i.teamCount, came_from: i.source });
@@ -47,7 +49,18 @@ export class SupabaseSiteStore implements SiteStore {
     const out: PageEvent[] = [];
     // Supabase returns at most 1,000 rows a request; page through.
     for (let from = 0; ; from += 1000) {
-      const { data, error } = await db.from('page_events').select('occurred_at, name, visitor, source, device, region').gte('occurred_at', sinceIso).order('occurred_at').range(from, from + 999);
+      // Automated visits are marked, not deleted (20261031000000_automated_visits.sql). Before that
+      // SQL has run the column doesn't exist, so read without the filter rather than fail.
+      const page = (skipAutomated: boolean) => {
+        let q = db.from('page_events').select('occurred_at, name, visitor, source, device, region').gte('occurred_at', sinceIso);
+        if (skipAutomated) q = q.eq('automated', false);
+        return q.order('occurred_at').range(from, from + 999);
+      };
+      let { data, error } = await page(this.hasAutomated);
+      if (error && this.hasAutomated && (error.code === '42703' || /automated/i.test(error.message))) {
+        this.hasAutomated = false;
+        ({ data, error } = await page(false));
+      }
       if (error) throw new Error(missing(error) ? 'waitlist-migration-missing' : error.message);
       const rows = (data ?? []) as EventRow[];
       out.push(...rows.map((r) => ({ occurredAt: r.occurred_at, name: r.name, visitor: r.visitor, source: r.source, device: r.device, region: r.region })));
@@ -93,5 +106,13 @@ export class SupabaseSiteStore implements SiteStore {
     const { data, error } = await db.rpc('app_usage', { since: sinceIso });
     if (error) throw new Error(missing(error) ? 'usage-migration-missing' : error.message);
     return data as UsageRows;
+  }
+
+  async growth(): Promise<Growth> {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('analytics_growth');
+    if (error) throw new Error(missing(error) ? 'growth-migration-missing' : error.message);
+    const rows = (data ?? []) as { kind: 'team' | 'coach'; at: string }[];
+    return { teams: rows.filter((r) => r.kind === 'team').map((r) => r.at), coaches: rows.filter((r) => r.kind === 'coach').map((r) => r.at) };
   }
 }

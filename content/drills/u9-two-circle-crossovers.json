@@ -1,0 +1,428 @@
+{
+  "id": "u9-two-circle-crossovers",
+  "funName": "Two-Circle Switch",
+  "plainName": "Forward then backward crossovers",
+  "sourceTitle": "Crossovers",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": true,
+  "description": "Start in the corner. Do forward crossovers (stepping one skate over the other to turn) around the first face-off circle two and a half times. Pivot to skate backward on the way to the second circle, then do backward crossovers around it two and a half times. The next skater goes when the one ahead reaches the second circle.",
+  "steps": [
+    "Forward crossovers around the first circle, two and a half times.",
+    "Pivot to backward and skate to the second circle.",
+    "Backward crossovers around the second circle, two and a half times."
+  ],
+  "cues": [
+    "Bend your knees, head up.",
+    "Reach out wide with the inside foot.",
+    "Stick on the ice."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Crossovers both ways and a forward-to-backward pivot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "No puck",
+  "levels": [
+    {
+      "name": "Puck on the first circle",
+      "adds": "Carry a puck through the forward crossovers. Leave it at the corner before the backward part.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 12,
+            "y": 10
+          },
+          {
+            "role": "O",
+            "x": 18,
+            "y": 6
+          },
+          {
+            "role": "O",
+            "x": 25,
+            "y": 4.5
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                14,
+                12.5
+              ],
+              [
+                17.5,
+                14.0
+              ],
+              [
+                20.1,
+                10.2
+              ],
+              [
+                23.7,
+                7.4
+              ],
+              [
+                27.9,
+                5.8
+              ],
+              [
+                32.5,
+                5.6
+              ],
+              [
+                36.9,
+                6.7
+              ],
+              [
+                40.7,
+                9.1
+              ],
+              [
+                43.7,
+                12.5
+              ],
+              [
+                45.5,
+                16.7
+              ],
+              [
+                46.0,
+                21.2
+              ],
+              [
+                45.1,
+                25.7
+              ],
+              [
+                42.9,
+                29.7
+              ],
+              [
+                39.6,
+                32.8
+              ],
+              [
+                35.5,
+                34.8
+              ],
+              [
+                31.0,
+                35.5
+              ]
+            ],
+            "step": 1,
+            "caption": "Forward crossovers around the first circle, two and a half times.",
+            "fromPlayer": false,
+            "stepAt": 0.3
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                31,
+                36.5
+              ],
+              [
+                31,
+                49
+              ]
+            ],
+            "step": 2,
+            "caption": "Pivot to backward and skate to the second circle.",
+            "fromPlayer": false,
+            "stepSide": "right"
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                31.0,
+                49.5
+              ],
+              [
+                36.5,
+                50.5
+              ],
+              [
+                41.2,
+                53.5
+              ],
+              [
+                44.5,
+                58.0
+              ],
+              [
+                46.0,
+                63.3
+              ],
+              [
+                45.4,
+                68.9
+              ],
+              [
+                42.8,
+                73.8
+              ],
+              [
+                38.6,
+                77.4
+              ],
+              [
+                33.3,
+                79.3
+              ],
+              [
+                27.8,
+                79.2
+              ],
+              [
+                22.7,
+                77.0
+              ],
+              [
+                18.7,
+                73.1
+              ],
+              [
+                16.4,
+                68.0
+              ],
+              [
+                16.1,
+                62.4
+              ],
+              [
+                17.9,
+                57.2
+              ],
+              [
+                21.5,
+                52.9
+              ],
+              [
+                26.4,
+                50.2
+              ]
+            ],
+            "step": 3,
+            "caption": "Backward crossovers around the second circle, two and a half times.",
+            "fromPlayer": false,
+            "stepAt": 0.5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 16, 12, 25 · skills 1.6.10, 1.6.16, 1.6.17",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-16-e.pdf",
+    "note": "From Plan 16's Crossovers. The reaching cue and the staggered start come from Plans 12 and 25. Level 2 adds a puck on the forward circle only, our choice, in the spirit of Plan 25's puck-carrying crossover combo."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 12,
+        "y": 10
+      },
+      {
+        "role": "O",
+        "x": 18,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 25,
+        "y": 4.5
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            12.5
+          ],
+          [
+            17.5,
+            14.0
+          ],
+          [
+            20.1,
+            10.2
+          ],
+          [
+            23.7,
+            7.4
+          ],
+          [
+            27.9,
+            5.8
+          ],
+          [
+            32.5,
+            5.6
+          ],
+          [
+            36.9,
+            6.7
+          ],
+          [
+            40.7,
+            9.1
+          ],
+          [
+            43.7,
+            12.5
+          ],
+          [
+            45.5,
+            16.7
+          ],
+          [
+            46.0,
+            21.2
+          ],
+          [
+            45.1,
+            25.7
+          ],
+          [
+            42.9,
+            29.7
+          ],
+          [
+            39.6,
+            32.8
+          ],
+          [
+            35.5,
+            34.8
+          ],
+          [
+            31.0,
+            35.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Forward crossovers around the first circle, two and a half times.",
+        "fromPlayer": false,
+        "stepAt": 0.3
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            31,
+            36.5
+          ],
+          [
+            31,
+            49
+          ]
+        ],
+        "step": 2,
+        "caption": "Pivot to backward and skate to the second circle.",
+        "fromPlayer": false,
+        "stepSide": "right"
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            31.0,
+            49.5
+          ],
+          [
+            36.5,
+            50.5
+          ],
+          [
+            41.2,
+            53.5
+          ],
+          [
+            44.5,
+            58.0
+          ],
+          [
+            46.0,
+            63.3
+          ],
+          [
+            45.4,
+            68.9
+          ],
+          [
+            42.8,
+            73.8
+          ],
+          [
+            38.6,
+            77.4
+          ],
+          [
+            33.3,
+            79.3
+          ],
+          [
+            27.8,
+            79.2
+          ],
+          [
+            22.7,
+            77.0
+          ],
+          [
+            18.7,
+            73.1
+          ],
+          [
+            16.4,
+            68.0
+          ],
+          [
+            16.1,
+            62.4
+          ],
+          [
+            17.9,
+            57.2
+          ],
+          [
+            21.5,
+            52.9
+          ],
+          [
+            26.4,
+            50.2
+          ]
+        ],
+        "step": 3,
+        "caption": "Backward crossovers around the second circle, two and a half times.",
+        "fromPlayer": false,
+        "stepAt": 0.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

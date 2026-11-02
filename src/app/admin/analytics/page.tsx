@@ -1,18 +1,19 @@
 import Link from 'next/link';
 import { requireAnalytics } from '@/lib/auth';
 import { getSiteStore } from '@/lib/site/store';
-import { change, summarize, vanDay, type Summary } from '@/lib/site/summary';
+import { change, summarize, summarizeGrowth, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
-import { StatusSelect } from './status-select';
 import { InTheApp, SectionTitle, Speed } from './app-sections';
 import { getAppStore } from '@/lib/app/store';
 import { EMPTY_USAGE_ROWS, summarizeUsage, type UsageRows } from '@/lib/site/usage';
 import { summarizeSpeed, type Vital } from '@/lib/site/vitals';
+import type { Growth } from '@/lib/site/store';
 
 export const dynamic = 'force-dynamic';
 
 // Admin → Analytics (decision 0019; canvas "Admin · Analytics"). The landing page's visits,
-// counted without cookies, and the waitlist Brett works through. Brett only.
+// counted without cookies, sign-ups, and teams and coaches. Brett only. The waitlist itself, with a
+// status per person, has its own tab (/admin/waitlist).
 
 const PERIODS = [7, 30] as const;
 const DAY = 86_400_000;
@@ -37,8 +38,18 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     else throw e;
   }
   const s = summarize(events, waitlist, { days });
+  // Teams and coaches come from the app, not the landing page, so they load on their own.
+  let growth: Growth = { teams: [], coaches: [] };
+  let growthMissing = false;
+  try {
+    growth = await store.growth();
+  } catch (e) {
+    if (e instanceof Error && e.message === 'growth-migration-missing') growthMissing = true;
+    else throw e;
+  }
+  const g = summarizeGrowth(growth, { days });
 
-  // In the app and Speed (decision 0025). Their tables come from a later migration.
+  // In the app and Speed (decision 0029). Their tables come from a later migration.
   const since = new Date(Date.now() - 2 * days * DAY).toISOString();
   let rows: UsageRows = EMPTY_USAGE_ROWS;
   let vitals: Vital[] = [];
@@ -64,7 +75,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
               ['#site', 'Landing page'],
               ['#app', 'In the app'],
               ['#speed', 'Speed'],
-              ['#waitlist', 'Waitlist'],
             ].map(([href, label], i) => (
               <span key={href}>
                 {i > 0 && ' · '}
@@ -108,8 +118,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       <Who s={s} />
       <InTheApp u={usage} days={days} names={names} missing={usageMissing} />
+      <TeamsAndCoaches g={g} days={days} missing={growthMissing} />
       <Speed s={speed} missing={usageMissing} />
-      <Waitlist list={waitlist} />
     </div>
   );
 }
@@ -257,7 +267,7 @@ function Funnel({ s }: { s: Summary }) {
         {s.funnel.map((f) => (
           <div key={f.label} className="contents">
             <span>{f.label}</span>
-            <span className="h-3.5 rounded bg-rink-100" style={{ width: `${Math.max((f.visitors / top) * 100, f.visitors ? 1.5 : 0)}%` }} />
+            <span className="h-3.5 rounded bg-rink-100" style={{ width: `${Math.min(100, Math.max((f.visitors / top) * 100, f.visitors ? 1.5 : 0))}%` }} />
             <span className="text-right font-mono">{f.visitors}</span>
           </div>
         ))}
@@ -352,58 +362,123 @@ function Who({ s }: { s: Summary }) {
   );
 }
 
-function Waitlist({ list }: { list: WaitlistEntry[] }) {
-  const counts = (['new', 'emailed', 'call_booked', 'onboarded', 'not_a_fit'] as const).map((k) => [k, list.filter((w) => w.status === k).length] as const);
-  const words = (k: string, n: number) => ({ new: 'new', emailed: 'emailed', call_booked: n === 1 ? 'call booked' : 'calls booked', onboarded: 'onboarded', not_a_fit: 'not a fit' })[k];
-  const th = 'border-b border-border-100 pb-2 pr-3 font-medium';
-  const td = 'border-b border-border-100 py-2.5 pr-3';
+function TeamsAndCoaches({ g, days, missing }: { g: GrowthSummary; days: number; missing: boolean }) {
+  const tiles = [
+    { label: 'Coaches joined, in all', m: g.coaches, note: 'each coach counted once' },
+    { label: 'Teams created, in all', m: g.teams, note: null },
+  ];
+  const W = 800, H = 170, L = 36, R = 96, T = 12, B = 28;
+  const n = g.daily.length;
+  const max = Math.max(4, ...g.daily.map((d) => Math.max(d.coaches, d.teams)));
+  const top = max <= 4 ? 4 : max <= 10 ? 10 : niceMax(max);
+  const x = (i: number) => L + (n > 1 ? (i * (W - L - R)) / (n - 1) : 0);
+  const y = (v: number) => T + (H - T - B) * (1 - v / top);
+  // Running totals only step up, so draw them as steps: flat until the day someone joins.
+  const steps = (pick: (d: GrowthSummary['daily'][number]) => number) =>
+    g.daily.map((d, i) => (i ? `H${x(i).toFixed(1)}V${y(pick(d)).toFixed(1)}` : `M${x(0).toFixed(1)} ${y(pick(d)).toFixed(1)}`)).join('');
+  const grid = top <= 10 ? [0, top / 2, top] : [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(top * f));
+  const ticks = [...new Set([0, Math.round((n - 1) / 2), n - 1])];
+  const last = g.daily.at(-1) ?? { coaches: 0, teams: 0 };
+  const series = [
+    { key: 'coaches', label: last.coaches === 1 ? 'Coach' : 'Coaches', value: last.coaches, path: steps((d) => d.coaches), stroke: 'var(--rink-100)', dash: undefined },
+    { key: 'teams', label: last.teams === 1 ? 'Team' : 'Teams', value: last.teams, path: steps((d) => d.teams), stroke: 'var(--ink-100)', dash: '5 4' },
+  ];
+  // Keep the two end labels apart when the totals are close.
+  const labelY = series.map((sr) => y(sr.value) + 4);
+  if (Math.abs(labelY[0] - labelY[1]) < 14) labelY[labelY[0] <= labelY[1] ? 0 : 1] -= 14 - Math.abs(labelY[0] - labelY[1]);
+
   return (
-    <section id="waitlist" aria-labelledby="wl-title" className="flex scroll-mt-6 flex-col gap-3.5 border-t border-border-100 pt-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="wl-title" className="text-lg font-semibold">
-          Waitlist <span className="font-mono text-sm font-normal text-ink-200">{list.length}</span>
-        </h2>
-        <span className="text-sm text-ink-200">
-          {counts
-            .filter(([, n]) => n > 0)
-            .map(([k, n]) => `${n} ${words(k, n)}`)
-            .join(' · ') || 'Nobody yet'}
-        </span>
-      </div>
-      <p className="text-sm text-ink-200">Email each person to book a call. Onboarded lets that email create an account; everyone else is shown the waitlist when they try to sign up.</p>
-      {list.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[880px] border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-ink-200">
-                {['Joined', 'Email', 'Kind', 'Team or association', 'Age / teams', 'Source', 'Status'].map((h) => (
-                  <th key={h} scope="col" className={th}>
-                    {h}
-                  </th>
+    <section aria-labelledby="growth-title" className="flex flex-col gap-4">
+      <h3 id="growth-title" className="text-lg font-semibold">
+        Teams and coaches
+      </h3>
+      {missing ? (
+        <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
+          Teams and coaches need one more bit of SQL. Run <code className="font-mono">supabase/migrations/20261030000000_analytics_growth.sql</code> in the Supabase SQL editor, then reload.
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-6">
+            {tiles.map((t) => {
+              return (
+                <div key={t.label} className="flex flex-col gap-1.5">
+                  <span className="text-sm text-ink-200">{t.label}</span>
+                  <span className="font-mono text-[40px] font-medium leading-none tracking-[-0.02em]">{t.m.total}</span>
+                  <span className="text-[13px]">
+                    <span className={`font-semibold ${t.m.inPeriod ? 'text-good-100' : 'text-ink-100'}`}>+{t.m.inPeriod} in the last {days} days </span>
+                    {t.note && <span className="text-ink-200">· {t.note}</span>}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[13px] text-ink-200">Running total</span>
+            <svg
+              viewBox={`0 0 ${W} ${H}`}
+              width="100%"
+              role="img"
+              aria-label={`Running totals over the last ${days} days: ${last.coaches} coaches and ${last.teams} teams.`}
+              className="block overflow-visible"
+            >
+              <g stroke="var(--border-100)" strokeWidth="1">
+                {grid.map((v) => (
+                  <path key={v} d={`M${L} ${y(v)}H${W - R}`} />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((w) => (
-                <tr key={w.id}>
-                  <td className={`${td} font-mono text-ink-200`}>{shortDay(vanDay(w.createdAt))}</td>
-                  <td className={td}>
-                    <a href={`mailto:${w.email}`} className="underline-offset-2 hover:underline">
-                      {w.email}
-                    </a>
-                  </td>
-                  <td className={`${td} ${w.kind === 'association' ? 'font-semibold' : ''}`}>{w.kind === 'association' ? 'Association' : 'Coach'}</td>
-                  <td className={`${td} ${w.orgName ? '' : 'text-ink-200'}`}>{w.orgName ?? 'Not given'}</td>
-                  <td className={td}>{w.kind === 'association' ? `${w.teamCount ?? '?'} teams` : (w.ageGroup ?? '–')}</td>
-                  <td className={`${td} font-mono text-[13px]`}>{w.source ?? 'direct'}</td>
-                  <td className="border-b border-border-100 py-1.5">
-                    <StatusSelect id={w.id} email={w.email} status={w.status} />
-                  </td>
-                </tr>
+              </g>
+              <g fill="var(--ink-200)" fontFamily="var(--font-mono)" fontSize="11" textAnchor="end">
+                {grid.map((v) => (
+                  <text key={v} x={L - 8} y={y(v) + 4}>
+                    {v}
+                  </text>
+                ))}
+              </g>
+              <g fill="var(--ink-200)" fontSize="11">
+                {n > 0 &&
+                  ticks.map((i) => (
+                    <text key={i} x={x(i)} y={H - 6} textAnchor={i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}>
+                      {shortDay(g.daily[i].day)}
+                    </text>
+                  ))}
+              </g>
+              {n > 0 &&
+                series.map((sr, k) => (
+                  <g key={sr.key}>
+                    <path d={sr.path} fill="none" stroke={sr.stroke} strokeWidth="2" strokeDasharray={sr.dash} strokeLinejoin="round" />
+                    <text x={W - R + 10} y={labelY[k]} fontSize="12" fill="var(--ink-100)">
+                      <tspan fontFamily="var(--font-mono)" fontWeight="600">{sr.value}</tspan> {sr.label}
+                    </text>
+                  </g>
+                ))}
+              {g.daily.map((d, i) => (
+                <rect key={d.day} x={x(i) - (W - L - R) / Math.max(n - 1, 1) / 2} y={T} width={(W - L - R) / Math.max(n - 1, 1)} height={H - T - B} fill="transparent">
+                  <title>{`${shortDay(d.day)}: ${d.coaches} coaches, ${d.teams} teams`}</title>
+                </rect>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </svg>
+          </div>
+          <details className="text-sm">
+            <summary className="min-h-11 cursor-pointer py-2.5 text-rink-100">Show as a table</summary>
+            <table className="mt-2 w-full max-w-md border-collapse font-mono text-[13px] tabular-nums">
+              <thead>
+                <tr className="text-left font-body text-ink-200">
+                  <th className="pb-1.5 font-medium">Day</th>
+                  <th className="pb-1.5 text-right font-medium">Coaches</th>
+                  <th className="pb-1.5 text-right font-medium">Teams</th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.daily.map((d) => (
+                  <tr key={d.day} className="border-t border-border-100">
+                    <td className="py-1">{shortDay(d.day)}</td>
+                    <td className="py-1 text-right">{d.coaches}</td>
+                    <td className="py-1 text-right">{d.teams}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
+        </>
       )}
     </section>
   );

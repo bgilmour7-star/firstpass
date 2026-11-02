@@ -1,0 +1,258 @@
+{
+  "id": "u9-pass-pass-shoot",
+  "funName": "Pass, Pass, Shoot",
+  "plainName": "Shooting in threes",
+  "sourceTitle": "Stationary Shooting",
+  "minutes": 8,
+  "gear": "5–6 pucks per group of three",
+  "worksAsStation": true,
+  "description": "Groups of three each get their own stretch of boards and a small pile of pucks. Player 1 passes to player 2, player 2 passes to player 3, and player 3 shoots at the boards. Then everyone moves up one spot so each player gets a turn as the shooter.",
+  "steps": [
+    "1 passes to 2.",
+    "2 passes to 3.",
+    "3 shoots at the boards, forehand or backhand.",
+    "Rotate: 3 goes to 1, 1 to 2, and 2 is the new shooter."
+  ],
+  "cues": [
+    "Stick on the ice for a target.",
+    "Look at where you want it to go.",
+    "Follow through to the target."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "Lots of forehand and backhand shots in a short time."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Two passes before every shot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "easy",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "Shoot along the ice",
+  "levels": [
+    {
+      "name": "Lift it",
+      "adds": "The shooter uses a wrist shot or backhand and lifts the puck high on the boards, but below the glass.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 22,
+            "y": 26
+          },
+          {
+            "role": "O",
+            "x": 38,
+            "y": 32
+          },
+          {
+            "role": "O",
+            "x": 54,
+            "y": 26
+          }
+        ],
+        "piles": [
+          {
+            "x": 17,
+            "y": 31
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                25,
+                27
+              ],
+              [
+                35,
+                31
+              ]
+            ],
+            "step": 1,
+            "caption": "1 passes to 2."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                41,
+                31
+              ],
+              [
+                51,
+                27
+              ]
+            ],
+            "step": 2,
+            "caption": "2 passes to 3."
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                55,
+                23
+              ],
+              [
+                60,
+                6
+              ]
+            ],
+            "step": 3,
+            "caption": "3 shoots at the boards, forehand or backhand."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                54,
+                30
+              ],
+              [
+                46,
+                38
+              ],
+              [
+                30,
+                38
+              ],
+              [
+                24,
+                30
+              ]
+            ],
+            "step": 4,
+            "caption": "Rotate: 3 goes to 1, 1 to 2, and 2 is the new shooter.",
+            "fromPlayer": false
+          }
+        ],
+        "labels": [
+          {
+            "x": 60,
+            "y": 3.5,
+            "text": "Aim high",
+            "size": 3
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U9 Plans 10, 12, 23 · skills 3.2.01–3.2.04",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-10-e.pdf",
+    "note": "From Plan 10's Stationary Shooting. The source doesn't say what to shoot at; we shoot at the boards so groups can spread along them. Level 2 adds the lifted wrist shot from Plans 12 and 23."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 22,
+        "y": 26
+      },
+      {
+        "role": "O",
+        "x": 38,
+        "y": 32
+      },
+      {
+        "role": "O",
+        "x": 54,
+        "y": 26
+      }
+    ],
+    "piles": [
+      {
+        "x": 17,
+        "y": 31
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            25,
+            27
+          ],
+          [
+            35,
+            31
+          ]
+        ],
+        "step": 1,
+        "caption": "1 passes to 2."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            41,
+            31
+          ],
+          [
+            51,
+            27
+          ]
+        ],
+        "step": 2,
+        "caption": "2 passes to 3."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            55,
+            23
+          ],
+          [
+            60,
+            6
+          ]
+        ],
+        "step": 3,
+        "caption": "3 shoots at the boards, forehand or backhand."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            54,
+            30
+          ],
+          [
+            46,
+            38
+          ],
+          [
+            30,
+            38
+          ],
+          [
+            24,
+            30
+          ]
+        ],
+        "step": 4,
+        "caption": "Rotate: 3 goes to 1, 1 to 2, and 2 is the new shooter.",
+        "fromPlayer": false
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U9"
+  ]
+}

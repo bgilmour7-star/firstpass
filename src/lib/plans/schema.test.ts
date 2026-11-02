@@ -165,6 +165,10 @@ describe('changing a block', () => {
     expect(blockForDrill({ id: 'knock', minutes: 12, groupModel: 'stations' }).kind).toBe('stations');
     expect(blockForDrill({ id: 'snake', minutes: 10, groupModel: 'basic' }).kind).toBe('drill');
   });
+  it('a drill block starts at the level it is given (the start level for the team age)', () => {
+    expect(blockForDrill({ id: 'ski', minutes: 8, groupModel: 'basic' }, 8, 2)).toMatchObject({ kind: 'drill', levels: [2] });
+    expect(blockForDrill({ id: 'ski', minutes: 8, groupModel: 'basic' })).toMatchObject({ levels: [1] });
+  });
 });
 
 describe('focus', () => {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <title>Firstpass maskable app icon: the mark inside the 80% safe circle.</title>
+  <rect width="48" height="48" fill="#084F68"/>
+  <g transform="translate(5.28 5.28) scale(0.78)">
+  <ellipse cx="10.5" cy="31" rx="6.4" ry="4.2" fill="#FFFFFF"/>
+  <circle cx="36.00" cy="17.50" r="6.20" fill="none" stroke="#FFFFFF" stroke-width="4.40"/>
+  <path d="M17.57 27.26L20.60 25.65" stroke="#FFFFFF" stroke-width="4.40" stroke-linecap="butt" fill="none"/>
+  <path d="M23.07 24.34L26.10 22.74" stroke="#FFFFFF" stroke-width="4.40" stroke-linecap="butt" fill="none"/>
+  </g>
+</svg>

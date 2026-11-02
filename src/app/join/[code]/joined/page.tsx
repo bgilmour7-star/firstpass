@@ -12,9 +12,14 @@ export const dynamic = 'force-dynamic';
 
 // "You're on U7 Clippers" (decision 0013): the moment after joining, with the next practice
 // one tap away.
-export default async function Joined() {
-  const { coach, team } = await requireTeam('/plans');
+export default async function Joined({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params;
+  const active = await requireTeam('/plans');
+  const coach = active.coach;
   const store = await getAppStore();
+  // The team behind this link, if they're on it (decision 0026: they may be on several), else the active one.
+  const linked = /^[A-Za-z0-9]{8,64}$/.test(code) ? await store.joinCodeTeam(code).catch(() => null) : null;
+  const team = (linked && (await store.myTeam(coach.id, linked.id))) || active.team;
   const [coaches, practices, drills] = await Promise.all([store.coaches(team.id), store.listPractices(team.id), store.libraryDrills()]);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const next = practices.filter((p) => p.date >= today && p.blocks.length).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))[0];

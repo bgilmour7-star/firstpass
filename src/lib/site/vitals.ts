@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Device } from './schema';
 
-// Page speed (decision 0025): Core Web Vitals from real visits, sent by the browser after a page
+// Page speed (decision 0029): Core Web Vitals from real visits, sent by the browser after a page
 // loads. Only the metric, its value, which kind of page and the kind of device are kept: no
 // visitor id, no user, no address. Thresholds are Google's "good" and "poor" lines.
 

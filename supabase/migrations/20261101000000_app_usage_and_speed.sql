@@ -1,7 +1,4 @@
--- Admin → Analytics: In the app and Speed (decision 0025). Safe to run more than once.
-
--- 0. Analytics is Brett's. He signs in as bgilmour7@gmail.com, which the first migration missed.
-update public.admins set analytics = true where lower(email) in ('brett@paddio.ca', 'bgilmour7@gmail.com');
+-- Admin → Analytics: In the app and Speed (decision 0029). Safe to run more than once.
 
 -- 1. One row per coach per day they open the app, and whether it was from the home screen
 -- (installed). Coaches are adults with accounts; no child data. Written only by record_app_open.
@@ -105,6 +102,9 @@ $$;
 revoke all on function public.record_app_open(boolean, text) from public;
 revoke all on function public.record_web_vitals(text, text, jsonb) from public;
 revoke all on function public.app_usage(timestamptz) from public;
+-- Supabase grants new functions to anon directly; only signed-in coaches and Brett call these two.
+revoke execute on function public.record_app_open(boolean, text) from anon;
+revoke execute on function public.app_usage(timestamptz) from anon;
 grant execute on function public.record_app_open(boolean, text) to authenticated;
 grant execute on function public.record_web_vitals(text, text, jsonb) to anon, authenticated;
 grant execute on function public.app_usage(timestamptz) to authenticated;

@@ -18,18 +18,18 @@ export default async function JoinPage({ params, searchParams }: { params: Promi
   if (!/^[A-Za-z0-9]{8,64}$/.test(code)) return <Off />;
   const store = await getAppStore();
   const [coach, team] = await Promise.all([optionalUser(), store.joinCodeTeam(code)]);
-  const mine = coach ? await store.myTeam(coach.id) : null;
-  if (team && mine?.id === team.id && !error) redirect('/plans');
+  // A coach can be on several teams (decision 0026): joining another is fine.
+  const mine = coach ? await store.myTeams(coach.id) : [];
+  if (team && mine.some((t) => t.id === team.id) && !error) redirect(`/join/${code}/joined`);
 
-  if (error === 'link-off' || (coach && !team)) return <Off back={!!mine} />;
-  if (mine || error === 'on-another-team')
+  if (error === 'link-off' || (coach && !team)) return <Off back={mine.length > 0} />;
+  // Only before the 20261028 migration has run: the database still allows one team per coach.
+  if (error === 'on-another-team')
     return (
       <AuthFrame panel={false}>
         <div className="mt-14 flex flex-col gap-3">
-          <h1 className="font-display text-[30px] font-extrabold leading-[34px]">You&apos;re already on {mine?.name ?? 'another team'}</h1>
-          <p className="text-[15px] leading-[22px] text-ink-200">
-            During the pilot a coach is on one team at a time, so you can&apos;t join {team?.name ?? 'this team'} as well. If you meant to switch, ask your head coach to remove you first.
-          </p>
+          <h1 className="font-display text-[30px] font-extrabold leading-[34px]">Couldn&apos;t join {team?.name ?? 'this team'} yet</h1>
+          <p className="text-[15px] leading-[22px] text-ink-200">Firstpass is being updated so a coach can be on several teams. Try this link again tomorrow.</p>
           <Back />
         </div>
       </AuthFrame>
@@ -101,8 +101,8 @@ function Off({ back }: { back?: boolean }) {
 
 function Back() {
   return (
-    <Link href="/plans" className="mt-3 inline-flex h-[52px] items-center justify-center rounded-full border-[1.5px] border-border-200 text-[15px] font-medium hover:bg-surface-200">
-      Go to my plans
+    <Link href="/team" className="mt-3 inline-flex h-[52px] items-center justify-center rounded-full border-[1.5px] border-border-200 text-[15px] font-medium hover:bg-surface-200">
+      Go to my team
     </Link>
   );
 }
