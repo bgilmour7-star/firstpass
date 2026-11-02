@@ -61,7 +61,8 @@ export function summarizeUsage(rows: UsageRows, opts: { days: number; now?: Date
   const teamsNow = teamsOf(act, planned);
   const teamsBefore = teamsOf(actBefore, plannedBefore);
 
-  const held = rows.practices.filter((p) => p.date >= firstDay && p.date <= today);
+  // Today's practice counts once it's checked in, so the rate doesn't dip every practice day before the ice.
+  const held = rows.practices.filter((p) => p.date >= firstDay && (p.date < today || (p.date === today && p.checkedIn)));
   const heldBefore = rows.practices.filter((p) => p.date >= prevFirstDay && p.date < firstDay);
   const rate = (list: UsageRows['practices']) => (list.length ? list.filter((p) => p.checkedIn).length / list.length : null);
 

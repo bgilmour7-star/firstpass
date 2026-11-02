@@ -178,8 +178,9 @@ function Rated({ metric, value }: { metric: MetricName; value: number | null }) 
   return (
     <span className="inline-flex items-center justify-end gap-1.5">
       <span aria-hidden="true" className={`size-2 rounded-full ${r.dot}`} />
-      <span className="font-mono">{formatVital(metric, value)}</span>
-      <span className="sr-only">{r.label}</span>
+      <span className={`font-mono ${r.text}`}>{formatVital(metric, value)}</span>
+      {/* Needs work and Slow dots are close in colour on a phone, so Slow also says so. */}
+      <span className={r.label === 'Slow' ? `text-xs ${r.text}` : 'sr-only'}>{r.label}</span>
     </span>
   );
 }

@@ -61,6 +61,8 @@ export function AppWorker() {
   const [later, setLater] = useState(false);
   // Counts the coach as active today, and whether they came from the home screen (decision 0029).
   useEffect(() => {
+    // Admin pages share the shell; Brett reviewing drills isn't a coach using the app.
+    if (location.pathname.startsWith('/admin')) return;
     const installed = window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
     const key = `fp_open_${installed ? 'app' : 'web'}`;
     const today = new Date().toLocaleDateString('en-CA');

@@ -38,6 +38,12 @@ describe('summarizeUsage', () => {
     expect(u.checkinRate).toEqual({ now: 0.5, before: 1 });
   });
 
+  it("counts today's practice only once it's checked in", () => {
+    const p = (id: string, checkedIn: boolean) => ({ id, teamId: 'A', date: dayAgo(0), createdAt: ago(5), blocks: [], checkedIn });
+    expect(summarizeUsage(rows({ practices: [p('today', false)] }), { days: 7, now: NOW }).held).toBe(0);
+    expect(summarizeUsage(rows({ practices: [p('today', true)] }), { days: 7, now: NOW }).held).toBe(1);
+  });
+
   it('counts plans by when they were made', () => {
     const p = (id: string, made: number) => ({ id, teamId: 'A', date: dayAgo(-3), createdAt: ago(made), blocks: [], checkedIn: false });
     expect(summarizeUsage(rows({ practices: [p('1', 1), p('2', 2), p('3', 8)] }), { days: 7, now: NOW }).planned).toEqual({ now: 2, before: 1 });
