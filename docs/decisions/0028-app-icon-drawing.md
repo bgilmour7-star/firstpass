@@ -1,4 +1,4 @@
-# 0025 · An icon drawing of Puck to teammate
+# 0028 · An icon drawing of Puck to teammate
 
 Date: 2026-10-25 · Decided by: Brett (page "Firstpass App Icon"; ten other logo directions, a "1" mark and FP monograms explored and turned down)
 
