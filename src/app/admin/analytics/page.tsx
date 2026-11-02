@@ -3,6 +3,10 @@ import { requireAnalytics } from '@/lib/auth';
 import { getSiteStore } from '@/lib/site/store';
 import { change, summarize, summarizeGrowth, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
+import { InTheApp, SectionTitle, Speed } from './app-sections';
+import { getAppStore } from '@/lib/app/store';
+import { EMPTY_USAGE_ROWS, summarizeUsage, type UsageRows } from '@/lib/site/usage';
+import { summarizeSpeed, type Vital } from '@/lib/site/vitals';
 import type { Growth } from '@/lib/site/store';
 
 export const dynamic = 'force-dynamic';
@@ -45,13 +49,40 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
   const g = summarizeGrowth(growth, { days });
 
+  // In the app and Speed (decision 0029). Their tables come from a later migration.
+  const since = new Date(Date.now() - 2 * days * DAY).toISOString();
+  let rows: UsageRows = EMPTY_USAGE_ROWS;
+  let vitals: Vital[] = [];
+  let usageMissing = false;
+  try {
+    [rows, vitals] = await Promise.all([store.usage(since), store.vitals(since)]);
+  } catch (e) {
+    if (e instanceof Error && e.message === 'usage-migration-missing') usageMissing = true;
+    else throw e;
+  }
+  const usage = summarizeUsage(rows, { days });
+  const speed = summarizeSpeed(vitals, { days });
+  const names = new Map((await (await getAppStore()).libraryDrills().catch(() => [])).map((d) => [d.id, d.funName]));
+
   return (
     <div className="flex flex-col gap-9 pb-16">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-[30px] font-bold leading-[1.1]">Analytics</h1>
           <p className="text-sm text-ink-200">
-            firstpass.coach · {shortDay(s.from)} – {shortDay(s.to)} · visits counted without cookies
+            {shortDay(s.from)} – {shortDay(s.to)} ·{' '}
+            {[
+              ['#site', 'Landing page'],
+              ['#app', 'In the app'],
+              ['#speed', 'Speed'],
+            ].map(([href, label], i) => (
+              <span key={href}>
+                {i > 0 && ' · '}
+                <a href={href} className="underline decoration-border-100 underline-offset-4 hover:text-ink-100">
+                  {label}
+                </a>
+              </span>
+            ))}
           </p>
         </div>
         <nav aria-label="Period" className="inline-flex gap-1 rounded-full bg-surface-300 p-1">
@@ -74,8 +105,10 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
         </p>
       )}
 
+      <div id="site" className="-mb-3 scroll-mt-6">
+        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and the waitlist form, counted without cookies." />
+      </div>
       <Headline s={s} />
-      <TeamsAndCoaches g={g} days={days} missing={growthMissing} />
       <VisitsChart s={s} />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-14 gap-y-10">
@@ -84,6 +117,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       </div>
 
       <Who s={s} />
+      <InTheApp u={usage} days={days} names={names} missing={usageMissing} />
+      <TeamsAndCoaches g={g} days={days} missing={growthMissing} />
+      <Speed s={speed} missing={usageMissing} />
     </div>
   );
 }
@@ -352,10 +388,10 @@ function TeamsAndCoaches({ g, days, missing }: { g: GrowthSummary; days: number;
   if (Math.abs(labelY[0] - labelY[1]) < 14) labelY[labelY[0] <= labelY[1] ? 0 : 1] -= 14 - Math.abs(labelY[0] - labelY[1]);
 
   return (
-    <section aria-labelledby="growth-title" className="flex flex-col gap-4 border-b border-border-100 pb-8">
-      <h2 id="growth-title" className="text-lg font-semibold">
+    <section aria-labelledby="growth-title" className="flex flex-col gap-4">
+      <h3 id="growth-title" className="text-lg font-semibold">
         Teams and coaches
-      </h2>
+      </h3>
       {missing ? (
         <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
           Teams and coaches need one more bit of SQL. Run <code className="font-mono">supabase/migrations/20261030000000_analytics_growth.sql</code> in the Supabase SQL editor, then reload.
