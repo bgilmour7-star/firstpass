@@ -1,0 +1,461 @@
+{
+  "id": "iron-cross",
+  "funName": "Iron Cross",
+  "plainName": "Stops and starts to the dot and the edges of a circle",
+  "sourceTitle": "Iron cross",
+  "minutes": 10,
+  "gear": "Pucks for Level 2",
+  "worksAsStation": true,
+  "description": "Use both end-zone circles, one group at each. Each group lines up at the bottom of its circle, by the goal line. One skater at a time skates to the face-off dot and stops, then goes out to an edge of the circle and back to the dot three times: the edge by the boards, the top of the circle, and the inside edge. A hard stop at every point. Then skate back to the bottom and the next skater goes.",
+  "steps": [
+    "Skate to the dot and stop.",
+    "Out to the edge by the boards, stop, and back to the dot.",
+    "Out to the top of the circle, stop, and back to the dot.",
+    "Out to the inside edge, stop, and back to the dot.",
+    "Skate back to the bottom. The next skater goes."
+  ],
+  "cues": [
+    "Stop on the dot!",
+    "Make snow at every stop.",
+    "Push hard out of every stop."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Quick starts and hard stops, over and over, in every direction."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "At Level 2, keeping the puck close through every stop and start."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "No pucks",
+  "levels": [
+    {
+      "name": "With pucks",
+      "adds": "Carry a puck the whole way and stop with it on your stick at every point.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 12.5,
+            "y": 21.5
+          },
+          {
+            "role": "O",
+            "x": 12.5,
+            "y": 27
+          },
+          {
+            "role": "O",
+            "x": 12.5,
+            "y": 32.5
+          },
+          {
+            "role": "O",
+            "x": 12.5,
+            "y": 63.5
+          },
+          {
+            "role": "O",
+            "x": 12.5,
+            "y": 58
+          },
+          {
+            "role": "O",
+            "x": 12.5,
+            "y": 52.5
+          },
+          {
+            "role": "C",
+            "x": 60,
+            "y": 42.5
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                14.5,
+                21.5
+              ],
+              [
+                29.5,
+                20.6
+              ]
+            ],
+            "end": "stop",
+            "step": 1,
+            "caption": "Skate to the dot and stop.",
+            "stepSide": "left"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                31,
+                19
+              ],
+              [
+                31,
+                7.5
+              ]
+            ],
+            "end": "stop",
+            "step": 2,
+            "caption": "Out to the edge by the boards, stop, and back to the dot.",
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                32.5,
+                20.5
+              ],
+              [
+                44.5,
+                20.5
+              ]
+            ],
+            "end": "stop",
+            "step": 3,
+            "caption": "Out to the top of the circle, stop, and back to the dot.",
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                31,
+                22
+              ],
+              [
+                31,
+                33.5
+              ]
+            ],
+            "end": "stop",
+            "step": 4,
+            "caption": "Out to the inside edge, stop, and back to the dot.",
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                29.5,
+                23.5
+              ],
+              [
+                15.5,
+                31
+              ]
+            ],
+            "end": "arrow",
+            "step": 5,
+            "caption": "Skate back to the bottom. The next skater goes.",
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                14.5,
+                63.5
+              ],
+              [
+                29.5,
+                64.4
+              ]
+            ],
+            "end": "stop",
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                31,
+                66
+              ],
+              [
+                31,
+                77.5
+              ]
+            ],
+            "end": "stop",
+            "stepWith": 2
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                32.5,
+                64.5
+              ],
+              [
+                44.5,
+                64.5
+              ]
+            ],
+            "end": "stop",
+            "stepWith": 3
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                31,
+                63
+              ],
+              [
+                31,
+                51.5
+              ]
+            ],
+            "end": "stop",
+            "stepWith": 4
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                29.5,
+                61.5
+              ],
+              [
+                15.5,
+                54
+              ]
+            ],
+            "end": "arrow",
+            "stepWith": 5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Coach request",
+    "url": null,
+    "note": "From a coach's description (Nanaimo U7 Avalanche). Their 'bottom' and 'top' of the circle read as hockey usage: bottom by the goal line, top toward the blue line."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 12.5,
+        "y": 21.5
+      },
+      {
+        "role": "O",
+        "x": 12.5,
+        "y": 27
+      },
+      {
+        "role": "O",
+        "x": 12.5,
+        "y": 32.5
+      },
+      {
+        "role": "O",
+        "x": 12.5,
+        "y": 63.5
+      },
+      {
+        "role": "O",
+        "x": 12.5,
+        "y": 58
+      },
+      {
+        "role": "O",
+        "x": 12.5,
+        "y": 52.5
+      },
+      {
+        "role": "C",
+        "x": 60,
+        "y": 42.5
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            14.5,
+            21.5
+          ],
+          [
+            29.5,
+            20.6
+          ]
+        ],
+        "end": "stop",
+        "step": 1,
+        "caption": "Skate to the dot and stop.",
+        "stepSide": "left"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            31,
+            19
+          ],
+          [
+            31,
+            7.5
+          ]
+        ],
+        "end": "stop",
+        "step": 2,
+        "caption": "Out to the edge by the boards, stop, and back to the dot.",
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            32.5,
+            20.5
+          ],
+          [
+            44.5,
+            20.5
+          ]
+        ],
+        "end": "stop",
+        "step": 3,
+        "caption": "Out to the top of the circle, stop, and back to the dot.",
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            31,
+            22
+          ],
+          [
+            31,
+            33.5
+          ]
+        ],
+        "end": "stop",
+        "step": 4,
+        "caption": "Out to the inside edge, stop, and back to the dot.",
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            29.5,
+            23.5
+          ],
+          [
+            15.5,
+            31
+          ]
+        ],
+        "end": "arrow",
+        "step": 5,
+        "caption": "Skate back to the bottom. The next skater goes.",
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            14.5,
+            63.5
+          ],
+          [
+            29.5,
+            64.4
+          ]
+        ],
+        "end": "stop",
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            31,
+            66
+          ],
+          [
+            31,
+            77.5
+          ]
+        ],
+        "end": "stop",
+        "stepWith": 2
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            32.5,
+            64.5
+          ],
+          [
+            44.5,
+            64.5
+          ]
+        ],
+        "end": "stop",
+        "stepWith": 3
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            31,
+            63
+          ],
+          [
+            31,
+            51.5
+          ]
+        ],
+        "end": "stop",
+        "stepWith": 4
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            29.5,
+            61.5
+          ],
+          [
+            15.5,
+            54
+          ]
+        ],
+        "end": "arrow",
+        "stepWith": 5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U7"
+  ]
+}
