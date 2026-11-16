@@ -109,13 +109,20 @@ async function sendProgressEmails(db: SupabaseClient<any, 'public', any>, secret
   }
   let sent = 0;
   let failed = 0;
-  const rounds = new Map<string, ScoreRow[]>();
+  const rounds = new Map<string, ScoreRow[] | null>();
   for (const d of (data ?? []) as ProgressDue[]) {
     if (!rounds.has(d.round_id)) {
       const r = await db.rpc('progress_email_scores', { secret, r: d.round_id });
-      rounds.set(d.round_id, (r.data ?? []) as ScoreRow[]);
+      rounds.set(d.round_id, r.error ? null : ((r.data ?? []) as ScoreRow[]));
+      if (r.error) console.error('[progress-email] reading scores failed: %s', r.error.message);
     }
-    const rows = rounds.get(d.round_id)!;
+    const rows = rounds.get(d.round_id);
+    // Couldn't read the round: hand the email back so the next run tries again.
+    if (!rows) {
+      failed++;
+      await db.rpc('release_progress_email', { secret, r: d.round_id, coach: d.user_id, k: d.kind });
+      continue;
+    }
     const links = { site: SITE };
     const report = d.kind === 'report' ? reportInput(d, rows, links) : null;
     const email = d.kind === 'scoring' ? progressScoringEmail(scoringInput(d, rows, links)) : d.kind === 'reminder' ? progressReminderEmail(reminderInput(d, rows, links)) : report ? progressReportEmail(report) : null;

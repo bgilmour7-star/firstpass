@@ -23,8 +23,9 @@ drop policy if exists "coaches see their own progress emails" on public.progress
 create policy "coaches see their own progress emails" on public.progress_emails for select using (user_id = auth.uid());
 -- No insert, update or delete policies: only the claim and release functions write here.
 
--- 2. When the head coach asked for a reminder to go now.
+-- 2. When the head coach asked for a reminder to go now, and who asked (they don't get it themselves).
 alter table public.progress_rounds add column if not exists remind_at timestamptz;
+alter table public.progress_rounds add column if not exists remind_by uuid references auth.users (id) on delete set null;
 
 -- 3. Each coach turns their own progress emails on or off (the column came with part A).
 create or replace function public.set_progress_emails(team uuid, wanted boolean)
@@ -42,7 +43,9 @@ begin
   select team_id into t from public.progress_rounds where id = r and closed_at is null;
   if t is null then raise exception 'round-closed'; end if;
   if not public.is_head_coach(t) then raise exception 'not-head-coach'; end if;
-  update public.progress_rounds set remind_at = now() where id = r and remind_at is null;
+  -- The reminder follows the scoring email, never comes before it.
+  if not exists (select 1 from public.progress_emails e where e.round_id = r and e.kind = 'scoring') then raise exception 'too-early'; end if;
+  update public.progress_rounds set remind_at = now(), remind_by = auth.uid() where id = r and remind_at is null;
 end;
 $$;
 revoke all on function public.send_progress_reminder(uuid) from public, anon;
@@ -63,7 +66,7 @@ begin
     from public.progress_rounds r
     where r.closed_at is null and r.opened_at > now() - interval '20 days'
   ), people as (
-    select r.id as round_id, r.team_id, r.month, r.skaters, r.day0, r.remind_at, m.user_id, m.progress_scoring,
+    select r.id as round_id, r.team_id, r.month, r.skaters, r.day0, r.remind_at, r.remind_by, m.user_id, m.progress_scoring,
       u.email::text as email,
       coalesce(nullif(u.raw_user_meta_data ->> 'first_name', ''), initcap(split_part(u.email, '@', 1))) as first_name,
       t.name as team_name,
@@ -81,7 +84,7 @@ begin
     union all
     select 'reminder', p.* from people p
     where p.progress_scoring and p.finished_at is null
-      and (p.remind_at is not null or ((p.day0 + 3) + time '18:00') at time zone 'America/Vancouver' <= now())
+      and ((p.remind_at is not null and p.user_id is distinct from p.remind_by) or ((p.day0 + 3) + time '18:00') at time zone 'America/Vancouver' <= now())
     union all
     select 'report', p.* from people p
     where p.finished_at is not null
@@ -117,11 +120,12 @@ begin
 end;
 $$;
 
--- 7. What an email needs about a round: each coach on the team, whether they've finished, and the
+-- 7. What an email needs about a round: each coach on the team, whether they score and get these
+-- emails, whether they've finished, and the
 -- finished coaches' answers in this round and the one before (for the report and its change).
 -- Counts only; first names of coaches, never anything about a kid.
 create or replace function public.progress_email_scores(secret text, r uuid)
-returns table (round_id uuid, month date, skaters smallint, user_id uuid, first_name text, scores boolean, finished boolean, answers jsonb)
+returns table (round_id uuid, month date, skaters smallint, user_id uuid, first_name text, scores boolean, emails boolean, finished boolean, answers jsonb)
 language plpgsql security definer set search_path = ''
 as $$
 declare rnd public.progress_rounds; prev public.progress_rounds;
@@ -135,6 +139,7 @@ begin
   select x.id, x.month, x.skaters, m.user_id,
     coalesce(nullif(u.raw_user_meta_data ->> 'first_name', ''), initcap(split_part(u.email, '@', 1))),
     m.progress_scoring,
+    m.progress_emails,
     s.finished_at is not null,
     case when s.finished_at is not null then s.answers end
   from public.progress_rounds x

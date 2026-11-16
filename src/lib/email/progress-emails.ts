@@ -87,7 +87,7 @@ export function progressReminderEmail(i: ProgressReminderInput): Email {
   const table = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${GROUND};border-radius:10px;">${status
     .map(([n, s, c]) => `<tr><td style="padding:8px 18px;font:14px/20px ${BODY};color:${INK};">${esc(n)}</td><td align="right" style="padding:8px 18px;font:500 14px/20px ${BODY};color:${c};">${esc(s)}</td></tr>`)
     .join('')}</table>`;
-  const note = someone ? 'You won’t see their answers first, and they won’t see yours. Not sure about a skater? Leave them where they were.' : '';
+  const note = someone ? 'You score on your own: their answers show once you’ve finished yours. Not sure about a skater? Leave them where they were.' : '';
   const why = 'One reminder a month, at most.';
   const text = [heading, '', lead, '', ...(someone ? [...i.done.map((n) => `${n}: done`), 'You: about 2 minutes', ''] : []), `Start scoring: ${i.url}`, ...(note ? ['', note] : []), '', '—', `You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`, `Turn progress emails off on your Team page: ${i.settingsUrl}`].join('\n');
   const html = shell({

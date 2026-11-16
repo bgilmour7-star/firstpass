@@ -74,7 +74,7 @@ export async function sendProgressReminder(roundId: string): Promise<{ ok: true 
     await store.remind(roundId);
   } catch (e) {
     const m = e instanceof Error ? e.message : '';
-    return { ok: false, error: m === 'not-head-coach' ? 'Only the head coach can send a reminder.' : m === 'round-closed' ? 'This month’s scoring has closed.' : m === 'progress-migration-missing' ? 'Reminders need their database update first.' : 'Couldn’t send that.' };
+    return { ok: false, error: m === 'not-head-coach' ? 'Only the head coach can send a reminder.' : m === 'round-closed' ? 'This month’s scoring has closed.' : m === 'too-early' ? 'The scoring email goes out at 9:00 the morning after the first practice. You can send a reminder after that.' : m === 'progress-migration-missing' ? 'Reminders need their database update first.' : 'Couldn’t send that.' };
   }
   revalidatePath('/progress');
   return { ok: true };

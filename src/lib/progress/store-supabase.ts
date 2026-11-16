@@ -64,7 +64,7 @@ export class SupabaseProgressStore implements ProgressStore {
   async remind(roundId: string) {
     const db = await supabaseServer();
     const { error } = await db.rpc('send_progress_reminder', { r: roundId });
-    if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : /round-closed/.test(error.message) ? 'round-closed' : missing(error.message) ? 'progress-migration-missing' : error.message);
+    if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : /round-closed/.test(error.message) ? 'round-closed' : /too-early/.test(error.message) ? 'too-early' : missing(error.message) ? 'progress-migration-missing' : error.message);
   }
   async openDueRound() {
     // The database timer opens rounds (open_progress_rounds, every 10 minutes).

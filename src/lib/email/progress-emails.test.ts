@@ -4,7 +4,7 @@ import { reminderInput, reportInput, scoringInput, type Due, type ScoreRow } fro
 
 const l = { site: 'https://firstpass.coach' };
 const due = (kind: Due['kind'], user = 's'): Due => ({ kind, round_id: 'nov', team_id: 't', month: '2026-11-01', user_id: user, email: 'x@example.com', first_name: user === 's' ? 'Sam' : 'Brett', team_name: 'U7 Blue', skaters: 12 });
-const row = (round: string, user: string, name: string, finished: boolean, answers: ScoreRow['answers'] = null): ScoreRow => ({ round_id: round, month: round === 'nov' ? '2026-11-01' : '2026-10-01', skaters: 12, user_id: user, first_name: name, scores: true, finished, answers: finished ? answers : null });
+const row = (round: string, user: string, name: string, finished: boolean, answers: ScoreRow['answers'] = null): ScoreRow => ({ round_id: round, month: round === 'nov' ? '2026-11-01' : '2026-10-01', skaters: 12, user_id: user, first_name: name, scores: true, emails: true, finished, answers: finished ? answers : null });
 
 const rows: ScoreRow[] = [
   row('nov', 'b', 'Brett', true, { Skating: [1, 4, 6, 1, 0], Shooting: [5, 6, 1, 0, 0] }),
@@ -19,10 +19,14 @@ describe('progress scoring email', () => {
     const sam = progressScoringEmail(scoringInput(due('scoring'), rows, l));
     expect(sam.subject).toBe('Time for November’s progress scoring');
     expect(sam.text).not.toContain('October answers');
-    expect(sam.text).toContain('Brett and Kara get this too');
+    // Brett and Kara have finished, so they won't get it: nobody else is named.
+    expect(sam.text).not.toContain('get this too');
     const brett = progressScoringEmail(scoringInput(due('scoring', 'b'), rows, l));
     expect(brett.text).toContain('starts from your October answers');
     expect(brett.html).toContain('https://firstpass.coach/progress/score');
+    // Before anyone finishes: names only coaches who'll get it (emails on).
+    const open = rows.map((r) => ({ ...r, finished: false, emails: r.user_id !== 'k' }));
+    expect(progressScoringEmail(scoringInput(due('scoring', 'b'), open, l)).text).toContain('Sam gets this too');
   });
 });
 

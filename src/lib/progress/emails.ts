@@ -6,7 +6,7 @@ import { GAP_FLAG, monthName, teamReport, type Answers, type CoachScore, type Ro
 
 export type Due = { kind: 'scoring' | 'reminder' | 'report'; round_id: string; team_id: string; month: string; user_id: string; email: string; first_name: string; team_name: string; skaters: number };
 /** progress_email_scores: every coach on the team for this round and the one before. */
-export type ScoreRow = { round_id: string; month: string; skaters: number; user_id: string; first_name: string; scores: boolean; finished: boolean; answers: Answers | null };
+export type ScoreRow = { round_id: string; month: string; skaters: number; user_id: string; first_name: string; scores: boolean; emails: boolean; finished: boolean; answers: Answers | null };
 
 export type Links = { site: string };
 
@@ -23,7 +23,8 @@ const common = (d: Due, l: Links) => ({ teamName: d.team_name, month: monthName(
 export function scoringInput(d: Due, rows: ScoreRow[], l: Links): ProgressScoringInput {
   const prev = rounds(rows).find((r) => r.id !== d.round_id);
   const scoredLast = prev ? rows.some((r) => r.round_id === prev.id && r.user_id === d.user_id && r.finished) : false;
-  const others = rows.filter((r) => r.round_id === d.round_id && r.scores && r.user_id !== d.user_id).map((r) => r.first_name);
+  // Only coaches who get this email too: they score, haven't finished, and have progress emails on.
+  const others = rows.filter((r) => r.round_id === d.round_id && r.scores && r.emails && !r.finished && r.user_id !== d.user_id).map((r) => r.first_name);
   return { ...common(d, l), url: `${l.site}/progress/score`, skaters: d.skaters, previousMonth: prev && scoredLast ? monthName(prev.month) : null, others };
 }
 
