@@ -5,7 +5,9 @@ import { randomUUID } from 'node:crypto';
 import type { Practice, Team } from '../plans/schema';
 import { practiceOver } from '../plans/checkin';
 import { levelSetFor } from './levels';
-import { canSeeReport, monthOf, validCounts, type CoachScore, type Round } from './report';
+import { canSeeReport, monthOf, teamReport, total, validCounts, type CoachScore, type Counts, type Round } from './report';
+import type { Goal } from './pace';
+import type { Attribute } from './levels';
 import type { ProgressStore, RoundStatus, ScoreSave, ScoringFlags } from './store';
 
 // Local mode (no Supabase): rounds and scores in .local/progress.json. The same rules as the
@@ -13,7 +15,7 @@ import type { ProgressStore, RoundStatus, ScoreSave, ScoringFlags } from './stor
 
 const FILE = join(process.cwd(), '.local', 'progress.json');
 type Row = Omit<CoachScore, 'name'> & { teamId: string };
-type State = { rounds: Round[]; scores: Row[]; off: { teamId: string; userId: string }[]; emailsOff?: string[] };
+type State = { rounds: Round[]; scores: Row[]; off: { teamId: string; userId: string }[]; emailsOff?: string[]; goals?: (Goal & { teamId: string; endedAt: string | null })[] };
 
 async function read(): Promise<State> {
   try {
@@ -76,6 +78,28 @@ export class LocalProgressStore implements ProgressStore {
   async remind(roundId: string) {
     const s = await read();
     s.rounds = s.rounds.map((r) => (r.id === roundId && !r.closedAt ? { ...r, remindAt: r.remindAt ?? new Date().toISOString() } : r));
+    await write(s);
+  }
+  async goals(teamId: string): Promise<Goal[]> {
+    return ((await read()).goals ?? []).filter((g) => g.teamId === teamId && !g.endedAt).map(({ teamId: _t, endedAt: _e, ...g }) => (void _t, void _e, g));
+  }
+  async setGoal(teamId: string, _userId: string, g: { attribute: Attribute; target: Counts; byDate: string }) {
+    const s = await read();
+    const base = s.rounds.filter((r) => r.teamId === teamId && s.scores.some((x) => x.roundId === r.id && x.finishedAt)).sort((a, b) => b.month.localeCompare(a.month))[0];
+    if (!base) throw new Error('no-report');
+    if (!validCounts(g.target, base.skaters) || total(g.target) === 0) throw new Error('bad-target');
+    if (g.byDate <= new Date().toISOString().slice(0, 10)) throw new Error('bad-date');
+    const start = teamReport(base, s.scores.map((x) => ({ ...x, name: '' }))).attributes.find((a) => a.attribute === g.attribute)?.score;
+    if (start == null) throw new Error('no-report');
+    const goals = s.goals ?? [];
+    if (goals.filter((x) => x.teamId === teamId && !x.endedAt && x.attribute !== g.attribute).length >= 3) throw new Error('too-many-goals');
+    const now = new Date().toISOString();
+    s.goals = [...goals.map((x) => (x.teamId === teamId && x.attribute === g.attribute && !x.endedAt ? { ...x, endedAt: now } : x)), { id: randomUUID(), teamId, attribute: g.attribute, target: g.target, byDate: g.byDate, baselineRoundId: base.id, baselineScore: start, setAt: now, endedAt: null }];
+    await write(s);
+  }
+  async endGoal(teamId: string, goalId: string) {
+    const s = await read();
+    s.goals = (s.goals ?? []).map((x) => (x.id === goalId && x.teamId === teamId && !x.endedAt ? { ...x, endedAt: new Date().toISOString() } : x));
     await write(s);
   }
   async openDueRound(team: Team, practices: Practice[], now = new Date()) {

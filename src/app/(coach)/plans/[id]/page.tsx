@@ -5,7 +5,11 @@ import { drillIds, withStationDrills } from '@/lib/plans/schema';
 import { Builder } from './builder';
 import { CheckinNudge } from './check-in/nudge';
 import { practiceOver, rateUnits } from '@/lib/plans/checkin';
-import type { SuggestContext } from './suggestions';
+import type { GoalSteer, SuggestContext } from './suggestions';
+import { progressState } from '@/lib/progress/load';
+import { getProgressStore } from '@/lib/progress/store';
+import { goalsView } from '@/lib/progress/goals-view';
+import { STATUS_WORDS } from '@/lib/progress/pace';
 import { drillFeedback, type DrillFeedback } from '@/lib/plans/feedback';
 import { drillsForAge } from '@/lib/drills/age';
 
@@ -48,6 +52,9 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   const lastCheckins = last ? checkins.filter((c) => c.practiceId === last.id) : [];
   const runs: Record<string, number> = {};
   for (const p of earlier) for (const d of new Set(p.blocks.flatMap(drillIds))) runs[d] = (runs[d] ?? 0) + 1;
+  // Season goals (decision 0030): a goal behind this month's target may suggest one swap, and the margin
+  // shows this plan's share of drill time against what the goals ask for.
+  const goals = await seasonGoals(team, coach.id, all, byId);
   const suggest: SuggestContext | null =
     last && lastCheckins.length && (Date.parse(practice.date) - Date.parse(last.date)) / 864e5 <= 14
       ? {
@@ -57,8 +64,11 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
           runs,
           kept,
           day: new Date(`${last.date}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' }),
+          goals,
         }
-      : null;
+      : goals
+        ? { last: { date: last?.date ?? '', blocks: last?.blocks ?? [] }, checkins: [], units: [], runs, kept, day: null, goals }
+        : null;
   const nudge = prev && recentEnough && !checkedIn ? <CheckinNudge practiceId={prev.id} day={new Date(`${prev.date}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' })} /> : null;
   return (
     <>
@@ -66,4 +76,17 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
       <Builder initial={{ ...practice, blocks: withStationDrills(practice.blocks, byId) }} team={team} drills={drills} pool={forAge.drills} ageNotice={forAge.notice} known={known} lastRun={lastRun} recent={recent} feedback={feedback} suggest={suggest} favorites={favorites} copiedFrom={copied ?? null} initialShare={share} />
     </>
   );
+}
+
+async function seasonGoals(team: Awaited<ReturnType<typeof requireTeam>>['team'], userId: string, practices: Parameters<typeof goalsView>[4], byId: Parameters<typeof goalsView>[5]): Promise<GoalSteer | undefined> {
+  const state = await progressState(team, userId).catch(() => null);
+  if (!state || state.kind !== 'ready') return undefined;
+  const goals = await (await getProgressStore()).goals(team.id).catch(() => []);
+  if (!goals.length) return undefined;
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
+  const v = goalsView(goals, state.rounds, state.scores, userId, practices, byId, today);
+  return {
+    list: v.goals.map((g) => ({ attribute: g.goal.attribute, status: g.status ? STATUS_WORDS[g.status] : 'Not scored yet', behind: g.status === 'behind', now: g.now, target: g.target, targetShare: g.targetShare })),
+    targets: v.targets,
+  };
 }

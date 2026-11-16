@@ -79,3 +79,46 @@ export async function sendProgressReminder(roundId: string): Promise<{ ok: true 
   revalidatePath('/progress');
   return { ok: true };
 }
+
+const goalInput = z.object({
+  attribute: z.enum(ATTRIBUTES),
+  target: counts,
+  byDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+const GOAL_MESSAGES: Record<string, string> = {
+  'not-head-coach': 'Only the head coach sets season goals.',
+  'no-report': 'Goals start from a finished progress report. Score this month first.',
+  'too-many-goals': 'Three goals at a time. Remove one to add another.',
+  'bad-target': 'That goal doesn’t fit the team. Check the kids add up to your skaters.',
+  'bad-date': 'Pick a date after today.',
+  'goals-migration-missing': 'Season goals need their database update first.',
+};
+
+/** Head coach: set or change the season goal for one skill (decision 0030). */
+export async function saveGoal(raw: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { coach, team } = await requireTeam('/progress/goals');
+  const parsed = goalInput.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: 'Something didn’t add up. Try again.' };
+  try {
+    await (await getProgressStore()).setGoal(team.id, coach.id, parsed.data);
+  } catch (e) {
+    const key = e instanceof Error ? e.message : '';
+    return { ok: false, error: GOAL_MESSAGES[key] ?? 'Couldn’t save the goal.' };
+  }
+  revalidatePath('/progress');
+  return { ok: true };
+}
+
+/** Head coach: remove a goal (kept as history). */
+export async function removeGoal(goalId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { team } = await requireTeam('/progress/goals');
+  if (typeof goalId !== 'string' || !goalId) return { ok: false, error: 'Something didn’t add up.' };
+  try {
+    await (await getProgressStore()).endGoal(team.id, goalId);
+  } catch (e) {
+    const key = e instanceof Error ? e.message : '';
+    return { ok: false, error: GOAL_MESSAGES[key] ?? 'Couldn’t remove the goal.' };
+  }
+  revalidatePath('/progress');
+  return { ok: true };
+}

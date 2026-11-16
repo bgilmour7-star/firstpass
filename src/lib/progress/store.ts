@@ -2,7 +2,8 @@ import 'server-only';
 import { usingSupabase } from '../drills/store';
 import type { Practice, Team } from '../plans/schema';
 import type { Attribute } from './levels';
-import type { Answers, CoachScore, Round } from './report';
+import type { Answers, CoachScore, Counts, Round } from './report';
+import type { Goal } from './pace';
 
 // The seam between progress screens and storage (decision 0030). Supabase in production: RLS shows
 // a coach their own scores, and teammates' scores only once they've finished their own round.
@@ -30,6 +31,11 @@ export interface ProgressStore {
   setEmails(teamId: string, userId: string, on: boolean): Promise<void>;
   /** Head coach: send the reminder now to coaches who haven't finished. Throws 'not-head-coach'. */
   remind(roundId: string): Promise<void>;
+  /** Active season goals (decision 0030, part C). Empty before the goals migration has run. */
+  goals(teamId: string): Promise<Goal[]>;
+  /** Head coach: set or change the goal for one skill. Throws not-head-coach, no-report, too-many-goals, bad-target, bad-date. */
+  setGoal(teamId: string, userId: string, g: { attribute: Attribute; target: Counts; byDate: string }): Promise<void>;
+  endGoal(teamId: string, goalId: string): Promise<void>;
   /** Local mode only: open this month's round like the timer would. Supabase: no-op (the timer does it). */
   openDueRound(team: Team, practices: Practice[], now?: Date): Promise<void>;
 }

@@ -36,6 +36,17 @@ independent, which is what makes the side-by-side useful.
 - The cron route never sees a key: the database checks the timer's secret, hands over coaches' first names and the
   finished coaches' counts, and records each send in `progress_emails` so nobody gets the same one twice.
 
-## Later (spec, PRs C to E)
-Season goals as a target spread with monthly targets
-steering plan suggestions; the over-the-season view; Admin → Analytics "Progress scoring".
+## Season goals (PR C, 2026-11-15)
+- The head coach sets up to three, from the newest finished report: a target spread per skill and a date (March 15 by
+  default). Changing one ends the old row and adds a new one. The goal keeps the team's score when it was set
+  (`baseline_score`), so every coach sees the same starting point.
+- Pace is a straight line from that score to the goal score on the date. On pace within 0.1, Ahead from 0.2 above,
+  else Behind this month's target; Goal reached or Short of goal at the date. "About N more kids up a level" is the
+  line's gain to next month, in kids.
+- Target share of drill time: even, plus weight for each goal's remaining gap and for being behind, at least 10% for
+  every skill (`TARGET` in `src/lib/progress/ice-time.ts`). A goal that's behind, in a plan under its share, suggests
+  one swap after the check-in suggestions: the longest drill in a skill over its share, for a drill whose Main is the
+  goal's skill, the kids' known drills first, never a Big hit. Suggest, never apply.
+
+## Later (spec, PRs D and E)
+The over-the-season view; Admin → Analytics "Progress scoring".

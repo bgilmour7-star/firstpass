@@ -136,3 +136,39 @@ describe('suggestions only propose drills for the team age (decision 0025)', () 
     expect(pickSwap(byId.get('snake-in-the-forest')!, thursday[3], want, { blocks: thursday, byId, known, feedback: {}, pool: [] })).toBeNull();
   });
 });
+
+describe('the season goal rule (decision 0030)', () => {
+  // A plan heavy on skating, with Tour Bus as its game. Shooting is a goal, behind this month's target.
+  const plan: Block[] = [drill('w3', 'warmup-free-skate-challenges', 8), drill('s3', 'ski-racer', 8), drill('i3', 'iron-cross', 10), drill('tb3', 'tour-bus', 6), act('hd3', 'huddle')];
+  const targets = { Skating: 0.15, 'Puck control': 0.15, Passing: 0.15, Shooting: 0.3, 'Game sense': 0.1, 'Effort & fun': 0.15 };
+  const goalRun = (over: Partial<SuggestInput> = {}) =>
+    suggestions({ blocks: plan, last: { date: '2026-11-08', blocks: [] }, checkins: [], units: [], byId, known: new Set(['scatter-puck', 'tour-bus']), feedback: {}, runs: {}, pool: drills.filter((d) => !d.id.startsWith('u9-')), goals: [{ attribute: 'Shooting', behind: true }], targets, ...over });
+
+  it('offers one swap to a known shooting drill, on the longest skating drill that has one to swap for', () => {
+    const r = goalRun();
+    expect(r.list).toHaveLength(1);
+    const s = r.list[0];
+    expect(s).toMatchObject({ kind: 'swap', source: 'goal', blockId: 'tb3', drillId: 'scatter-puck', key: 'goal:Shooting:tour-bus' });
+    expect(s.title).toBe('Shooting is behind this month’s target.');
+    expect(s.fits).toContain('The kids know it');
+  });
+  it('says nothing when the goal is on pace, or the plan already gives it its share', () => {
+    expect(goalRun({ goals: [{ attribute: 'Shooting', behind: false }] }).list).toHaveLength(0);
+    expect(goalRun({ targets: { ...targets, Shooting: 0 } }).list).toHaveLength(0);
+  });
+  it('never swaps a Big hit away', () => {
+    expect(goalRun({ feedback: { 'tour-bus': fb({ loved: true }) } }).list).toHaveLength(0);
+  });
+  it('comes after the check-in suggestions and only if there is room', () => {
+    const full = goalRun({
+      checkins: [checkin('Brett', { ready: ['Sharks'], steam: 'tired', steamFrom: 's', marks: [mark('s', 'ski-racer', 'flop', ['waiting'])] })],
+      units,
+      last: { date: '2026-10-17', blocks: saturday },
+      blocks: thursday,
+    });
+    expect(full.list.length).toBeLessThanOrEqual(3);
+    const at = full.list.findIndex((x) => x.source === 'goal');
+    expect(at === -1 || at === full.list.length - 1).toBe(true);
+    expect(full.list.filter((x) => x.source !== 'goal').length).toBeGreaterThan(0);
+  });
+});

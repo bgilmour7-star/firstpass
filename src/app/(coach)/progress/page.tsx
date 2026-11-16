@@ -2,6 +2,10 @@ import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { progressState, reportFor, visible } from '@/lib/progress/load';
 import { RemindButton } from './remind';
+import { getAppStore } from '@/lib/app/store';
+import { getProgressStore } from '@/lib/progress/store';
+import { goalsView, type GoalView } from '@/lib/progress/goals-view';
+import { nextMonth, STATUS_WORDS } from '@/lib/progress/pace';
 import { GAP_FLAG, monthName, total, type AttributeReport } from '@/lib/progress/report';
 
 export const dynamic = 'force-dynamic';
@@ -22,6 +26,13 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
   const isCurrent = round.id === state.current.id;
   const canSee = visible(state.scores, round.id, coach.id);
   const report = canSee ? reportFor(state.rounds, state.scores, round.id) : null;
+  // Season goals (decision 0030, part C): on the latest report, with pace and ice time.
+  const app = await getAppStore();
+  const [goals, practices, drills] = await Promise.all([(await getProgressStore()).goals(team.id).catch(() => []), app.listPractices(team.id).catch(() => []), app.libraryDrills().catch(() => [])]);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
+  const gv = goals.length ? goalsView(goals, state.rounds, state.scores, coach.id, practices, new Map(drills.map((d) => [d.id, d])), today) : null;
+  const nextPlan = [...practices].filter((p) => p.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];
+  const showGoals = canSee && isCurrent && (gv || state.isHead);
   const statusDone = isCurrent ? state.status.filter((s) => s.finished).length : 0;
   const scorers = Math.max(state.coaches.length, statusDone);
   const mineStarted = isCurrent && state.mine && !state.mine.finishedAt;
@@ -78,6 +89,28 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
               {` · ${round.skaters} skaters · levels 1 to 5 for U7`}
             </p>
             {remind}
+            {showGoals && (
+              <section id="goals" className="flex scroll-mt-20 flex-col gap-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="font-display text-lg font-bold">Season goals</h2>
+                  {state.isHead && (
+                    <Link href="/progress/goals" className="min-h-11 content-center text-sm text-rink-100">
+                      {gv ? 'Change goals' : 'Set goals'}
+                    </Link>
+                  )}
+                </div>
+                {gv ? (
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {gv.goals.map((g) => (
+                      <GoalCard key={g.goal.id} g={g} nextPlan={nextPlan ? { id: nextPlan.id, day: new Date(`${nextPlan.date}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' }) } : null} />
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-ink-200">Pick up to three skills to work on this season. Plans lean toward the ones that fall behind.</p>
+                )}
+              </section>
+            )}
+            <h2 className={showGoals ? 'font-display text-lg font-bold' : 'sr-only'}>All six</h2>
             <ul className="flex flex-col">
               {report.attributes.map((a) => (
                 <Row key={a.attribute} a={a} youId={coach.id} />
@@ -131,5 +164,40 @@ function Empty({ title, body }: { title: string; body: string }) {
       <h1 className="font-display text-2xl font-bold">{title}</h1>
       <p className="text-sm text-ink-200">{body}</p>
     </div>
+  );
+}
+
+const short = (iso: string) => new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+
+function GoalCard({ g, nextPlan }: { g: GoalView; nextPlan: { id: string; day: string } | null }) {
+  const tone = g.status === 'behind' || g.status === 'short' ? 'text-warn-text' : g.status ? 'text-good-text' : 'text-ink-200';
+  return (
+    <li className="flex flex-col gap-1.5 rounded-[12px] border border-border-100 p-4">
+      <span className="flex items-baseline justify-between gap-2">
+        <b className="font-display text-base font-bold">{g.goal.attribute}</b>
+        <span className={`text-[13px] font-medium ${tone}`}>{g.status ? STATUS_WORDS[g.status] : 'Not scored yet'}</span>
+      </span>
+      <span className="font-mono text-sm">
+        <span className="text-ink-200">{monthName(g.baselineMonth).slice(0, 3)} {g.from.score.toFixed(1)}</span>
+        {g.now != null && g.latestMonth && g.latestMonth !== g.baselineMonth && <> → {monthName(g.latestMonth).slice(0, 3)} {g.now.toFixed(1)}</>}
+        <span className="text-rink-100"> → goal {g.target.toFixed(1)}</span>
+        <span className="text-ink-200"> by {short(g.goal.byDate)}</span>
+      </span>
+      {g.next != null && g.next > 0 && g.latestMonth && (
+        <span className="text-[13px] text-ink-200">
+          {monthName(nextMonth(g.latestMonth))}: about {g.next} more {g.next === 1 ? 'kid' : 'kids'} up a level.
+        </span>
+      )}
+      {g.share != null && (
+        <span className="text-[13px] text-ink-200">
+          Ice time since it was set <span className="font-mono">{Math.round(g.share * 100)}%</span> · goal asks about <span className="font-mono">{Math.round(g.targetShare * 100)}%</span>
+        </span>
+      )}
+      {g.status === 'behind' && nextPlan && (
+        <Link href={`/plans/${nextPlan.id}`} className="mt-1 min-h-11 w-fit content-center text-sm font-medium text-rink-100">
+          See {nextPlan.day}’s plan
+        </Link>
+      )}
+    </li>
   );
 }
