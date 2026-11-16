@@ -35,20 +35,62 @@ export const Icon = {
 };
 
 
+// Drill actions (design system: DrillActions): 16px line icons, one per action, always with a label
+// (shown, or as the button's name and tooltip when only the icon shows).
+const a16 = (d: string, w = 1.6) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+    <path d={d} />
+  </svg>
+);
+export const A = {
+  up: a16('M8 13V3M4 7l4-4 4 4'),
+  down: a16('M8 3v10M4 9l4 4 4-4'),
+  more: a16('M3.5 8h.01M8 8h.01M12.5 8h.01', 2.6),
+  swap: a16('M3 5.5h9.5L10 3M13 10.5H3.5L6 13'),
+  levels: a16('M3.5 13v-3M8 13V7M12.5 13V3'),
+  duplicate: a16('M5.5 5.5h7.5v7.5H5.5zM3 10.5V3h7.5'),
+  start: a16('M3 2.5h10M8 13.5V6M5 9l3-3 3 3'),
+  end: a16('M3 13.5h10M8 2.5V10M5 7l3 3 3-3'),
+  change: a16('M2.5 8a5.5 5.5 0 0 1 9.4-3.9L13.5 6M13.5 2.5V6H10M13.5 8a5.5 5.5 0 0 1-9.4 3.9L2.5 10M2.5 13.5V10H6'),
+  details: a16('M2.5 3h11v10h-11zM9.5 3v10'),
+  remove: a16('M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5'),
+  close: a16('M4 4l8 8M12 4l-8 8', 1.8),
+};
+
+/** An action with its icon and label (44px). On phones the sheet uses the icon alone; the label stays as its name. */
+export function ActionButton({ icon, label, onClick, disabled, iconOnly, ...rest }: { icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean; iconOnly?: boolean; 'aria-expanded'?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={iconOnly ? label : undefined}
+      title={iconOnly ? label : undefined}
+      {...rest}
+      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-border-100 bg-surface-100 text-sm font-medium hover:bg-surface-200 disabled:opacity-35 ${iconOnly ? 'size-12' : 'min-h-11 pl-3 pr-3.5'}`}
+    >
+      {icon}
+      {!iconOnly && label}
+    </button>
+  );
+}
+
 export function Badge({ zone, dim }: { zone: string; dim?: boolean }) {
   return <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-xs text-surface-100 ${dim ? 'bg-ink-200/50' : 'bg-ink-100'}`}>{zone}</span>;
 }
 
-export function Stepper({ value, min, max, label, onChange }: { value: number; min: number; max: number; label: string; onChange: (n: number) => void }) {
+export function Stepper({ value, min, max, label, onChange, size = 'md' }: { value: number; min: number; max: number; label: string; onChange: (n: number) => void; size?: 'sm' | 'md' | 'lg' }) {
+  const b = size === 'lg' ? 'h-12 w-11' : size === 'sm' ? 'h-8 w-8' : 'h-10 w-10';
   return (
-    <div className="inline-flex items-center rounded-full border border-border-100" role="group" aria-label={`Minutes (${label})`}>
-      <button type="button" aria-label="One minute less" disabled={value <= min} onClick={() => onChange(value - 1)} className="h-9 w-9 rounded-full text-lg hover:bg-surface-200 disabled:opacity-30">
+    <div className="inline-flex w-max items-center rounded-full border border-border-100 bg-surface-100" role="group" aria-label={`Minutes (${label})`}>
+      <button type="button" aria-label="One minute less" disabled={value <= min} onClick={() => onChange(value - 1)} className={`${b} rounded-full text-lg hover:bg-surface-200 disabled:opacity-30`}>
         −
       </button>
-      <span className="min-w-14 text-center font-mono text-sm">
-        {value} <span className="text-ink-200">{label}</span>
+      <span className={`${size === 'sm' ? 'min-w-6' : 'min-w-14'} whitespace-nowrap text-center font-mono text-sm`}>
+        {value}
+        {label && <span className="text-ink-200"> {label}</span>}
       </span>
-      <button type="button" aria-label="One minute more" disabled={value >= max} onClick={() => onChange(value + 1)} className="h-9 w-9 rounded-full text-lg hover:bg-surface-200 disabled:opacity-30">
+      <button type="button" aria-label="One minute more" disabled={value >= max} onClick={() => onChange(value + 1)} className={`${b} rounded-full text-lg hover:bg-surface-200 disabled:opacity-30`}>
         +
       </button>
     </div>
@@ -60,22 +102,28 @@ export function useDismiss(open: boolean, close: () => void) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && close();
+    // Capture, and mark the key handled, so Escape closes the popover and not the panel behind it.
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      close();
+    };
     // A hidden popover (the desktop add-picker on a phone, say) ignores taps, or it would close the sheet the tap was meant for.
     const click = (e: MouseEvent) => ref.current && ref.current.getClientRects().length > 0 && !ref.current.contains(e.target as Node) && close();
-    window.addEventListener('keydown', key);
+    window.addEventListener('keydown', key, true);
     window.addEventListener('mousedown', click);
     return () => {
-      window.removeEventListener('keydown', key);
+      window.removeEventListener('keydown', key, true);
       window.removeEventListener('mousedown', click);
     };
   }, [open, close]);
   return ref;
 }
 
-export type MenuItem = { label: string; run?: () => void; disabled?: boolean; danger?: boolean; sub?: { label: string; run: () => void; current?: boolean }[]; note?: string };
+export type MenuItem = { label: string; run?: () => void; disabled?: boolean; danger?: boolean; icon?: React.ReactNode; sep?: boolean; sub?: { label: string; run: () => void; current?: boolean }[]; note?: string };
 
-export function Menu({ items }: { items: MenuItem[] }) {
+/** The ⋯ menu (design system: DrillActions). `trigger` sets the button: an icon, or an icon and a label. */
+export function Menu({ items, trigger = 'icon', size = 36, align = 'right' }: { items: MenuItem[]; trigger?: 'icon' | 'labelled'; size?: number; align?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState<string | null>(null);
   const ref = useDismiss(open, () => {
@@ -89,11 +137,23 @@ export function Menu({ items }: { items: MenuItem[] }) {
   const subItem = items.find((i) => i.label === sub);
   return (
     <div ref={ref} className="relative">
-      <button type="button" aria-label="More actions" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="flex h-9 w-9 items-center justify-center rounded-full text-xl hover:bg-surface-200">
-        ⋯
-      </button>
+      {trigger === 'labelled' ? (
+        <ActionButton icon={A.more} label="More" aria-expanded={open} onClick={() => setOpen((o) => !o)} />
+      ) : (
+        <button
+          type="button"
+          aria-label="More actions"
+          title="More"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          style={{ width: size, height: size }}
+          className={`flex items-center justify-center rounded-full hover:bg-surface-200 ${size >= 44 ? 'border border-border-100 bg-surface-100' : ''}`}
+        >
+          {A.more}
+        </button>
+      )}
       {open && (
-        <div className="absolute right-0 z-30 mt-1 w-56 rounded-md border border-border-100 bg-surface-100 py-1 shadow-lg">
+        <div role="menu" className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} z-30 mt-1 w-60 rounded-md border border-border-100 bg-surface-100 p-1 shadow-lg`}>
           {subItem ? (
             <>
               <button type="button" onClick={() => setSub(null)} className="w-full px-3 py-2 text-left text-sm text-ink-200 hover:bg-surface-200">
@@ -118,22 +178,26 @@ export function Menu({ items }: { items: MenuItem[] }) {
             </>
           ) : (
             items.map((it) => (
-              <button
-                key={it.label}
-                type="button"
-                disabled={it.disabled}
-                onClick={() => {
-                  if (it.sub) setSub(it.label);
-                  else {
-                    it.run?.();
-                    close();
-                  }
-                }}
-                className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-surface-200 disabled:opacity-40 ${it.danger ? 'text-flag-100' : ''}`}
-              >
-                {it.label}
-                {it.sub && <span aria-hidden="true">›</span>}
-              </button>
+              <div key={it.label}>
+                {it.sep && <div role="separator" className="my-1 h-px bg-border-100" />}
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={it.disabled}
+                  onClick={() => {
+                    if (it.sub) setSub(it.label);
+                    else {
+                      it.run?.();
+                      close();
+                    }
+                  }}
+                  className={`flex min-h-10 w-full items-center gap-2.5 rounded-sm px-2.5 text-left text-sm hover:bg-surface-200 disabled:opacity-40 ${it.danger ? 'text-flag-100' : ''}`}
+                >
+                  {it.icon && <span className="text-ink-200">{it.icon}</span>}
+                  <span className="flex-1">{it.label}</span>
+                  {it.sub && <span aria-hidden="true">›</span>}
+                </button>
+              </div>
             ))
           )}
         </div>
