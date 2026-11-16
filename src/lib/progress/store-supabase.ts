@@ -86,6 +86,18 @@ export class SupabaseProgressStore implements ProgressStore {
     const { error } = await db.rpc('end_progress_goal', { goal: goalId });
     if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : missing(error.message) ? 'goals-migration-missing' : error.message);
   }
+  async recordView(roundId: string) {
+    const db = await supabaseServer();
+    await db.rpc('record_report_view', { r: roundId }).then(() => undefined, () => undefined);
+  }
+  async recordGoalTaken(practiceId: string, key: string) {
+    const db = await supabaseServer();
+    await db.rpc('record_goal_suggestion', { practice: practiceId, k: key }).then(() => undefined, () => undefined);
+  }
+  async unrecordGoalTaken(practiceId: string, key: string) {
+    const db = await supabaseServer();
+    await db.rpc('unrecord_goal_suggestion', { practice: practiceId, k: key }).then(() => undefined, () => undefined);
+  }
   async openDueRound() {
     // The database timer opens rounds (open_progress_rounds, every 10 minutes).
   }

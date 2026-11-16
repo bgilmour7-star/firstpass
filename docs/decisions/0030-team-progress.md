@@ -54,5 +54,9 @@ goal level teal, a point orange only where it fell behind), every month's scores
 share, what practices worked on each month (Main / Some pips from the drills' minutes), the biggest gap between
 coaches by month, and every report linked. Only months this coach scored show (P2). No new tables.
 
-## Later (spec, PR E)
-Admin → Analytics "Progress scoring".
+## Analytics (PR E, 2026-11-15)
+Admin → Analytics → Progress scoring, one month at a time: coaches who scored again, goal suggestions taken (of those
+swapped in or kept as is), teams still planning (scoring vs not), coaches who scored, time to score, "No change"
+share, teams with a goal, the median biggest gap, the email → report funnel, and a by-team table. Two small records
+feed it: `progress_report_views` (first open of each month's report) and `progress_goal_suggestions` (goal swaps
+taken). `progress_usage(month)` returns ids, counts and team names to analytics viewers only.

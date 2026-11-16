@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
 import type { UsageRows } from './usage';
+import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
 import type { Growth, NewEvent, SiteStore } from './store';
 
@@ -87,6 +88,10 @@ export class LocalSiteStore implements SiteStore {
     return ((await read()).vitals ?? []).filter((v) => v.occurredAt >= sinceIso);
   }
 
+  async progressUsage(month: string): Promise<ProgressUsageRows> {
+    return localProgressUsage(month);
+  }
+
   async usage(sinceIso: string): Promise<UsageRows> {
     // Local mode keeps fewer timestamps than the database: a plan counts as made on its date.
     const app = await readApp();
@@ -146,6 +151,34 @@ type AppFile = {
   checkins?: { practiceId: string; teamId: string; userId: string; savedAt: string; marks?: { drillId: string; rating: string }[] }[];
   kept?: { at: string }[];
 };
+/** Local mode's progress file (src/lib/progress/store-local.ts), read as progress_usage would return it. */
+async function localProgressUsage(month: string): Promise<ProgressUsageRows> {
+  type P = { rounds?: { id: string; teamId: string; month: string; skaters: number }[]; scores?: { roundId: string; teamId: string; userId: string; finishedAt: string | null; seconds: number | null; done: string[]; noChange: string[]; answers: ProgressUsageRows['scores'][number]['answers'] }[]; goals?: (ProgressUsageRows['goals'][number] & { endedAt: string | null })[] };
+  let p: P = {};
+  try {
+    p = JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'progress.json'), 'utf8')) as P;
+  } catch {
+    /* no progress yet */
+  }
+  const app = (await readApp()) as unknown as { teams?: { id: string; name: string }[]; members?: { teamId: string; userId: string; role?: string }[]; practices?: { teamId: string; date: string }[] };
+  const [y, m] = month.split('-').map(Number);
+  const prev = m === 1 ? `${y - 1}-12-01` : `${y}-${String(m - 1).padStart(2, '0')}-01`;
+  const rounds = (p.rounds ?? []).filter((r) => r.month === month || r.month === prev);
+  const ids = new Set(rounds.map((r) => r.id));
+  return {
+    teams: (app.teams ?? []).map((t) => ({ id: t.id, name: t.name, lastPlanAt: (app.practices ?? []).filter((x) => x.teamId === t.id).map((x) => `${x.date}T12:00:00Z`).sort().at(-1) ?? null })),
+    members: (app.members ?? []).map((x) => ({ teamId: x.teamId, userId: x.userId, role: x.role === 'head_coach' ? 'head_coach' : 'coach', scores: true })),
+    rounds,
+    scores: (p.scores ?? []).filter((x) => ids.has(x.roundId)).map((x) => ({ roundId: x.roundId, teamId: x.teamId, userId: x.userId, finished: Boolean(x.finishedAt), seconds: x.seconds, done: x.done.length, noChange: x.noChange.length, answers: x.finishedAt ? x.answers : null })),
+    goals: (p.goals ?? []).filter((g) => !g.endedAt),
+    emailed: [],
+    views: [],
+    taken: [],
+    kept: [],
+    months: [...new Set((p.rounds ?? []).map((r) => r.month))].sort().reverse(),
+  };
+}
+
 async function readApp(): Promise<AppFile> {
   try {
     return JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'app.json'), 'utf8')) as AppFile;

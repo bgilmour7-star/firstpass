@@ -32,7 +32,7 @@ import {
   type Team,
   type Zone,
 } from '@/lib/plans/schema';
-import { deletePractice, keepSuggestion, savePractice } from '../actions';
+import { deletePractice, goalSuggestionTaken, keepSuggestion, savePractice } from '../actions';
 import { RotationCard, StationsCard } from './blocks';
 import { FORMAT_NAME, FormatIcon, formatWhat } from './format';
 import { IconButton, LevelPills, PlayableRink } from './opened';
@@ -222,11 +222,13 @@ export function Builder({
     const added = next.find((y) => !blocks.some((o) => o.id === y.id))?.id;
     setApplied((prev) => [...prev, { key: x.key, blockId: x.blockId, done, why: x.title.replace(/\.$/, ''), from: x.source === 'goal' ? 'from your season goals' : `from ${suggest?.day ?? 'the last'}’s check-in`, before: b, added, short: x.kind === 'swap' ? `${byId.get(x.drillId!)?.funName ?? oldName} · swapped in` : x.short }]);
     setBlocks(() => next);
+    if (x.source === 'goal') void goalSuggestionTaken(plan.id, x.key).catch(() => undefined);
   }
   // Undo puts back only this change: the block as it was, or without the block it added.
   function undo(a: Applied) {
     setBlocks((bs) => (a.added ? bs.filter((y) => y.id !== a.added) : bs.map((y) => (y.id === a.blockId ? a.before : y))));
     setApplied((prev) => prev.filter((y) => y.key !== a.key));
+    if (a.key.startsWith('goal:')) void goalSuggestionTaken(plan.id, a.key, false).catch(() => undefined);
   }
   function keepSug(x: Suggestion) {
     setKeptBy((m) => new Map(m).set(x.key, 'you'));

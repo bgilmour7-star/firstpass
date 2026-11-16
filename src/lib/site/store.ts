@@ -2,6 +2,7 @@ import 'server-only';
 import { usingSupabase } from '../drills/store';
 import type { Device, EventName, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
 import type { UsageRows } from './usage';
+import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
 
 // The one seam for the public site (decision 0019). Supabase in production: anyone may join the
@@ -26,6 +27,8 @@ export interface SiteStore {
   /** Analytics viewers only. Throw 'usage-migration-missing' before the SQL has run. */
   vitals(sinceIso: string): Promise<Vital[]>;
   usage(sinceIso: string): Promise<UsageRows>;
+  /** Progress scoring for one month, YYYY-MM-01 (decision 0030). Throws 'progress-usage-migration-missing' before its SQL. */
+  progressUsage(month: string): Promise<ProgressUsageRows>;
   /** When each team was created and each coach first joined a team, as ISO timestamps. Timestamps only, no names. Throws 'growth-migration-missing' before the SQL has run. */
   growth(): Promise<Growth>;
 }

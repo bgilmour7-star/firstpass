@@ -148,8 +148,8 @@ Acceptance: with the canvas sample (Oct–Mar) in local mode, the page matches t
 ### 7.5 Analytics: Progress scoring (PR E)
 Goal: Brett sees whether it sticks.
 Context: spec → Admin → Analytics. Artboard "Admin · Analytics · progress scoring".
-- [ ] Migration: `progress_usage(month)` (security definer, `can_see_analytics()`, counts only); `report_viewed` usage event. **Brett: run it.**
-- [ ] Section between In the app and Speed, its own jump link and Month picker: the four decide-it tiles, the four how-easily tiles, the email → report funnel, the by-team table.
+- [x] Migration: `progress_usage(month)` (security definer, `can_see_analytics()`, counts only); `progress_report_views` and `progress_goal_suggestions` (report opens and goal suggestions taken). **Brett: run it.**
+- [x] Section between In the app and Speed, its own jump link and Month picker: the four decide-it tiles, the four how-easily tiles, the email → report funnel (emailed, started, finished, opened the report; email opens stay in Resend), the by-team table.
 Acceptance: after December's round Brett can answer "did coaches score again?" from this page alone.
 
 ### Order and dates

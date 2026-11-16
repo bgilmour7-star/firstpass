@@ -36,6 +36,12 @@ export interface ProgressStore {
   /** Head coach: set or change the goal for one skill. Throws not-head-coach, no-report, too-many-goals, bad-target, bad-date. */
   setGoal(teamId: string, userId: string, g: { attribute: Attribute; target: Counts; byDate: string }): Promise<void>;
   endGoal(teamId: string, goalId: string): Promise<void>;
+  /** The first time this coach opens a round's report (analytics, part E). Never throws. */
+  recordView(roundId: string): Promise<void>;
+  /** A coach took a goal suggestion (analytics, part E). Never throws. */
+  recordGoalTaken(practiceId: string, key: string): Promise<void>;
+  /** Undo of a goal swap: no longer counted as taken. Never throws. */
+  unrecordGoalTaken(practiceId: string, key: string): Promise<void>;
   /** Local mode only: open this month's round like the timer would. Supabase: no-op (the timer does it). */
   openDueRound(team: Team, practices: Practice[], now?: Date): Promise<void>;
 }

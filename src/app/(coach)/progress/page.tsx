@@ -27,6 +27,9 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
   const isCurrent = round.id === state.current.id;
   const canSee = visible(state.scores, round.id, coach.id);
   const report = canSee ? reportFor(state.rounds, state.scores, round.id) : null;
+  // "Opened the report", for Admin → Analytics (decision 0030, part E). Once per coach per month.
+  // Not on the page you land on right after finishing (?scored=1): that's a finish, not a return visit.
+  if (canSee && !scored) await (await getProgressStore()).recordView(round.id);
   // Season goals (decision 0030, part C): on the latest report, with pace and ice time.
   const app = await getAppStore();
   const [goals, practices, drills] = await Promise.all([(await getProgressStore()).goals(team.id).catch(() => []), app.listPractices(team.id).catch(() => []), app.libraryDrills().catch(() => [])]);
