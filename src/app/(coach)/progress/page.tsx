@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { progressState, reportFor, visible } from '@/lib/progress/load';
 import { RemindButton } from './remind';
+import { ProgressTabs } from './tabs';
 import { getAppStore } from '@/lib/app/store';
 import { getProgressStore } from '@/lib/progress/store';
 import { goalsView, type GoalView } from '@/lib/progress/goals-view';
@@ -42,6 +43,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
+      {state.rounds.length > 0 && <ProgressTabs active="report" />}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[13px] text-ink-200">{team.name}</p>

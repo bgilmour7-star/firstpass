@@ -142,7 +142,7 @@ Context: spec → P4, Flows (Goals, Steering plans), target ice-time share. Artb
 Acceptance: with a Shooting goal behind its target, Thursday's draft offers one swap to a known shooting drill and nothing changes until a coach taps.
 
 ### 7.4 Over the season (PR D)
-- [ ] `/progress/season` and the This report / Over the season tabs: goal line charts (full 1–5 scale), every round's scores with season change and ice-time share, monthly focus pips, biggest coach gap by month, every report linked (kept as scored, with its levels version). "Builds as you score: N of 3 months" until three rounds exist.
+- [x] `/progress/season` and the This report / Over the season tabs: goal line charts (full 1–5 scale), every round's scores with season change and ice-time share, monthly focus pips, biggest coach gap by month, every report linked (kept as scored, with its levels version). "Builds as you score: N of 3 months" until three rounds exist.
 Acceptance: with the canvas sample (Oct–Mar) in local mode, the page matches the artboard.
 
 ### 7.5 Analytics: Progress scoring (PR E)
