@@ -43,7 +43,7 @@ export default async function SeasonPage() {
               {shortDate(s.months[0].opened)} – today · {s.practices} {s.practices === 1 ? 'practice' : 'practices'} · {n} progress {n === 1 ? 'report' : 'reports'}
             </p>
           )}
-          <h1 className="font-display text-[32px] font-bold leading-tight">Progress over time</h1>
+          <h1 className="font-display text-[32px] font-bold leading-tight">Progress over the season</h1>
           {n < FULL && (
             <p className="rounded-[10px] bg-surface-200 px-4 py-3 text-sm">
               <b className="font-semibold">Builds as you score: {n} of {FULL} months.</b> <span className="text-ink-200">Each month you score adds a column here. Lines need a few months to say much.</span>
@@ -237,10 +237,10 @@ function GoalChart({ g }: { g: SeasonGoal }) {
         <text x={R + 2} y={y(g.target) - 4} fontSize="11" fill="var(--rink-200)" textAnchor="end">
           goal
         </text>
-        {pts.length > 1 && <line x1={x(0)} y1={y(pts[0].expected)} x2={x(pts.length - 1)} y2={y(pts[pts.length - 1].expected)} stroke="var(--border-200)" strokeWidth="2" strokeDasharray="6 5" />}
+        {pts.length > 1 && <polyline points={pts.map((p, i) => `${x(i)},${y(p.expected)}`).join(' ')} fill="none" stroke="var(--border-200)" strokeWidth="2" strokeDasharray="6 5" />}
         {scored.length > 1 && <polyline points={scored.map((p) => `${x(p.i)},${y(p.score!)}`).join(' ')} fill="none" stroke="var(--rink-100)" strokeWidth="3" strokeLinejoin="round" />}
         {scored.map((p) => (
-          <circle key={p.month} cx={x(p.i)} cy={y(p.score!)} r="5" fill={p.status === 'behind' ? 'var(--whistle-100)' : 'var(--rink-100)'} />
+          <circle key={p.month} cx={x(p.i)} cy={y(p.score!)} r="5" fill={p.status === 'behind' || p.status === 'short' ? 'var(--whistle-100)' : 'var(--rink-100)'} />
         ))}
         <g fontFamily="var(--font-mono)" fontSize="11" fill="var(--ink-200)" textAnchor="middle">
           {pts.map((p, i) => (
@@ -257,9 +257,22 @@ function GoalChart({ g }: { g: SeasonGoal }) {
       </svg>
       {g.ice.some((v) => v != null) && (
         <p className="text-[13px] text-ink-200">
-          Ice time each month: <span className="font-mono">{g.ice.map((v) => (v == null ? '–' : `${v}%`)).join(' · ')}</span>
+          Ice time:{' '}
+          {s_ice(g)}
         </p>
       )}
     </div>
   );
+}
+
+/** "68% · 52%": months with practices only, each kept whole so a phone never wraps a lone dash. */
+function s_ice(g: SeasonGoal) {
+  return g.ice
+    .flatMap((v, i) => (v == null ? [] : [{ v, i }]))
+    .map((x, n) => (
+      <span key={x.i} className="whitespace-nowrap font-mono">
+        {n > 0 && ' · '}
+        {x.v}%
+      </span>
+    ));
 }

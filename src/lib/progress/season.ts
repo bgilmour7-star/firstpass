@@ -104,12 +104,13 @@ export function season(rounds: Round[], scores: CoachScore[], userId: string, go
 
   const notes = months.map((m, i) => {
     const started = goals.filter((g) => rounds.find((r) => r.id === g.baselineRoundId)?.month === m.month);
-    if (started.length) return i === 0 ? 'Starting point · goals set' : 'Goals set';
     const st = seasonGoals.flatMap((g) => {
       const p = g.points.find((x) => x.month === m.month);
       return p?.status ? [{ a: g.goal.attribute, s: p.status }] : [];
     });
     const bad = st.find((x) => x.s === 'behind' || x.s === 'short');
+    // A month where goals were set: say so, unless another goal fell behind that month.
+    if (started.length && !bad) return i === 0 ? 'Starting point · goals set' : 'Goals set';
     if (bad) return `${bad.a} ${STATUS_WORDS[bad.s].charAt(0).toLowerCase()}${STATUS_WORDS[bad.s].slice(1)}`;
     const reached = st.find((x) => x.s === 'reached');
     if (reached) return `${reached.a} goal reached`;
