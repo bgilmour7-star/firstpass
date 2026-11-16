@@ -9,6 +9,8 @@ import type { RinkDiagramProps } from '../../../../design-system/index';
 import { planIceTime } from '../plans/actions';
 import { stripShown, type StripDrill } from '@/lib/home/strip';
 import { CopyLink } from './settings';
+import { ProgressChart } from '@/components/progress-chart';
+import type { HomeProgress } from '@/lib/home/progress-view';
 import { primary, shownGroups } from './ui';
 
 /** The one thing to do next (decision 0031): a link, or a form that starts a plan from ice. */
@@ -35,6 +37,8 @@ export function Home(p: {
   origin: string;
   nextUp: NextUpView | null;
   next: HomeNext;
+  /** Null for age groups with no level set (decision 0030). */
+  progress: HomeProgress | null;
   season: { run: number; total: number; checkins: number; known: number };
 }) {
   const { team } = p;
@@ -83,6 +87,8 @@ export function Home(p: {
         )}
 
         <NextPractice next={p.next} quiet={Boolean(nextUp)} />
+
+        {p.progress && <Progress v={p.progress} isHead={p.isHead} />}
       </div>
 
       <aside aria-label="Team" className="flex flex-col gap-7 border-t border-border-100 bg-surface-200 px-4 py-6 lg:w-[360px] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-7 lg:py-9">
@@ -153,6 +159,70 @@ export function Home(p: {
         </section>
       </aside>
     </div>
+  );
+}
+
+const monthName = (m: string) => new Date(`${m.slice(0, 7)}-15T12:00:00`).toLocaleDateString('en-CA', { month: 'long' });
+
+/** Progress on Home (decision 0031): one sentence, the chart, then where the round stands. */
+function Progress({ v, isHead }: { v: HomeProgress; isHead: boolean }) {
+  const heading = (
+    <h2 id="h-progress" className="font-display text-xl font-bold leading-7">
+      Progress
+    </h2>
+  );
+  if (v.kind === 'first')
+    return (
+      <section aria-labelledby="h-progress" className="flex flex-col gap-3">
+        {heading}
+        <div className="flex flex-col gap-3 rounded-2xl border-[1.5px] border-dashed border-border-200 p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+          <span className="flex flex-1 flex-col gap-1">
+            <b className="text-[17px] font-semibold">Score your first round to see where the team starts.</b>
+            <span className="text-sm text-ink-200">Each coach places the team on the six skills, levels 1 to 5. About 5 minutes. After that, the change shows here every month.</span>
+          </span>
+          {v.canScore ? (
+            <Link href="/progress/score" className={`${primary} self-start sm:self-auto`}>
+              Score this round
+            </Link>
+          ) : (
+            <span className="text-sm text-ink-200">It opens after the first practice of the month.</span>
+          )}
+        </div>
+      </section>
+    );
+  const span = v.prevMonth ? `${monthName(v.prevMonth)} → ${monthName(v.month)}` : monthName(v.month);
+  const moved = v.rows.filter((r) => r.now != null).map((r) => `${r.attribute} ${r.now!.toFixed(1)}${r.before != null && r.before !== r.now ? `, from ${r.before.toFixed(1)}` : ''}${r.goal ? `, goal ${r.goal.target.toFixed(1)}` : ''}`);
+  const label = `Team average level, 1 to 5, ${span}. ${moved.join('. ')}.`;
+  return (
+    <section aria-labelledby="h-progress" className="flex flex-col gap-4">
+      <div className="flex items-baseline justify-between gap-3">
+        {heading}
+        <Link href="/progress" className="min-h-11 content-center text-sm font-medium text-rink-100 hover:underline">
+          <span className="sm:hidden">Report ›</span>
+          <span className="max-sm:hidden">See the {monthName(v.month)} report ›</span>
+        </Link>
+      </div>
+      <p className="text-[15px] lg:text-base">
+        <b className="font-semibold">{v.lead}</b>
+        {v.detail && <span className="text-ink-200"> {v.detail}</span>}
+      </p>
+      <ProgressChart rows={v.rows} label={label} span={span} />
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-surface-200 px-4 py-3">
+        <span className="min-w-0 flex-[1_1_240px] text-sm">{v.round}</span>
+        {isHead ? (
+          <Link href="/progress/goals" className="min-h-11 content-center text-sm font-medium text-rink-100 hover:underline">
+            {v.hasGoals ? 'Change goals' : 'Set goals'}
+          </Link>
+        ) : (
+          v.hasGoals && (
+            <Link href="/progress#goals" className="min-h-11 content-center text-sm font-medium text-rink-100 hover:underline">
+              See goals
+            </Link>
+          )
+        )}
+      </div>
+      {!v.hasGoals && isHead && <p className="-mt-2 text-[13px] text-ink-200">No season goals yet. Set one for each skill you want to grow, and plans lean toward the ones that fall behind.</p>}
+    </section>
   );
 }
 
