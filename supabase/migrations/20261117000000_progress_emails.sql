@@ -124,6 +124,8 @@ $$;
 -- emails, whether they've finished, and the
 -- finished coaches' answers in this round and the one before (for the report and its change).
 -- Counts only; first names of coaches, never anything about a kid.
+-- Dropped first: its columns grew after review, and Postgres won't change a function's columns in place.
+drop function if exists public.progress_email_scores(text, uuid);
 create or replace function public.progress_email_scores(secret text, r uuid)
 returns table (round_id uuid, month date, skaters smallint, user_id uuid, first_name text, scores boolean, emails boolean, finished boolean, answers jsonb)
 language plpgsql security definer set search_path = ''
