@@ -322,14 +322,14 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
           {shownDrills.map((d) => (
             <li key={d.id} className="flex w-[150px] shrink-0 flex-col gap-1 lg:w-auto">
               {/* One box size for every drill, so a full-rink drill lines up with half-rink ones. */}
-              <Link href={`/plans/${next.id}`} className={`grid aspect-[102/87] place-items-center overflow-hidden rounded-lg border border-border-100 bg-surface-100 ${d.goal ? 'outline outline-2 outline-offset-1 outline-rink-100' : ''}`} tabIndex={-1} aria-hidden="true">
+              <Link href={`/plans/${next.id}`} className={`grid aspect-[102/87] place-items-center overflow-hidden rounded-lg border border-border-100 bg-surface-100`} tabIndex={-1} aria-hidden="true">
                 <Rink spec={d.diagram as RinkDiagramProps} title={d.name} detail="thumb" className="w-full" />
               </Link>
               <span className="font-mono text-xs text-ink-200">
                 {clock(d.time)} · {d.minutes} min
               </span>
               <b className="text-sm font-semibold leading-5">{d.name}</b>
-              {d.goal ? <span className="text-xs font-medium text-rink-100">{d.goal} goal</span> : d.isNew ? <span className="text-xs font-medium text-warn-text">New today</span> : null}
+              {d.isNew ? <span className="text-xs font-medium text-warn-text">New today</span> : null}
             </li>
           ))}
           {many && (

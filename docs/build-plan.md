@@ -201,5 +201,18 @@ Why: U7 is about all-round development; focus comes at later ages (Brett, 2026-1
 ### Order
 D first (small, one migration), then A, B, C. A is the riskiest of the rest (moves server actions and email settings); B and C are UI on existing data.
 
+## Milestone 9 — Next practice: Before, During and After (decision 0032, 2026-11-16)
+
+Design: canvas "Firstpass Next practice · before, during, after" (https://claude.ai/artifact/NS7ZSL3gmsG7BPEiQ9W7og). UI only, no database change. One PR, light review unless it passes 400 lines.
+
+### 9.1 Three states by the clock, and Team settings in the rail
+Files: `src/lib/today/phase.ts` (pure, tested), `src/app/(coach)/today/{page,today-view}.tsx`, `src/components/app-shell.tsx`, `src/components/ds.tsx` (`RinkLegend`), `src/lib/home/strip.ts`.
+- [x] `practicePhase`, `whenLabel`, `currentIndex`, `upNextIndex`, `isBreak`, with tests.
+- [x] Before: header with Print, Share, Edit the plan (icon + label); drill rows with thumbs, one line, minutes and New today; thin activity rows; on a computer the selected drill beside the list with diagram, key, stations, Say, Set up.
+- [x] During: Now card (time left, progress, whistle, diagram, stations, cues), Up next, Start the clock now, Whole practice.
+- [x] After: check-in first, then What you ran.
+- [x] Team settings at the bottom of the rail above the account; out of the account menu. No goal marks on Home's strip.
+Acceptance: a plan five days out shows Before; on practice day the page turns to During at 15 minutes before and to After at the end; Up next skips water.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

@@ -14,6 +14,12 @@ export function Rink({ spec, title, detail = 'full', className = '' }: { spec: R
   return <div className={`rink-frame ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
+/** The key for a detail-size diagram: only the symbols this spec uses. */
+export function RinkLegend({ spec, className = '' }: { spec: RinkDiagramProps; className?: string }) {
+  const html = useMemo(() => RD.legend(spec), [spec]);
+  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 export function Pips({ level, label }: { level: 0 | 1 | 2; label?: string }) {
   return <span dangerouslySetInnerHTML={{ __html: Pip.render(level, { label }) }} />;
 }

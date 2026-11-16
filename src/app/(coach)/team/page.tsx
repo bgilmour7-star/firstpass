@@ -81,10 +81,8 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   } else if (n) {
     // Drills the kids have done before this practice; a drill they haven't is "New today".
     const known = new Set(practices.filter((p) => p.date < n.date).flatMap((p) => p.blocks.flatMap(drillIds)));
-    // Goals that are behind (decision 0030): a drill whose Main focus serves one is marked.
-    const behind = new Set(goalViews.filter((g) => g.status === 'behind').map((g) => g.goal.attribute as string));
     // Times and rotation minutes as the plan page counts them: the groups there that day.
-    const strip = practiceStrip(n, byId, todayUnits(team, n.attendance).length, known, behind);
+    const strip = practiceStrip(n, byId, todayUnits(team, n.attendance).length, known);
     const fresh = strip.filter((s) => s.isNew).length;
     next = { kind: 'plan', id: n.id, date: n.date, startTime: n.startTime, line: [n.ice === 'half' ? 'Half ice' : 'Full ice', `${n.minutes} min`, `${strip.length} drill${strip.length === 1 ? '' : 's'}${fresh ? `, ${fresh} new` : ''}`].join(' · '), strip };
   } else {

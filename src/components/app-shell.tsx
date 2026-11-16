@@ -182,8 +182,8 @@ function Nav({
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';
   const link = (href: string, label: string, icon: React.ReactNode, sub?: string, badge = 0) => {
-    // /team/new is Create a team, not Home.
-    const on = (path === href || path.startsWith(href + '/')) && !(href === '/team' && path === '/team/new');
+    // /team/new is Create a team and /team/settings has its own item, not Home.
+    const on = (path === href || path.startsWith(href + '/')) && !(href === '/team' && (path === '/team/new' || path.startsWith('/team/settings')));
     return (
       <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
         <span className="relative grid size-6 place-items-center">
@@ -258,6 +258,9 @@ function Nav({
 
       <div className="flex-1" />
 
+      {/* Team settings sit at the bottom of the rail, above the account (design decision 2026-11-16). */}
+      {activeTeamId && <nav aria-label="Team">{link('/team/settings', 'Team settings', <Icon d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM19.4 13.5l1.6 1.2-2 3.4-1.9-.7a7.6 7.6 0 0 1-2 1.2l-.3 2h-3.9l-.3-2a7.6 7.6 0 0 1-2-1.2l-1.9.7-2-3.4 1.6-1.2a7.7 7.7 0 0 1 0-3l-1.6-1.2 2-3.4 1.9.7a7.6 7.6 0 0 1 2-1.2l.3-2h3.9l.3 2a7.6 7.6 0 0 1 2 1.2l1.9-.7 2 3.4-1.6 1.2a7.7 7.7 0 0 1 0 3Z" />)}</nav>}
+
       <div ref={acct} className="relative">
         {local ? (
           <div className={`${row} text-ink-200`}>
@@ -278,11 +281,6 @@ function Nav({
                 <Link href="/account" onClick={() => setMenu(false)} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-surface-200">
                   Account
                 </Link>
-                {activeTeamId && (
-                  <Link href="/team/settings" onClick={() => setMenu(false)} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-surface-200">
-                    Team settings
-                  </Link>
-                )}
                 <form action={signOut}>
                   <button type="submit" className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-surface-200">
                     Sign out
