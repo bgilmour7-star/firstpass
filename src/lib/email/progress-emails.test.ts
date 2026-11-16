@@ -69,7 +69,7 @@ describe('every progress email', () => {
   it('has a way to turn them off, in the html and the text', () => {
     for (const e of all) {
       expect(e.html).toContain('Turn progress emails off');
-      expect(e.text).toContain('https://firstpass.coach/team#emails');
+      expect(e.text).toContain('https://firstpass.coach/account#emails');
     }
   });
   it('escapes a team name', () => {

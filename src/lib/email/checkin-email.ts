@@ -48,7 +48,7 @@ export function checkinEmail(i: CheckinEmailInput): Email {
     : '';
   const footer = `${i.teamName} · ${shortDate(i.practiceDate)}, ${clock(i.startTime)}. One email per practice.`;
 
-  const text = [subject, '', lead, '', `Check in: ${i.checkinUrl}`, ...(already ? ['', already] : []), '', '—', footer, `Turn these emails off on your Team page: ${i.settingsUrl}`].join('\n');
+  const text = [subject, '', lead, '', `Check in: ${i.checkinUrl}`, ...(already ? ['', already] : []), '', '—', footer, `Turn these emails off in your Account: ${i.settingsUrl}`].join('\n');
 
   // Same branded frame as every other Firstpass email (layout.ts).
   const html = shell({
@@ -57,7 +57,7 @@ export function checkinEmail(i: CheckinEmailInput): Email {
     paragraphs: [esc(lead)],
     button: { label: 'Check in', url: esc(i.checkinUrl) },
     note: already ? esc(already) : '',
-    footer: [esc(footer), `<a href="${esc(i.settingsUrl)}" style="color:#51646A;">Turn these emails off</a> on your Team page.`],
+    footer: [esc(footer), `<a href="${esc(i.settingsUrl)}" style="color:#51646A;">Turn these emails off</a> in your Account.`],
   });
 
   return { subject, html, text };

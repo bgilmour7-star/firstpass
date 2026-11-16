@@ -26,7 +26,7 @@ export type CoachJoinedInput = { name: string; email: string; teamName: string; 
 export function coachJoinedEmail(i: CoachJoinedInput): Email {
   const subject = `${i.name} joined ${i.teamName}`;
   const lead = `${i.name} (${i.email}) joined with your team's join link. They can see and change your plans, and their check-ins sit beside yours.`;
-  const safety = `Don't know ${i.name}? Remove them on the Team page, then make a new join link so the old one stops working.`;
+  const safety = `Don't know ${i.name}? Remove them in Team settings, then make a new join link so the old one stops working.`;
   const html = shell({
     preheader: 'They can see and change your plans now.',
     heading: subject,

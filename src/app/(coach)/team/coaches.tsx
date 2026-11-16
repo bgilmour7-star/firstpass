@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import type { TeamCoach } from '@/lib/app/store';
 import { handOverTeam, newJoinLink, removeCoach, sendInvite, turnOffJoinLink } from './actions';
+import { A, Menu } from '../plans/[id]/parts';
 import { setProgressScoring } from '../progress/actions';
 
 const pill = 'inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-medium disabled:opacity-50';
@@ -32,7 +33,7 @@ export function Coaches({
   isHead: boolean;
   initialCode: string | null;
   origin: string;
-  /** Inside the Team page's drawer (decision 0026). */
+  /** Inside Team settings, under its own heading (decision 0031). */
   embedded?: boolean;
   /** After handing the team to another coach (decision 0026). */
   onHandedOver?: () => void;
@@ -113,14 +114,13 @@ export function Coaches({
               )}
             </span>
             {amHead && c.userId !== me && c.role !== 'head_coach' && confirming !== c.userId && handing !== c.userId && (
-              <span className="flex shrink-0 flex-wrap items-center justify-end gap-1">
-                <button type="button" onClick={() => (setHanding(c.userId), setConfirming(null))} className={`${pill} text-rink-100 hover:bg-surface-200`}>
-                  Make head coach
-                </button>
-                <button type="button" onClick={() => (setConfirming(c.userId), setHanding(null))} className={`${pill} text-ink-200 hover:bg-surface-200`}>
-                  Remove
-                </button>
-              </span>
+              <Menu
+                items={[
+                  { label: 'Make head coach', icon: A.up, run: () => (setHanding(c.userId), setConfirming(null)) },
+                  { label: 'Remove from team', icon: A.remove, danger: true, sep: true, run: () => (setConfirming(c.userId), setHanding(null)) },
+                ]}
+                size={44}
+              />
             )}
             {confirming === c.userId && (
               <span className="flex shrink-0 items-center gap-1">
@@ -155,7 +155,7 @@ export function Coaches({
                           setList((l) => l.map((x) => (x.userId === c.userId ? { ...x, role: 'head_coach' } : x.userId === me ? { ...x, role: 'coach' } : x)));
                           setAmHead(false);
                           setHanding(null);
-                          setDone(`${shown(c)} is head coach now. You can leave the team from the bottom of the Team page.`);
+                          setDone(`${shown(c)} is head coach now. You can leave the team from the bottom of Team settings.`);
                           onHandedOver?.();
                         },
                       )

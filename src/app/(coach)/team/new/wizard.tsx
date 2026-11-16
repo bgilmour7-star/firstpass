@@ -233,7 +233,7 @@ export function Wizard({ ctx }: { ctx: WizardContext }) {
             <Segmented label="Half or full ice" value={iceNow} options={ICE_OPTIONS} onChange={setIce} />
             {!ice && <Why>{iceGuess.why}</Why>}
           </fieldset>
-          {!calOk && <Why>No calendar link? Skip it: you&apos;ll pick each practice&apos;s date when you plan it, and can add the link on the Team page later.</Why>}
+          {!calOk && <Why>No calendar link? Skip it: you&apos;ll pick each practice&apos;s date when you plan it, and can add the link in Team settings later.</Why>}
         </Screen>
       )}
 
@@ -254,7 +254,7 @@ export function Wizard({ ctx }: { ctx: WizardContext }) {
       )}
 
       {step === 'focus' && (
-        <Screen title="What do you want to work on first?" lead="Pick up to two. Plans lean that way, and you can change it any time on the Team page.">
+        <Screen title="What do you want to work on first?" lead="Pick up to two. Plans lean that way, and you can change it any time in Team settings.">
           <FocusPicker focus={focusNow} onChange={setFocus} />
           {!focus && <Why>{focusGuess.why}</Why>}
         </Screen>

@@ -1,25 +1,24 @@
-import { levelSetFor } from '@/lib/progress/levels';
-import { getProgressStore } from '@/lib/progress/store';
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { drillIds } from '@/lib/plans/schema';
-import { seasonSoFar, weeklySlots } from '@/lib/plans/team-summary';
+import { seasonSoFar } from '@/lib/plans/team-summary';
 import { todayLocal } from '@/lib/calendar/sync';
 import { TeamSummary, type NextPractice } from './summary';
 
 export const dynamic = 'force-dynamic';
 
-// The Team page (decision 0026, Main and T2-Phone on the canvas): the coach's home. Read-only, one
-// section edited at a time in a drawer. Leave or delete the team at the bottom.
+// Home (decision 0031, was the Team page of 0026): the coach's home, nothing to edit. Team settings
+// are at /team/settings and your own emails in Account.
 export default async function TeamPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const { coach, team } = await requireTeam('/team');
   const { edit } = await searchParams;
+  // Old links into a section's drawer (emails, bookmarks) open it in Team settings.
+  if (edit) redirect(`/team/settings?edit=${encodeURIComponent(edit)}`);
   const store = await getAppStore();
   const today = todayLocal();
-  const [cal, emails, coaches, joinCode, practices, ice, checkins, drills] = await Promise.all([
-    store.calendar(team.id),
-    store.checkinEmails(team.id, coach.id),
+  const [coaches, joinCode, practices, ice, checkins, drills] = await Promise.all([
     store.coaches(team.id),
     store.joinCode(team.id),
     store.listPractices(team.id).catch(() => []),
@@ -30,9 +29,6 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   const h = await headers();
   const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host')}`;
   const isHead = coaches.some((c) => c.userId === coach.id && c.role === 'head_coach');
-  // Team progress (decision 0030): who scores, for teams whose age group has level descriptions.
-  const progress = levelSetFor(team.ageGroup) ? await getProgressStore() : null;
-  const [scoring, progressEmails] = progress ? await Promise.all([progress.scoringFlags(team.id).catch(() => ({})), progress.emailsOn(team.id, coach.id).catch(() => true)]) : [undefined, undefined];
 
   // The next practice: the first plan from today on, with one of its drills drawn small.
   const upcoming = practices.filter((p) => p.date >= today).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
@@ -51,22 +47,13 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
     <TeamSummary
       team={team}
       me={coach.id}
-      local={coach.local}
-      email={coach.email}
       isHead={isHead}
-      scoring={scoring}
-      progressEmails={progressEmails}
       coaches={coaches.map((c) => ({ ...c, checkins: byCoach[c.userId] ?? 0 }))}
       practicesRun={run}
       joinCode={joinCode}
       origin={origin}
-      calendar={cal ? { url: cal.url, syncedAt: cal.syncedAt } : null}
-      slots={weeklySlots(ice, today)}
-      icePractices={ice.filter((x) => x.kind === 'practice' && !x.cancelled && x.date >= today).length}
-      emails={emails}
       next={next}
       season={seasonSoFar(practices, checkins, today)}
-      initialEdit={edit ?? null}
     />
   );
 }

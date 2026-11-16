@@ -4,10 +4,13 @@ import { getAppStore } from '@/lib/app/store';
 import { signOut } from '@/app/auth/actions';
 import { Profile } from './profile';
 import { InstallSection } from '@/components/pwa';
+import { levelSetFor } from '@/lib/progress/levels';
+import { getProgressStore } from '@/lib/progress/store';
+import { EmailSettings, type TeamEmailSettings } from '../team/emails';
 
 export const dynamic = 'force-dynamic';
 
-// Your account (decision 0014): name, sign-in email, password, team, sign out.
+// Your account (decisions 0014, 0031): name, sign-in email, password, your emails for each team, team, sign out.
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ email?: string }> }) {
   const coach = await requireUser('/account');
   const { email: emailState } = await searchParams;
@@ -15,12 +18,24 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   const team = await currentTeam(coach.id);
   const role = team ? (await store.coaches(team.id)).find((c) => c.userId === coach.id)?.role : undefined;
   const meta = coach.local ? null : await namedYet();
+  // Your emails, one group per team you're on (decision 0031).
+  const teams = await store.myTeams(coach.id).catch(() => []);
+  const progress = teams.some((t) => levelSetFor(t.ageGroup)) ? await getProgressStore() : null;
+  const emails: TeamEmailSettings[] = await Promise.all(
+    teams.map(async (t) => ({
+      id: t.id,
+      name: t.name,
+      role: t.role,
+      checkin: await store.checkinEmails(t.id, coach.id).catch(() => true),
+      progress: progress && levelSetFor(t.ageGroup) ? await progress.emailsOn(t.id, coach.id).catch(() => true) : null,
+    })),
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-8 pt-2">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-[30px] font-extrabold leading-9">Account</h1>
-        <p className="text-sm text-ink-200">How you sign in, and the name your co-coaches see.</p>
+        <p className="text-sm text-ink-200">How you sign in, the emails you get, and the name your co-coaches see.</p>
       </div>
 
       <Profile name={meta?.firstName ?? ''} email={coach.email} local={coach.local} emailState={emailState === 'changed' || emailState === 'half' ? emailState : null} />
@@ -37,11 +52,13 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         </section>
       )}
 
+      {emails.length > 0 && <EmailSettings teams={emails} email={coach.email} />}
+
       <section className="flex flex-col gap-2 border-t border-border-100 pt-5">
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="text-[15px] font-semibold">Team</h2>
           {team && (
-            <Link href="/team" className="min-h-11 content-center text-sm font-medium text-rink-100 hover:underline">
+            <Link href="/team/settings" className="min-h-11 content-center text-sm font-medium text-rink-100 hover:underline">
               Team settings
             </Link>
           )}
@@ -49,7 +66,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <p className="text-sm text-ink-200">
           {team ? (
             <>
-              <b className="font-semibold text-ink-100">{team.name}</b> · {role === 'head_coach' ? 'Head coach' : 'Coach'}. After-practice emails are on the Team page.
+              <b className="font-semibold text-ink-100">{team.name}</b> · {role === 'head_coach' ? 'Head coach' : 'Coach'}
             </>
           ) : (
             'Not on a team yet.'

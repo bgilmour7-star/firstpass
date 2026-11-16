@@ -8,7 +8,7 @@ const base = {
   nextDate: '2026-10-22',
   checkedIn: [],
   checkinUrl: 'https://firstpass.coach/plans/p1/check-in',
-  settingsUrl: 'https://firstpass.coach/team#emails',
+  settingsUrl: 'https://firstpass.coach/account#emails',
 };
 
 describe('check-in email', () => {
@@ -45,7 +45,7 @@ describe('check-in email', () => {
 
   it('always offers a way to turn the emails off', () => {
     const e = checkinEmail(base);
-    expect(e.text).toContain('Turn these emails off on your Team page: https://firstpass.coach/team#emails');
-    expect(e.html).toContain('href="https://firstpass.coach/team#emails"');
+    expect(e.text).toContain('Turn these emails off in your Account: https://firstpass.coach/account#emails');
+    expect(e.html).toContain('href="https://firstpass.coach/account#emails"');
   });
 });

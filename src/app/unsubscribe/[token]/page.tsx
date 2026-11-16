@@ -39,7 +39,7 @@ function Done({ coach }: { coach: boolean }) {
   return (
     <>
       <h1 className="font-display text-[34px] font-extrabold leading-[38px] tracking-[-0.02em]">{coach ? 'Survey emails stopped.' : 'You’re unsubscribed.'}</h1>
-      <p className="text-base leading-6">{coach ? 'You’ll still get practice emails. Turn those off on your Team page.' : 'You won’t get another email from us.'}</p>
+      <p className="text-base leading-6">{coach ? 'You’ll still get practice emails. Turn those off in your Account.' : 'You won’t get another email from us.'}</p>
       <p className="text-[13px] leading-[19px] text-ink-200">
         Changed your mind, or want your details removed? Write to hello@firstpass.coach. <Link href="/privacy" className="underline">Privacy</Link>
       </p>
