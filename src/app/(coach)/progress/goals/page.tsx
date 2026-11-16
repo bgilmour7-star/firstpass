@@ -15,7 +15,8 @@ function seasonEnd(today: string): string {
   return `${m >= 4 ? y + 1 : y}-03-15`;
 }
 
-// Season goals (decision 0030): the head coach sets up to three, after the team's first finished report.
+// Season goals (decisions 0030, 0031): the head coach sets one per skill, any or all six, after the team's
+// first finished report.
 export default async function GoalsPage({ searchParams }: { searchParams: Promise<{ skill?: string }> }) {
   const { coach, team } = await requireTeam('/progress/goals');
   const { skill } = await searchParams;
@@ -52,7 +53,7 @@ export default async function GoalsPage({ searchParams }: { searchParams: Promis
   return (
     <Shell back={back} title="Season goals">
       <p className="text-sm text-ink-200">
-        Pick up to three skills. For each, move kids up a level in the Goal column to where you’d like the team by the end of the season. It starts from your {monthName(seen.month)} report. Plans lean toward goals that fall behind.
+        Set a goal for each skill you want to grow: one, a few or all six. For each, move kids up a level in the Goal column to where you’d like the team by the end of the season. It starts from your {monthName(seen.month)} report. Plans lean toward goals that fall behind.
       </p>
       <GoalEditor
         attributes={ATTRIBUTES}

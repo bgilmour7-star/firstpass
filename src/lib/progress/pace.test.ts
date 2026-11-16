@@ -77,6 +77,21 @@ describe('ice time', () => {
     for (const a of ATTRIBUTES) expect(big[a]).toBeGreaterThanOrEqual(TARGET.floor - 1e-9);
     expect(ATTRIBUTES.reduce((x, a) => x + big[a], 0)).toBeCloseTo(1);
   });
+  it('with a goal on every skill, still adds up to 1, keeps the floor and favours the biggest gaps (decision 0031)', () => {
+    const t = targetShares([
+      { attribute: 'Skating', gap: 0.7, behind: false },
+      { attribute: 'Puck control', gap: 1.0, behind: false },
+      { attribute: 'Passing', gap: 1.2, behind: true },
+      { attribute: 'Shooting', gap: 1.4, behind: true },
+      { attribute: 'Game sense', gap: 1.0, behind: false },
+      { attribute: 'Effort & fun', gap: 0.8, behind: false },
+    ]);
+    expect(Object.values(t).reduce((a, b) => a + b, 0)).toBeCloseTo(1, 6);
+    for (const v of Object.values(t)) expect(v).toBeGreaterThanOrEqual(TARGET.floor - 1e-9);
+    expect(t.Shooting).toBeGreaterThan(t.Passing);
+    expect(t.Passing).toBeGreaterThan(t['Puck control']);
+    expect(t['Puck control']).toBeGreaterThan(t.Skating);
+  });
 });
 
 import { goalsView } from './goals-view';

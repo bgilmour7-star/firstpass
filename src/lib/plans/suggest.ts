@@ -71,7 +71,8 @@ export type SuggestInput = {
   /** What the team calls each group, and which it uses (decision 0026). Default: the slot names, all three. */
   team?: Pick<Team, 'groups'>;
   /** Season goals and the share of drill time each skill should get (decision 0030). */
-  goals?: { attribute: string; behind: boolean }[];
+  /** `now` and `expected` (the score the goal's line asks for this month) order goals furthest behind first. */
+  goals?: { attribute: string; behind: boolean; now?: number | null; expected?: number | null; target?: number }[];
   targets?: Record<string, number>;
 };
 
@@ -291,7 +292,11 @@ function goalSwap(i: SuggestInput, taken: Set<string>, marks: Map<string, { hit:
   const share = planShares(i.blocks, i.byId);
   const target = i.targets!;
   const inPlan = new Set(i.blocks.flatMap((b) => (b.kind === 'activity' ? [] : b.kind === 'rotation' ? [b.drillId ?? ''] : [b.drillId])));
-  for (const goal of i.goals!) {
+  // Furthest behind its line first, then the biggest gap still to close (decision 0031: up to six goals).
+  const behindBy = (g: NonNullable<SuggestInput['goals']>[number]) => (g.expected ?? 0) - (g.now ?? g.expected ?? 0);
+  const gap = (g: NonNullable<SuggestInput['goals']>[number]) => (g.target ?? 0) - (g.now ?? 0);
+  const ordered = [...i.goals!].sort((x, y) => behindBy(y) - behindBy(x) || gap(y) - gap(x));
+  for (const goal of ordered) {
     const a = goal.attribute;
     if (!goal.behind || (share[a] ?? 0) >= (target[a] ?? 0)) continue;
     const spots = i.blocks

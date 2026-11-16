@@ -28,7 +28,7 @@ export type SuggestContext = {
 
 /** The team's active goals as the planner needs them. */
 export type GoalSteer = {
-  list: { attribute: string; status: string; behind: boolean; now: number | null; target: number; targetShare: number }[];
+  list: { attribute: string; status: string; behind: boolean; now: number | null; expected: number | null; target: number; targetShare: number }[];
   targets: Record<string, number>;
 };
 
