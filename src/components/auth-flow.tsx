@@ -30,6 +30,12 @@ export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = '
   const [error, setError] = useState(notice);
   const [pending, start] = useTransition();
   const [toGoogle, setToGoogle] = useState(false);
+  // Back from Google's screen, the browser may restore this page as it was: let the button work again.
+  useEffect(() => {
+    const reset = (e: PageTransitionEvent) => e.persisted && setToGoogle(false);
+    window.addEventListener('pageshow', reset);
+    return () => window.removeEventListener('pageshow', reset);
+  }, []);
   const ctx = { next, joinCode: join?.code, teamName: join?.teamName };
 
   function run<T>(work: () => Promise<{ ok: true } & T | { ok: false; error: string }>, then: (r: { ok: true } & T) => void) {

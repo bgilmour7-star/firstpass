@@ -13,7 +13,7 @@ export type NewEvent = { name: EventName; path: string; ip: string | null; agent
 export interface SiteStore {
   /** Joins, or updates the row when the email is already on the list. isNew is false for a repeat. Throws 'waitlist-migration-missing' before the SQL has run. */
   join(input: WaitlistInput): Promise<{ isNew: boolean }>;
-  /** Sign-up is invite-only: may this email create an account without a join link? */
+  /** Onboarded on the waitlist. Unused since sign-up opened (decision 0033); kept so invite-only can return. */
   canCreateAccount(email: string): Promise<boolean>;
   record(event: NewEvent): Promise<void>;
   /** Newest first. Analytics viewers only (RLS). */

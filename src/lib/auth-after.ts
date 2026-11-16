@@ -15,9 +15,31 @@ import { TEAM_COOKIE } from './nav';
 // It runs in the same request that signed in, before the browser has the new session cookie, so
 // it talks to the database with the new session's token rather than through the cookie client.
 
-/** Only same-site paths: never //evil.com or https://… */
+/**
+ * Only same-site paths: never //evil.com, https://…, or the forms a browser also reads as another site
+ * (/\evil.com, a tab or newline after the slash). The path must also resolve to this site.
+ */
 export function safeNext(next: string | null | undefined, fallback = '/'): string {
-  return next && next.startsWith('/') && !next.startsWith('//') ? next : fallback;
+  if (!next || !next.startsWith('/') || next.startsWith('//')) return fallback;
+  // Backslashes and control characters: browsers treat "/\evil.com" and "/\t/evil.com" as "//evil.com".
+  if (/[\\\u0000-\u001f\u007f]/.test(next)) return fallback;
+  try {
+    const u = new URL(next, 'https://firstpass.invalid');
+    if (u.origin !== 'https://firstpass.invalid') return fallback;
+    return u.pathname + u.search + u.hash;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * What a Google sign-in saves on the account (decision 0033): Google's first name when the account has
+ * none yet (co-coaches see it, decision 0013), and that the password offer is answered, since Google
+ * sign-in has no password to set. Empty when there's nothing to save.
+ */
+export function googleProfilePatch(meta: { first_name?: string; given_name?: string; full_name?: string; name?: string; pw_prompted?: boolean }): Record<string, string | boolean> {
+  const given = (meta.given_name?.trim() || (meta.full_name ?? meta.name ?? '').trim().split(/\s+/)[0] || '').slice(0, 40);
+  return { ...(!meta.first_name?.trim() && given ? { first_name: given } : {}), ...(!meta.pw_prompted ? { pw_prompted: true } : {}) };
 }
 
 export const JOIN_CODE = /^[A-Za-z0-9]{8,64}$/;

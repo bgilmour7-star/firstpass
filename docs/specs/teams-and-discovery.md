@@ -116,7 +116,7 @@ Under `/admin`, Brett only, tabs Analytics · Waitlist · Survey · Coaches · E
 - `/team` read-only: next practice, practices and ice, skill groups (names and counts), coaches, gear, planning, join link, season so far, leave or delete at the bottom. Each section's Edit opens a drawer (bottom sheet on phones) editing only that section, reusing today's form logic.
 - `/team/new`: Name → Copy settings (only if they have a team) → Age → Ice times → Skill groups (1–3, names editable, suggestions Eagles/Bears/Sharks) → Coaches (invite by email; teammates from other teams offered as chips) → Gear (skipped when copied) → Focus → Check and build. Progress as "3 of 8 · Age group". Each screen prefilled with a guess and its reason. Creating the team makes the coach head coach, sets the active-team cookie, builds the first practice (decision 0023) and lands on it.
 - Age screen: U5, U7, U9, and "U11 or older" opening the discovery screen that writes `older_team_interest` and offers "I coach a younger team too".
-- New accounts stay invite-only (decision 0019). A signed-in coach can always create a team.
+- New accounts were invite-only (decision 0019) until decision 0033 opened sign-up. A signed-in coach can always create a team.
 
 ### Drill age groups (PR 1)
 - Drill review: Age groups multi-select (U5, U7, U9) and "U9 teams start at" when U9 is ticked and the drill has levels.
