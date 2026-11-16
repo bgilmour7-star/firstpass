@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { PublicFrame } from '@/components/public-frame';
 import { AGES, CALL_TIMES, CHANGED_PLAN, NO_KIDS, PLANNED_HOW, PLANNED_WHEN, ROLES, type Audience, type Option } from '@/lib/discovery/schema';
@@ -337,7 +339,15 @@ function Thanks({ email, audience, s, preview = false }: { email: string; audien
               I will {s.phone ? 'text' : 'email'} you to set up a 20-minute call{when(s.callTimes)}.
             </p>
           )}
-          {audience === 'waitlist' && <p className="text-ink-200">You’re still on the waitlist. We’ll email you when Firstpass opens for your team.</p>}
+          {/* Sign-up is open (decision 0033): someone from the waitlist can start right away. */}
+          {audience === 'waitlist' && (
+            <p>
+              Firstpass is open now.{' '}
+              <Link href="/login" className="font-semibold text-rink-100 underline underline-offset-2">
+                Plan your first practice
+              </Link>
+            </p>
+          )}
         </div>
       </div>
       <p className="px-7 pb-8 text-[13px] leading-[19px] text-ink-200">Questions? Reply to any Firstpass email or write to hello@firstpass.coach.</p>

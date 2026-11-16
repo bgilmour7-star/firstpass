@@ -40,7 +40,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     if (e instanceof Error && e.message === 'waitlist-migration-missing') missing = true;
     else throw e;
   }
-  const s = summarize(events, waitlist, { days });
   // Teams and coaches come from the app, not the landing page, so they load on their own.
   let growth: Growth = { teams: [], coaches: [] };
   let growthMissing = false;
@@ -64,6 +63,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     else throw e;
   }
   const usage = summarizeUsage(rows, { days });
+  const s = summarize(events, waitlist, { days, app: { teams: rows.teams, practices: rows.practices } });
   const speed = summarizeSpeed(vitals, { days });
   // Progress scoring (decision 0030, part E): one month at a time, the newest scored month by default.
   let progressRows: ProgressUsageRows = EMPTY_PROGRESS_USAGE;
@@ -124,7 +124,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       )}
 
       <div id="site" className="-mb-3 scroll-mt-6">
-        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and the waitlist form, counted without cookies." />
+        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and taps on Plan your first practice, counted without cookies. Sign-ups below are association leads (and the waitlist before sign-up opened)." />
       </div>
       <Headline s={s} />
       <VisitsChart s={s} />
@@ -148,7 +148,7 @@ function Headline({ s }: { s: Summary }) {
   const tiles = [
     { label: 'Visits', value: s.visits.now.toLocaleString('en-CA'), delta: change(s.visits.now, s.visits.before, 'percent'), note: prev },
     { label: 'Unique visitors', value: s.uniques.now.toLocaleString('en-CA'), delta: change(s.uniques.now, s.uniques.before, 'percent'), note: 'counted per day' },
-    { label: 'Waitlist sign-ups', value: String(s.signups.now), delta: change(s.signups.now, s.signups.before, 'count'), note: prev },
+    { label: 'Association leads', value: String(s.signups.now), delta: change(s.signups.now, s.signups.before, 'count'), note: prev },
     {
       label: 'Visitors who joined',
       value: pct(s.conversion.now),
@@ -272,15 +272,15 @@ function VisitsChart({ s }: { s: Summary }) {
 
 function Funnel({ s }: { s: Summary }) {
   const top = s.funnel[0].visitors || 1;
-  const [visited, reached, started, joined] = s.funnel.map((f) => f.visitors);
+  const [visited, tapped, teams, planned] = s.funnel.map((f) => f.visitors);
   const note =
-    visited > 0 && reached > 0
-      ? `${Math.round((1 - Math.min(started, reached) / reached) * 100)}% who reach the form don’t start it. ${started ? `${Math.round((Math.min(joined, started) / started) * 100)}% of those who start it finish.` : ''}`
-      : 'Nobody has reached the form yet.';
+    visited > 0
+      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} made a plan. ` : ''}Teams and plans are counted in the app, so they include coaches who came another way.`
+      : 'No visits yet.';
   return (
     <section aria-labelledby="funnel-title" className="flex flex-col gap-3.5">
       <h2 id="funnel-title" className="text-lg font-semibold">
-        From visit to waitlist
+        From visit to first plan
       </h2>
       <div className="grid grid-cols-[150px_1fr_56px] items-center gap-x-3.5 gap-y-3 text-sm">
         {s.funnel.map((f) => (

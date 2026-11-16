@@ -24,3 +24,20 @@ Date: 2026-11-16 · Decided by: Brett ("I'm okay with removing invite only. We d
 - The landing page still says "Get early access" with the waitlist form, and the waitlist emails still talk about early
   access. Changing those is a copy and positioning call for Brett.
 - Google's own branded button (with the G mark from Google's branding guidelines) can replace the text button later.
+
+## The public site (Brett, 2026-11-16: "we need to update these flows now")
+- **Every call to action is "Plan your first practice"**, straight to sign-in (Google or email), in the hero, the
+  sticky header ("Get started" on phones) and the closing band. "Your first team is free. Sign up with Google or your
+  email." under it.
+- **The hero line names the pain coaches gave in the survey** (keeping kids engaged): "every group busy, every drill at
+  the right level, and the whole plan on your phone at the rink".
+- **A progress section, "See them get better."**, after the check-in loop, with the real progress chart on example
+  numbers. It's a section, not the headline: in the pilot, 2 rounds were opened and 1 coach scored, so there's no
+  evidence yet that coaches choose Firstpass for it. Revisit when pilot coaches have scored twice and said whether it
+  changed their next plan.
+- **Associations keep a form** ("Run an association?", email, association, number of teams, "Talk to Brett"). Rows still
+  go to the waitlist table and alert hello@firstpass.coach. The coach path of the form is gone.
+- **The waitlist survey series is retired** (welcome, nudge, last ask skip as `retired`). The survey thank-you links to
+  sign-up instead of "You're still on the waitlist".
+- **Analytics funnel:** Visited → Tapped Plan your first practice (`form_start`) → Made a team → Made a plan. The last two
+  are counted in the app, not linked to visits.

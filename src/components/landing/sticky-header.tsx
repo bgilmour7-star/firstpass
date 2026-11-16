@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Mark } from './mark';
+import { StartLink } from './start-link';
 
 // The landing page header. At the top it's an ordinary header that scrolls away with the page.
-// Once the hero's "Get early access" button has scrolled out of view, a solid bar slides in at the
-// top with the logo and the button, so there's always a way to join. While the form is on screen
+// Once the hero's "Plan your first practice" button has scrolled out of view, a solid bar slides in at
+// the top with the logo and the button, so there's always a way to start. While the closing band is on screen
 // the bar's button steps aside, so there's never two at once. On a phone, Sign in makes room for
 // the button while it shows.
 
@@ -70,14 +71,14 @@ export function StickyHeader() {
             <Link href="/login" className={`${signIn} ${showCta ? 'hidden sm:inline-flex' : 'inline-flex'}`}>
               Sign in
             </Link>
-            <a
-              href="#join"
-              aria-hidden={!showCta}
+            <StartLink
+              hidden={!showCta}
               tabIndex={showCta ? undefined : -1}
               className={`inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-rink-100 px-5 text-[15px] font-medium text-surface-100 transition-opacity duration-200 hover:bg-rink-200 ${showCta ? 'opacity-100' : 'pointer-events-none absolute opacity-0'}`}
             >
-              Get early access
-            </a>
+              <span className="sm:hidden">Get started</span>
+              <span className="hidden sm:inline">Plan your first practice</span>
+            </StartLink>
           </nav>
         </div>
       </div>
