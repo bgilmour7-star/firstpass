@@ -106,5 +106,54 @@ Out of scope: billing (stub `plan`, `price_cents`, `currency='CAD'` only).
 - [ ] Launch readiness check before any outside team.
 - [ ] Vercel Pro and Supabase Pro before outside teams.
 
+## Milestone 7 — Team progress (spec `docs/specs/team-progress.md`, 2026-11-15)
+
+Design: canvas "Firstpass Season Goals & Evaluations". Five PRs in order; each leaves the app usable and ends with `npm run check`, screenshots (desktop and 390px, light and dark) and the pr-review skill (A, B and E get a full review: database, emails, `/admin`). Write decision **0030 · Team progress** with PR A.
+
+### 7.1 Scoring and the report (PR A)
+Goal: a coach scores the team after a practice and reads the report.
+Context: spec → One-way doors P1–P3, Data model, Flows (Opening a round, Scoring, The report). Artboards "1 · After the check-in", "2 · Who moved up?", "3 · Done", "4 · Progress report is in", "5 · Today", "Progress · latest report" (desktop and phone).
+- [x] **7.1.1 Content and maths.** `src/lib/progress/levels.ts` (U7 set from the project doc, version `U7-2026-11-15`), `report.ts`. Tests: level set shape; team score, spread, each coach's average, biggest gap and change from last round on the canvas numbers (November: Skating 2.7, Shooting 2.1, gap 1.0).
+- [x] **7.1.2 Migration** `20261116000000_team_progress.sql`: `progress_rounds`, `progress_scores`, the two `team_members` columns, RLS, `save_progress_score`, `open_progress_rounds`, and the timer call. **Brett: run it (full SQL in the PR).** Test against a local Supabase if available, else SQL in the PR description: coach A can't read coach B's scores until A has finished; nobody can write a closed round; counts over the team size are refused.
+- [x] **7.1.3 Store** `src/lib/progress/store.ts` (Supabase, and local mode in `.local/progress.json` where a round opens on read).
+- [x] **7.1.4 Scoring screens** `/progress/score`: one attribute per screen, "One up" / down between levels (5 at the top), "No change · next", saves as you go, `seconds` and `no_change` recorded, resumes where you left off; first-ever scoring starts from an even spread to re-sort.
+- [x] **7.1.5 Report** `/progress` (Latest report, Report picker, "N of M coaches"), locked view with "Finish your scores to see it" for coaches who haven't. **Progress** nav item (rail icon and phone drawer), shown to teams with a level set.
+- [x] **7.1.6 Entry points:** check-in summary "Step 2 of 2" when a round is open and you haven't scored; Today card (who's done, your progress, Pick up where you left off; on practice days below the plan); Team page "Scores team progress" toggle per coach (head coach). "Email me about progress" (own) moves to PR B with the emails.
+Acceptance: Brett scores U7 Avalanche on his phone in under 3 minutes, Kara can't see his answers until she finishes, and the report shows both once she has.
+
+### 7.2 Emails (PR B)
+Goal: the monthly rhythm runs without anyone remembering it.
+Context: spec → Emails. Artboards "Email · monthly progress scoring", "Email · nudge…", "Email · November progress report".
+- [ ] `src/lib/email/progress-emails.ts` (three templates, table layout, branded frame) with tests: no kids' names possible, the report names only coaches who scored, turn-off link present.
+- [ ] **Register the three emails in `src/lib/email/journeys.ts`:** new `progress` section ("Every month: team progress") and entries `progress.scoring`, `progress.reminder`, `progress.report` exactly as in the spec, so Admin → Emails shows the journey with samples and "Send me a test". The registry test must pass.
+- [ ] Migration (same file or `20261117000000_progress_emails.sql`): `progress_emails`, `claim_progress_emails(secret)`, `send_progress_reminder(round)` for the head coach's button. **Brett: run it.**
+- [ ] Cron route sends scoring (9:00 the morning after a round opens), reminder (day 2, 18:00, once), report (day 3, 9:00, scorers only); idempotency key `progress-${kind}-${round}-${user}`; failed sends retried next run.
+- [ ] "Send a reminder" on the done screen and the report's Coaches section.
+Acceptance: on the pilot teams' December round, every coach gets one scoring email, non-scorers one reminder, scorers one report; Admin → Emails shows the new section with counts.
+
+### 7.3 Goals and plan steering (PR C)
+Goal: goals change what the next plans suggest.
+Context: spec → P4, Flows (Goals, Steering plans), target ice-time share. Artboards "Set season goals" and "Next plan · goals in the builder".
+- [ ] `src/lib/progress/pace.ts` and `ice-time.ts` with tests: goal score from a spread; expected score by date; On pace / Behind this month's target / Ahead / Goal reached / Short of goal; "about N kids"; target shares with the 10% floor summing to 100%.
+- [ ] Migration: `progress_goals`, `set_progress_goal`, `end_progress_goal` (head coach, max 3). **Brett: run it.**
+- [ ] `/progress/goals`: Now and Goal columns with level descriptions, One up / down on the goal spread, plain-words line, Start from now, by date, max 3; offered after the first finished round.
+- [ ] Report goal cards: Oct → now → goal line (goal in teal), status, next month in kids, ice time vs target, See Thursday's plan on a goal that's behind; Change goals in the section heading.
+- [ ] `suggest.ts`: the goal rule (one per plan, after check-in rules, same box and buttons, kind `goal` so Keep as is and the edit log record it); plan margin "Season goals" section. Tests on the canvas case (Shooting behind, Follow the Leader → Shoot the Gap).
+Acceptance: with a Shooting goal behind its target, Thursday's draft offers one swap to a known shooting drill and nothing changes until a coach taps.
+
+### 7.4 Over the season (PR D)
+- [ ] `/progress/season` and the This report / Over the season tabs: goal line charts (full 1–5 scale), every round's scores with season change and ice-time share, monthly focus pips, biggest coach gap by month, every report linked (kept as scored, with its levels version). "Builds as you score: N of 3 months" until three rounds exist.
+Acceptance: with the canvas sample (Oct–Mar) in local mode, the page matches the artboard.
+
+### 7.5 Analytics: Progress scoring (PR E)
+Goal: Brett sees whether it sticks.
+Context: spec → Admin → Analytics. Artboard "Admin · Analytics · progress scoring".
+- [ ] Migration: `progress_usage(month)` (security definer, `can_see_analytics()`, counts only); `report_viewed` usage event. **Brett: run it.**
+- [ ] Section between In the app and Speed, its own jump link and Month picker: the four decide-it tiles, the four how-easily tiles, the email → report funnel, the by-team table.
+Acceptance: after December's round Brett can answer "did coaches score again?" from this page alone.
+
+### Order and dates
+A and B together before the first December practice (the round opens after it), so December is the first full month of data. C right after (goals need a finished round). D any time before the third round. E alongside B, so December is measured.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

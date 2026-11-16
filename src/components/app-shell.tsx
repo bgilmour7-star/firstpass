@@ -8,6 +8,7 @@ import { switchTeam } from '@/app/(coach)/team/actions';
 import { AppWorker } from './pwa';
 import { NAV_COOKIE } from '@/lib/nav';
 import type { NavPractice } from '@/lib/nav-practice';
+import { levelSetFor } from '@/lib/progress/levels';
 
 // The app's frame (design decision 2026-10-18, "Left navigation"): a left rail on desktop that is
 // open by default, collapses to icons, peeks open on hover and is pinned with the button beside
@@ -175,6 +176,8 @@ function Nav({
     { href: '/today', label: next.label, sub: next.sub, icon: <CalendarDay day={next.day} /> },
     { href: '/plans', label: 'Plans', icon: <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 10h6M9 14h6M9 18h3" /> },
     { href: '/drills', label: 'Drills', icon: <RinkIcon /> },
+    // Team progress (decision 0030): only for teams whose age group has level descriptions.
+    ...(levelSetFor(teams?.find((t) => t.id === activeTeamId)?.ageGroup ?? '') ? [{ href: '/progress', label: 'Progress', icon: <Icon d="M4 19h16M6 15l4-4 3 3 5-6M15 8h3v3" /> }] : []),
   ];
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';

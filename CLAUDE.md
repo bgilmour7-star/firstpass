@@ -21,7 +21,7 @@ Next.js 15 (App Router, TypeScript) on Vercel · Supabase (Postgres, Auth, RLS) 
 ## Rules
 - **No child-identifiable data, ever.** Teams, groups (Sharks, Bears, Eagles) and counts only. No player names, photos or birthdates in any table, log or prompt.
 - **Authorization on the server.** Every page and server action under `/admin` calls `requireAdmin()` (`src/lib/auth.ts`), and every table has RLS. A new table without RLS policies is a bug.
-- **Storage goes through the stores:** `src/lib/drills/store.ts` (drill review) and `src/lib/app/store.ts` (teams, plans, live library) and `src/lib/requests/store.ts` (coaches' drill requests). Don't query Supabase from components. Coach pages call `requireTeam()`.
+- **Storage goes through the stores:** `src/lib/drills/store.ts` (drill review) and `src/lib/app/store.ts` (teams, plans, live library) and `src/lib/requests/store.ts` (coaches' drill requests) and `src/lib/progress/store.ts` (team progress scoring, decision 0030). Don't query Supabase from components. Coach pages call `requireTeam()`.
 - **Diagrams are RinkDiagram specs**, rendered only by the design-system module (`src/lib/ds/bundle.mjs`, generated). Never hand-draw a rink. Use design-system tokens (`bg-surface-200`, `text-ink-200`, `font-display`...), not raw colours.
 - `src/lib/ds/`, `src/styles/tokens.css` and `src/styles/ds-bundle.css` are generated. Change `design-system/` and run `npm run ds:sync`.
 - **Database changes: always paste the SQL.** When Brett needs to run a migration or seed in the Supabase SQL editor, put the full SQL in the reply, every time, even if he has seen it before. Never just name the file. Make migrations safe to run twice (`if not exists`, `create or replace`, `drop policy if exists`).

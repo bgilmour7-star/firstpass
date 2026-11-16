@@ -6,6 +6,7 @@ import { rateUnits, summarize } from '@/lib/plans/checkin';
 import { activeGroups, addMinutes, clock, groupLabel, todayUnits, withStationDrills } from '@/lib/plans/schema';
 import { initials } from '@/lib/plans/activity';
 import { CheckinForm } from './form';
+import { ProgressNudge } from '../../../progress/nudge';
 import type { Group } from '@/lib/drills/schema';
 
 export const dynamic = 'force-dynamic';
@@ -115,6 +116,10 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
             {left > 0 && <li className="text-[13px] text-ink-200">{left === 1 ? '1 coach hasn’t checked in yet.' : `${left} coaches haven’t checked in yet.`}</li>}
           </ul>
         </section>
+
+        <div className="border-t border-border-100 py-4 empty:hidden">
+          <ProgressNudge team={team} userId={coach.id} after />
+        </div>
 
         <div className="flex flex-col gap-2 border-t border-border-100 pt-4">
           {next && (s.flops.length > 0 || s.lostSteam || s.ready.length > 0) && <p className="text-center text-[13px] text-ink-200">These show up as suggestions on {weekday(next.date)}’s plan, on the drills they’re about.</p>}
