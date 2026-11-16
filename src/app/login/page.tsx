@@ -8,7 +8,9 @@ import { ClearSaved } from '@/components/pwa';
 
 export const dynamic = 'force-dynamic';
 
-// Sign in or create an account, email first (decision 0013).
+const GOOGLE_DIDNT_FINISH = 'Google sign-in didn’t finish. Try again, or use your email.';
+
+// Sign in or create an account: email first (decision 0013), or Continue with Google (decision 0033).
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const { next: rawNext, error } = await searchParams;
   const next = safeNext(rawNext);
@@ -22,12 +24,13 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <AuthFrame>
       <ClearSaved />
-      {error ? (
+      {error && error !== 'google' ? (
         <Expired email={last} next={next} />
       ) : (
         <AuthFlow
           next={next}
           initialEmail={last}
+          notice={error === 'google' ? GOOGLE_DIDNT_FINISH : ''}
           intro={
             <div className="mt-16 flex flex-col gap-3 lg:mt-[120px]">
               <h1 className="font-display text-[36px] font-extrabold leading-[40px] tracking-[-0.025em] text-balance lg:text-[44px] lg:leading-[48px]">U5–U9 practices, planned in minutes</h1>

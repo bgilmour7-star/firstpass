@@ -65,7 +65,7 @@ export default async function JoinPage({ params, searchParams }: { params: Promi
   if (!coach)
     return (
       <AuthFrame>
-        <AuthFlow next={`/join/${code}`} join={{ code, teamName: team?.name ?? 'the team' }} initialEmail={email ?? ''} intro={heading} />
+        <AuthFlow next={`/join/${code}`} join={{ code, teamName: team?.name ?? 'the team' }} initialEmail={email ?? ''} intro={heading} notice={error === 'google' ? 'Google sign-in didn’t finish. Try again, or use your email.' : ''} />
       </AuthFrame>
     );
 
