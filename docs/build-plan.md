@@ -134,11 +134,11 @@ Acceptance: on the pilot teams' December round, every coach gets one scoring ema
 ### 7.3 Goals and plan steering (PR C)
 Goal: goals change what the next plans suggest.
 Context: spec → P4, Flows (Goals, Steering plans), target ice-time share. Artboards "Set season goals" and "Next plan · goals in the builder".
-- [ ] `src/lib/progress/pace.ts` and `ice-time.ts` with tests: goal score from a spread; expected score by date; On pace / Behind this month's target / Ahead / Goal reached / Short of goal; "about N kids"; target shares with the 10% floor summing to 100%.
-- [ ] Migration: `progress_goals`, `set_progress_goal`, `end_progress_goal` (head coach, max 3). **Brett: run it.**
-- [ ] `/progress/goals`: Now and Goal columns with level descriptions, One up / down on the goal spread, plain-words line, Start from now, by date, max 3; offered after the first finished round.
-- [ ] Report goal cards: Oct → now → goal line (goal in teal), status, next month in kids, ice time vs target, See Thursday's plan on a goal that's behind; Change goals in the section heading.
-- [ ] `suggest.ts`: the goal rule (one per plan, after check-in rules, same box and buttons, kind `goal` so Keep as is and the edit log record it); plan margin "Season goals" section. Tests on the canvas case (Shooting behind, Follow the Leader → Shoot the Gap).
+- [x] `src/lib/progress/pace.ts` and `ice-time.ts` with tests: goal score from a spread; expected score by date; On pace / Behind this month's target / Ahead / Goal reached / Short of goal; "about N kids"; target shares with the 10% floor summing to 100%.
+- [x] Migration: `progress_goals`, `set_progress_goal`, `end_progress_goal` (head coach, max 3). **Brett: run it.**
+- [x] `/progress/goals`: Now and Goal columns with level descriptions, One up / down on the goal spread, plain-words line, Start from now, by date, max 3; offered after the first finished round.
+- [x] Report goal cards: Oct → now → goal line (goal in teal), status, next month in kids, ice time vs target, See Thursday's plan on a goal that's behind; Change goals in the section heading.
+- [x] `suggest.ts`: the goal rule (one per plan, after check-in rules, same box and buttons; a `swap` with `source: 'goal'` and key `goal:<skill>:<drill>` so Keep as is records it); plan margin "Season goals" section. Tests on the canvas case with real drills (Shooting behind: Tour Bus → Scatter Puck).
 Acceptance: with a Shooting goal behind its target, Thursday's draft offers one swap to a known shooting drill and nothing changes until a coach taps.
 
 ### 7.4 Over the season (PR D)

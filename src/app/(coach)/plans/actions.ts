@@ -99,10 +99,10 @@ export async function savePractice(input: unknown): Promise<{ ok: true } | { ok:
   return { ok: true };
 }
 
-/** "Keep as is" on a suggestion from the check-in (decision 0022): hidden for every coach on the team. */
+/** "Keep as is" on a suggestion from the check-in (decision 0022) or a season goal (0030): hidden for every coach on the team. */
 export async function keepSuggestion(practiceId: string, key: string): Promise<{ ok: true; editor: string } | { ok: false; error: string }> {
   const { coach, team } = await requireTeam('/plans');
-  if (!/^(flop|steam):[a-z0-9-]{1,70}$|^ready$/.test(key)) return { ok: false, error: 'Unknown suggestion.' };
+  if (!/^(flop|steam):[a-z0-9-]{1,70}$|^ready$|^goal:(Skating|Puck control|Passing|Shooting|Game sense|Effort & fun):[a-z0-9-]{1,50}$/.test(key)) return { ok: false, error: 'Unknown suggestion.' };
   const store = await getAppStore();
   const p = await store.getPractice(practiceId);
   if (!p || p.teamId !== team.id) return { ok: false, error: 'This plan belongs to another team.' };

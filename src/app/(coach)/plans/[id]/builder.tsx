@@ -45,8 +45,8 @@ import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
 import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
 import { partForSlot } from '@/lib/plans/drawer';
-import { suggestions, type Suggestion } from '@/lib/plans/suggest';
-import { AppliedNote, CheckinPanel, PhoneLine, SuggestionBox, type Applied, type SuggestContext } from './suggestions';
+import { planShares, suggestions, type Suggestion } from '@/lib/plans/suggest';
+import { AppliedNote, CheckinPanel, GoalsPanel, PhoneLine, SuggestionBox, type Applied, type SuggestContext } from './suggestions';
 
 // The plan builder (decision 0004). A sticky plan bar keeps the key actions in reach on long plans
 // (a bottom bar on phones); blocks can be added at any gap and changed to another kind in place;
@@ -196,7 +196,7 @@ export function Builder({
   // one that's been acted on simply stops appearing; this visit remembers what was done, for Undo.
   const [applied, setApplied] = useState<Applied[]>([]);
   const [keptBy, setKeptBy] = useState<Map<string, string>>(() => new Map((suggest?.kept ?? []).map((k) => [k.key, k.editor])));
-  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, pool, known: knownSet, feedback, runs: suggest.runs, team }) : { list: [], stays: [] };
+  const sug = suggest ? suggestions({ blocks, last: suggest.last, checkins: suggest.checkins, units: suggest.units, byId, pool, known: knownSet, feedback, runs: suggest.runs, team, goals: suggest.goals?.list, targets: suggest.goals?.targets }) : { list: [], stays: [] };
   const appliedKeys = new Set(applied.map((a) => a.key));
   const openSug = sug.list.filter((x) => !keptBy.has(x.key) && !appliedKeys.has(x.key));
   const keptSug = sug.list.filter((x) => keptBy.has(x.key)).map((x) => ({ ...x, editor: keptBy.get(x.key)! }));
@@ -220,7 +220,7 @@ export function Builder({
       x.kind === 'add-level' ? `Added Level ${x.level}` : x.kind === 'drop-level' ? `Turned off Level ${x.level}` : x.kind === 'water-before' ? 'Added a water break before it' : x.kind === 'game-before' ? `Added ${byId.get(x.drillId!)?.funName ?? 'a game'} before it` : `Swapped in for ${oldName}`;
     const next = applySuggestion(blocks, x, byId, startAt);
     const added = next.find((y) => !blocks.some((o) => o.id === y.id))?.id;
-    setApplied((prev) => [...prev, { key: x.key, blockId: x.blockId, done, why: x.title.replace(/\.$/, ''), before: b, added, short: x.kind === 'swap' ? `${byId.get(x.drillId!)?.funName ?? oldName} · swapped in` : x.short }]);
+    setApplied((prev) => [...prev, { key: x.key, blockId: x.blockId, done, why: x.title.replace(/\.$/, ''), from: x.source === 'goal' ? 'from your season goals' : `from ${suggest?.day ?? 'the last'}’s check-in`, before: b, added, short: x.kind === 'swap' ? `${byId.get(x.drillId!)?.funName ?? oldName} · swapped in` : x.short }]);
     setBlocks(() => next);
   }
   // Undo puts back only this change: the block as it was, or without the block it added.
@@ -522,7 +522,7 @@ export function Builder({
                       />
                     ) : null
                   }
-                  appliedNotes={suggest ? applied.filter((a) => a.blockId === b.id).map((a) => <AppliedNote key={a.key} a={a} day={suggest.day} onUndo={() => undo(a)} />) : null}
+                  appliedNotes={suggest ? applied.filter((a) => a.blockId === b.id).map((a) => <AppliedNote key={a.key} a={a} onUndo={() => undo(a)} />) : null}
                   levelSuggested={sugFor.get(b.id)?.kind === 'add-level' ? sugFor.get(b.id)!.level : undefined}
                   onSwap={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
                   onBreak={(rule) =>
@@ -595,6 +595,7 @@ export function Builder({
               return last?.kind === 'activity' && last.activity === 'huddle' ? times[blocks.length - 1] : endTime;
             })()}
           />
+          {suggest?.goals && <GoalsPanel goals={suggest.goals} shares={planShares(blocks, byId)} />}
           {suggest && <CheckinPanel day={suggest.day} open={[...openSug].sort((x, y) => blocks.findIndex((b) => b.id === x.blockId) - blocks.findIndex((b) => b.id === y.blockId))} applied={applied} kept={keptSug} stays={sug.stays} />}
           <PanelSec title="Who's here today" right={`${units.reduce((n, u) => n + u.skaters, 0)} skaters`}>
             <ul className="grid grid-cols-3 gap-2">

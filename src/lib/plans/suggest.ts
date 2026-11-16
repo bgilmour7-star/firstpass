@@ -1,7 +1,7 @@
 import { levelCount, type Drill } from '../drills/schema';
 import type { Checkin, RateUnit } from './checkin';
 import type { DrillFeedback } from './feedback';
-import { activeGroups, blockLevels, groupLabel, type Block, type Team } from './schema';
+import { activeGroups, blockLevels, groupLabel, practiceFocus, type Block, type Team } from './schema';
 import { mainSkill } from './variety';
 
 // Suggestions on the next plan from the latest check-in (decision 0022). Rules, no AI: the same
@@ -17,6 +17,8 @@ import { mainSkill } from './variety';
 //   Got bored from a drill         put a fun game before it
 //   Got tired from a drill         put a water break before it
 //   Big hit                        never suggested away; listed as staying
+//   A season goal is behind        swap ONE drill in a skill that's over its share for a known drill
+//                                  whose Main is the goal's skill (decision 0030, after the rest)
 //
 // At most three per plan (flops first). Only where the coaches agree: a split gives no suggestion.
 
@@ -43,6 +45,8 @@ export type Suggestion = {
   fits?: string[];
   /** One line for the margin: "Ski Racer · add Level 2". */
   short: string;
+  /** Where it comes from: the last check-in (default) or the team's season goals. */
+  source?: 'checkin' | 'goal';
 };
 
 export type SuggestInput = {
@@ -66,6 +70,9 @@ export type SuggestInput = {
   runs: Record<string, number>;
   /** What the team calls each group, and which it uses (decision 0026). Default: the slot names, all three. */
   team?: Pick<Team, 'groups'>;
+  /** Season goals and the share of drill time each skill should get (decision 0030). */
+  goals?: { attribute: string; behind: boolean }[];
+  targets?: Record<string, number>;
 };
 
 export type SuggestResult = {
@@ -252,6 +259,12 @@ export function suggestions(i: SuggestInput): SuggestResult {
     }
   }
 
+  // --- A season goal behind this month's target: one swap toward it, if there's room (decision 0030).
+  if (out.length < MAX_SUGGESTIONS && i.goals?.length && i.targets) {
+    const g = goalSwap(i, taken, marks);
+    if (g) out.push(g);
+  }
+
   // Big hits stay.
   const stays = [...marks.entries()]
     .filter(([id, v]) => v.hit.size && !v.flop.size && blockFor(id) >= 0)
@@ -259,4 +272,61 @@ export function suggestions(i: SuggestInput): SuggestResult {
     .filter(Boolean);
 
   return { list: out.slice(0, MAX_SUGGESTIONS), stays };
+}
+
+/** Share of this plan's drill time by skill (Main full, Some half, as practiceFocus scores it). */
+export function planShares(blocks: Block[], byId: Map<string, Drill>, groupCount = 3): Record<string, number> {
+  const f = practiceFocus(blocks, byId, groupCount);
+  const sum = f.reduce((a, x) => a + x.score, 0);
+  return Object.fromEntries(f.map((x) => [x.attribute, sum ? x.score / sum : 0]));
+}
+
+/**
+ * The goal rule: for the first goal that's behind and under its share in this plan, the drill block
+ * with the most minutes whose Main skill is over its share (never a Big hit, never one a suggestion
+ * already covers) swaps for a drill whose Main is the goal's skill: same kind and part, within 2
+ * minutes, not flagged, the kids' known drills first. Nothing fits: no suggestion.
+ */
+function goalSwap(i: SuggestInput, taken: Set<string>, marks: Map<string, { hit: Set<string>; flop: Set<string> }>): Suggestion | null {
+  const share = planShares(i.blocks, i.byId);
+  const target = i.targets!;
+  const inPlan = new Set(i.blocks.flatMap((b) => (b.kind === 'activity' ? [] : b.kind === 'rotation' ? [b.drillId ?? ''] : [b.drillId])));
+  for (const goal of i.goals!) {
+    const a = goal.attribute;
+    if (!goal.behind || (share[a] ?? 0) >= (target[a] ?? 0)) continue;
+    const spots = i.blocks
+      .flatMap((b) => {
+        if (b.kind !== 'drill' || taken.has(b.id)) return [];
+        const d = i.byId.get(b.drillId);
+        const main = d ? mainSkill(d) : null;
+        if (!d || !main || main === a || d.focus.some((f) => f.attribute === a && f.level === 2)) return [];
+        if (i.feedback[d.id]?.loved || marks.get(d.id)?.hit.size) return [];
+        if ((share[main] ?? 0) <= (target[main] ?? 0)) return [];
+        return [{ b, d }];
+      })
+      .sort((x, y) => y.b.minutes - x.b.minutes);
+    for (const { b, d: cur } of spots) {
+      const ok = (i.pool ?? [...i.byId.values()]).filter(
+        (d) => !inPlan.has(d.id) && d.groupModel === cur.groupModel && d.part === cur.part && Math.abs(d.minutes - b.minutes) <= 2 && !i.feedback[d.id]?.warn && d.focus.some((f) => f.attribute === a && f.level === 2),
+      );
+      const score = (d: Drill) => (i.known.has(d.id) ? 0 : 10) + (i.feedback[d.id]?.loved ? 0 : 5) + Math.abs(d.minutes - b.minutes);
+      const pick = ok.sort((x, y) => score(x) - score(y) || x.funName.localeCompare(y.funName))[0];
+      if (!pick) continue;
+      const lower = a.charAt(0).toLowerCase() + a.slice(1);
+      const fits = [`${a} is its Main skill`, ...(i.feedback[pick.id]?.loved ? ['A Big hit before'] : i.known.has(pick.id) ? ['The kids know it'] : [])];
+      return {
+        key: `goal:${a}:${cur.id}`,
+        blockId: b.id,
+        kind: 'swap',
+        source: 'goal',
+        by: [],
+        title: `${a} is behind this month’s target.`,
+        detail: `This plan gives it ${Math.round((share[a] ?? 0) * 100)}% of the drill time; the goal asks for about ${Math.round((target[a] ?? 0) * 100)}%. Try a ${lower} drill in place of ${cur.funName}:`,
+        drillId: pick.id,
+        fits,
+        short: `${cur.funName} · swap for ${lower}`,
+      };
+    }
+  }
+  return null;
 }

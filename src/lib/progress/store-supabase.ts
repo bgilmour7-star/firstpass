@@ -1,7 +1,8 @@
 import 'server-only';
 import { supabaseServer } from '../supabase/server';
 import type { Attribute } from './levels';
-import type { Answers, CoachScore, Round } from './report';
+import type { Answers, CoachScore, Counts, Round } from './report';
+import type { Goal } from './pace';
 import type { ProgressStore, RoundStatus, ScoreSave, ScoringFlags } from './store';
 
 // Every query runs as the signed-in coach. RLS limits rounds to their teams and scores to their own,
@@ -65,6 +66,25 @@ export class SupabaseProgressStore implements ProgressStore {
     const db = await supabaseServer();
     const { error } = await db.rpc('send_progress_reminder', { r: roundId });
     if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : /round-closed/.test(error.message) ? 'round-closed' : /too-early/.test(error.message) ? 'too-early' : missing(error.message) ? 'progress-migration-missing' : error.message);
+  }
+  async goals(teamId: string): Promise<Goal[]> {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('progress_goals').select('id, attribute, target, by_date, baseline_round_id, baseline_score, set_at').eq('team_id', teamId).is('ended_at', null).order('set_at');
+    if (error) return [];
+    return ((data ?? []) as { id: string; attribute: Attribute; target: number[]; by_date: string; baseline_round_id: string; baseline_score: number | string; set_at: string }[]).map((g) => ({ id: g.id, attribute: g.attribute, target: g.target as Counts, byDate: g.by_date, baselineRoundId: g.baseline_round_id, baselineScore: Number(g.baseline_score), setAt: g.set_at }));
+  }
+  async setGoal(teamId: string, _userId: string, g: { attribute: Attribute; target: Counts; byDate: string }) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('set_progress_goal', { team: teamId, attr: g.attribute, target: g.target, by_date: g.byDate });
+    if (error) {
+      const known = error.message.match(/not-head-coach|no-report|too-many-goals|bad-target|bad-date|bad-attribute/);
+      throw new Error(known ? known[0] : missing(error.message) ? 'goals-migration-missing' : error.message);
+    }
+  }
+  async endGoal(_teamId: string, goalId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('end_progress_goal', { goal: goalId });
+    if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : missing(error.message) ? 'goals-migration-missing' : error.message);
   }
   async openDueRound() {
     // The database timer opens rounds (open_progress_rounds, every 10 minutes).

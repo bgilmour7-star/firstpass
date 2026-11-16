@@ -20,12 +20,20 @@ export type SuggestContext = {
   units: RateUnit[];
   runs: Record<string, number>;
   kept: KeptSuggestion[];
-  /** "Saturday" */
-  day: string;
+  /** "Saturday". Null when there's no recent check-in and only season goals suggest. */
+  day: string | null;
+  /** Season goals (decision 0030): what steers the goal rule and fills the margin's Season goals. */
+  goals?: GoalSteer;
+};
+
+/** The team's active goals as the planner needs them. */
+export type GoalSteer = {
+  list: { attribute: string; status: string; behind: boolean; now: number | null; target: number; targetShare: number }[];
+  targets: Record<string, number>;
 };
 
 /** A suggestion a coach acted on in this visit: what to say, and the plan to go back to. */
-export type Applied = { key: string; blockId: string; done: string; why: string; short: string; /** The block as it was. */ before: Block; /** A block the suggestion added before it (a game, water). */ added?: string };
+export type Applied = { key: string; blockId: string; done: string; why: string; short: string; /** "from Saturday’s check-in" or "from your season goals". */ from: string; /** The block as it was. */ before: Block; /** A block the suggestion added before it (a game, water). */ added?: string };
 
 const flag = (
   <svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0">
@@ -56,14 +64,14 @@ function applyLabel(s: Suggestion): string | null {
   return s.drillId ? 'Swap it in' : null;
 }
 
-export function SuggestionBox({ s, day, drill, onApply, onPick, onKeep }: { s: Suggestion; day: string; drill?: Drill; onApply: () => void; onPick: () => void; onKeep: () => void }) {
+export function SuggestionBox({ s, day, drill, onApply, onPick, onKeep }: { s: Suggestion; day: string | null; drill?: Drill; onApply: () => void; onPick: () => void; onKeep: () => void }) {
   const main = applyLabel(s);
   const pickLabel = s.kind === 'swap' ? (main ? 'Other drills' : 'Choose a drill') : s.kind === 'game-before' ? (main ? 'Other games' : 'Choose a game') : null;
   return (
     <div role="note" id={`sg-${s.blockId}`} className="flex scroll-mt-28 flex-col gap-2.5 rounded-lg border-[1.5px] border-dashed border-whistle-100 bg-surface-200 px-3.5 pb-3.5 pt-3">
       <span className="flex items-center gap-1.5 text-xs font-medium text-ink-200">
         <span className="text-whistle-100">{flag}</span>
-        From {day}’s check-in · {s.by.join(', ')}
+        {s.source === 'goal' ? 'From your season goals' : `From ${day ?? 'the last'}’s check-in · ${s.by.join(', ')}`}
       </span>
       <p className="text-sm">
         <b className="font-semibold">{s.title}</b> <span className="text-ink-200">{s.detail}</span>
@@ -109,7 +117,7 @@ export function SuggestionBox({ s, day, drill, onApply, onPick, onKeep }: { s: S
 }
 
 /** Once acted on: one line beside the change, with Undo (UX patterns: feedback sits next to the control). */
-export function AppliedNote({ a, day, onUndo }: { a: Applied; day: string; onUndo: () => void }) {
+export function AppliedNote({ a, onUndo }: { a: Applied; onUndo: () => void }) {
   return (
     <p role="status" className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-ink-200">
       <b className="inline-flex items-center gap-1.5 font-semibold text-good-100">
@@ -117,7 +125,7 @@ export function AppliedNote({ a, day, onUndo }: { a: Applied; day: string; onUnd
         {a.done}
       </b>
       <span>
-        {a.why} · from {day}’s check-in
+        {a.why} · {a.from}
       </span>
       <button type="button" onClick={onUndo} className="text-rink-100 underline underline-offset-2 hover:text-ink-100">
         Undo
@@ -132,11 +140,11 @@ const split = (short: string) => {
 };
 
 /** The margin: what the check-in suggests, what's been done, and the Big hits that stay. */
-export function CheckinPanel({ day, open, applied, kept, stays }: { day: string; open: Suggestion[]; applied: Applied[]; kept: (Suggestion & { editor: string })[]; stays: string[] }) {
+export function CheckinPanel({ day, open, applied, kept, stays }: { day: string | null; open: Suggestion[]; applied: Applied[]; kept: (Suggestion & { editor: string })[]; stays: string[] }) {
   if (!open.length && !applied.length && !kept.length && !stays.length) return null;
   const done = !open.length && (applied.length > 0 || kept.length > 0);
   return (
-    <PanelSec title={`${day}’s check-in`} right={open.length ? `${open.length} to look at` : done ? 'All done' : undefined} rightTone={open.length ? 'text-whistle-100' : 'text-good-100'}>
+    <PanelSec title={day ? `${day}’s check-in` : 'Suggestions'} right={open.length ? `${open.length} to look at` : done ? 'All done' : undefined} rightTone={open.length ? 'text-whistle-100' : 'text-good-100'}>
       <ul className="flex flex-col gap-2 text-[13px] leading-[18px]">
         {open.map((s) => {
           const { name, what } = split(s.short);
@@ -180,7 +188,7 @@ export function CheckinPanel({ day, open, applied, kept, stays }: { day: string;
 }
 
 /** Phones: the margin sits below the plan, so one line at the top points to the first suggestion. */
-export function PhoneLine({ day, open }: { day: string; open: Suggestion[] }) {
+export function PhoneLine({ day, open }: { day: string | null; open: Suggestion[] }) {
   if (!open.length) return null;
   return (
     <a href={`#sg-${open[0].blockId}`} className="flex items-center gap-2 border-b border-border-100 py-2.5 text-sm lg:hidden">
@@ -189,9 +197,38 @@ export function PhoneLine({ day, open }: { day: string; open: Suggestion[] }) {
         <b className="font-semibold">
           {open.length} suggestion{open.length === 1 ? '' : 's'}
         </b>{' '}
-        <span className="text-ink-200">from {day}’s check-in</span>
+        <span className="text-ink-200">{day && open.some((x) => x.source !== 'goal') ? `from ${day}’s check-in` : 'for this plan'}</span>
       </span>
       <span className="ml-auto whitespace-nowrap font-medium text-rink-100">Show ↓</span>
     </a>
+  );
+}
+
+/** The margin's Season goals: each goal's status, and this plan's share of drill time against the target (decision 0030). */
+export function GoalsPanel({ goals, shares }: { goals: GoalSteer; shares: Record<string, number> }) {
+  if (!goals.list.length) return null;
+  return (
+    <PanelSec title="Season goals">
+      <ul className="flex flex-col gap-2.5 text-[13px] leading-[18px]">
+        {goals.list.map((g) => {
+          const here = Math.round((shares[g.attribute] ?? 0) * 100);
+          const want = Math.round(g.targetShare * 100);
+          return (
+            <li key={g.attribute} className="flex flex-col">
+              <span className="flex items-baseline justify-between gap-2">
+                <b className="font-semibold">{g.attribute}</b>
+                <span className={`text-xs font-medium ${g.behind ? 'text-warn-text' : 'text-ink-200'}`}>{g.status}</span>
+              </span>
+              <span className="text-ink-200">
+                This plan <span className="font-mono">{here}%</span> of drill time · goal asks about <span className="font-mono">{want}%</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <a href="/progress" className="w-fit text-[13px] text-rink-100 hover:underline">
+        See progress
+      </a>
+    </PanelSec>
   );
 }
