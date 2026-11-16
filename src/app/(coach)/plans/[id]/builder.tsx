@@ -306,15 +306,20 @@ export function Builder({
     setPlan((p) => ({ ...p, blocks: h.blocks }));
     setToast(null);
     // A suggestion undone this way stops showing its own Undo note.
-    setApplied((prev) => prev.filter((a) => (a.added ? h.blocks.some((y) => y.id === a.added) : JSON.stringify(h.blocks.find((y) => y.id === a.blockId)) !== JSON.stringify(a.before))));
+    const still = (a: Applied) => (a.added ? h.blocks.some((y) => y.id === a.added) : JSON.stringify(h.blocks.find((y) => y.id === a.blockId)) !== JSON.stringify(a.before));
+    for (const a of applied) if (!still(a) && a.key.startsWith('goal:')) void goalSuggestionTaken(plan.id, a.key, false).catch(() => undefined);
+    setApplied((prev) => prev.filter(still));
   }
+  // A drawer or dialog on top keeps Escape and ⌘Z for itself.
+  const overlay = useRef(false);
+  overlay.current = !!(picker || viewing || attOpen || detailsOpen);
   const undoRef = useRef(undoLast);
   undoRef.current = undoLast;
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return;
       // Typing in a field keeps the field's own undo.
-      if ((e.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if (overlay.current || (e.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]')) return;
       e.preventDefault();
       undoRef.current();
     };
@@ -360,7 +365,7 @@ export function Builder({
   }, []);
   useEffect(() => {
     if (!openId) return;
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && closeOpen();
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && !overlay.current && closeOpen();
     window.addEventListener('keydown', k);
     return () => window.removeEventListener('keydown', k);
   }, [openId, closeOpen]);
@@ -426,7 +431,18 @@ export function Builder({
     const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
     const items: MenuItem[] = [];
     if (b.kind !== 'activity' && (d || isOldRotation(b))) items.push({ label: 'Swap for another drill', icon: A.swap, run: () => swapFor(b) });
-    if (b.kind === 'drill' && d && d.levels.length > 0) items.push({ label: 'Change levels', icon: A.levels, run: () => setOpenId(b.id) });
+    if (b.kind === 'drill' && d && d.levels.length > 0) items.push({
+        label: 'Change levels',
+        icon: A.levels,
+        run: () => {
+          setOpenId(b.id);
+          setTimeout(() => {
+            const el = document.getElementById(`levels-${b.id}`);
+            el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            el?.querySelector<HTMLElement>('button')?.focus({ preventScroll: true });
+          }, 50);
+        },
+      });
     items.push({ label: 'Change to', icon: A.change, sub: changeTargets(b), note: 'Keeps the time slot and minutes' });
     items.push({ label: 'Duplicate', icon: A.duplicate, run: () => setBlocks((bs) => [...bs.slice(0, i + 1), { ...structuredClone(b), id: newId() }, ...bs.slice(i + 1)], { toast: `Duplicated ${name(b)}` }) });
     items.push({ label: 'Add a drill after', icon: Icon.plus(16), run: () => openAdd(i + 1) });
@@ -866,7 +882,7 @@ export function Builder({
       </nav>
 
       {toast && (
-        <div role="status" className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] z-[45] mx-auto flex max-w-sm items-center gap-3 rounded-full bg-ink-100 py-1.5 pl-4 pr-1.5 text-sm text-surface-100 shadow-lg lg:bottom-6 print:hidden">
+        <div role="status" className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] z-[60] mx-auto flex max-w-sm items-center gap-3 rounded-full bg-ink-100 py-1.5 pl-4 pr-1.5 text-sm text-surface-100 shadow-lg lg:bottom-6 print:hidden">
           <span className="min-w-0 flex-1 truncate">{toast.text}</span>
           {desktop && <span className="font-mono text-xs opacity-80">{undoKey}</span>}
           <button type="button" onClick={undoLast} className="min-h-9 rounded-full bg-surface-100 px-4 font-semibold text-ink-100">
@@ -1183,7 +1199,7 @@ function BlockPanel({
           <div className="flex flex-wrap gap-2">
             <ActionButton icon={A.up} label="Move up" disabled={index === 0} onClick={() => onMove(index - 1)} />
             <ActionButton icon={A.down} label="Move down" disabled={index === count - 1} onClick={() => onMove(index + 1)} />
-            <Menu items={menu} trigger="labelled" />
+            <Menu items={menu} trigger="labelled" align="left" />
           </div>
         </>
       )}
@@ -1208,7 +1224,11 @@ function BlockPanel({
         </div>
       )}
       {b.kind === 'drill' && d && <PlayableRink spec={b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? (levelOf(d, Math.max(...blockLevels(d, b))).diagram as RinkDiagramProps) : d.diagram} title={d.funName} />}
-      {b.kind === 'drill' && d && d.levels.length > 0 && <LevelPills block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />}
+      {b.kind === 'drill' && d && d.levels.length > 0 && (
+        <div id={`levels-${b.id}`}>
+          <LevelPills block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />
+        </div>
+      )}
       {b.kind === 'stations' && d && (
         <>
           <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
