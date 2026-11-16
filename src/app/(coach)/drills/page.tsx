@@ -119,7 +119,8 @@ export default async function Library({
               plainName: d.plainName,
               card: (
                 <>
-                  <span className="absolute right-4 top-4 z-10 rounded-full bg-surface-100/90 backdrop-blur">
+                  {/* Name and details first, for scanning the library; the diagram underneath (2026-11-16). */}
+                  <span className="absolute right-2 top-2 z-10 rounded-full">
                     <FavoriteButton
                       drillId={d.id}
                       drillName={d.funName}
@@ -128,21 +129,15 @@ export default async function Library({
                   </span>
                   <Link
                     href={`/drills/${d.id}`}
-                    className="flex h-full flex-col gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200"
+                    className="flex h-full flex-col gap-2 rounded-md border border-border-100 p-3 hover:border-ink-200"
                   >
-                    <Rink spec={d.diagram} title={d.funName} detail="thumb" />
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-display text-lg font-bold leading-6">
-                        {d.funName}
-                      </span>
-                      <span className="font-mono text-xs text-ink-200">
-                        {d.minutes} min
-                      </span>
-                    </div>
-                    <span className="-mt-2 text-sm text-ink-200">
+                    <span className="pr-12 font-display text-lg font-bold leading-6">
+                      {d.funName}
+                    </span>
+                    <span className="-mt-1.5 pr-12 text-sm text-ink-200">
                       {d.plainName}
                     </span>
-                    <span className="mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs">
                       {main.map((f) => (
                         <span
                           key={f.attribute}
@@ -156,6 +151,12 @@ export default async function Library({
                           ? `${team.ageGroup} starts at Level ${startLevelFor(d, team.ageGroup)} of ${levelCount(d)}`
                           : shapeLabel(d)}
                       </span>
+                      <span className="font-mono text-ink-200">
+                        {d.minutes} min
+                      </span>
+                    </span>
+                    <span className="mt-auto pt-1">
+                      <Rink spec={d.diagram} title={d.funName} detail="thumb" />
                     </span>
                   </Link>
                 </>
