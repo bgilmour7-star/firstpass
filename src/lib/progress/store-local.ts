@@ -102,6 +102,12 @@ export class LocalProgressStore implements ProgressStore {
     s.goals = (s.goals ?? []).map((x) => (x.id === goalId && x.teamId === teamId && !x.endedAt ? { ...x, endedAt: new Date().toISOString() } : x));
     await write(s);
   }
+  async recordView() {
+    // Local mode keeps no analytics.
+  }
+  async recordGoalTaken() {
+    // Local mode keeps no analytics.
+  }
   async openDueRound(team: Team, practices: Practice[], now = new Date()) {
     if (!levelSetFor(team.ageGroup)) return;
     const month = monthOf(now);

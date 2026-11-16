@@ -4,6 +4,9 @@ import { getSiteStore } from '@/lib/site/store';
 import { change, summarize, summarizeGrowth, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
 import { InTheApp, SectionTitle, Speed } from './app-sections';
+import { ProgressScoring } from './progress-section';
+import { EMPTY_PROGRESS_USAGE, summarizeProgress, type ProgressUsageRows } from '@/lib/progress/usage';
+import { monthOf } from '@/lib/progress/report';
 import { getAppStore } from '@/lib/app/store';
 import { EMPTY_USAGE_ROWS, summarizeUsage, type UsageRows } from '@/lib/site/usage';
 import { summarizeSpeed, type Vital } from '@/lib/site/vitals';
@@ -23,9 +26,9 @@ const TAGGED = new Set(['share', 'shared-ice', 'invite']);
 const shortDay = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 const pct = (n: number | null) => (n == null ? '–' : `${(Math.round(n * 1000) / 10).toLocaleString('en-CA')}%`);
 
-export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
+export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ days?: string; pmonth?: string }> }) {
   await requireAnalytics();
-  const { days: raw } = await searchParams;
+  const { days: raw, pmonth } = await searchParams;
   const days = PERIODS.find((p) => String(p) === raw) ?? 30;
   const store = await getSiteStore();
   let events: PageEvent[] = [];
@@ -62,6 +65,20 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
   const usage = summarizeUsage(rows, { days });
   const speed = summarizeSpeed(vitals, { days });
+  // Progress scoring (decision 0030, part E): one month at a time, the newest scored month by default.
+  let progressRows: ProgressUsageRows = EMPTY_PROGRESS_USAGE;
+  let progressMissing = false;
+  const wanted = pmonth && /^\d{4}-\d{2}-01$/.test(pmonth) ? pmonth : null;
+  try {
+    progressRows = await store.progressUsage(wanted ?? monthOf(new Date()));
+    // No month asked for and nothing this month yet: show the newest month that has rounds.
+    if (!wanted && !progressRows.rounds.some((r) => r.month === monthOf(new Date())) && progressRows.months[0]) progressRows = await store.progressUsage(progressRows.months[0]);
+  } catch (e) {
+    if (e instanceof Error && e.message === 'progress-usage-migration-missing') progressMissing = true;
+    else throw e;
+  }
+  const shownMonth = wanted ?? (progressRows.rounds.some((r) => r.month === monthOf(new Date())) ? monthOf(new Date()) : progressRows.months[0]);
+  const progress = shownMonth && progressRows.rounds.some((r) => r.month === shownMonth) ? summarizeProgress(progressRows, shownMonth) : null;
   const names = new Map((await (await getAppStore()).libraryDrills().catch(() => [])).map((d) => [d.id, d.funName]));
 
   return (
@@ -74,6 +91,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
             {[
               ['#site', 'Landing page'],
               ['#app', 'In the app'],
+              ['#progress', 'Progress scoring'],
               ['#speed', 'Speed'],
             ].map(([href, label], i) => (
               <span key={href}>
@@ -119,6 +137,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       <Who s={s} />
       <InTheApp u={usage} days={days} names={names} missing={usageMissing} />
       <TeamsAndCoaches g={g} days={days} missing={growthMissing} />
+      <ProgressScoring u={progress} months={progressRows.months} days={days} missing={progressMissing} now={Date.now()} />
       <Speed s={speed} missing={usageMissing} />
     </div>
   );

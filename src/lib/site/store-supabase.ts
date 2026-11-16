@@ -2,6 +2,7 @@ import 'server-only';
 import { supabaseServer } from '../supabase/server';
 import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } from './schema';
 import type { UsageRows } from './usage';
+import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
 import type { Growth, NewEvent, SiteStore } from './store';
 
@@ -106,6 +107,13 @@ export class SupabaseSiteStore implements SiteStore {
     const { data, error } = await db.rpc('app_usage', { since: sinceIso });
     if (error) throw new Error(missing(error) ? 'usage-migration-missing' : error.message);
     return data as UsageRows;
+  }
+
+  async progressUsage(month: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('progress_usage', { m: month });
+    if (error) throw new Error(missing(error) ? 'progress-usage-migration-missing' : error.message);
+    return data as ProgressUsageRows;
   }
 
   async growth(): Promise<Growth> {

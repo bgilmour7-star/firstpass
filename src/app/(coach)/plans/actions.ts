@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
+import { getProgressStore } from '@/lib/progress/store';
 import { practiceSchema, type Practice, type Team } from '@/lib/plans/schema';
 import { startPlan as startPlanFor } from '@/lib/plans/start-plan';
 import { SESSION_MS, describeChange, type Snapshot } from '@/lib/plans/activity';
@@ -174,4 +175,13 @@ export async function saveCheckin(practiceId: string, input: unknown): Promise<{
   revalidatePath('/plans');
   revalidatePath(`/plans/${p.id}/check-in`);
   return { ok: true };
+}
+
+/** A coach took a season-goal suggestion (decision 0030): counted for Admin → Analytics. Nothing comes back. */
+export async function goalSuggestionTaken(practiceId: string, key: string): Promise<void> {
+  const { team } = await requireTeam('/plans');
+  if (typeof practiceId !== 'string' || !/^goal:(Skating|Puck control|Passing|Shooting|Game sense|Effort & fun):[a-z0-9-]{1,50}$/.test(key)) return;
+  const p = await (await getAppStore()).getPractice(practiceId);
+  if (!p || p.teamId !== team.id) return;
+  await (await getProgressStore()).recordGoalTaken(practiceId, key);
 }
