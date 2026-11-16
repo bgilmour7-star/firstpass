@@ -13,7 +13,7 @@ Date: 2026-11-16 · Decided by: Brett (canvas "Firstpass Next practice · before
     cues, **Set up:** the gear. On a phone a drill opens its details sheet.
   - **During** (from 15 minutes before the start to the end): rink-side. A Now card with the block's time, name, time
     left and a progress bar (before the start: First up and the time to the start), the whistle for a rotation, the
-    diagram, stations and cues; then **Up next** (skipping water); Start the clock now; **Whole practice** folded below.
+    diagram, stations and cues; then **Up next** (skipping water); Start the clock now (During only); **Whole practice** folded below.
   - **After** (practice day once it's over, and earlier days): the check-in first, then What you ran.
 - No goal marks on drills, here or on Home's strip: every skill can have a goal (0031), so a mark would be everywhere.
 - **Team settings** is its own item at the bottom of the left rail, above the account, for every coach (read-only for

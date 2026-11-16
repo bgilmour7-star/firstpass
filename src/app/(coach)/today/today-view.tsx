@@ -102,15 +102,18 @@ export function TodayView({
     ...(isToday && offset !== 0 ? [`started ${offset} min late`] : []),
   ].join(' · ');
 
+  // On practice day the state isn't known until the clock is read, so the actions and body wait a
+  // tick rather than flashing the Before sheet at the rink.
+  const waiting = isToday && now === null;
   const action = 'inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-border-100 bg-surface-100 px-3.5 text-sm font-medium hover:bg-surface-200';
   const header = (
     <header className={`flex flex-col gap-3 ${phase === 'before' ? 'lg:flex-row lg:items-end lg:justify-between' : ''}`}>
       <div className="flex min-w-0 flex-col gap-1">
-        <p className="text-sm font-semibold text-rink-100">{eyebrow}</p>
+        <p className="min-h-5 text-sm font-semibold text-rink-100">{waiting ? '' : eyebrow}</p>
         <h1 className="font-display text-[28px] font-extrabold leading-8">{day}</h1>
         <p className="text-sm text-ink-200">{who}</p>
       </div>
-      {phase === 'before' && (
+      {phase === 'before' && !waiting && (
         <div className="flex flex-wrap items-center gap-2">
           <Link href={`/plans/${practice.id}/print`} className={action}>
             {Icon.print(16)} Print
@@ -124,7 +127,7 @@ export function TodayView({
     </header>
   );
 
-  const clockControls = isToday && phase !== 'after' && (
+  const clockControls = isToday && phase === 'during' && (
     <div className="flex flex-wrap gap-2">
       <button
         type="button"
@@ -142,9 +145,6 @@ export function TodayView({
   );
 
   const open = viewing ? byId.get(viewing) : undefined;
-  // On practice day the state isn't known until the clock is read, so the body waits a tick
-  // rather than flashing the Before sheet at the rink.
-  const waiting = isToday && now === null;
 
   let body: React.ReactNode = null;
   if (waiting) body = null;
@@ -283,7 +283,6 @@ export function TodayView({
     <OpenDrill.Provider value={setViewing}>
       <div className={`mx-auto flex w-full flex-col gap-5 ${phase === 'before' ? 'max-w-6xl' : 'max-w-xl'}`}>
         {header}
-        {phase === 'before' && clockControls}
         {body}
         {open && (
           <DrillDrawer
