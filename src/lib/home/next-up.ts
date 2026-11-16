@@ -36,7 +36,7 @@ export function nextUp(i: {
 
   // 3. The next practice ice in the coming week with no plan.
   const ice = i.ice
-    .filter((x) => x.kind === 'practice' && !x.cancelled && !x.ignored && !x.practiceId && x.date >= today && -days(x.date) <= 7)
+    .filter((x) => x.kind === 'practice' && !x.cancelled && !x.ignored && !x.practiceId && x.date >= today && -days(x.date) <= 7 && !practiceOver(x, i.now))
     .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))[0];
   if (ice) return { kind: 'plan', iceId: ice.id, date: ice.date, startTime: ice.startTime, minutes: ice.minutes };
 

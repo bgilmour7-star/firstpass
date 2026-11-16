@@ -27,6 +27,15 @@ describe('the next practice as its drills (decision 0031)', () => {
       ['scatter-puck', 'Shooting', true],
     ]);
   });
+  it('keeps an older rotation built from single drills as one item, so later times stay right', () => {
+    const old = { id: 'r', kind: 'rotation', drillId: null, minutes: 5, stations: [{ station: 'A', drillId: 'ski-racer' }, { station: 'B', drillId: 'scatter-puck' }, { station: 'C', drillId: null }], drop: [] } as unknown as Block;
+    const s = practiceStrip({ startTime: '07:00', blocks: [old, d('b', 'first-shots', 6)] }, byId, 3, new Set(['ski-racer']), new Set(['Shooting']));
+    expect(s.map((x) => [x.name, x.time, x.goal, x.isNew])).toEqual([
+      ['Rotation', '07:00', 'Shooting', true],
+      ['first-shots', s[1].time, 'Shooting', true],
+    ]);
+    expect(s[1].time).not.toBe('07:00');
+  });
   it('shows up to 6, and 5 plus "+N more" from 7', () => {
     expect(stripShown([1, 2, 3, 4, 5, 6])).toEqual({ shown: [1, 2, 3, 4, 5, 6], more: 0 });
     expect(stripShown([1, 2, 3, 4, 5, 6, 7])).toEqual({ shown: [1, 2, 3, 4, 5], more: 2 });

@@ -29,6 +29,10 @@ describe('Next up on Home (decision 0031)', () => {
     const later = new Date('2026-11-15T14:30:00Z'); // Sunday 6:30, before the 7:00 practice
     expect(nextUp({ ...base, now: later, practices: [sunday], round: null, ice: [] })).toBeNull();
   });
+  it('skips ice from earlier today that has already ended', () => {
+    const checked = { ...base, checkins: [{ practiceId: 'p-sun', userId: 'brett' }], round: null };
+    expect(nextUp({ ...checked, ice: [{ ...thursdayIce, date: '2026-11-16', startTime: '06:00' }] })).toBeNull();
+  });
   it('skips a round this coach doesn’t score, cancelled or ignored ice, and ice more than a week out', () => {
     const checked = { ...base, checkins: [{ practiceId: 'p-sun', userId: 'brett' }] };
     expect(nextUp({ ...checked, round: { ...round, scoring: false }, ice: [] })).toBeNull();
