@@ -155,5 +155,51 @@ Acceptance: after December's round Brett can answer "did coaches score again?" f
 ### Order and dates
 A and B together before the first December practice (the round opens after it), so December is the first full month of data. C right after (goals need a finished round). D any time before the third round. E alongside B, so December is measured.
 
+## Milestone 8 — Home, Team settings and Account (decision 0031, 2026-11-16)
+
+Design: canvas "Firstpass Team · Home, Settings and Account" (https://claude.ai/artifact/9pCPxM2UoyQuLbSsmdtSCr). Boards: "Home · next up, next practice, progress" and "Home · phone"; "Team › Settings"; "Account · your emails"; "States · next up, no plan, no round, no goals, two teams, coach view"; "Next practice · 5, 6 and 7+ drills"; "Progress on Team home · as a picture". One small database change (8.4). Four PRs; each leaves the app usable and ends with `npm run check`, screenshots (desktop and 390px, light and dark) and the pr-review skill. A, B and D get a full review (server actions, email settings, a migration); C a light one unless it grows past 400 lines.
+
+### 8.1 Split settings out (PR A)
+Goal: Home has nothing to edit; settings and your emails each have their own place.
+Context: decision 0031; 0026 (drawers). Files: `src/app/(coach)/team/{page,summary,coaches,emails,calendar,actions}.tsx`, `src/app/(coach)/account/page.tsx`, `src/components/app-shell.tsx`.
+- [ ] **`/team/settings`**: move the section drawers from `summary.tsx` into a settings page (same `SectionDrawer`, same actions). Order: Team name, Practices and ice, Calendar, Skill groups, Coaches, Join link (head coach), Gear, Planning, Leave or delete. `?edit=<section>` works there; `/team?edit=<section>` redirects to it.
+- [ ] Calendar row shows the source and freshness ("Your association's calendar · Synced 2 hours ago · 22 practices to come"); the address lives inside Change.
+- [ ] Coaches: one ⋯ per coach (head coach only) with **Hand over head coach** (`handOverTeam`) and **Remove from team** (`removeCoach`), using the plan builder's `Menu`.
+- [ ] **Leave or delete** section: each button with its consequence line; Delete keeps the typed-name confirmation.
+- [ ] Not head coach: the same page with no Edit links, no join link, no Delete; subtitle names the head coach.
+- [ ] **Account → Emails**: one group per team from `myTeams` (after-practice check-in, progress). `setCheckinEmails` and the progress email setter take a `teamId` and check membership on the server; a coach can only change their own settings. Remove the email switches from the team page. Install on your phone shows on phones only.
+- [ ] Nav: **Home** with a house icon (rail, phone drawer, brand link label "Firstpass home"); "Team settings" in the account menu. Update copy that says "on the Team page".
+Acceptance: a coach on two teams turns off progress emails for one team from Account without switching teams, and the other team's setting is unchanged; a non-head coach sees settings read-only and gets "Only the head coach…" if they post to `saveTeam` directly; coach A cannot change coach B's email settings (test the action).
+
+### 8.2 Home: Next up and the next practice (PR B)
+Goal: Home opens on the one thing to do and shows the next practice as its drills.
+Context: decision 0031. Files: `src/app/(coach)/team/page.tsx`, a new `src/lib/home/next-up.ts`, `src/app/(coach)/team/home.tsx` (replaces the read-only parts of `summary.tsx`). Reuse the check-in rule from `plans/[id]/page.tsx` (`prev && recentEnough && !checkedIn`), `progressState` for an open round, ice times for unplanned ice.
+- [ ] `next-up.ts`: a pure function returning `checkin | score | plan | null` in that priority, with tests for each and for "nothing waiting".
+- [ ] Next up block (desktop row, phone stacked): title, one line, main button, Later (hides it on that device until tomorrow, `localStorage`). Open the plan is the main button only when Next up is empty.
+- [ ] Next practice: drills only, in order, `RinkDiagram` thumbs, start time and minutes, **Shooting goal** (focus serves a goal that is behind, from `goalsView`) and **New today** (not known to the kids). Equal widths up to 6; 7+ shows 5 and "+N more drills"; phones scroll. No plan yet: "Make a plan" as the main button, nothing to preview.
+- [ ] Right column (desktop): Season so far, then Coaches with Copy invite link (join link on) or Turn on invite link (head coach, off). Header: team name, one line, Settings as a text button. Remove Invite a coach and the Parents note.
+Acceptance: after Sunday's practice, Home shows "How did Sunday go?" until you check in, then the December round if it's open, then Thursday's missing plan; the strip matches the plan, including the 7-drill case.
+
+### 8.3 Home: Progress as a chart (PR C)
+Goal: progress at a glance, joined to the next plan.
+Context: decision 0031, 0030. Files: a new `src/components/progress-chart.tsx` (SVG, tokens only), `src/app/(coach)/team/home.tsx`.
+- [ ] Chart: each skill on the 1–5 scale, last round's dot to this round's (hollow to filled, joined when it moved), the value and the change (no "same"); goal skills shaded with an outlined flag at the goal, a tick where the team should be now (`pace.ts`) and Ahead/Behind in words. `role="img"` with a full sentence. Legend above. Phone layout: name and value above each track.
+- [ ] Sentence on top from the goals and the next plan ("Shooting needs more ice time. Sunday's plan gives it 18 of 50 minutes."); next round line and Change goals below.
+- [ ] States: hidden for age groups with no level set; before the first round, the "Score your first round" card; finished rounds but no goals, the chart without flags and a Set goals nudge; a coach who hasn't finished an open round sees the last report they unlocked (0030 P2).
+Acceptance: with the local sample, Skating shows ahead of its tick and Shooting behind; screen readers get the sentence; light and dark both pass contrast.
+
+### 8.4 A goal for every skill (PR D, decision 0031 · any time, smallest first)
+Goal: a head coach can set a season goal on each of the six skills, not just three.
+Context: 0030 P4 (max 3), `supabase/migrations/20261118000000_progress_goals.sql` (`set_progress_goal`), `src/lib/progress/store-local.ts`, `src/app/(coach)/progress/goals/{editor,page}.tsx`, `src/app/(coach)/progress/page.tsx`, `src/lib/plans/suggest.ts`, `src/lib/progress/ice-time.ts`.
+- [ ] Migration `20261120000000_goals_per_skill.sql`: `create or replace function public.set_progress_goal` without the 3-goal check (one active goal per skill stays). Safe to run twice. **Brett: run it (full SQL in the PR).**
+- [ ] Local store and the goals editor: no cap beyond one per skill; copy that says "up to three" and "of 3" counts six. The goals page lists all six skills, each with Set a goal.
+- [ ] Steering stays one goal suggestion per plan: pick the goal furthest behind its target this month (tie: largest gap). Ice-time targets already weight by gap; add a test with six goals that the shares still sum to 1, keep the 10% floor, and favour the largest gaps.
+- [ ] Home chart (8.3): every goal skill gets its flag and tick; only goals that are behind are shaded, so six goals don't shade every row. The top sentence names at most two skills, the furthest behind first.
+Acceptance: a head coach sets goals on all six skills; the plan offers one swap, for the skill furthest behind; non-head coaches still can't set goals (function test).
+Why: U7 is about all-round development; focus comes at later ages (Brett, 2026-11-16). A goal per skill is the expected setup, not an edge case, so the goals page offers all six and nothing warns against it.
+
+### Order
+D first (small, one migration), then A, B, C. A is the riskiest of the rest (moves server actions and email settings); B and C are UI on existing data.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.
