@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { withStationDrills } from '@/lib/plans/schema';
+import { drillIds, withStationDrills } from '@/lib/plans/schema';
 import { TodayView } from './today-view';
 import { InstallCard, OfflineNote } from '@/components/pwa';
 import { ProgressNudge } from '../progress/nudge';
 
 export const dynamic = 'force-dynamic';
 
-// Rink-side: today's practice (or the one asked for, or the next one coming up).
+// Next practice (decision 0032): today's practice, the one asked for, or the next one coming up,
+// shown Before, During or After by the clock.
 export default async function Today({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
   const { coach, team } = await requireTeam('/today');
   const { plan } = await searchParams;
@@ -33,8 +34,10 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
         </div>
       </div>
     );
-  const [drills, favorites] = await Promise.all([store.libraryDrills(), store.favorites(team.id)]);
+  const [drills, favorites, share] = await Promise.all([store.libraryDrills(), store.favorites(team.id), store.activeShare(chosen.id)]);
   const isToday = chosen.date === today;
+  // Drills the kids have done before this practice; one they haven't is "New today".
+  const known = [...new Set(all.filter((p) => p.date < chosen.date).flatMap((p) => p.blocks.flatMap(drillIds)))];
   // Install card (decision 0021): above the plan on other days; on practice day the plan comes first.
   return (
     <div className="flex flex-col gap-5">
@@ -43,7 +46,7 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
         {!isToday && <ProgressNudge team={team} userId={coach.id} />}
         {!isToday && <InstallCard />}
       </div>
-      <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} favorites={favorites} isToday={isToday} />
+      <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} favorites={favorites} today={today} known={known} share={share} />
       {isToday && (
         <div className="mx-auto flex w-full max-w-xl flex-col gap-3 empty:hidden">
           <ProgressNudge team={team} userId={coach.id} />

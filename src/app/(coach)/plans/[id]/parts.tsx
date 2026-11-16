@@ -31,6 +31,7 @@ export const Icon = {
   // Rink-side is the phone view used on the bench: a phone, not a calendar.
   rinkside: (s?: number) => svg(<><rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M10.5 18.5h3" /></>, s),
   plus: (s?: number) => svg(<path d="M12 5v14M5 12h14" />, s),
+  edit: (s?: number) => svg(<><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="m13.5 6.5 4 4" /></>, s),
   grip: (s?: number) => svg(<><circle cx="9" cy="6" r="1" /><circle cx="15" cy="6" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="18" r="1" /><circle cx="15" cy="18" r="1" /></>, s),
 };
 
@@ -479,7 +480,7 @@ export function LibraryDrawer({
   );
 }
 
-export function ShareControl({ practiceId, initial, compact }: { practiceId: string; initial: { token: string; expiresAt: string } | null; compact?: boolean }) {
+export function ShareControl({ practiceId, initial, compact, labelled }: { practiceId: string; initial: { token: string; expiresAt: string } | null; compact?: boolean; /** Show "Share" at every width, not only on a computer. */ labelled?: boolean }) {
   const [share, setShare] = useState(initial);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -503,11 +504,11 @@ export function ShareControl({ practiceId, initial, compact }: { practiceId: str
         </button>
       ) : (
         <button type="button" aria-expanded={open} aria-label="Share" title="Share with parents" onClick={toggle} className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-full border border-border-100 px-3.5 text-sm font-medium hover:bg-surface-200">
-          {Icon.share(16)} <span className="hidden lg:inline">Share</span>
+          {Icon.share(16)} <span className={labelled ? '' : 'hidden lg:inline'}>Share</span>
         </button>
       )}
       {open && (
-        <div className={`absolute z-40 flex w-[min(92vw,380px)] flex-col gap-2 rounded-md border border-border-100 bg-surface-100 p-3 text-left shadow-lg ${compact ? 'bottom-full right-[-60px] mb-3' : 'right-0 mt-2'}`}>
+        <div className={`absolute z-40 flex w-[min(92vw,380px)] flex-col gap-2 rounded-md border border-border-100 bg-surface-100 p-3 text-left shadow-lg ${compact ? 'bottom-full right-[-60px] mb-3' : labelled ? 'max-lg:fixed max-lg:inset-x-4 max-lg:top-20 max-lg:w-auto lg:right-0 lg:mt-2' : 'right-0 mt-2'}`}>
           <b className="text-sm">Share with parents</b>
           {pending || !share ? (
             <p className="text-sm text-ink-200">Making a link…</p>
