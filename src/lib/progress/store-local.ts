@@ -69,11 +69,11 @@ export class LocalProgressStore implements ProgressStore {
     const month = monthOf(now);
     const s = await read();
     if (s.rounds.some((r) => r.teamId === team.id && r.month === month)) return;
-    const due = practices.some((p) => p.date >= month && p.blocks.length > 0 && practiceOver(p, now));
+    const skaters = team.groups.reduce((a, g) => a + (g.off ? 0 : g.skaters), 0);
+    const due = skaters > 0 && practices.some((p) => p.date >= month && p.blocks.length > 0 && practiceOver(p, now));
     if (!due) return;
     const at = now.toISOString();
     s.rounds = s.rounds.map((r) => (r.teamId === team.id && !r.closedAt ? { ...r, closedAt: at } : r));
-    const skaters = team.groups.reduce((a, g) => a + (g.off ? 0 : g.skaters), 0);
     s.rounds.push({ id: randomUUID(), teamId: team.id, month, openedAt: at, closedAt: null, levelsVersion: levelSetFor(team.ageGroup)!.version, skaters });
     await write(s);
   }

@@ -98,7 +98,7 @@ export function Scoring(p: Props) {
 
       <h1 className="mt-2 font-display text-[28px] font-bold leading-tight">{attr}</h1>
       <p className="mt-1 text-[15px]">{question}</p>
-      <p className="mt-1 text-[13px] text-ink-200">{p.first ? 'Use ↑ and ↓ to move one skater at a time.' : `Your ${total(c)} skaters, as you placed them in ${p.previousMonth ?? 'your last scoring'}.`}</p>
+      <p className="mt-1 text-[13px] text-ink-200">{p.first ? 'Tap One up or ↓ to move one skater at a time.' : `Your ${total(c)} skaters, as you placed them in ${p.previousMonth ?? 'your last scoring'}.`}</p>
 
       <ol className="mt-4 flex flex-col" aria-label={`${attr} levels, highest first`}>
         {levelsTopDown.map((lv, i) => (
@@ -158,7 +158,7 @@ export function Scoring(p: Props) {
       <button type="button" onClick={next} disabled={pending} className="mt-6 min-h-12 rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200 disabled:opacity-60">
         {pending ? 'Saving…' : primary}
       </button>
-      <p className="mt-2 text-center text-xs text-ink-200">Saved as you go</p>
+      <p className="mt-2 text-center text-xs text-ink-200">Saved after each skill</p>
     </div>
   );
 }

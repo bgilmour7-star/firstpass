@@ -97,10 +97,10 @@ export function Coaches({
                 {c.role === 'head_coach' ? '' : joinedLabel(c.joinedAt)}
               </span>
               {scores && (amHead || c.userId === me) && (
-                <label className="mt-0.5 flex min-h-8 items-center gap-2 text-xs text-ink-200">
+                <label className="-ml-1 flex min-h-11 cursor-pointer items-center gap-2 px-1 text-xs text-ink-200">
                   <input
                     type="checkbox"
-                    className="size-4 accent-rink-100"
+                    className="size-5 accent-rink-100"
                     checked={scores[c.userId] !== false}
                     disabled={!amHead || pending}
                     onChange={(e) => {

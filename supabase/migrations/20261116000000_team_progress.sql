@@ -49,6 +49,8 @@ create policy "members read rounds" on public.progress_rounds for select using (
 create or replace function public.finished_progress(r uuid)
 returns boolean language sql stable security definer set search_path = ''
 as $$ select exists (select 1 from public.progress_scores where round_id = r and user_id = auth.uid() and finished_at is not null); $$;
+revoke all on function public.finished_progress(uuid) from public, anon;
+grant execute on function public.finished_progress(uuid) to authenticated;
 
 drop policy if exists "read own scores, and the team's once finished" on public.progress_scores;
 create policy "read own scores, and the team's once finished" on public.progress_scores for select
@@ -59,7 +61,7 @@ create policy "read own scores, and the team's once finished" on public.progress
 create or replace function public.save_progress_score(r uuid, answers jsonb, done text[], no_change text[], secs integer, finish boolean)
 returns void language plpgsql security definer set search_path = ''
 as $$
-declare rnd public.progress_rounds; k text; v jsonb; n int; tot int;
+declare rnd public.progress_rounds; k text; v jsonb; tot int;
 begin
   if auth.uid() is null then raise exception 'Sign in first'; end if;
   select * into rnd from public.progress_rounds where id = r;
@@ -72,13 +74,17 @@ begin
   for k, v in select * from jsonb_each(answers) loop
     if k not in ('Skating', 'Puck control', 'Passing', 'Shooting', 'Game sense', 'Effort & fun') then raise exception 'bad-attribute'; end if;
     if jsonb_typeof(v) <> 'array' or jsonb_array_length(v) <> 5 then raise exception 'bad-counts'; end if;
-    tot := 0;
-    for n in select (x)::int from jsonb_array_elements_text(v) as x loop
-      if n < 0 then raise exception 'bad-counts'; end if;
-      tot := tot + n;
-    end loop;
+    -- Five whole numbers, none negative: no nulls, strings or fractions.
+    if exists (select 1 from jsonb_array_elements(v) as e(x) where jsonb_typeof(e.x) <> 'number' or (e.x::text)::numeric < 0 or (e.x::text)::numeric <> trunc((e.x::text)::numeric)) then
+      raise exception 'bad-counts';
+    end if;
+    select coalesce(sum((e.x::text)::int), 0) into tot from jsonb_array_elements(v) as e(x);
     if tot > rnd.skaters or tot = 0 then raise exception 'bad-counts'; end if;
   end loop;
+  -- done and no_change only ever name the six skills (no free text, so no kids' names).
+  if exists (select 1 from unnest(coalesce(done, '{}') || coalesce(no_change, '{}')) as u(a) where u.a not in ('Skating', 'Puck control', 'Passing', 'Shooting', 'Game sense', 'Effort & fun')) then
+    raise exception 'bad-attribute';
+  end if;
   insert into public.progress_scores as s (round_id, team_id, user_id, answers, done, no_change, seconds, finished_at)
   values (r, rnd.team_id, auth.uid(), answers, done, no_change, secs, case when finish then now() end)
   on conflict (round_id, user_id) do update set
@@ -101,6 +107,7 @@ begin
   update public.team_members set progress_scoring = wanted where team_id = team and user_id = coach;
 end;
 $$;
+revoke all on function public.set_progress_scoring(uuid, uuid, boolean) from public, anon;
 grant execute on function public.set_progress_scoring(uuid, uuid, boolean) to authenticated;
 
 -- 6b. Who has scored so far, without anyone's answers: for "1 of 3 done" before you've finished.
@@ -111,10 +118,11 @@ as $$
   from public.progress_scores s
   where s.round_id = r and public.is_team_member(s.team_id);
 $$;
+revoke all on function public.progress_round_status(uuid) from public, anon;
 grant execute on function public.progress_round_status(uuid) to authenticated;
 
 -- 7. Open rounds: a team with a level set (U7 for now) gets this month's round once its first planned
--- practice of the month (at least one block) has ended. Opening a round closes the team's previous one.
+-- practice of the month (at least one block) has ended, once it has skaters. Opening a round closes the team's previous one.
 create or replace function public.open_progress_rounds()
 returns integer language plpgsql security definer set search_path = ''
 as $$
@@ -132,6 +140,8 @@ begin
           and jsonb_array_length(p.blocks) > 0
           and ((p.date + p.start_time + make_interval(mins => p.minutes)) at time zone 'America/Vancouver') <= now()
       )
+      -- A team with no skaters yet waits: the round keeps the team size it opens with.
+      and coalesce((select sum(case when coalesce((g ->> 'off')::boolean, false) then 0 else (g ->> 'skaters')::int end) from jsonb_array_elements(tm.groups) g), 0) > 0
   loop
     update public.progress_rounds set closed_at = now() where team_id = t.id and closed_at is null;
     insert into public.progress_rounds (team_id, month, levels_version, skaters)
