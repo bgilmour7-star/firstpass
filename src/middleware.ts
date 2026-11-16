@@ -35,7 +35,8 @@ export async function middleware(request: NextRequest) {
   // getClaims() refreshes the session like getUser() and, with asymmetric JWT signing keys, checks the
   // token locally instead of calling Supabase Auth on every request (build plan 10.2). With the older
   // shared-secret keys it falls back to asking Supabase Auth. Pages still check the user themselves.
-  const { data } = await supabase.auth.getClaims();
+  // A corrupt session cookie makes getClaims() throw: treat it as signed out, as getUser() did.
+  const { data } = await supabase.auth.getClaims().catch(() => ({ data: null }));
   const signedIn = Boolean(data?.claims?.sub);
   // /api/cron/ is called by the database's timer and checks its own secret (decision 0010).
   // /join/ shows who invited you and signs you in on the spot (decision 0013); joining itself
