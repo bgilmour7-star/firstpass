@@ -31,7 +31,8 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host')}`;
   const isHead = coaches.some((c) => c.userId === coach.id && c.role === 'head_coach');
   // Team progress (decision 0030): who scores, for teams whose age group has level descriptions.
-  const scoring = levelSetFor(team.ageGroup) ? await (await getProgressStore()).scoringFlags(team.id).catch(() => ({})) : undefined;
+  const progress = levelSetFor(team.ageGroup) ? await getProgressStore() : null;
+  const [scoring, progressEmails] = progress ? await Promise.all([progress.scoringFlags(team.id).catch(() => ({})), progress.emailsOn(team.id, coach.id).catch(() => true)]) : [undefined, undefined];
 
   // The next practice: the first plan from today on, with one of its drills drawn small.
   const upcoming = practices.filter((p) => p.date >= today).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
@@ -54,6 +55,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
       email={coach.email}
       isHead={isHead}
       scoring={scoring}
+      progressEmails={progressEmails}
       coaches={coaches.map((c) => ({ ...c, checkins: byCoach[c.userId] ?? 0 }))}
       practicesRun={run}
       joinCode={joinCode}

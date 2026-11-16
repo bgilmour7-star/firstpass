@@ -13,7 +13,7 @@ import type { ProgressStore, RoundStatus, ScoreSave, ScoringFlags } from './stor
 
 const FILE = join(process.cwd(), '.local', 'progress.json');
 type Row = Omit<CoachScore, 'name'> & { teamId: string };
-type State = { rounds: Round[]; scores: Row[]; off: { teamId: string; userId: string }[] };
+type State = { rounds: Round[]; scores: Row[]; off: { teamId: string; userId: string }[]; emailsOff?: string[] };
 
 async function read(): Promise<State> {
   try {
@@ -62,6 +62,20 @@ export class LocalProgressStore implements ProgressStore {
     const s = await read();
     s.off = s.off.filter((o) => !(o.teamId === teamId && o.userId === userId));
     if (!on) s.off.push({ teamId, userId });
+    await write(s);
+  }
+  async emailsOn(teamId: string, userId: string) {
+    return !(await read()).emailsOff?.includes(`${teamId}:${userId}`);
+  }
+  async setEmails(teamId: string, userId: string, on: boolean) {
+    const s = await read();
+    const k = `${teamId}:${userId}`;
+    s.emailsOff = [...(s.emailsOff ?? []).filter((x) => x !== k), ...(on ? [] : [k])];
+    await write(s);
+  }
+  async remind(roundId: string) {
+    const s = await read();
+    s.rounds = s.rounds.map((r) => (r.id === roundId && !r.closedAt ? { ...r, remindAt: r.remindAt ?? new Date().toISOString() } : r));
     await write(s);
   }
   async openDueRound(team: Team, practices: Practice[], now = new Date()) {

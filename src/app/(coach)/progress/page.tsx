@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { progressState, reportFor, visible } from '@/lib/progress/load';
+import { RemindButton } from './remind';
 import { GAP_FLAG, monthName, total, type AttributeReport } from '@/lib/progress/report';
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +25,9 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
   const statusDone = isCurrent ? state.status.filter((s) => s.finished).length : 0;
   const scorers = Math.max(state.coaches.length, statusDone);
   const mineStarted = isCurrent && state.mine && !state.mine.finishedAt;
+  // Head coach: a reminder for coaches who haven't finished this month (part B emails).
+  const waiting = isCurrent && state.open ? state.coaches.filter((c) => c.userId !== coach.id && !state.status.some((x) => x.userId === c.userId && x.finished)).length : 0;
+  const remind = state.isHead && waiting > 0 && !coach.local ? <RemindButton roundId={round.id} waiting={waiting} sent={Boolean(round.remindAt)} /> : null;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
@@ -63,6 +67,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
             </Link>
           )}
           {isCurrent && state.open && !state.scoring && <p className="text-sm">Your head coach has progress scoring turned off for you on this team.</p>}
+          {remind}
         </section>
       ) : (
         report && (
@@ -72,6 +77,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
               {isCurrent && scorers > report.coaches.length && ` · ${scorers - report.coaches.length} still to score`}
               {` · ${round.skaters} skaters · levels 1 to 5 for U7`}
             </p>
+            {remind}
             <ul className="flex flex-col">
               {report.attributes.map((a) => (
                 <Row key={a.attribute} a={a} youId={coach.id} />
