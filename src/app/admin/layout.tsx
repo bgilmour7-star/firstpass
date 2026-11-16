@@ -6,14 +6,15 @@ import { NAV_COOKIE } from '@/lib/nav';
 import { navPractice } from '@/lib/nav-practice';
 import { getRequestStore } from '@/lib/requests/store';
 import { AdminTabs } from './tabs';
+import { teamPractices } from '@/lib/app/read';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   const store = await getAppStore();
-  const [team, jar] = await Promise.all([store.myTeam(admin.id), cookies()]);
   // Admins: coaches' requests Claude has drafted, waiting for review (decision 0018).
-  const reviewCount = (await getRequestStore().then((r) => r.all()).catch(() => [])).filter((r) => r.state === 'drafted').length;
-  const next = navPractice(team ? await store.listPractices(team.id).catch(() => []) : []);
+  const [team, jar, requests] = await Promise.all([store.myTeam(admin.id), cookies(), getRequestStore().then((r) => r.all()).catch(() => [])]);
+  const reviewCount = requests.filter((r) => r.state === 'drafted').length;
+  const next = navPractice(team ? await teamPractices(team.id).catch(() => []) : []);
   return (
     <AppShell email={admin.email} isAdmin local={admin.local} teamName={team?.name} next={next} reviewCount={reviewCount} analytics={admin.analytics} initialCollapsed={jar.get(NAV_COOKIE)?.value === 'collapsed'}>
       {/* Brett's pages: Analytics, Waitlist, Survey, Coaches, Emails (decision 0027). */}

@@ -9,6 +9,7 @@ import type { IceTime } from '@/lib/app/store';
 import { ignoreIceTime, planIceTime } from './actions';
 import { AddPractice } from './add-practice';
 import { DATE_WHY, nextPracticeDate } from '@/lib/plans/next-date';
+import { teamPractices } from '@/lib/app/read';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const store = await getAppStore();
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans.
   const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
-  const [plans, drills, ice, activity] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.iceTimes(team.id), store.teamActivity(team.id, coach.id).catch(() => ({}) as Awaited<ReturnType<typeof store.teamActivity>>)]);
+  const [plans, drills, ice, activity] = await Promise.all([teamPractices(team.id), store.libraryDrills(), store.iceTimes(team.id), store.teamActivity(team.id, coach.id).catch(() => ({}) as Awaited<ReturnType<typeof store.teamActivity>>)]);
   const [checkins, coachCount] = await Promise.all([store.teamCheckins(team.id).catch(() => []), store.coachCount(team.id).catch(() => 1)]);
   const names = new Map(drills.map((d) => [d.id, d.funName]));
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });

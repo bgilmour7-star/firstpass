@@ -6,6 +6,7 @@ import { getProgressStore } from '@/lib/progress/store';
 import { season, type SeasonGoal } from '@/lib/progress/season';
 import { monthName } from '@/lib/progress/report';
 import { ProgressTabs } from '../tabs';
+import { teamPractices } from '@/lib/app/read';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +27,7 @@ export default async function SeasonPage() {
       </div>
     );
   const app = await getAppStore();
-  const [goals, practices, drills] = await Promise.all([(await getProgressStore()).goals(team.id).catch(() => []), app.listPractices(team.id).catch(() => []), app.libraryDrills().catch(() => [])]);
+  const [goals, practices, drills] = await Promise.all([(await getProgressStore()).goals(team.id).catch(() => []), teamPractices(team.id).catch(() => []), app.libraryDrills().catch(() => [])]);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const s = season(state.rounds, state.scores, coach.id, goals, practices, new Map(drills.map((d) => [d.id, d])), today, team.groups.filter((g) => !g.off).length || 3);
   const n = s.months.length;

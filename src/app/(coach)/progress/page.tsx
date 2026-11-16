@@ -8,6 +8,7 @@ import { getProgressStore } from '@/lib/progress/store';
 import { goalsView, type GoalView } from '@/lib/progress/goals-view';
 import { nextMonth, STATUS_WORDS } from '@/lib/progress/pace';
 import { GAP_FLAG, monthName, total, type AttributeReport } from '@/lib/progress/report';
+import { teamPractices } from '@/lib/app/read';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
   if (canSee && !scored) await (await getProgressStore()).recordView(round.id);
   // Season goals (decision 0030, part C): on the latest report, with pace and ice time.
   const app = await getAppStore();
-  const [goals, practices, drills] = await Promise.all([(await getProgressStore()).goals(team.id).catch(() => []), app.listPractices(team.id).catch(() => []), app.libraryDrills().catch(() => [])]);
+  const [goals, practices, drills] = await Promise.all([(await getProgressStore()).goals(team.id).catch(() => []), teamPractices(team.id).catch(() => []), app.libraryDrills().catch(() => [])]);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const gv = goals.length ? goalsView(goals, state.rounds, state.scores, coach.id, practices, new Map(drills.map((d) => [d.id, d])), today) : null;
   const nextPlan = [...practices].filter((p) => p.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];

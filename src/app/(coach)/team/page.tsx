@@ -15,6 +15,7 @@ import { progressState } from '@/lib/progress/load';
 import { getProgressStore } from '@/lib/progress/store';
 import { goalsView } from '@/lib/progress/goals-view';
 import { Home, type HomeNext, type NextUpView } from './home';
+import { teamPractices } from '@/lib/app/read';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   const [coaches, joinCode, practices, ice, checkins, drills, progress] = await Promise.all([
     store.coaches(team.id),
     store.joinCode(team.id),
-    store.listPractices(team.id).catch(() => []),
+    teamPractices(team.id).catch(() => []),
     store.iceTimes(team.id).catch(() => []),
     store.teamCheckins(team.id).catch(() => []),
     store.libraryDrills().catch(() => []),

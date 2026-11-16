@@ -32,7 +32,11 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-  const { data } = await supabase.auth.getUser();
+  // getClaims() refreshes the session like getUser() and, with asymmetric JWT signing keys, checks the
+  // token locally instead of calling Supabase Auth on every request (build plan 10.2). With the older
+  // shared-secret keys it falls back to asking Supabase Auth. Pages still check the user themselves.
+  const { data } = await supabase.auth.getClaims();
+  const signedIn = Boolean(data?.claims?.sub);
   // /api/cron/ is called by the database's timer and checks its own secret (decision 0010).
   // /join/ shows who invited you and signs you in on the spot (decision 0013); joining itself
   // needs a session. /email/ holds the logo the emails load, /og/ the share card. / is the public landing page and
@@ -43,7 +47,7 @@ export async function middleware(request: NextRequest) {
   // service worker and the offline page.
   const app = ['/manifest.webmanifest', '/sw.js', '/offline.html', '/apple-icon.png', '/icon.svg'].includes(path) || path.startsWith('/icons/');
   const open = app || path === '/' || path === '/privacy' || path.startsWith('/og/') || ['/login', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/api/vitals', '/join/', '/email/', '/s/', '/unsubscribe/'].some((p) => path.startsWith(p));
-  if (!data.user && !open) {
+  if (!signedIn && !open) {
     const login = request.nextUrl.clone();
     login.pathname = '/login';
     login.search = '';

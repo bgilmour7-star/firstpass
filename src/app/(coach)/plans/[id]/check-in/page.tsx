@@ -8,6 +8,7 @@ import { initials } from '@/lib/plans/activity';
 import { CheckinForm } from './form';
 import { ProgressNudge } from '../../../progress/nudge';
 import type { Group } from '@/lib/drills/schema';
+import { teamPractices } from '@/lib/app/read';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
   const store = await getAppStore();
   const found = await store.getPractice(id);
   if (!found || found.teamId !== team.id) notFound();
-  const [drills, all, plans, coaches] = await Promise.all([store.libraryDrills(), store.teamCheckins(team.id), store.listPractices(team.id), store.coachCount(team.id)]);
+  const [drills, all, plans, coaches] = await Promise.all([store.libraryDrills(), store.teamCheckins(team.id), teamPractices(team.id), store.coachCount(team.id)]);
   const byId = new Map(drills.map((d) => [d.id, d]));
   const p = { ...found, blocks: withStationDrills(found.blocks, byId) };
   const units = rateUnits(p, team, byId);

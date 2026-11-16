@@ -1,5 +1,6 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 import { usingSupabase } from './drills/store';
 import { cookies } from 'next/headers';
 import { getAppStore, type AppStore } from './app/store';
@@ -12,17 +13,25 @@ export type Admin = { id: string; email: string; local: boolean; analytics: bool
 /** name: the first name the coach gave at sign-up, else one made from their email (decision 0013). */
 export type Coach = { id: string; email: string; name: string; hasPassword: boolean; local: boolean; isAdmin: boolean; analytics: boolean };
 
-async function currentUser(nextPath: string): Promise<Coach> {
+// Navigation speed (build plan 10.2): the layout and the page each ask who's signed in. cache() makes
+// that one Supabase Auth check and one pair of role checks per request, not one per caller.
+const signedIn = cache(async (): Promise<Coach | null> => {
   if (!usingSupabase()) return { id: 'local', email: 'Local coach', name: 'Coach', hasPassword: true, local: true, isAdmin: true, analytics: true };
   const { supabaseServer } = await import('./supabase/server');
   const supabase = await supabaseServer();
   const { data } = await supabase.auth.getUser();
-  if (!data.user) redirect(`/login?next=${encodeURIComponent(nextPath)}`);
+  if (!data.user) return null;
   const [{ data: isAdmin }, { data: analytics }] = await Promise.all([supabase.rpc('is_admin'), supabase.rpc('can_see_analytics')]);
   const meta = (data.user.user_metadata ?? {}) as { first_name?: string; has_password?: boolean };
   const email = data.user.email ?? 'Coach';
   // can_see_analytics errors before its migration has run: nobody sees Analytics until then.
   return { id: data.user.id, email, name: meta.first_name?.trim() || editorLabel(email), hasPassword: meta.has_password === true, local: false, isAdmin: Boolean(isAdmin), analytics: analytics === true };
+});
+
+async function currentUser(nextPath: string): Promise<Coach> {
+  const u = await signedIn();
+  if (!u) redirect(`/login?next=${encodeURIComponent(nextPath)}`);
+  return u;
 }
 
 // Every admin page and server action calls this first. RLS enforces the same rule in the database.
@@ -42,10 +51,7 @@ export async function requireAnalytics(nextPath = '/admin/analytics'): Promise<A
 
 /** Signed in or not, without sending anyone to /login (the join page, decision 0013). */
 export async function optionalUser(): Promise<Coach | null> {
-  if (!usingSupabase()) return currentUser('/');
-  const { supabaseServer } = await import('./supabase/server');
-  const { data } = await (await supabaseServer()).auth.getUser();
-  return data.user ? currentUser('/') : null;
+  return signedIn();
 }
 
 /** Signed in, any role. Coach pages call requireTeam() instead. */
@@ -67,10 +73,10 @@ export async function activeTeam(store: Pick<AppStore, 'myTeam'>, userId: string
 }
 
 /** The active team for a signed-in coach, from the request's cookie. Null when they're on no team. */
-export async function currentTeam(userId: string): Promise<Team | null> {
+export const currentTeam = cache(async (userId: string): Promise<Team | null> => {
   const jar = await cookies();
   return activeTeam(await getAppStore(), userId, jar.get(TEAM_COOKIE)?.value);
-}
+});
 
 /** Signed in and on a team. No team yet → Create a team. */
 export async function requireTeam(nextPath = '/plans'): Promise<{ coach: Coach; team: Team }> {
