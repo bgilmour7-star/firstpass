@@ -28,6 +28,8 @@ export function TeamSummary(p: {
   local: boolean;
   email: string;
   isHead: boolean;
+  /** Who scores team progress (decision 0030), when the team's age group has it. */
+  scoring?: Record<string, boolean>;
   coaches: Coach[];
   practicesRun: number;
   joinCode: string | null;
@@ -342,7 +344,7 @@ export function TeamSummary(p: {
       )}
       {edit === 'coaches' && (
         <Drawer title="Coaches" kicker={team.name} onClose={close}>
-          <Coaches coaches={p.coaches} me={p.me} isHead={isHead} initialCode={p.joinCode} origin={p.origin} embedded onHandedOver={() => router.refresh()} />
+          <Coaches coaches={p.coaches} me={p.me} isHead={isHead} initialCode={p.joinCode} origin={p.origin} embedded onHandedOver={() => router.refresh()} scoring={p.scoring} />
         </Drawer>
       )}
     </div>

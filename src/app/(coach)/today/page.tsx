@@ -4,12 +4,13 @@ import { getAppStore } from '@/lib/app/store';
 import { withStationDrills } from '@/lib/plans/schema';
 import { TodayView } from './today-view';
 import { InstallCard, OfflineNote } from '@/components/pwa';
+import { ProgressNudge } from '../progress/nudge';
 
 export const dynamic = 'force-dynamic';
 
 // Rink-side: today's practice (or the one asked for, or the next one coming up).
 export default async function Today({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
-  const { team } = await requireTeam('/today');
+  const { coach, team } = await requireTeam('/today');
   const { plan } = await searchParams;
   const store = await getAppStore();
   const all = await store.listPractices(team.id);
@@ -39,11 +40,13 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
     <div className="flex flex-col gap-5">
       <div className="mx-auto flex w-full max-w-xl flex-col gap-3 empty:hidden">
         <OfflineNote />
+        {!isToday && <ProgressNudge team={team} userId={coach.id} />}
         {!isToday && <InstallCard />}
       </div>
       <TodayView practice={{ ...chosen, blocks: withStationDrills(chosen.blocks, new Map(drills.map((d) => [d.id, d]))) }} team={team} drills={drills} favorites={favorites} isToday={isToday} />
       {isToday && (
-        <div className="mx-auto w-full max-w-xl empty:hidden">
+        <div className="mx-auto flex w-full max-w-xl flex-col gap-3 empty:hidden">
+          <ProgressNudge team={team} userId={coach.id} />
           <InstallCard />
         </div>
       )}

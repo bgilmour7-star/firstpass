@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import type { TeamCoach } from '@/lib/app/store';
 import { handOverTeam, newJoinLink, removeCoach, sendInvite, turnOffJoinLink } from './actions';
+import { setProgressScoring } from '../progress/actions';
 
 const pill = 'inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-medium disabled:opacity-50';
 
@@ -24,6 +25,7 @@ export function Coaches({
   origin,
   embedded = false,
   onHandedOver,
+  scoring,
 }: {
   coaches: TeamCoach[];
   me: string;
@@ -34,7 +36,10 @@ export function Coaches({
   embedded?: boolean;
   /** After handing the team to another coach (decision 0026). */
   onHandedOver?: () => void;
+  /** Who scores team progress, by user id (decision 0030). Absent when the team has no progress. */
+  scoring?: Record<string, boolean>;
 }) {
+  const [scores, setScores] = useState(scoring);
   const [list, setList] = useState(coaches);
   // Head coach until they hand the team over in this drawer.
   const [amHead, setAmHead] = useState(isHead);
@@ -91,6 +96,21 @@ export function Coaches({
                 {c.firstName ? ` · ${c.email}` : ''}
                 {c.role === 'head_coach' ? '' : joinedLabel(c.joinedAt)}
               </span>
+              {scores && (amHead || c.userId === me) && (
+                <label className="-ml-1 flex min-h-11 cursor-pointer items-center gap-2 px-1 text-xs text-ink-200">
+                  <input
+                    type="checkbox"
+                    className="size-5 accent-rink-100"
+                    checked={scores[c.userId] !== false}
+                    disabled={!amHead || pending}
+                    onChange={(e) => {
+                      const on = e.target.checked;
+                      run(() => setProgressScoring(c.userId, on), () => setScores((x) => ({ ...x, [c.userId]: on })));
+                    }}
+                  />
+                  Scores team progress each month
+                </label>
+              )}
             </span>
             {amHead && c.userId !== me && c.role !== 'head_coach' && confirming !== c.userId && handing !== c.userId && (
               <span className="flex shrink-0 flex-wrap items-center justify-end gap-1">

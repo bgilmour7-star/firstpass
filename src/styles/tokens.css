@@ -11,6 +11,8 @@
   --rink-200: #084F68;
   --whistle-100: #C2572A;
   --good-100: #2F8F5B;
+  --good-text: #23704A;
+  --warn-text: #A8461F;
   --flag-100: #B3402E;
   --role-defense-100: #5C6A8C;
   --rink-ice: #FCFEFF;
@@ -56,6 +58,8 @@
     --rink-200: #7AD4EC;
     --whistle-100: #E8824C;
     --good-100: #58C98A;
+    --good-text: #58C98A;
+    --warn-text: #E8824C;
     --flag-100: #E8705C;
     --role-defense-100: #8C9AC2;
     --rink-ice: #0F1B1E;
@@ -78,6 +82,8 @@
   --rink-200: #7AD4EC;
   --whistle-100: #E8824C;
   --good-100: #58C98A;
+  --good-text: #58C98A;
+  --warn-text: #E8824C;
   --flag-100: #E8705C;
   --role-defense-100: #8C9AC2;
   --rink-ice: #0F1B1E;

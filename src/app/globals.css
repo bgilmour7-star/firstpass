@@ -26,6 +26,8 @@
   --color-rink-200: var(--rink-200);
   --color-whistle-100: var(--whistle-100);
   --color-good-100: var(--good-100);
+  --color-good-text: var(--good-text);
+  --color-warn-text: var(--warn-text);
   --color-flag-100: var(--flag-100);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
