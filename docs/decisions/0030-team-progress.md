@@ -20,6 +20,8 @@ Date: 2026-11-15 · Decided by: Brett (season insights discussion, canvas "First
 - **Writes only through functions:** `save_progress_score` checks the round is open, the coach scores on that team, and
   every attribute's counts are five non-negative numbers adding up to no more than the team. A finished score stays
   finished. The head coach turns scoring on or off per coach (`set_progress_scoring`); everyone is on by default.
+- **A coach can change their answers until the month closes, even after finishing** and seeing teammates' answers
+  (Brett, 2026-11-15). The app doesn't offer it as a button yet; the report always uses each coach's latest answers.
 
 ## Why
 Coaches want to see the season move, and goals need a baseline. Counting kids per level is fast, needs no names, and
