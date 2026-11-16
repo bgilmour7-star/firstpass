@@ -124,10 +124,10 @@ export const REGISTRY: Entry[] = [
     render: waitlistLastAskEmail, sample: waitlistSample, skip: retired,
   }),
   {
-    id: 'waitlist.alert', section: 'waitlist', journey: 'waitlist', step: 'alert', name: 'New sign-up alert', when: 'Right away · to you',
+    id: 'waitlist.alert', section: 'waitlist', journey: 'waitlist', step: 'alert', name: 'New association lead', when: 'Right away · to you',
     trigger: 'An association asks about Firstpass (or asks again)', condition: 'Always', audience: 'other', to: 'hello@firstpass.coach (WAITLIST_ALERT_TO)', from: FIRSTPASS,
     file: 'src/lib/email/waitlist-emails.ts', fn: 'waitlistAlertEmail', sentBy: 'app', tag: 'waitlist-alert',
-    preview: () => waitlistAlertEmail({ kind: 'coach', email: 'jordan@example.com', ageGroup: 'U7', orgName: 'Nanaimo U7 Blue', teamCount: null, source: 'shared-ice' }, true),
+    preview: () => waitlistAlertEmail({ kind: 'association', email: 'coordinator@example.com', ageGroup: null, orgName: 'Nanaimo Minor Hockey', teamCount: 14, source: null }, true),
   },
 
   // Invited to coach a team

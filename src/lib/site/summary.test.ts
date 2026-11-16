@@ -27,12 +27,12 @@ describe('summarize', () => {
     expect(s.from).toBe('2026-10-14');
   });
 
-  it('builds the funnel from distinct visitors, taps, and new teams with a plan (decision 0033)', () => {
+  it('builds the funnel from distinct visitors, taps, and new teams that checked in (decision 0033)', () => {
     const at = ago(1);
     const events: PageEvent[] = [view(at, 'a'), view(at, 'b'), view(at, 'c'), { ...view(at, 'a'), name: 'reached_form' }, { ...view(at, 'a'), name: 'form_start' }, { ...view(at, 'a'), name: 'form_start' }, { ...view(at, 'b'), name: 'form_start' }];
     const app = {
       teams: [{ id: 't1', createdAt: at }, { id: 't2', createdAt: at }, { id: 'old', createdAt: ago(30) }],
-      practices: [{ teamId: 't1', createdAt: at }, { teamId: 't1', createdAt: at }, { teamId: 'old', createdAt: at }],
+      practices: [{ teamId: 't1', createdAt: at, checkedIn: true }, { teamId: 't2', createdAt: at, checkedIn: false }, { teamId: 'old', createdAt: at, checkedIn: true }],
     };
     const s = summarize(events, [entry(at)], { days: 7, now: NOW, app });
     expect(s.funnel.map((f) => f.visitors)).toEqual([3, 2, 2, 1]);

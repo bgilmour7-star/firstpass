@@ -29,15 +29,14 @@ export default function Privacy() {
         <h2 className={h2}>No kids’ information, ever</h2>
         <p className={p}>Firstpass never stores children’s names, photos or birthdates. Teams are described by skill group and counts only.</p>
 
-        <h2 className={h2}>If you join the waitlist</h2>
+        <h2 className={h2}>If you ask about Firstpass for your association</h2>
         <p className={p}>We keep what you type in the form:</p>
         <ul className="mt-1 list-disc pl-6">
           <li className={li}>your email</li>
-          <li className={li}>whether you coach a team or run an association</li>
-          <li className={li}>your age group, team or association name, and number of teams, if you gave them</li>
+          <li className={li}>your association’s name and number of teams</li>
           <li className={li}>the link that brought you, if it had a tag (like a shared plan)</li>
         </ul>
-        <p className={p}>We use it to email you about Firstpass and to set up a call. Only Brett sees the list. We don’t sell it or share it with anyone.</p>
+        <p className={p}>We use it to email you about Firstpass and to set up a call. Only Brett sees the list. We don’t sell it or share it with anyone. Coaches who joined the waitlist earlier are kept on the same list.</p>
 
         <h2 className={h2}>If you answer the survey or talk with Brett</h2>
         <p className={p}>

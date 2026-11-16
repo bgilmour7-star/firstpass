@@ -150,10 +150,10 @@ function Headline({ s }: { s: Summary }) {
     { label: 'Unique visitors', value: s.uniques.now.toLocaleString('en-CA'), delta: change(s.uniques.now, s.uniques.before, 'percent'), note: 'counted per day' },
     { label: 'Association leads', value: String(s.signups.now), delta: change(s.signups.now, s.signups.before, 'count'), note: prev },
     {
-      label: 'Visitors who joined',
-      value: pct(s.conversion.now),
-      delta: s.conversion.now != null && s.conversion.before != null ? change(s.conversion.now, s.conversion.before, 'points') : null,
-      note: 'sign-ups ÷ unique visitors',
+      label: 'Visitors who tapped',
+      value: pct(s.funnel[0].visitors ? s.funnel[1].visitors / s.funnel[0].visitors : null),
+      delta: null,
+      note: 'Plan your first practice ÷ unique visitors',
     },
   ];
   return (
@@ -275,12 +275,12 @@ function Funnel({ s }: { s: Summary }) {
   const [visited, tapped, teams, planned] = s.funnel.map((f) => f.visitors);
   const note =
     visited > 0
-      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} made a plan. ` : ''}Teams and plans are counted in the app, so they include coaches who came another way.`
+      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} checked in after a practice. ` : ''}Teams and check-ins are counted in the app (test teams included), so they include coaches who came another way.`
       : 'No visits yet.';
   return (
     <section aria-labelledby="funnel-title" className="flex flex-col gap-3.5">
       <h2 id="funnel-title" className="text-lg font-semibold">
-        From visit to first plan
+        From visit to first practice
       </h2>
       <div className="grid grid-cols-[150px_1fr_56px] items-center gap-x-3.5 gap-y-3 text-sm">
         {s.funnel.map((f) => (

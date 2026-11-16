@@ -452,7 +452,7 @@ export function Landing() {
                 See them get better.
               </h2>
               <p className="max-w-[44ch] flex-[1_1_360px] text-[17px] text-ink-200">
-                Once a month, each coach says how many kids are at each level in six skills. Counts, never names, about five minutes. Set a goal for each skill, and when one falls behind, the next plans lean toward it.
+                Once a month, each coach says how many kids are at each level in six skills. Counts, never names, about five minutes. Set a goal for each skill, and when one falls behind, your next plan suggests a drill for it.
               </p>
             </div>
             <figure aria-label="An example team progress report: six skills from October to November, with goals" className="m-0 flex flex-col gap-4 rounded-2xl bg-surface-200 p-4 sm:p-7">

@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { joinWaitlist, track } from '@/app/site-actions';
+import { joinWaitlist } from '@/app/site-actions';
 import { visitSource } from './visit-tracker';
 
 // The association form (decision 0033; was the waitlist form of decision 0019). Sign-up is open, so
-// coaches start from "Plan your first practice"; associations leave their email, name and number of
+// coaches start from "Plan your first practice" (the only CTA counted as a tap); associations leave their email, name and number of
 // U5–U9 teams, and Brett gets in touch. Rows still land in the waitlist table (kind 'association'),
 // which alerts hello@firstpass.coach. Once sent, the card becomes the confirmation: a pass from puck
 // to teammate that turns into a check mark (WaitlistDone).
@@ -22,13 +22,7 @@ export function AssociationForm() {
   const [error, setError] = useState<{ text: string; field?: Field } | null>(null);
   const [done, setDone] = useState<{ email: string; height: number } | null>(null);
   const [pending, start] = useTransition();
-  const started = useRef(false);
 
-  const firstTouch = () => {
-    if (started.current) return;
-    started.current = true;
-    void track('form_start', location.pathname, visitSource());
-  };
 
   function submit(form: HTMLFormElement) {
     const f = new FormData(form);
@@ -54,7 +48,6 @@ export function AssociationForm() {
         e.preventDefault();
         submit(e.currentTarget);
       }}
-      onFocus={firstTouch}
       aria-labelledby="assoc-title"
       className={`${CARD} flex-col gap-5`}
     >
@@ -62,7 +55,7 @@ export function AssociationForm() {
         <h3 id="assoc-title" className="font-display text-[24px] font-bold leading-tight tracking-[-0.01em]">
           Run an association?
         </h3>
-        <p className="text-[15px] leading-[22px] text-ink-200">Every U5–U9 team planning the same way, and their season in one place. Leave your details and Brett will get in touch.</p>
+        <p className="text-[15px] leading-[22px] text-ink-200">Every U5–U9 team planning the same way. Leave your details and Brett will get in touch.</p>
       </div>
       <label className={label}>
         Email
