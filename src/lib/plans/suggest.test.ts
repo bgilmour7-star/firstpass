@@ -172,7 +172,7 @@ describe('the season goal rule (decision 0030)', () => {
     const shootingFirst = goalRun({ goals: six(0.4, 0.1), targets: both }).list.find((x) => x.source === 'goal');
     expect(shootingFirst?.key).toMatch(/^goal:Shooting:/);
     const passingFirst = goalRun({ goals: six(0.1, 0.4), targets: both }).list.find((x) => x.source === 'goal');
-    expect(passingFirst?.key ?? 'none').not.toMatch(/^goal:Shooting:/);
+    expect(passingFirst?.key).toMatch(/^goal:Passing:/);
   });
   it('comes after the check-in suggestions and only if there is room', () => {
     const full = goalRun({
