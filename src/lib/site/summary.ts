@@ -30,7 +30,10 @@ export type Summary = {
 };
 type Metric = { now: number; before: number };
 
-export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: { days: number; now?: Date }): Summary {
+/** New teams and their plans, from the app (Admin → Analytics → In the app's rows), for the funnel's last steps. */
+export type FunnelApp = { teams: { id: string; createdAt: string }[]; practices: { teamId: string; createdAt: string; checkedIn: boolean }[] };
+
+export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: { days: number; now?: Date; app?: FunnelApp }): Summary {
   const now = opts.now ?? new Date();
   const end = now.getTime();
   const start = end - opts.days * DAY;
@@ -67,11 +70,16 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
   const peak = daily.reduce<Summary['peak']>((best, d) => (d.visits > 0 && (!best || d.visits > best.visits) ? { day: d.day, visits: d.visits } : best), null);
 
   const reached = (name: PageEvent['name']) => visitors(cur.filter((e) => e.name === name));
+  // Sign-up is open (decision 0033): from a visit to a team that has run a practice. The last two steps are counted
+  // in the app, not linked to visits (no cookies), so they can include coaches who came another way.
+  const newTeams = new Set((opts.app?.teams ?? []).filter((t) => inWin(t.createdAt)).map((t) => t.id));
+  // Every new team gets its first plan at setup, so the step that shows real use is a practice run and checked in.
+  const checkedIn = new Set((opts.app?.practices ?? []).filter((p) => newTeams.has(p.teamId) && p.checkedIn).map((p) => p.teamId));
   const funnel = [
     { label: 'Visited', visitors: uniques },
-    { label: 'Reached the form', visitors: reached('reached_form') },
-    { label: 'Started the form', visitors: reached('form_start') },
-    { label: 'Joined', visitors: joined.length },
+    { label: 'Tapped Plan your first practice', visitors: reached('form_start') },
+    { label: 'Made a team', visitors: newTeams.size },
+    { label: 'Checked in after a practice', visitors: checkedIn.size },
   ];
 
   const bySource = new Map<string, { visitors: Set<string>; signups: number }>();

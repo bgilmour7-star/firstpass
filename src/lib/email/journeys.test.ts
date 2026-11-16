@@ -60,10 +60,8 @@ describe('email journey registry', () => {
   it('checks conditions at send time', () => {
     const f = (o: Partial<SendFacts> = {}): SendFacts => ({ surveyDone: false, unsubscribed: false, isAdmin: false, audience: 'waitlist', ...o });
     const skip = (j: string, s: string, facts: SendFacts) => queuedEntry(j, s)!.skip(facts);
-    expect(skip('waitlist', 'welcome', f())).toBeNull();
-    expect(skip('waitlist', 'welcome', f({ unsubscribed: true }))).toBe('unsubscribed');
-    expect(skip('waitlist', 'nudge', f({ surveyDone: true }))).toBe('survey-done');
-    expect(skip('waitlist', 'last-ask', f({ audience: 'coach' }))).toBe('now-a-coach');
+    // The waitlist series is retired (decision 0033): nothing still queued goes out.
+    for (const step of ['welcome', 'nudge', 'last-ask']) expect(skip('waitlist', step, f())).toBe('retired');
     expect(skip('coach', 'first-practice', f({ audience: 'coach', isAdmin: true }))).toBe('admin');
     expect(skip('coach', 'nudge', f({ audience: 'coach', surveyDone: true }))).toBe('survey-done');
     expect(skip('coach', 'nudge', f({ audience: 'coach' }))).toBeNull();

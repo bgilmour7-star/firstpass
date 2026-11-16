@@ -4,7 +4,10 @@ import type { RinkDiagramApi, RinkDiagramProps } from '../../../design-system/in
 import puckParty from '../../../content/drills/rotation-puck-party.json';
 import skiRacer from '../../../content/drills/ski-racer.json';
 import { VisitTracker } from './visit-tracker';
-import { WaitlistForm } from './waitlist-form';
+import { AssociationForm } from './association-form';
+import { StartLink } from './start-link';
+import { ProgressChart } from '@/components/progress-chart';
+import type { ProgressRow } from '@/lib/home/progress-view';
 import { Mark } from './mark';
 import { HeroRink } from './hero-rink';
 import { StickyHeader } from './sticky-header';
@@ -12,7 +15,8 @@ import { StickyHeader } from './sticky-header';
 // The public landing page (decision 0019; canvas "Firstpass Landing Page"). One promise, "Show up
 // ready", proved with the product: real drills from the library drawn by RinkDiagram, and crops of
 // real screens. A dashed pass line runs down the left from a puck (the hero) to a teammate ring
-// (the waitlist form), so the page reads like the logo: puck, pass, teammate. Tablet and up only: on a
+// (the closing band), so the page reads like the logo: puck, pass, teammate. Sign-up is open (decision
+// 0033): every call to action is "Plan your first practice", straight to sign-in. Tablet and up only: on a
 // phone the two ends are screens apart, so the line is just a stripe that costs margin.
 
 const RD = firstpass.RinkDiagram as RinkDiagramApi;
@@ -34,6 +38,16 @@ const levels: { n: number; name: string; spec: RinkDiagramProps }[] = [
 ];
 const zones = puckParty.zones as { station: string; name: string }[];
 const heroTitle = `${puckParty.funName}: three zones on half ice. ${zones.map((z) => `${z.station}, ${z.name}`).join('. ')}.`;
+
+// The example report on the page: the team's average level per skill, October to November, two goals.
+const SAMPLE_PROGRESS: ProgressRow[] = [
+  { attribute: 'Skating', before: 2.4, now: 3.1, goal: { target: 3.5, expected: 2.9, status: 'ahead', byDate: '2027-02-28' } },
+  { attribute: 'Puck control', before: 2.0, now: 2.4, goal: null },
+  { attribute: 'Passing', before: 1.8, now: 2.0, goal: { target: 3.0, expected: 2.3, status: 'behind', byDate: '2027-02-28' } },
+  { attribute: 'Shooting', before: 2.1, now: 2.5, goal: null },
+  { attribute: 'Game sense', before: 1.9, now: 2.2, goal: null },
+  { attribute: 'Effort & fun', before: 3.6, now: 4.0, goal: null },
+];
 
 const h2 = 'font-display text-[clamp(34px,4.4vw,56px)] font-bold leading-[1.02] tracking-[-0.025em]';
 const section = 'relative border-t border-border-100 py-[clamp(64px,9vw,112px)]';
@@ -202,13 +216,11 @@ export function Landing() {
                 Hockey practice plans for parents who said yes to coaching.
               </h1>
               <p className="max-w-[36ch] text-[clamp(18px,1.6vw,21px)] leading-normal">
-                No drill hunting the night before. Firstpass builds each U5–U9 practice for your ice time and your kids, and you run it from your phone.
+                No drill hunting the night before. Firstpass builds each U5–U9 practice for your ice time: every group busy, every drill at the right level, and the whole plan on your phone at the rink.
               </p>
               <div className="flex flex-col items-start gap-3 pt-2">
-                <a id="hero-cta" href="#join" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200">
-                  Get early access
-                </a>
-                <p className="text-[15px] text-ink-200">Your first team is free.</p>
+                <StartLink id="hero-cta" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200" />
+                <p className="text-[15px] text-ink-200">Your first team is free. Sign up with Google or your email.</p>
               </div>
             </div>
             <div className="relative min-w-0 flex-[1_1_440px] sm:pb-[max(200px,14vw)]">
@@ -431,12 +443,37 @@ export function Landing() {
             </div>
           </section>
 
+          {/* Progress (decision 0030): the team's season as a picture. Example numbers, counted as the app does. */}
+          <section aria-labelledby="progress-title" className={`${section} flex flex-col gap-12`}>
+            <Rail />
+            <Cone top="clamp(70px, 9vw, 118px)" />
+            <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-5">
+              <h2 id="progress-title" className={`${h2} flex-[1_1_480px]`}>
+                See them get better.
+              </h2>
+              <p className="max-w-[44ch] flex-[1_1_360px] text-[17px] text-ink-200">
+                Once a month, each coach says how many kids are at each level in six skills. Counts, never names, about five minutes. Set a goal for each skill, and when one falls behind, your next plan suggests a drill for it.
+              </p>
+            </div>
+            <figure aria-label="An example team progress report: six skills from October to November, with goals" className="m-0 flex flex-col gap-4 rounded-2xl bg-surface-200 p-4 sm:p-7">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="font-display text-xl font-bold">November progress report</span>
+                <span className="text-sm text-ink-200">U7 Blue · 12 skaters · example</span>
+              </div>
+              <div className="rounded-xl border border-border-100 bg-surface-100 p-3 sm:p-5">
+                <ProgressChart rows={SAMPLE_PROGRESS} label="Example team progress from October to November across six skills, with goals for skating and passing." span="October → November" />
+              </div>
+            </figure>
+            <p className="max-w-[46ch] text-[17px]">
+              <strong className="font-semibold">So by February you know the season is working.</strong> <span className="text-ink-200">And so does every coach on your team.</span>
+            </p>
+          </section>
+
         </div>
       </main>
 
       {/* Join: the one teal band (brand moment 1). The page stays white until the ask. */}
       <section id="join" aria-labelledby="join-title" className="band-teal relative scroll-mt-0 text-white">
-        <span id="join-association" aria-hidden="true" className="absolute top-0" />
         <div className="mx-auto max-w-[1200px] px-5 sm:px-[clamp(16px,4vw,48px)]">
           <div className="relative flex flex-wrap items-start gap-x-[clamp(40px,6vw,96px)] gap-y-12 pb-[clamp(72px,9vw,120px)] pl-[var(--railpad)] pt-[clamp(64px,9vw,112px)] [--railpad:0px] [--railx:clamp(4px,1.4vw,20px)] sm:[--railpad:clamp(28px,5vw,76px)]">
             <div aria-hidden="true" className="absolute hidden left-[var(--railx)] top-0 w-[3px] sm:block bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.72)_0_9px,transparent_9px_17px)]" style={{ height: 'clamp(66px, 9vw, 114px)' }} />
@@ -453,7 +490,15 @@ export function Landing() {
               </blockquote>
               <p className="max-w-[46ch] text-[15px] text-white/80">Drills are adapted from the skills young players already learn, and every drill shows where it came from. No kids’ names, ever.</p>
             </div>
-            <WaitlistForm />
+            <div className="flex min-w-0 max-w-[520px] flex-[1_1_380px] flex-col gap-6">
+              <div className="flex flex-col gap-4 rounded-2xl bg-surface-100 p-[clamp(24px,3vw,36px)] text-ink-100 shadow-[0_12px_32px_rgba(4,30,40,0.25)]">
+                <h3 className="font-display text-[28px] font-bold leading-tight tracking-[-0.01em]">Your first practice, ready in minutes.</h3>
+                <p className="text-[15px] leading-[22px] text-ink-200">Tell us your age group, ice times and skill groups. Firstpass builds the first plan, and you change what you like.</p>
+                <StartLink className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200" />
+                <p className="text-center text-sm text-ink-200">Your first team is free. Sign up with Google or your email.</p>
+              </div>
+              <AssociationForm />
+            </div>
           </div>
         </div>
       </section>
