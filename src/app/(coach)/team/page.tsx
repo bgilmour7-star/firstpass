@@ -2,12 +2,15 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { clock, drillIds, todayUnits } from '@/lib/plans/schema';
+import { blockMinutes, clock, drillIds, todayUnits } from '@/lib/plans/schema';
 import { practiceOver } from '@/lib/plans/checkin';
 import { seasonSoFar } from '@/lib/plans/team-summary';
 import { todayLocal } from '@/lib/calendar/sync';
 import { nextUp } from '@/lib/home/next-up';
 import { practiceStrip } from '@/lib/home/strip';
+import { homeProgress, type HomeProgress } from '@/lib/home/progress-view';
+import { canSeeReport } from '@/lib/progress/report';
+import { reportFor } from '@/lib/progress/load';
 import { progressState } from '@/lib/progress/load';
 import { getProgressStore } from '@/lib/progress/store';
 import { goalsView } from '@/lib/progress/goals-view';
@@ -45,6 +48,9 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
 
   // Next up: one thing, or nothing.
   const ready = progress?.kind === 'ready' ? progress : null;
+  // Season goals as this coach can see them (decision 0030): pace from the newest report they've unlocked.
+  const goalList = ready ? await (await getProgressStore()).goals(team.id).catch(() => []) : [];
+  const goalViews = ready && goalList.length ? goalsView(goalList, ready.rounds, ready.scores, coach.id, practices, byId, today).goals : [];
   const up = nextUp({
     userId: coach.id,
     now,
@@ -76,8 +82,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
     // Drills the kids have done before this practice; a drill they haven't is "New today".
     const known = new Set(practices.filter((p) => p.date < n.date).flatMap((p) => p.blocks.flatMap(drillIds)));
     // Goals that are behind (decision 0030): a drill whose Main focus serves one is marked.
-    const goals = ready ? await (await getProgressStore()).goals(team.id).catch(() => []) : [];
-    const behind = ready && goals.length ? new Set(goalsView(goals, ready.rounds, ready.scores, coach.id, practices, byId, today).goals.filter((g) => g.status === 'behind').map((g) => g.goal.attribute as string)) : new Set<string>();
+    const behind = new Set(goalViews.filter((g) => g.status === 'behind').map((g) => g.goal.attribute as string));
     // Times and rotation minutes as the plan page counts them: the groups there that day.
     const strip = practiceStrip(n, byId, todayUnits(team, n.attendance).length, known, behind);
     const fresh = strip.filter((s) => s.isNew).length;
@@ -87,6 +92,29 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   }
   // The same ice as Next up's "make a plan": the Next practice row already says it.
   const nextUpShown = up?.kind === 'plan' && next.kind === 'ice' && next.iceId === up.iceId ? null : nextUpView;
+
+  // Progress (decision 0031): the newest report this coach can see, as a chart, joined to the next plan.
+  let progressView: HomeProgress | null = null;
+  if (ready) {
+    const seen = ready.rounds.find((r) => canSeeReport(ready.scores, r.id, coach.id));
+    const report = seen ? reportFor(ready.rounds, ready.scores, seen.id) : null;
+    const prev = seen ? ready.rounds[ready.rounds.indexOf(seen) + 1] : undefined;
+    const bySkill: Record<string, number> = {};
+    if (n) {
+      const gc = todayUnits(team, n.attendance).length;
+      for (const b of n.blocks) {
+        const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
+        for (const f of d?.focus ?? []) if (f.level === 2) bySkill[f.attribute] = (bySkill[f.attribute] ?? 0) + blockMinutes(b, gc);
+      }
+    }
+    progressView = homeProgress({
+      report,
+      prevMonth: report?.attributes.some((a) => a.change != null) ? (prev?.month ?? null) : null,
+      goals: goalViews,
+      round: ready.current ? { month: ready.current.month, open: ready.open, finished: Boolean(ready.mine?.finishedAt), scoring: ready.scoring } : null,
+      next: n ? { weekday: weekday(n.date), minutes: n.minutes, bySkill } : null,
+    });
+  }
 
   const run = practices.filter((p) => p.date < today).length;
   const byCoach = Object.fromEntries(coaches.map((c) => [c.userId, checkins.filter((x) => x.userId === c.userId).length]));
@@ -101,6 +129,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
       joinCode={joinCode}
       origin={origin}
       nextUp={nextUpShown}
+      progress={progressView}
       next={next}
       season={seasonSoFar(practices, checkins, today)}
     />

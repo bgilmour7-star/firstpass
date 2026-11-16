@@ -183,18 +183,18 @@ Acceptance: after Sunday's practice, Home shows "How did Sunday go?" until you c
 ### 8.3 Home: Progress as a chart (PR C)
 Goal: progress at a glance, joined to the next plan.
 Context: decision 0031, 0030. Files: a new `src/components/progress-chart.tsx` (SVG, tokens only), `src/app/(coach)/team/home.tsx`.
-- [ ] Chart: each skill on the 1–5 scale, last round's dot to this round's (hollow to filled, joined when it moved), the value and the change (no "same"); goal skills shaded with an outlined flag at the goal, a tick where the team should be now (`pace.ts`) and Ahead/Behind in words. `role="img"` with a full sentence. Legend above. Phone layout: name and value above each track.
-- [ ] Sentence on top from the goals and the next plan ("Shooting needs more ice time. Sunday's plan gives it 18 of 50 minutes."); next round line and Change goals below.
-- [ ] States: hidden for age groups with no level set; before the first round, the "Score your first round" card; finished rounds but no goals, the chart without flags and a Set goals nudge; a coach who hasn't finished an open round sees the last report they unlocked (0030 P2).
+- [x] Chart: each skill on the 1–5 scale, last round's dot to this round's (hollow to filled, joined when it moved), the value and the change (no "same"); goal skills shaded with an outlined flag at the goal, a tick where the team should be now (`pace.ts`) and Ahead/Behind in words. `role="img"` with a full sentence. Legend above. Phone layout: name and value above each track.
+- [x] Sentence on top from the goals and the next plan ("Shooting needs more ice time. Sunday's plan gives it 18 of 50 minutes."); next round line and Change goals below.
+- [x] States: hidden for age groups with no level set; before the first round, the "Score your first round" card; finished rounds but no goals, the chart without flags and a Set goals nudge; a coach who hasn't finished an open round sees the last report they unlocked (0030 P2).
 Acceptance: with the local sample, Skating shows ahead of its tick and Shooting behind; screen readers get the sentence; light and dark both pass contrast.
 
 ### 8.4 A goal for every skill (PR D, decision 0031 · any time, smallest first)
 Goal: a head coach can set a season goal on each of the six skills, not just three.
 Context: 0030 P4 (max 3), `supabase/migrations/20261118000000_progress_goals.sql` (`set_progress_goal`), `src/lib/progress/store-local.ts`, `src/app/(coach)/progress/goals/{editor,page}.tsx`, `src/app/(coach)/progress/page.tsx`, `src/lib/plans/suggest.ts`, `src/lib/progress/ice-time.ts`.
-- [ ] Migration `20261120000000_goals_per_skill.sql`: `create or replace function public.set_progress_goal` without the 3-goal check (one active goal per skill stays). Safe to run twice. **Brett: run it (full SQL in the PR).**
-- [ ] Local store and the goals editor: no cap beyond one per skill; copy that says "up to three" and "of 3" counts six. The goals page lists all six skills, each with Set a goal.
-- [ ] Steering stays one goal suggestion per plan: pick the goal furthest behind its target this month (tie: largest gap). Ice-time targets already weight by gap; add a test with six goals that the shares still sum to 1, keep the 10% floor, and favour the largest gaps.
-- [ ] Home chart (8.3): every goal skill gets its flag and tick; only goals that are behind are shaded, so six goals don't shade every row. The top sentence names at most two skills, the furthest behind first.
+- [x] Migration `20261120000000_goals_per_skill.sql`: `create or replace function public.set_progress_goal` without the 3-goal check (one active goal per skill stays). Safe to run twice. **Brett: run it (full SQL in the PR).**
+- [x] Local store and the goals editor: no cap beyond one per skill; copy that says "up to three" and "of 3" counts six. The goals page lists all six skills, each with Set a goal.
+- [x] Steering stays one goal suggestion per plan: pick the goal furthest behind its target this month (tie: largest gap). Ice-time targets already weight by gap; add a test with six goals that the shares still sum to 1, keep the 10% floor, and favour the largest gaps.
+- [x] Home chart (8.3): every goal skill gets its flag and tick; only goals that are behind are shaded, so six goals don't shade every row. The top sentence names at most two skills, the furthest behind first.
 Acceptance: a head coach sets goals on all six skills; the plan offers one swap, for the skill furthest behind; non-head coaches still can't set goals (function test).
 Why: U7 is about all-round development; focus comes at later ages (Brett, 2026-11-16). A goal per skill is the expected setup, not an edge case, so the goals page offers all six and nothing warns against it.
 
