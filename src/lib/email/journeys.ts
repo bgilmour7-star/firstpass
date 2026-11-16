@@ -79,7 +79,7 @@ const BRETT = 'Brett at Firstpass, reply-to hello@';
 const FIRSTPASS = 'Firstpass <hello@firstpass.coach>';
 const SITE = 'https://firstpass.coach';
 
-const progressSample = { teamName: 'Nanaimo U7 Avalanche', month: 'November', firstName: 'Brett', settingsUrl: `${SITE}/team#emails` };
+const progressSample = { teamName: 'Nanaimo U7 Avalanche', month: 'November', firstName: 'Brett', settingsUrl: `${SITE}/account#emails` };
 const progressReportSample: ProgressReportInput = {
   ...progressSample, url: `${SITE}/progress`, skaters: 12, coaches: ['Brett', 'Kara', 'Sam'], first: false,
   rows: [
@@ -130,13 +130,13 @@ export const REGISTRY: Entry[] = [
   // Invited to coach a team
   {
     id: 'coach.invite', section: 'coach', journey: 'coach', step: 'invite', name: 'Invite to join', when: 'When invited',
-    trigger: 'A coach invites them by email from the Team page', condition: 'Always', audience: 'person', to: 'The invited coach', from: FIRSTPASS,
+    trigger: 'A head coach invites them by email from Team settings', condition: 'Always', audience: 'person', to: 'The invited coach', from: FIRSTPASS,
     file: 'src/lib/email/account-emails.ts', fn: 'inviteEmail', sentBy: 'app', tag: 'invite', preview: () => inviteEmail({ inviter: 'Brett', teamName: 'Nanaimo U7 Avalanche', to: 'kara@example.com', joinUrl: `${SITE}/join/sample` }),
   },
   {
     id: 'coach.joined', section: 'coach', journey: 'coach', step: 'joined', name: 'A coach joined', when: 'When they join',
     trigger: 'Someone joins with the team’s link', condition: 'Not the head coach themselves', audience: 'other', to: 'The head coach', from: FIRSTPASS,
-    file: 'src/lib/email/account-emails.ts', fn: 'coachJoinedEmail', sentBy: 'app', tag: 'coach-joined', preview: () => coachJoinedEmail({ name: 'Kara', email: 'kara@example.com', teamName: 'Nanaimo U7 Avalanche', coachesUrl: `${SITE}/team#coaches` }),
+    file: 'src/lib/email/account-emails.ts', fn: 'coachJoinedEmail', sentBy: 'app', tag: 'coach-joined', preview: () => coachJoinedEmail({ name: 'Kara', email: 'kara@example.com', teamName: 'Nanaimo U7 Avalanche', coachesUrl: `${SITE}/team/settings#coaches` }),
   },
   {
     id: 'coach.head-coach', section: 'coach', journey: 'coach', step: 'head-coach', name: 'You’re head coach now', when: 'When the team is handed over',
@@ -161,7 +161,7 @@ export const REGISTRY: Entry[] = [
     id: 'practice.checkin', section: 'practice', journey: 'practice', step: 'checkin', name: 'After-practice check-in', when: '30 min after it ends',
     trigger: 'A planned practice ends', delay: '30 minutes', condition: 'Not checked in, email not turned off, within 6 hours', audience: 'person', to: 'Every coach on the team', from: FIRSTPASS,
     file: 'src/lib/email/checkin-email.ts', fn: 'checkinEmail', sentBy: 'cron', tag: 'checkin',
-    preview: () => checkinEmail({ teamName: 'Nanaimo U7 Avalanche', practiceDate: '2026-10-28', startTime: '17:45', nextDate: '2026-10-30', checkedIn: ['Kara'], checkinUrl: `${SITE}/plans/sample/check-in`, settingsUrl: `${SITE}/team#emails` }),
+    preview: () => checkinEmail({ teamName: 'Nanaimo U7 Avalanche', practiceDate: '2026-10-28', startTime: '17:45', nextDate: '2026-10-30', checkedIn: ['Kara'], checkinUrl: `${SITE}/plans/sample/check-in`, settingsUrl: `${SITE}/account#emails` }),
   },
 
   // Every month: team progress (decision 0030)

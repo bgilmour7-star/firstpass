@@ -79,7 +79,7 @@ export async function notifyHeadCoach(db: SupabaseClient, teamId: string, newCoa
     const me = list.find((c) => c.user_id === newCoachId);
     const name = (team as { name: string } | null)?.name;
     if (!head || !me || !name || head.user_id === newCoachId) return;
-    const email = coachJoinedEmail({ name: me.first_name || editorLabel(me.email), email: me.email, teamName: name, coachesUrl: `${SITE}/team#coaches` });
+    const email = coachJoinedEmail({ name: me.first_name || editorLabel(me.email), email: me.email, teamName: name, coachesUrl: `${SITE}/team/settings#coaches` });
     await sendEmail(head.email, email, 'coach-joined', `joined-${teamId}-${newCoachId}`);
   } catch (e) {
     console.error('[join] head coach email failed:', e instanceof Error ? e.message : e);

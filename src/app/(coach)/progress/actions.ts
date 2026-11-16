@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { requireTeam } from '@/lib/auth';
+import { requireTeam, requireUser } from '@/lib/auth';
+import { getAppStore } from '@/lib/app/store';
 import { ATTRIBUTES } from '@/lib/progress/levels';
 import { getProgressStore } from '@/lib/progress/store';
 
@@ -52,11 +53,13 @@ export async function setProgressScoring(userId: string, on: boolean): Promise<{
   return { ok: true };
 }
 
-/** Each coach: whether they get the monthly progress emails. */
-export async function setProgressEmails(on: boolean): Promise<{ ok: true } | { ok: false; error: string }> {
-  const { coach, team } = await requireTeam('/team');
+/** Each coach: whether they get the monthly progress emails, for one of their teams (set from Account, 0031). */
+export async function setProgressEmails(teamId: string, on: boolean): Promise<{ ok: true } | { ok: false; error: string }> {
+  const coach = await requireUser('/account');
+  if (typeof teamId !== 'string' || typeof on !== 'boolean') return { ok: false, error: 'Something didn’t add up.' };
+  if (!(await (await getAppStore()).myTeams(coach.id)).some((t) => t.id === teamId)) return { ok: false, error: 'You’re not on that team.' };
   try {
-    await (await getProgressStore()).setEmails(team.id, coach.id, on);
+    await (await getProgressStore()).setEmails(teamId, coach.id, on);
   } catch (e) {
     return { ok: false, error: e instanceof Error && e.message === 'progress-migration-missing' ? 'Progress emails need their database update first.' : 'Couldn’t save that.' };
   }

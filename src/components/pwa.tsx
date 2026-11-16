@@ -258,6 +258,8 @@ export function InstallCard() {
 /** Account → Install on your phone: always there, for anyone who dismissed the card. */
 export function InstallSection() {
   const device = useDevice();
+  // Phones only (decision 0031): on a computer there's nothing to do here.
+  if (device === 'desktop') return null;
   return (
     <section aria-labelledby="install-acct" className="flex flex-col gap-2 border-t border-border-100 pt-5">
       <h2 id="install-acct" className="text-[15px] font-semibold">
@@ -265,8 +267,6 @@ export function InstallSection() {
       </h2>
       {device === null ? null : device === 'standalone' ? (
         <p className="text-sm text-ink-200">You’re using the installed app. Today’s plan opens even with no signal.</p>
-      ) : device === 'desktop' ? (
-        <p className="text-sm text-ink-200">Open firstpass.coach on your phone and sign in, then come back here for the steps. Today’s plan then opens in one tap, even with no signal at the rink.</p>
       ) : (
         <>
           <p className="text-sm text-ink-200">Today’s plan opens in one tap, even with no signal at the rink.</p>

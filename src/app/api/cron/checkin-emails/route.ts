@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       nextDate: d.next_date,
       checkedIn: d.checked_in ?? [],
       checkinUrl: `${SITE}/plans/${d.practice_id}/check-in`,
-      settingsUrl: `${SITE}/team#emails`,
+      settingsUrl: `${SITE}/account#emails`,
     });
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

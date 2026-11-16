@@ -29,10 +29,10 @@ describe('invite email', () => {
 });
 
 describe('coach joined email', () => {
-  const e = coachJoinedEmail({ name: 'Kara', email: 'kara@example.com', teamName: 'U7 <Clippers>', coachesUrl: 'https://firstpass.coach/team#coaches' });
+  const e = coachJoinedEmail({ name: 'Kara', email: 'kara@example.com', teamName: 'U7 <Clippers>', coachesUrl: 'https://firstpass.coach/team/settings#coaches' });
   it('names the new coach and offers a way to remove them', () => {
     expect(e.subject).toBe('Kara joined U7 <Clippers>');
-    expect(e.text).toContain('Remove them on the Team page');
+    expect(e.text).toContain('Remove them in Team settings');
   });
   it('escapes the team name in the html', () => expect(e.html).toContain('U7 &lt;Clippers&gt;'));
 });

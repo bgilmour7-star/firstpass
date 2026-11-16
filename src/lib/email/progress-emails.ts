@@ -20,7 +20,7 @@ type Common = {
   month: string;
   /** The coach this goes to. */
   firstName: string;
-  /** Scoring page, report page and Team page email settings. */
+  /** Scoring page, report page and your email settings in Account. */
   url: string;
   settingsUrl: string;
 };
@@ -49,7 +49,7 @@ export type ProgressReportInput = Common & {
   first: boolean;
 };
 
-const footer = (i: Common, why: string) => [esc(`You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`), `${footerLink('Turn progress emails off', i.settingsUrl)} on your Team page.`];
+const footer = (i: Common, why: string) => [esc(`You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`), `${footerLink('Turn progress emails off', i.settingsUrl)} in your Account.`];
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const signed = (n: number) => (n > 0 ? `+${n.toFixed(1)}` : n < 0 ? n.toFixed(1) : 'same');
 
@@ -64,7 +64,7 @@ export function progressScoringEmail(i: ProgressScoringInput): Email {
     : '';
   const ready = 'Your report is ready as soon as you finish.';
   const why = 'Once a month, plus one reminder if it’s not done.';
-  const text = [heading, '', lead, '', `Start scoring: ${i.url}`, '', ...(others ? [others] : []), ready, '', '—', `You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`, `Turn progress emails off on your Team page: ${i.settingsUrl}`].join('\n');
+  const text = [heading, '', lead, '', `Start scoring: ${i.url}`, '', ...(others ? [others] : []), ready, '', '—', `You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`, `Turn progress emails off in your Account: ${i.settingsUrl}`].join('\n');
   const html = shell({
     preheader: lead,
     heading,
@@ -89,7 +89,7 @@ export function progressReminderEmail(i: ProgressReminderInput): Email {
     .join('')}</table>`;
   const note = someone ? 'You score on your own: their answers show once you’ve finished yours. Not sure about a skater? Leave them where they were.' : '';
   const why = 'One reminder a month, at most.';
-  const text = [heading, '', lead, '', ...(someone ? [...i.done.map((n) => `${n}: done`), 'You: about 2 minutes', ''] : []), `Start scoring: ${i.url}`, ...(note ? ['', note] : []), '', '—', `You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`, `Turn progress emails off on your Team page: ${i.settingsUrl}`].join('\n');
+  const text = [heading, '', lead, '', ...(someone ? [...i.done.map((n) => `${n}: done`), 'You: about 2 minutes', ''] : []), `Start scoring: ${i.url}`, ...(note ? ['', note] : []), '', '—', `You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`, `Turn progress emails off in your Account: ${i.settingsUrl}`].join('\n');
   const html = shell({
     preheader: lead,
     heading,
@@ -147,7 +147,7 @@ export function progressReportEmail(i: ProgressReportInput): Email {
     '',
     '—',
     `You’re getting this because you coach ${i.teamName} on Firstpass. ${why}`,
-    `Turn progress emails off on your Team page: ${i.settingsUrl}`,
+    `Turn progress emails off in your Account: ${i.settingsUrl}`,
   ].join('\n');
   const html = shell({
     preheader: lead,

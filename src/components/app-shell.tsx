@@ -170,9 +170,9 @@ function Nav({
   }, [menu]);
   useEffect(() => setMenu(false), [path]);
 
-  // Team first (decision 0026), then the practice coming up, plans and drills.
+  // Home first (decisions 0026, 0031: the team's home at /team), then the practice coming up, plans and drills.
   const items = [
-    { href: '/team', label: 'Team', icon: <Icon d="M9 11.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4M17 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM16.5 14.4c2.4.2 4 1.8 4.5 4.6" /> },
+    { href: '/team', label: 'Home', icon: <Icon d="M3.5 11 12 4l8.5 7M5.5 9.5V20h4.5v-6h4v6h4.5V9.5" /> },
     { href: '/today', label: next.label, sub: next.sub, icon: <CalendarDay day={next.day} /> },
     { href: '/plans', label: 'Plans', icon: <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 10h6M9 14h6M9 18h3" /> },
     { href: '/drills', label: 'Drills', icon: <RinkIcon /> },
@@ -182,7 +182,7 @@ function Nav({
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';
   const link = (href: string, label: string, icon: React.ReactNode, sub?: string, badge = 0) => {
-    // /team/new is Create a team, not the Team page.
+    // /team/new is Create a team, not Home.
     const on = (path === href || path.startsWith(href + '/')) && !(href === '/team' && path === '/team/new');
     return (
       <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
@@ -278,6 +278,11 @@ function Nav({
                 <Link href="/account" onClick={() => setMenu(false)} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-surface-200">
                   Account
                 </Link>
+                {activeTeamId && (
+                  <Link href="/team/settings" onClick={() => setMenu(false)} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-surface-200">
+                    Team settings
+                  </Link>
+                )}
                 <form action={signOut}>
                   <button type="submit" className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-surface-200">
                     Sign out

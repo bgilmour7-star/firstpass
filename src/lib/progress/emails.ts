@@ -18,7 +18,7 @@ function rounds(rows: ScoreRow[]) {
 const asScores = (rows: ScoreRow[]): CoachScore[] =>
   rows.filter((r) => r.finished && r.answers).map((r) => ({ roundId: r.round_id, userId: r.user_id, name: r.first_name, answers: r.answers!, done: [], noChange: [], startedAt: '', finishedAt: 'done', seconds: null }));
 
-const common = (d: Due, l: Links) => ({ teamName: d.team_name, month: monthName(d.month), firstName: d.first_name, settingsUrl: `${l.site}/team#emails` });
+const common = (d: Due, l: Links) => ({ teamName: d.team_name, month: monthName(d.month), firstName: d.first_name, settingsUrl: `${l.site}/account#emails` });
 
 export function scoringInput(d: Due, rows: ScoreRow[], l: Links): ProgressScoringInput {
   const prev = rounds(rows).find((r) => r.id !== d.round_id);

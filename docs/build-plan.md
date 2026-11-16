@@ -162,13 +162,13 @@ Design: canvas "Firstpass Team · Home, Settings and Account" (https://claude.ai
 ### 8.1 Split settings out (PR A)
 Goal: Home has nothing to edit; settings and your emails each have their own place.
 Context: decision 0031; 0026 (drawers). Files: `src/app/(coach)/team/{page,summary,coaches,emails,calendar,actions}.tsx`, `src/app/(coach)/account/page.tsx`, `src/components/app-shell.tsx`.
-- [ ] **`/team/settings`**: move the section drawers from `summary.tsx` into a settings page (same `SectionDrawer`, same actions). Order: Team name, Practices and ice, Calendar, Skill groups, Coaches, Join link (head coach), Gear, Planning, Leave or delete. `?edit=<section>` works there; `/team?edit=<section>` redirects to it.
-- [ ] Calendar row shows the source and freshness ("Your association's calendar · Synced 2 hours ago · 22 practices to come"); the address lives inside Change.
-- [ ] Coaches: one ⋯ per coach (head coach only) with **Hand over head coach** (`handOverTeam`) and **Remove from team** (`removeCoach`), using the plan builder's `Menu`.
-- [ ] **Leave or delete** section: each button with its consequence line; Delete keeps the typed-name confirmation.
-- [ ] Not head coach: the same page with no Edit links, no join link, no Delete; subtitle names the head coach.
-- [ ] **Account → Emails**: one group per team from `myTeams` (after-practice check-in, progress). `setCheckinEmails` and the progress email setter take a `teamId` and check membership on the server; a coach can only change their own settings. Remove the email switches from the team page. Install on your phone shows on phones only.
-- [ ] Nav: **Home** with a house icon (rail, phone drawer, brand link label "Firstpass home"); "Team settings" in the account menu. Update copy that says "on the Team page".
+- [x] **`/team/settings`**: move the section drawers from `summary.tsx` into a settings page (same `SectionDrawer`, same actions). Order: Team name, Practices and ice, Calendar, Skill groups, Coaches, Join link (head coach), Gear, Planning, Leave or delete. `?edit=<section>` works there; `/team?edit=<section>` redirects to it.
+- [x] Calendar row shows the source and freshness ("Your association's calendar · Synced 2 hours ago · 22 practices to come"); the address lives inside Change.
+- [x] Coaches: one ⋯ per coach (head coach only) with **Hand over head coach** (`handOverTeam`) and **Remove from team** (`removeCoach`), using the plan builder's `Menu`.
+- [x] **Leave or delete** section: each button with its consequence line; Delete keeps the typed-name confirmation.
+- [x] Not head coach: the same page with no Edit links, no join link, no Delete; subtitle names the head coach.
+- [x] **Account → Emails**: one group per team from `myTeams` (after-practice check-in, progress). `setCheckinEmails` and the progress email setter take a `teamId` and check membership on the server; a coach can only change their own settings. Remove the email switches from the team page. Install on your phone shows on phones only.
+- [x] Nav: **Home** with a house icon (rail, phone drawer, brand link label "Firstpass home"); "Team settings" in the account menu. Update copy that says "on the Team page".
 Acceptance: a coach on two teams turns off progress emails for one team from Account without switching teams, and the other team's setting is unchanged; a non-head coach sees settings read-only and gets "Only the head coach…" if they post to `saveTeam` directly; coach A cannot change coach B's email settings (test the action).
 
 ### 8.2 Home: Next up and the next practice (PR B)

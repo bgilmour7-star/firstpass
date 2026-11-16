@@ -118,11 +118,17 @@ function calendarError(e: unknown): string {
   return 'Couldn’t save the link. Try again in a minute.';
 }
 
-/** The coach's own after-practice email setting (decision 0010). Each coach decides for themselves. */
-export async function setCheckinEmails(on: boolean): Promise<{ ok: boolean; error?: string }> {
-  const { coach, team } = await requireTeam('/team');
+/**
+ * The coach's own after-practice email setting (decision 0010), for one of their teams (0031: set from
+ * Account). Each coach decides for themselves; the database function only ever changes the caller's row.
+ */
+export async function setCheckinEmails(teamId: string, on: boolean): Promise<{ ok: boolean; error?: string }> {
+  const coach = await requireUser('/account');
+  if (typeof teamId !== 'string' || typeof on !== 'boolean') return { ok: false, error: 'Something didn’t add up.' };
+  const store = await getAppStore();
+  if (!(await store.myTeams(coach.id)).some((t) => t.id === teamId)) return { ok: false, error: 'You’re not on that team.' };
   try {
-    await (await getAppStore()).setCheckinEmails(team.id, coach.id, on);
+    await store.setCheckinEmails(teamId, coach.id, on);
   } catch (e) {
     const m = e instanceof Error ? e.message : '';
     if (m === 'email-migration-missing') return { ok: false, error: 'Emails aren’t set up in the database yet. Run supabase/migrations/20261021000000_checkin_emails.sql in the Supabase SQL editor.' };
