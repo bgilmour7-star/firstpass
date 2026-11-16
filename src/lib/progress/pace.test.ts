@@ -36,6 +36,8 @@ describe('pace', () => {
     expect(status(3.0, 3.0, to, '2027-03-01')).toBe('reached');
     expect(status(2.7, 3.0, to, '2027-03-01')).toBe('short');
     expect(status(3.1, 2.4, to, '2026-12-01')).toBe('reached');
+    // A March 15 goal: the March report (dated the 1st) settles it.
+    expect(status(2.7, 2.9, { score: 3.0, date: '2027-03-15' }, '2027-03-01')).toBe('short');
   });
   it('turns the line into kids for next month', () => {
     expect(kidsUp(2.1, 2.4, 12)).toBe(4);
@@ -74,5 +76,20 @@ describe('ice time', () => {
     const big = targetShares([{ attribute: 'Shooting', gap: 3, behind: true }, { attribute: 'Skating', gap: 3, behind: true }, { attribute: 'Passing', gap: 3, behind: true }]);
     for (const a of ATTRIBUTES) expect(big[a]).toBeGreaterThanOrEqual(TARGET.floor - 1e-9);
     expect(ATTRIBUTES.reduce((x, a) => x + big[a], 0)).toBeCloseTo(1);
+  });
+});
+
+import { goalsView } from './goals-view';
+describe('goals view', () => {
+  it('gives no status from a report older than the goal', () => {
+    const rounds = [
+      { id: 'nov', teamId: 't', month: '2026-11-01', openedAt: '', closedAt: null, levelsVersion: '', skaters: 12 },
+      { id: 'oct', teamId: 't', month: '2026-10-01', openedAt: '', closedAt: '', levelsVersion: '', skaters: 12 },
+    ];
+    // This coach finished October only; the goal was set from November.
+    const scores = [{ roundId: 'oct', userId: 'u', name: 'Sam', answers: { Shooting: [5, 6, 1, 0, 0] as [number, number, number, number, number] }, done: [], noChange: [], startedAt: '', finishedAt: 'x', seconds: null }];
+    const v = goalsView([goal({ baselineRoundId: 'nov', baselineScore: 2.4 })], rounds, scores, 'u', [], new Map(), '2026-11-20');
+    expect(v.goals[0].status).toBeNull();
+    expect(v.goals[0].now).toBeNull();
   });
 });

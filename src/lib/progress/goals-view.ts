@@ -31,14 +31,16 @@ export function goalsView(goals: Goal[], rounds: Round[], scores: CoachScore[], 
     const base = rounds.find((r) => r.id === g.baselineRoundId);
     const baselineMonth = base?.month ?? g.setAt.slice(0, 7) + '-01';
     const now = scoreOf(g.attribute);
-    return { g, baselineMonth, p: pace(g, { month: baselineMonth, score: g.baselineScore }, seen ? { month: seen.month, score: now } : null, skaters) };
+    // A report older than the goal's starting month says nothing about it yet.
+    const usable = seen && seen.month >= baselineMonth;
+    return { g, baselineMonth, p: pace(g, { month: baselineMonth, score: g.baselineScore }, usable ? { month: seen.month, score: now } : null, skaters) };
   });
   const targets = targetShares(paced.map(({ g, p }) => ({ attribute: g.attribute, gap: p.target - (p.now ?? g.baselineScore), behind: p.status === 'behind' })));
   const views = paced.map(({ g, baselineMonth, p }): GoalView => {
     const since = practices.filter((x) => x.date >= g.setAt.slice(0, 10) && x.date <= today && x.blocks.length);
     const shares = since.length ? timeShares(since, byId) : null;
     const total = shares ? Object.values(shares).reduce((a, b) => a + b, 0) : 0;
-    return { ...p, baselineMonth, latestMonth: seen?.month ?? null, share: shares && total ? shares[g.attribute] : null, targetShare: targets[g.attribute] };
+    return { ...p, baselineMonth, latestMonth: p.now != null ? (seen?.month ?? null) : null, share: shares && total ? shares[g.attribute] : null, targetShare: targets[g.attribute] };
   });
   return { goals: views, targets };
 }

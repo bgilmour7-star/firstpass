@@ -48,7 +48,8 @@ export function expectedAt(from: { score: number; date: string }, goal: { score:
 
 /** Status of the latest score, given what the line expects for that report's month. */
 export function status(latest: number, expected: number, goal: { score: number; date: string }, at: string): Status {
-  if (day(at) >= day(goal.date)) return latest >= goal.score - 0.05 ? 'reached' : 'short';
+  // Reports are dated the 1st, so the report for the goal's month is the last word on it.
+  if (at.slice(0, 7) >= goal.date.slice(0, 7)) return latest >= goal.score - 0.05 ? 'reached' : 'short';
   if (latest >= goal.score) return 'reached';
   const diff = round1(latest - expected);
   if (diff >= PACE.ahead) return 'ahead';

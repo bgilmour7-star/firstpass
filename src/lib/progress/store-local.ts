@@ -83,9 +83,9 @@ export class LocalProgressStore implements ProgressStore {
   async goals(teamId: string): Promise<Goal[]> {
     return ((await read()).goals ?? []).filter((g) => g.teamId === teamId && !g.endedAt).map(({ teamId: _t, endedAt: _e, ...g }) => (void _t, void _e, g));
   }
-  async setGoal(teamId: string, _userId: string, g: { attribute: Attribute; target: Counts; byDate: string }) {
+  async setGoal(teamId: string, userId: string, g: { attribute: Attribute; target: Counts; byDate: string }) {
     const s = await read();
-    const base = s.rounds.filter((r) => r.teamId === teamId && s.scores.some((x) => x.roundId === r.id && x.finishedAt)).sort((a, b) => b.month.localeCompare(a.month))[0];
+    const base = s.rounds.filter((r) => r.teamId === teamId && s.scores.some((x) => x.roundId === r.id && x.userId === userId && x.finishedAt)).sort((a, b) => b.month.localeCompare(a.month))[0];
     if (!base) throw new Error('no-report');
     if (!validCounts(g.target, base.skaters) || total(g.target) === 0) throw new Error('bad-target');
     if (g.byDate <= new Date().toISOString().slice(0, 10)) throw new Error('bad-date');

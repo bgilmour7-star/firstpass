@@ -37,9 +37,10 @@ begin
   if attr not in ('Skating', 'Puck control', 'Passing', 'Shooting', 'Game sense', 'Effort & fun') then raise exception 'bad-attribute'; end if;
   if target is null or array_length(target, 1) <> 5 or exists (select 1 from unnest(target) t(n) where t.n is null or t.n < 0) then raise exception 'bad-target'; end if;
   if by_date is null or by_date <= (now() at time zone 'America/Vancouver')::date then raise exception 'bad-date'; end if;
-  -- The baseline: the newest round someone on the team has finished.
+  -- The baseline: the newest round the head coach has finished themselves, so the goal starts from the
+  -- report they're looking at and never from a month whose answers they can't see yet (P2).
   select r.* into base from public.progress_rounds r
-  where r.team_id = team and exists (select 1 from public.progress_scores s where s.round_id = r.id and s.finished_at is not null)
+  where r.team_id = team and exists (select 1 from public.progress_scores s where s.round_id = r.id and s.user_id = auth.uid() and s.finished_at is not null)
   order by r.month desc limit 1;
   if base.id is null then raise exception 'no-report'; end if;
   -- Same maths as the report: every finished coach's skaters averaged together, one decimal.
