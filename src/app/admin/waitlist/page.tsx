@@ -52,7 +52,7 @@ function Waitlist({ list }: { list: WaitlistEntry[] }) {
             .join(' · ') || 'Nobody yet'}
         </span>
       </div>
-      <p className="text-sm text-ink-200">Everyone who asked for early access on firstpass.coach, newest first. Onboarded lets that email create an account; everyone else is shown the invite-only message when they try to sign up.</p>
+      <p className="text-sm text-ink-200">Everyone who asked for early access on firstpass.coach, newest first. Sign-up is open now (decision 0033), so Onboarded only tracks who you&apos;ve helped get started.</p>
       {list.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] border-collapse text-sm">

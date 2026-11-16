@@ -15,7 +15,7 @@ Date: 2026-10-20 · Decided by: Brett
   *I run an association* (email, association, number of U5–U9 teams). Joining again updates the row, never errors.
   The person gets a confirmation email; every sign-up also emails **hello@firstpass.coach** (`WAITLIST_ALERT_TO`
   to change it), and Brett emails each person himself to book a call.
-- **Sign-up is invite-only while the waitlist runs.** A new email can create an account only with a working team
+- **(Ended 2026-11-16 by decision 0033: sign-up is open.) Sign-up is invite-only while the waitlist runs.** A new email can create an account only with a working team
   join link, or once Brett has set its waitlist status to **Onboarded**. Everyone else sees "Firstpass is
   invite-only for now" with Join the waitlist. Checked in the app's sign-in actions (`invited()` in
   `src/app/login/actions.ts`); before the migration has run, it fails closed.

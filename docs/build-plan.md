@@ -232,5 +232,13 @@ Measured: real visits wait 2–4 s for the first byte on Home, Drills, the plann
 - [ ] Decision for Brett: cache the live drill library across coaches, refreshed when a drill goes live.
 Acceptance: TTFB p50 under 1 s on Home and the planner in web_vitals over the following week.
 
+## Milestone 11 — Open sign-up and Continue with Google (decision 0033, 2026-11-16)
+- [x] Sign-up open to any email; a join link must still work to sign up through it, and joins the team as before.
+- [x] Continue with Google on sign-in and join (`googleSignIn`, `/auth/callback`): Google's first name, no password offer, `afterSignIn` joins from a join link.
+- [x] `safeNext` refuses `/\…` and control characters (open redirect through the callback), with tests.
+- [ ] Brett: Google Cloud OAuth client and Supabase Google provider (docs/setup.md step 8).
+- [ ] Brett: landing page "Get early access", waitlist emails and the survey thank-you still talk about the waitlist.
+Acceptance: a new coach taps Continue with Google on a join link and lands on "You're on <team>", and the head coach gets the email; an existing email account signs in with Google to the same account.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

@@ -11,8 +11,8 @@ import { afterSignIn, JOIN_CODE, LAST_EMAIL, safeNext } from '@/lib/auth-after';
 // Every email Supabase sends carries a 6-digit code and a link, so it works when the email opens
 // on another device or inside a mail app's own browser.
 
-/** waitlist: no account, and no invite yet (sign-up is invite-only while the waitlist runs, decision 0019). */
-export type Status = 'new' | 'password' | 'link' | 'waitlist';
+/** join-off: no account, from a team join link the head coach has turned off. Sign-up is otherwise open (decision 0033). */
+export type Status = 'new' | 'password' | 'link' | 'join-off';
 export type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 type Ctx = { next?: string; joinCode?: string; teamName?: string };
 
@@ -39,16 +39,17 @@ async function confirmUrl(ctx: Ctx, nextOverride?: string) {
   return `${origin}/auth/confirm?next=${encodeURIComponent(safeNext(nextOverride ?? ctx.next))}${join}`;
 }
 
-const INVITE_ONLY = 'Firstpass is invite-only for now. Get early access at firstpass.coach.';
+const JOIN_OFF = 'The link to this team has been turned off. Ask your head coach for a new one.';
 
-/** May this email create an account? With a working team join link, or once Brett has marked them Onboarded on the waitlist. */
-async function invited(address: string, joinCode?: string): Promise<boolean> {
-  if (joinCode && JOIN_CODE.test(joinCode)) {
-    const { data } = await stateless().rpc('join_link_preview', { code: joinCode });
-    if (((data as unknown[] | null) ?? []).length > 0) return true;
-  }
-  const { getSiteStore } = await import('@/lib/site/store');
-  return (await getSiteStore()).canCreateAccount(address);
+/**
+ * May this email create an account here? Sign-up is open (decision 0033, ending the invite-only pilot of
+ * 0019). From a join link, the link must still work, since signing up through it joins that team.
+ */
+async function mayCreate(joinCode?: string): Promise<boolean> {
+  if (!joinCode) return true;
+  if (!JOIN_CODE.test(joinCode)) return false;
+  const { data } = await stateless().rpc('join_link_preview', { code: joinCode });
+  return ((data as unknown[] | null) ?? []).length > 0;
 }
 
 function clean(email: string): string | null {
@@ -78,7 +79,7 @@ export async function checkEmail(email: string, joinCode?: string): Promise<Resu
   if (error) return { ok: true, email: address, status: 'link', firstName: null };
   const row = (data as { status: Status; first_name: string | null }[] | null)?.[0];
   const status = row?.status ?? 'new';
-  if (status === 'new' && !(await invited(address, joinCode))) return { ok: true, email: address, status: 'waitlist', firstName: null };
+  if (status === 'new' && !(await mayCreate(joinCode))) return { ok: true, email: address, status: 'join-off', firstName: null };
   return { ok: true, email: address, status, firstName: row?.first_name ?? null };
 }
 
@@ -90,7 +91,7 @@ export async function createAccount(input: { email: string; firstName: string; p
   if (!firstName) return { ok: false, error: 'Add your first name. Your co-coaches see it.' };
   if (input.password.length < MIN_PASSWORD) return { ok: false, error: `Use ${MIN_PASSWORD} or more characters.` };
   if (!env()) return { ok: false, error: 'Sign-in is not configured.' };
-  if (!(await invited(address, input.joinCode))) return { ok: false, error: INVITE_ONLY };
+  if (!(await mayCreate(input.joinCode))) return { ok: false, error: JOIN_OFF };
   const { data, error } = await stateless().auth.signUp({
     email: address,
     password: input.password,
@@ -111,10 +112,10 @@ export async function sendLink(input: { email: string; firstName?: string } & Ct
   if (!address) return { ok: false, error: 'Enter your email, like you@example.com.' };
   if (!env()) return { ok: false, error: 'Sign-in is not configured.' };
   const firstName = input.firstName?.trim().slice(0, 40);
-  // Existing accounts always get their link; a new account only with an invite (decision 0019).
+  // Existing accounts always get their link; a new one from a join link only while the link works.
   const { data: known, error: unknown } = await stateless().rpc('sign_in_status', { address });
   const isNew = !unknown && ((known as { status: string }[] | null)?.[0]?.status ?? 'new') === 'new';
-  if (isNew && !(await invited(address, input.joinCode))) return { ok: false, error: INVITE_ONLY };
+  if (isNew && !(await mayCreate(input.joinCode))) return { ok: false, error: JOIN_OFF };
   const { error } = await stateless().auth.signInWithOtp({
     email: address,
     options: { shouldCreateUser: isNew, emailRedirectTo: await confirmUrl(input), data: firstName ? { first_name: firstName, ...(input.teamName ? { join_team: input.teamName.slice(0, 80) } : {}) } : undefined },
@@ -161,4 +162,26 @@ export async function sendPasswordLink(email: string): Promise<Result> {
   const { error } = await stateless().auth.resetPasswordForEmail(address, { redirectTo: await confirmUrl({}, '/account/password') });
   if (error) return { ok: false, error: friendly(error, 'resetPasswordForEmail') };
   return { ok: true };
+}
+
+/**
+ * Continue with Google (decision 0033). Returns Google's sign-in page to open. Supabase keeps the
+ * PKCE verifier in this browser's cookies; /auth/callback swaps the code for a session and then
+ * runs afterSignIn, so a join link still joins the team. Google accounts with the same email as an
+ * existing Firstpass account sign in to that account (Supabase links verified emails).
+ */
+export async function googleSignIn(input: Ctx): Promise<Result<{ url: string }>> {
+  if (!env()) return { ok: false, error: 'Sign-in is not configured.' };
+  if (input.joinCode && !(await mayCreate(input.joinCode))) return { ok: false, error: JOIN_OFF };
+  const h = await headers();
+  const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host')}`;
+  const join = input.joinCode && JOIN_CODE.test(input.joinCode) ? `&join=${input.joinCode}` : '';
+  const redirectTo = `${origin}/auth/callback?provider=google&next=${encodeURIComponent(safeNext(input.next))}${join}`;
+  const { supabaseServer } = await import('@/lib/supabase/server');
+  const { data, error } = await (await supabaseServer()).auth.signInWithOAuth({ provider: 'google', options: { redirectTo, skipBrowserRedirect: true, queryParams: { prompt: 'select_account' } } });
+  if (error || !data.url) {
+    if (error) console.error('[auth] signInWithOAuth failed: %s %s', error.status ?? '', error.code ?? error.message);
+    return { ok: false, error: 'Google sign-in isn’t working right now. Use your email instead.' };
+  }
+  return { ok: true, url: data.url };
 }

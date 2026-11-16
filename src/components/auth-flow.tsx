@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { checkEmail, createAccount, sendLink, sendPasswordLink, signInWithPassword, verifyCode, type Status } from '@/app/login/actions';
+import { checkEmail, createAccount, googleSignIn, sendLink, sendPasswordLink, signInWithPassword, verifyCode, type Status } from '@/app/login/actions';
 
 // Email first, then the screen reacts (decision 0013, canvas "Firstpass Sign-in & Join"):
 //   new       → Create your account: first name + password. "Email me a sign-in link instead" second.
 //   password  → Welcome back: password. "Email me a sign-in link" second.
 //   link      → Welcome back: "Email me a sign-in link". Setting a password offered underneath.
 // Then a 6-digit code screen (the email's button works too), or straight in with a password.
+// Or Continue with Google on the first screen (decision 0033), for new and existing coaches alike.
 
 type Step = 'email' | Status | 'code' | 'reset-sent';
 type Join = { code: string; teamName: string };
@@ -20,15 +20,22 @@ const primary = 'inline-flex h-[52px] w-full items-center justify-center rounded
 const secondary = 'inline-flex h-[52px] w-full items-center justify-center rounded-full border-[1.5px] border-border-200 bg-surface-100 text-[15px] font-medium hover:bg-surface-200 disabled:opacity-[var(--opacity-disabled)]';
 const h1 = 'font-display text-[30px] font-extrabold leading-[34px] tracking-[-0.02em] text-balance';
 
-export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = 'email', initialName = null }: { next: string; join?: Join; initialEmail?: string; intro?: React.ReactNode; initialStep?: Step; initialName?: string | null }) {
+export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = 'email', initialName = null, notice = '' }: { next: string; join?: Join; initialEmail?: string; intro?: React.ReactNode; initialStep?: Step; initialName?: string | null; /** Shown under the email field, e.g. when Google sign-in didn't finish. */ notice?: string }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(initialStep);
   const [email, setEmail] = useState(initialEmail);
   const [firstName, setFirstName] = useState('');
   const [knownName, setKnownName] = useState<string | null>(initialName);
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(notice);
   const [pending, start] = useTransition();
+  const [toGoogle, setToGoogle] = useState(false);
+  // Back from Google's screen, the browser may restore this page as it was: let the button work again.
+  useEffect(() => {
+    const reset = (e: PageTransitionEvent) => e.persisted && setToGoogle(false);
+    window.addEventListener('pageshow', reset);
+    return () => window.removeEventListener('pageshow', reset);
+  }, []);
   const ctx = { next, joinCode: join?.code, teamName: join?.teamName };
 
   function run<T>(work: () => Promise<{ ok: true } & T | { ok: false; error: string }>, then: (r: { ok: true } & T) => void) {
@@ -75,8 +82,22 @@ export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = '
           <button type="submit" disabled={pending} className={`${primary} mt-2`}>
             {pending ? 'Checking…' : 'Continue'}
           </button>
-          <p className="mt-1 text-center text-[13px] leading-[18px] text-ink-200">New to Firstpass or already on it, start with your email.</p>
         </form>
+        <Or />
+        <button
+          type="button"
+          disabled={pending || toGoogle}
+          onClick={() =>
+            run(() => googleSignIn(ctx), (r) => {
+              setToGoogle(true);
+              window.location.assign(r.url);
+            })
+          }
+          className={secondary}
+        >
+          {toGoogle ? 'Opening Google…' : 'Continue with Google'}
+        </button>
+        <p className="mt-3 text-center text-[13px] leading-[18px] text-ink-200">New to Firstpass or already on it, either way works.</p>
       </div>
     );
 
@@ -114,22 +135,13 @@ export function AuthFlow({ next, join, initialEmail = '', intro, initialStep = '
       </div>
     );
 
-  if (step === 'waitlist')
+  if (step === 'join-off')
     return (
       <div className="flex flex-col">
         <EmailChip email={email} onChange={back} />
-        <h1 className={`${h1} mt-6`}>{join ? 'This join link isn’t working' : 'Firstpass is invite-only for now'}</h1>
-        <p className="mt-2 text-[15px] leading-[22px] text-ink-200">
-          {join
-            ? `There’s no account for ${email} yet, and the link to ${join.teamName} has been turned off. Ask your head coach for a new one.`
-            : `There’s no account for ${email}. While we pilot Firstpass, new coaches get early access from firstpass.coach.`}
-        </p>
-        {!join && (
-          <Link href="/#join" className={`${primary} mt-7`}>
-            Get early access
-          </Link>
-        )}
-        <button type="button" onClick={back} className={`${secondary} ${join ? 'mt-7' : 'mt-3'}`}>
+        <h1 className={`${h1} mt-6`}>This join link isn’t working</h1>
+        <p className="mt-2 text-[15px] leading-[22px] text-ink-200">There’s no account for {email} yet, and the link to {join?.teamName ?? 'the team'} has been turned off. Ask your head coach for a new one.</p>
+        <button type="button" onClick={back} className={`${secondary} mt-7`}>
           Use a different email
         </button>
       </div>
