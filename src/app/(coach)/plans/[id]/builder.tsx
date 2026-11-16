@@ -35,12 +35,12 @@ import {
 import { deletePractice, goalSuggestionTaken, keepSuggestion, savePractice } from '../actions';
 import { RotationCard, StationsCard } from './blocks';
 import { FORMAT_NAME, FormatIcon, formatWhat } from './format';
-import { IconButton, LevelPills, PlayableRink } from './opened';
+import { LevelPills, PlayableRink } from './opened';
 import { FavoriteButton } from '@/components/favorite-button';
 import { Rink } from '@/components/ds';
 import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { DrillDrawer, OpenDrill, useOpenDrill } from '@/components/drill-drawer';
-import { AttendanceDialog, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot, type QuickActivity } from './parts';
+import { A, ActionButton, AttendanceDialog, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot, type MenuItem, type QuickActivity } from './parts';
 import type { DrillFeedback } from '@/lib/plans/feedback';
 import type { Favorite } from '@/lib/app/store';
 import { varietyWarnings, type VarietyRule, type VarietyWarning } from '@/lib/plans/variety';
@@ -103,7 +103,17 @@ export function Builder({
   const [picker, setPicker] = useState<Picker | null>(null);
   // Read first (decision 0024): one drill open at a time; removing shows Undo.
   const [openId, setOpenId] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ text: string; before: Block[] } | null>(null);
+  // Every change to the blocks can be undone (⌘Z / Ctrl+Z, or Undo on the toast): the last 40 versions.
+  // Edits to the same block within two seconds (stepper taps, typing) count as one change.
+  const [toast, setToast] = useState<{ text: string } | null>(null);
+  const hist = useRef<{ blocks: Block[]; key?: string; at: number }[]>([]);
+  const blocksRef = useRef(initial.blocks);
+  blocksRef.current = plan.blocks;
+  const desktop = useDesktop();
+  const [undoKey, setUndoKey] = useState('⌘Z');
+  useEffect(() => {
+    if (!/Mac|iPhone|iPad/.test(navigator.userAgent)) setUndoKey('Ctrl+Z');
+  }, []);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 6000);
@@ -275,16 +285,53 @@ export function Builder({
     };
   }
 
-  const setBlocks = (f: (b: Block[]) => Block[]) => setPlan((p) => ({ ...p, blocks: f(p.blocks) }));
-  const update = (id: string, f: (b: Block) => Block) => setBlocks((bs) => bs.map((b) => (b.id === id ? f(b) : b)));
-  const moveTo = (from: number, to: number) =>
-    setBlocks((bs) => {
-      if (to < 0 || to >= bs.length || from === to) return bs;
-      const c = [...bs];
-      const [x] = c.splice(from, 1);
-      c.splice(to, 0, x);
-      return c;
-    });
+  function setBlocks(f: (b: Block[]) => Block[], o: { key?: string; toast?: string } = {}) {
+    const prev = blocksRef.current;
+    const next = f(prev);
+    if (next === prev) return;
+    const h = hist.current;
+    const last = h[h.length - 1];
+    const now = Date.now();
+    if (o.key && last?.key === o.key && now - last.at < 2000) last.at = now;
+    else h.push({ blocks: prev, key: o.key, at: now });
+    if (h.length > 40) h.shift();
+    blocksRef.current = next;
+    setPlan((p) => ({ ...p, blocks: next }));
+    setToast(o.toast ? { text: o.toast } : null);
+  }
+  function undoLast() {
+    const h = hist.current.pop();
+    if (!h) return;
+    blocksRef.current = h.blocks;
+    setPlan((p) => ({ ...p, blocks: h.blocks }));
+    setToast(null);
+    // A suggestion undone this way stops showing its own Undo note.
+    setApplied((prev) => prev.filter((a) => (a.added ? h.blocks.some((y) => y.id === a.added) : JSON.stringify(h.blocks.find((y) => y.id === a.blockId)) !== JSON.stringify(a.before))));
+  }
+  const undoRef = useRef(undoLast);
+  undoRef.current = undoLast;
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return;
+      // Typing in a field keeps the field's own undo.
+      if ((e.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]')) return;
+      e.preventDefault();
+      undoRef.current();
+    };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, []);
+  const update = (id: string, f: (b: Block) => Block, key = `edit:${id}`) => setBlocks((bs) => bs.map((b) => (b.id === id ? f(b) : b)), { key });
+  const move = (from: number, to: number) => {
+    const bs = blocksRef.current;
+    if (to < 0 || to >= bs.length || from === to) return;
+    const c = [...bs];
+    const [x] = c.splice(from, 1);
+    c.splice(to, 0, x);
+    setBlocks(() => c, { toast: `Moved ${name(x)} to ${clock(startTimes(plan.startTime, c, gc)[to])}` });
+  };
+  const moveRef = useRef(move);
+  moveRef.current = move;
   const insert = (at: number, b: Block) => setBlocks((bs) => [...bs.slice(0, at), b, ...bs.slice(at)]);
 
   // One picker for everything (decision 0024): the drill decides the kind of block.
@@ -299,10 +346,107 @@ export function Builder({
     setPicker(null);
   };
   const remove = (b: Block) => {
-    setToast({ text: `Removed ${name(b)}`, before: blocks });
     setOpenId(null);
-    setBlocks((bs) => bs.filter((x) => x.id !== b.id));
+    setBlocks((bs) => bs.filter((x) => x.id !== b.id), { toast: `Removed ${name(b)}` });
   };
+
+  // The open drill: in the right column on desktop (it takes the place of This practice), in a sheet on phones.
+  const openIndex = blocks.findIndex((b) => b.id === openId);
+  const closeOpen = useCallback(() => {
+    setOpenId((id) => {
+      if (id) requestAnimationFrame(() => document.getElementById(`open-${id}`)?.focus());
+      return null;
+    });
+  }, []);
+  useEffect(() => {
+    if (!openId) return;
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && closeOpen();
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [openId, closeOpen]);
+
+  // Phones: long-press a drill, then drag it (desktop drags by the grip).
+  const press = useRef<{ x: number; y: number; t: ReturnType<typeof setTimeout> } | null>(null);
+  const dragged = useRef(false);
+  const dragRef = useRef(drag);
+  dragRef.current = drag;
+  const pressStart = (e: React.PointerEvent, i: number) => {
+    if (e.pointerType !== 'touch' || desktop) return;
+    const t = setTimeout(() => {
+      press.current = null;
+      navigator.vibrate?.(10);
+      setDrag({ from: i, over: i });
+    }, 450);
+    press.current = { x: e.clientX, y: e.clientY, t };
+  };
+  const pressMove = (e: React.PointerEvent) => {
+    const p = press.current;
+    if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 8) {
+      clearTimeout(p.t);
+      press.current = null;
+    }
+  };
+  const pressEnd = () => {
+    if (press.current) clearTimeout(press.current.t);
+    press.current = null;
+  };
+  const touchDrag = !desktop && drag !== null;
+  useEffect(() => {
+    if (!touchDrag) return;
+    const mv = (e: TouchEvent) => {
+      e.preventDefault();
+      const t = e.touches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY)?.closest('[data-blk]');
+      if (!el) return;
+      const over = Number(el.getAttribute('data-blk'));
+      setDrag((d) => (d && d.over !== over ? { ...d, over } : d));
+    };
+    const end = () => {
+      const d = dragRef.current;
+      if (d) moveRef.current(d.from, d.over);
+      setDrag(null);
+      // The finger lifting would also tap the drill open.
+      dragged.current = true;
+      setTimeout(() => (dragged.current = false), 400);
+    };
+    const cancel = () => setDrag(null);
+    window.addEventListener('touchmove', mv, { passive: false });
+    window.addEventListener('touchend', end);
+    window.addEventListener('touchcancel', cancel);
+    return () => {
+      window.removeEventListener('touchmove', mv);
+      window.removeEventListener('touchend', end);
+      window.removeEventListener('touchcancel', cancel);
+    };
+  }, [touchDrag]);
+
+  const swapFor = (b: Block) => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' });
+  // The ⋯ menu (design system: DrillActions): only the actions that apply to this block.
+  const menuFor = (b: Block, i: number): MenuItem[] => {
+    const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
+    const items: MenuItem[] = [];
+    if (b.kind !== 'activity' && (d || isOldRotation(b))) items.push({ label: 'Swap for another drill', icon: A.swap, run: () => swapFor(b) });
+    if (b.kind === 'drill' && d && d.levels.length > 0) items.push({ label: 'Change levels', icon: A.levels, run: () => setOpenId(b.id) });
+    items.push({ label: 'Change to', icon: A.change, sub: changeTargets(b), note: 'Keeps the time slot and minutes' });
+    items.push({ label: 'Duplicate', icon: A.duplicate, run: () => setBlocks((bs) => [...bs.slice(0, i + 1), { ...structuredClone(b), id: newId() }, ...bs.slice(i + 1)], { toast: `Duplicated ${name(b)}` }) });
+    items.push({ label: 'Add a drill after', icon: Icon.plus(16), run: () => openAdd(i + 1) });
+    if (i > 0) items.push({ label: 'Move to the start', icon: A.start, run: () => move(i, 0) });
+    if (i < blocks.length - 1) items.push({ label: 'Move to the end', icon: A.end, run: () => move(i, blocks.length - 1) });
+    if (d) items.push({ label: 'Open details', icon: A.details, run: () => setViewing(d.id) });
+    items.push({ label: 'Remove', icon: A.remove, danger: true, sep: true, run: () => remove(b) });
+    return items;
+  };
+  const pill = (b: Block, i: number) => (
+    <span role="toolbar" aria-label={`Actions for ${name(b)}`} className="inline-flex w-max items-center gap-1 rounded-full border border-border-100 bg-surface-100 p-1">
+      <button type="button" aria-label="Move up" title="Move up" disabled={i === 0} onClick={() => move(i, i - 1)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200 disabled:opacity-30">
+        {A.up}
+      </button>
+      <button type="button" aria-label="Move down" title="Move down" disabled={i === blocks.length - 1} onClick={() => move(i, i + 1)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200 disabled:opacity-30">
+        {A.down}
+      </button>
+      <Menu items={menuFor(b, i)} />
+    </span>
+  );
 
   function pick(drillId: string) {
     if (!picker) return;
@@ -370,6 +514,44 @@ export function Builder({
           setPicker({ mode: 'fill', blockId: b.id, filter: next.kind === 'drill' ? 'basic' : next.kind });
       },
     }));
+
+  const panelFor = (i: number, phone = false) => {
+    const b = blocks[i];
+    const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
+    return (
+      <BlockPanel
+        key={b.id}
+        block={b}
+        index={i}
+        count={blocks.length}
+        start={times[i]}
+        phone={phone}
+        units={units}
+        gc={gc}
+        byId={byId}
+        known={knownSet}
+        feedback={d ? feedback[d.id] : undefined}
+        levelSuggested={sugFor.get(b.id)?.kind === 'add-level' ? sugFor.get(b.id)!.level : undefined}
+        used={used}
+        total={plan.minutes}
+        update={(f, key) => update(b.id, f, key)}
+        onSwap={() => swapFor(b)}
+        onMove={(to) => move(i, to)}
+        menu={menuFor(b, i)}
+        onClose={closeOpen}
+        favorite={d ? (favs[d.id] ?? null) : null}
+        onFavorite={(f) => {
+          if (!d) return;
+          setFavs((m) => {
+            const n = { ...m };
+            if (f) n[d.id] = f;
+            else delete n[d.id];
+            return n;
+          });
+        }}
+      />
+    );
+  };
 
   const saved = (
     <span aria-live="polite" className={saveState === 'error' ? 'text-flag-100' : saveState === 'saved' ? 'text-good-100' : ''}>
@@ -460,12 +642,17 @@ export function Builder({
       {suggest && <PhoneLine day={suggest.day} open={[...openSug].sort((x, y) => blocks.findIndex((b) => b.id === x.blockId) - blocks.findIndex((b) => b.id === y.blockId))} />}
 
       {/* The plan leads on the white page; practice-wide info sits in a grey margin column beside it (design system: Panel). */}
-      <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch">
+      <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-stretch">
         <ol className="flex min-w-0 flex-col pb-6 lg:pr-14 lg:pt-5">
           {blocks.map((b, i) => (
             <li
               key={b.id}
+              data-blk={i}
               draggable={armed === b.id}
+              onPointerDown={(e) => pressStart(e, i)}
+              onPointerMove={pressMove}
+              onPointerUp={pressEnd}
+              onPointerCancel={pressEnd}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'move';
                 setDrag({ from: i, over: i });
@@ -477,7 +664,7 @@ export function Builder({
               }}
               onDrop={(e) => {
                 e.preventDefault();
-                if (drag) moveTo(drag.from, drag.over);
+                if (drag) move(drag.from, drag.over);
                 setDrag(null);
                 setArmed(null);
               }}
@@ -485,12 +672,19 @@ export function Builder({
                 setDrag(null);
                 setArmed(null);
               }}
-              className={`flex flex-col ${drag?.from === i ? 'opacity-40' : ''} ${drag && drag.over === i && drag.from !== i ? (drag.from < i ? 'border-b-4 border-rink-100' : 'border-t-4 border-rink-100') : ''}`}
+              className={`flex flex-col max-lg:select-none max-lg:[-webkit-touch-callout:none] ${drag?.from === i ? 'opacity-40' : ''} ${drag && drag.over === i && drag.from !== i ? (drag.from < i ? 'border-b-4 border-rink-100' : 'border-t-4 border-rink-100') : ''}`}
             >
-              <section className={`blk grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' && openId !== b.id ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/50 px-4 lg:-mx-3 lg:rounded-xl lg:px-3' : ''}`}>
-                <div className="flex flex-col gap-0.5 pt-1">
+              <section className={`blk group grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 lg:grid-cols-[96px_minmax(0,1fr)] ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/60 px-4 lg:-mx-3 lg:rounded-xl lg:px-3 lg:outline lg:outline-2 lg:-outline-offset-2 lg:outline-rink-100' : ''}`}>
+                <div className="flex flex-col items-start gap-0.5 pt-1">
                   <span className={`font-mono text-sm font-medium ${b.kind === 'activity' ? 'text-ink-200' : ''}`}>{clock(times[i])}</span>
-                  {b.kind !== 'activity' && <span className="font-mono text-xs text-ink-200">{blockMinutes(b, gc)} min</span>}
+                  {/* Minutes: the number, or a stepper while the row is hovered or focused (desktop). */}
+                  <span className={`font-mono text-xs text-ink-200 ${desktop ? 'lg:group-focus-within:hidden lg:group-hover:hidden' : ''}`}>{blockMinutes(b, gc)} min</span>
+                  {desktop && (
+                    <span className="hidden flex-col gap-0.5 lg:group-focus-within:flex lg:group-hover:flex">
+                      <Stepper size="sm" label="" value={b.minutes} min={b.kind === 'rotation' ? 2 : 1} max={b.kind === 'rotation' ? 20 : 60} onChange={(m) => update(b.id, (x) => ({ ...x, minutes: m }) as Block, `min:${b.id}`)} />
+                      <span className="text-[11px] text-ink-200">{b.kind === 'rotation' ? 'min a zone' : 'min'}</span>
+                    </span>
+                  )}
                   <button
                     type="button"
                     aria-label={`Drag to move ${name(b)}`}
@@ -525,8 +719,7 @@ export function Builder({
                     ) : null
                   }
                   appliedNotes={suggest ? applied.filter((a) => a.blockId === b.id).map((a) => <AppliedNote key={a.key} a={a} onUndo={() => undo(a)} />) : null}
-                  levelSuggested={sugFor.get(b.id)?.kind === 'add-level' ? sugFor.get(b.id)!.level : undefined}
-                  onSwap={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
+                  onSwap={() => swapFor(b)}
                   onBreak={(rule) =>
                     rule === 'hard'
                       ? insert(i, newActivity('water'))
@@ -535,36 +728,13 @@ export function Builder({
                   onKeep={(rule) => keep(`${b.id}:${rule}`)}
                   overNew={overNew.has(b.id) && !kept.has(`${b.id}:new`) ? { limit: team.newDrillsPerWeek, count: fresh.length } : null}
                   onKeepNew={() => keep(`${b.id}:new`)}
-                  update={(f) => update(b.id, f)}
-                  menu={[
-                    {
-                      label: 'Change to',
-                      sub: changeTargets(b),
-                      note: 'Keeps the time slot and minutes',
-                    },
-                    {
-                      label: 'Duplicate',
-                      run: () => insert(i + 1, { ...structuredClone(b), id: newId() }),
-                    },
-                  ]}
-                  onChooseDrill={() => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' })}
-                  open={openId === b.id}
-                  onToggle={() => setOpenId((o) => (o === b.id ? null : b.id))}
-                  onMove={(by) => moveTo(i, i + by)}
-                  onRemove={() => remove(b)}
-                  onAddAfter={() => openAdd(i + 1)}
-                  favorite={b.kind !== 'activity' && b.drillId ? (favs[b.drillId] ?? null) : null}
-                  onFavorite={(f) => {
-                    const id = b.kind !== 'activity' ? b.drillId : null;
-                    if (!id) return;
-                    setFavs((m) => {
-                      const n = { ...m };
-                      if (f) n[id] = f;
-                      else delete n[id];
-                      return n;
-                    });
+                  onChooseDrill={() => swapFor(b)}
+                  selected={openId === b.id}
+                  onOpen={() => {
+                    if (dragged.current) return;
+                    setOpenId((o) => (o === b.id && desktop ? null : b.id));
                   }}
-
+                  actions={desktop ? pill(b, i) : null}
                 />
               </section>
             </li>
@@ -577,6 +747,11 @@ export function Builder({
         </ol>
 
         <div className="border-t border-border-100 pt-6 lg:border-l lg:border-t-0 lg:bg-surface-200 lg:px-7 lg:pb-24 lg:pt-7">
+        {desktop && openIndex >= 0 ? (
+          <section aria-label={name(blocks[openIndex])} className="lg:sticky lg:top-[96px] lg:max-h-[calc(100dvh-112px)] lg:overflow-y-auto lg:pb-6">
+            {panelFor(openIndex)}
+          </section>
+        ) : (
         <aside aria-label="This practice" className="flex flex-col gap-[18px] lg:sticky lg:top-[96px]">
           <p className="hidden text-xs font-semibold tracking-[0.02em] text-ink-200 lg:block">This practice</p>
           <div className="flex flex-col">
@@ -659,8 +834,14 @@ export function Builder({
           )}
           </div>
         </aside>
+        )}
         </div>
       </div>
+      {!desktop && openIndex >= 0 && (
+        <Sheet title={name(blocks[openIndex])} onClose={closeOpen}>
+          {panelFor(openIndex, true)}
+        </Sheet>
+      )}
 
       {/* Phone bottom bar */}
       <nav
@@ -687,14 +868,8 @@ export function Builder({
       {toast && (
         <div role="status" className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] z-[45] mx-auto flex max-w-sm items-center gap-3 rounded-full bg-ink-100 py-1.5 pl-4 pr-1.5 text-sm text-surface-100 shadow-lg lg:bottom-6 print:hidden">
           <span className="min-w-0 flex-1 truncate">{toast.text}</span>
-          <button
-            type="button"
-            onClick={() => {
-              setBlocks(() => toast.before);
-              setToast(null);
-            }}
-            className="min-h-9 rounded-full bg-surface-100 px-4 font-semibold text-ink-100"
-          >
+          {desktop && <span className="font-mono text-xs opacity-80">{undoKey}</span>}
+          <button type="button" onClick={undoLast} className="min-h-9 rounded-full bg-surface-100 px-4 font-semibold text-ink-100">
             Undo
           </button>
         </div>
@@ -743,35 +918,40 @@ export function Builder({
   );
 }
 
+/** Desktop (lg and up) or phone: the open drill shows in the right column or in a sheet. */
+function useDesktop() {
+  const [d, setD] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia('(min-width: 1024px)');
+    const f = () => setD(m.matches);
+    f();
+    m.addEventListener('change', f);
+    return () => m.removeEventListener('change', f);
+  }, []);
+  return d;
+}
+
+// A row in the plan (decision 0024, design system: DrillActions): how it's organised, its name, a
+// thumbnail and the one message it carries. Clicking it opens the drill; on desktop the frequent
+// actions (move up, move down, ⋯) show under the name while the row is hovered or focused.
 function BlockBody({
   block: b,
-  index,
-  count,
-  units,
   gc,
   byId,
-  known,
   feedback,
   variety,
   varietyAlso,
   suggestion,
   appliedNotes,
-  levelSuggested,
   onSwap,
   onBreak,
   onKeep,
   overNew,
   onKeepNew,
-  update,
-  menu,
   onChooseDrill,
-  open,
-  onToggle,
-  onMove,
-  onRemove,
-  onAddAfter,
-  favorite,
-  onFavorite,
+  selected,
+  onOpen,
+  actions,
 }: {
   block: Block;
   index: number;
@@ -785,50 +965,19 @@ function BlockBody({
   varietyAlso?: string;
   suggestion: React.ReactNode;
   appliedNotes: React.ReactNode;
-  levelSuggested?: number;
   onSwap: () => void;
   onBreak: (rule: VarietyRule) => void;
   onKeep: (rule: VarietyRule) => void;
   overNew: { limit: number; count: number } | null;
   onKeepNew: () => void;
-  update: (f: (b: Block) => Block) => void;
-  menu: Parameters<typeof Menu>[0]['items'];
   onChooseDrill: () => void;
-  open: boolean;
-  onToggle: () => void;
-  onMove: (by: -1 | 1) => void;
-  onRemove: () => void;
-  onAddAfter: () => void;
-  favorite: Favorite | null;
-  onFavorite: (f: Favorite | null) => void;
+  selected: boolean;
+  onOpen: () => void;
+  actions: React.ReactNode;
 }) {
-  const openDrill = useOpenDrill();
   const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
-  const fewer = gc < 3;
   const act = b.kind === 'activity';
-  // Read first (decision 0024): a quiet line saying how the drill is organised, its name, and a thumbnail.
-  let tag: React.ReactNode = null;
-  if (b.kind === 'drill' && d?.levels.length) {
-    const lv = blockLevels(d, b);
-    tag = lv.length > 1 ? `Levels ${lv.join(' → ')}` : `Level ${lv[0]} of ${d.levels.length + 1}`;
-  }
-  if (b.kind === 'stations')
-    tag = (
-      <>
-        <FormatIcon model="stations" />
-        {FORMAT_NAME.stations}
-        {fewer ? ` · ${gc} group${gc === 1 ? '' : 's'} today` : ''}
-      </>
-    );
-  if (b.kind === 'rotation' && (d || isOldRotation(b))) {
-    const { active, off } = rotationToday(b, gc);
-    tag = (
-      <>
-        <FormatIcon model="rotation" />
-        {FORMAT_NAME.rotation} · {b.minutes} min a zone{off.length ? ` · ${active.length} zones today` : ''}
-      </>
-    );
-  }
+  const tag = blockTag(b, d, gc);
   const empty = !act && !d && !(b.kind === 'rotation' && isOldRotation(b));
   // One message per drill: a suggestion first, then the variety check, then the new-drill limit, then what coaches said.
   const box =
@@ -850,144 +999,285 @@ function BlockBody({
         </div>
       </div>
     ) : null);
-  const history = feedback ? <FeedbackLine fb={feedback} /> : d && !known.has(d.id) ? <span className="text-[13px] text-ink-200">New to the kids</span> : null;
-  const howMany = d ? (d.groupModel === 'rotation' ? `${d.zones?.length ?? 0} zones` : d.groupModel === 'stations' ? `${d.stations?.length ?? 0} versions` : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`) : '';
-
-  const foot = (
-    <div className="flex items-center gap-2">
-      <button type="button" onClick={onAddAfter} className="min-h-10 whitespace-nowrap text-sm font-medium text-rink-100 hover:underline">
-        + Add after
-      </button>
-      <span className="ml-auto flex items-center gap-1">
-        {d && <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} variant="tile" onChange={onFavorite} />}
-        <IconButton kind="up" label="Move up" onClick={() => onMove(-1)} disabled={index === 0} />
-        <IconButton kind="down" label="Move down" onClick={() => onMove(1)} disabled={index === count - 1} />
-        <IconButton kind="bin" label="Remove" onClick={onRemove} />
-        <Menu items={menu} />
-      </span>
-    </div>
-  );
-  const minutes = (
-    <Stepper value={b.minutes} min={b.kind === 'rotation' ? 2 : 1} max={b.kind === 'rotation' ? 20 : 60} label={b.kind === 'rotation' ? 'min each' : 'min'} onChange={(m) => update((x) => ({ ...x, minutes: m }) as Block)} />
-  );
+  const open = empty ? onChooseDrill : onOpen;
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <button
-        type="button"
-        onClick={empty ? onChooseDrill : onToggle}
-        aria-expanded={empty ? undefined : open}
-        className={`grid w-full grid-cols-[minmax(0,1fr)_auto] gap-3 text-left ${act ? 'items-center' : 'items-start'}`}
-      >
-        <span className="flex min-w-0 flex-col gap-0.5">
-          {tag && <span className="flex items-center gap-1.5 text-xs font-medium text-rink-100">{tag}</span>}
-          {act ? (
-            <span className="flex flex-wrap items-baseline gap-x-2.5">
-              <span className="text-base font-semibold leading-6">{b.title}</span>
-              {b.note && !open && <span className="text-[13px] text-ink-200">{b.note}</span>}
-            </span>
-          ) : d ? (
-            <>
-              <span className="font-display text-[22px] font-bold leading-7">{d.funName}</span>
-              <span className="text-[13px] text-ink-200">{d.plainName}</span>
-            </>
-          ) : b.kind === 'rotation' && isOldRotation(b) ? (
-            <span className="font-display text-[22px] font-bold leading-7">Rotation</span>
-          ) : (
-            <span className="font-display text-[22px] font-bold leading-7 text-rink-100">{b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}</span>
+      <div className={`grid grid-cols-[minmax(0,1fr)_auto] gap-3 ${act ? 'items-center' : 'items-start'}`}>
+        <div className="flex min-w-0 flex-col items-start gap-2">
+          <button id={`open-${b.id}`} type="button" onClick={open} aria-expanded={empty ? undefined : selected} className="flex w-full min-w-0 flex-col gap-0.5 text-left">
+            {tag && <span className="flex items-center gap-1.5 text-xs font-medium text-rink-100">{tag}</span>}
+            {act ? (
+              <span className="flex flex-wrap items-baseline gap-x-2.5">
+                <span className="text-base font-semibold leading-6">{b.title}</span>
+                {b.note && <span className="text-[13px] text-ink-200">{b.note}</span>}
+              </span>
+            ) : d ? (
+              <>
+                <span className="font-display text-[22px] font-bold leading-7">{d.funName}</span>
+                <span className="text-[13px] text-ink-200">{d.plainName}</span>
+              </>
+            ) : b.kind === 'rotation' && isOldRotation(b) ? (
+              <span className="font-display text-[22px] font-bold leading-7">Rotation</span>
+            ) : (
+              <span className="font-display text-[22px] font-bold leading-7 text-rink-100">{b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}</span>
+            )}
+          </button>
+          {actions && (
+            <span className={`${selected ? 'flex' : 'hidden group-focus-within:flex group-hover:flex group-has-[[aria-expanded=true]]:flex'}`}>{actions}</span>
           )}
-        </span>
-        {act ? (
-          <span className="font-mono text-xs text-ink-200">{b.minutes} min</span>
-        ) : d && !open ? (
-          <span className="block w-[92px] overflow-hidden rounded-md border border-border-100 sm:w-[132px]">
+        </div>
+        {d && (
+          <button type="button" tabIndex={-1} aria-hidden="true" onClick={open} className="block w-[92px] overflow-hidden rounded-md border border-border-100 sm:w-[132px] lg:w-[184px]">
             <Rink spec={d.diagram} title={d.funName} detail="thumb" />
-          </span>
-        ) : (
-          <span />
+          </button>
         )}
-      </button>
+      </div>
       {appliedNotes}
       {box}
-      {!box && !open && feedback && <FeedbackLine fb={feedback} />}
-      {open && act && (
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              aria-label="Block name"
-              className="min-h-10 rounded-md border border-border-100 bg-surface-100 px-3 text-[15px] font-semibold"
-              value={b.title}
-              maxLength={60}
-              onChange={(e) => update((x) => ({ ...x, title: e.target.value }) as Block)}
-            />
-            <input
-              aria-label="Note"
-              placeholder="Add a note"
-              className="min-h-10 min-w-0 flex-[1_1_12rem] rounded-md border border-border-100 bg-surface-100 px-3 text-sm"
-              value={b.note}
-              maxLength={200}
-              onChange={(e) => update((x) => ({ ...x, note: e.target.value }) as Block)}
-            />
-          </div>
-          <div>{minutes}</div>
-          {foot}
+      {!box && feedback && <FeedbackLine fb={feedback} />}
+    </div>
+  );
+}
+
+/** The quiet line above a drill's name: its levels, or how a station or rotation block runs today. */
+function blockTag(b: Block, d: Drill | undefined, gc: number): React.ReactNode {
+  if (b.kind === 'drill' && d?.levels.length) {
+    const lv = blockLevels(d, b);
+    return lv.length > 1 ? `Levels ${lv.join(' → ')}` : `Level ${lv[0]} of ${d.levels.length + 1}`;
+  }
+  if (b.kind === 'stations')
+    return (
+      <>
+        <FormatIcon model="stations" />
+        {FORMAT_NAME.stations}
+        {gc < 3 ? ` · ${gc} group${gc === 1 ? '' : 's'} today` : ''}
+      </>
+    );
+  if (b.kind === 'rotation' && (d || isOldRotation(b))) {
+    const { active, off } = rotationToday(b, gc);
+    return (
+      <>
+        <FormatIcon model="rotation" />
+        {FORMAT_NAME.rotation} · {b.minutes} min a zone{off.length ? ` · ${active.length} zones today` : ''}
+      </>
+    );
+  }
+  return null;
+}
+
+// The open drill (design system: DrillActions): the same actions as the row, labelled, then
+// everything about the drill. Desktop shows it in the right column, phones in a sheet.
+function BlockPanel({
+  block: b,
+  index,
+  count,
+  start,
+  phone,
+  units,
+  gc,
+  byId,
+  known,
+  feedback,
+  levelSuggested,
+  used,
+  total,
+  update,
+  onSwap,
+  onMove,
+  menu,
+  onClose,
+  favorite,
+  onFavorite,
+}: {
+  block: Block;
+  index: number;
+  count: number;
+  start: string;
+  phone: boolean;
+  units: ReturnType<typeof todayUnits>;
+  gc: number;
+  byId: Map<string, Drill>;
+  known: Set<string>;
+  feedback?: DrillFeedback;
+  levelSuggested?: number;
+  used: number;
+  total: number;
+  update: (f: (b: Block) => Block, key?: string) => void;
+  onSwap: () => void;
+  onMove: (to: number) => void;
+  menu: MenuItem[];
+  onClose: () => void;
+  favorite: Favorite | null;
+  onFavorite: (f: Favorite | null) => void;
+}) {
+  const openDrill = useOpenDrill();
+  const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
+  const act = b.kind === 'activity';
+  const mins = blockMinutes(b, gc);
+  const zones = b.kind === 'rotation' ? Math.max(1, rotationToday(b, gc).active.length) : 1;
+  const title = act ? b.title : d ? d.funName : b.kind === 'rotation' && isOldRotation(b) ? 'Rotation' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill';
+  const tag = blockTag(b, d, gc);
+  const howMany = d ? (d.groupModel === 'rotation' ? `${d.zones?.length ?? 0} zones` : d.groupModel === 'stations' ? `${d.stations?.length ?? 0} versions` : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`) : '';
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!phone) heading.current?.focus();
+  }, [phone]);
+
+  const stepper = (
+    <Stepper
+      size={phone ? 'lg' : 'md'}
+      value={b.minutes}
+      min={b.kind === 'rotation' ? 2 : 1}
+      max={b.kind === 'rotation' ? 20 : 60}
+      label="min"
+      onChange={(m) => update((x) => ({ ...x, minutes: m }) as Block, `min:${b.id}`)}
+    />
+  );
+  const perZone =
+    b.kind === 'rotation' ? (
+      <span className="text-[13px] text-ink-200">
+        a zone · <b className="font-mono font-medium text-ink-100">{zones} × {b.minutes} = {mins} min</b>
+      </span>
+    ) : null;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {!phone && (
+        <div className="-mb-2 flex items-center justify-between">
+          <span className={`font-mono text-[13px] ${used === total ? 'text-good-100' : used > total ? 'text-flag-100' : 'text-whistle-100'}`}>
+            {used} of {total} min
+          </span>
+          <button type="button" aria-label="Close" title="Close" onClick={onClose} className="-mr-2.5 grid size-11 place-items-center rounded-full hover:bg-surface-100">
+            {A.close}
+          </button>
         </div>
       )}
-      {open && !act && (
-        <div className="flex flex-col gap-3">
-          {b.kind === 'drill' && d && <PlayableRink spec={b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? (levelOf(d, Math.max(...blockLevels(d, b))).diagram as RinkDiagramProps) : d.diagram} title={d.funName} />}
-          {b.kind === 'drill' && d && d.levels.length > 0 && <LevelPills block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />}
-          {b.kind === 'stations' && d && (
-            <>
-              <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
-                <FormatIcon model="stations" className="mt-0.5 text-rink-100" />
-                {formatWhat('stations')}.
-              </p>
-              <StationsCard block={b} drill={d} units={units} onZone={(k, z: Zone) => update((x) => (x.kind === 'stations' ? { ...x, zones: { ...x.zones, [k]: z } } : x))} />
-            </>
-          )}
-          {b.kind === 'rotation' && (
-            <>
-              {d && (
-                <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
-                  <FormatIcon model="rotation" className="mt-0.5 text-rink-100" />
-                  {formatWhat('rotation', d.zones?.length ?? 3)}. Whistle every {b.minutes} min.
-                </p>
-              )}
-              <RotationCard block={b} drill={d} byId={byId} known={known} groupCount={gc} onChoose={onChooseDrill} onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))} />
-            </>
-          )}
-          {d?.cues[0] && (
-            <p className="text-sm">
-              <span className="text-ink-200">Say:</span> “{d.cues[0]}”
+      <div className="flex flex-col gap-0.5">
+        <span className="text-[13px] text-ink-200">
+          {clock(start)}–{clock(addMinutes(start, mins))}
+        </span>
+        <h2 ref={heading} tabIndex={-1} className="font-display text-[26px] font-bold leading-8 outline-none">
+          {title}
+        </h2>
+        {tag && <span className="flex items-center gap-1.5 text-xs font-medium text-rink-100">{tag}</span>}
+      </div>
+
+      {phone ? (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            {stepper}
+            <span className="flex-1" />
+            <ActionButton iconOnly icon={A.up} label="Move up" disabled={index === 0} onClick={() => onMove(index - 1)} />
+            <ActionButton iconOnly icon={A.down} label="Move down" disabled={index === count - 1} onClick={() => onMove(index + 1)} />
+            <Menu items={menu} size={48} />
+          </div>
+          {perZone}
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            {stepper}
+            {perZone}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <ActionButton icon={A.up} label="Move up" disabled={index === 0} onClick={() => onMove(index - 1)} />
+            <ActionButton icon={A.down} label="Move down" disabled={index === count - 1} onClick={() => onMove(index + 1)} />
+            <Menu items={menu} trigger="labelled" />
+          </div>
+        </>
+      )}
+
+      {act && (
+        <div className="flex flex-col gap-2">
+          <input
+            aria-label="Block name"
+            className={`${input} font-semibold`}
+            value={b.title}
+            maxLength={60}
+            onChange={(e) => update((x) => ({ ...x, title: e.target.value }) as Block)}
+          />
+          <input
+            aria-label="Note"
+            placeholder="Add a note"
+            className={`${input} text-sm`}
+            value={b.note}
+            maxLength={200}
+            onChange={(e) => update((x) => ({ ...x, note: e.target.value }) as Block)}
+          />
+        </div>
+      )}
+      {b.kind === 'drill' && d && <PlayableRink spec={b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? (levelOf(d, Math.max(...blockLevels(d, b))).diagram as RinkDiagramProps) : d.diagram} title={d.funName} />}
+      {b.kind === 'drill' && d && d.levels.length > 0 && <LevelPills block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />}
+      {b.kind === 'stations' && d && (
+        <>
+          <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
+            <FormatIcon model="stations" className="mt-0.5 text-rink-100" />
+            {formatWhat('stations')}.
+          </p>
+          <StationsCard block={b} drill={d} units={units} onZone={(k, z: Zone) => update((x) => (x.kind === 'stations' ? { ...x, zones: { ...x.zones, [k]: z } } : x))} />
+        </>
+      )}
+      {b.kind === 'rotation' && (
+        <>
+          {d && (
+            <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
+              <FormatIcon model="rotation" className="mt-0.5 text-rink-100" />
+              {formatWhat('rotation', d.zones?.length ?? 3)}. Whistle every {b.minutes} min.
             </p>
           )}
-          {history}
-          {d && (
-            <button type="button" onClick={() => openDrill(d.id)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-border-100 bg-surface-100 px-3.5 py-3 text-left hover:bg-surface-200">
-              <span className="flex flex-col">
-                <b className="text-[15px] font-semibold">How to run it</b>
-                <span className="text-[13px] text-ink-200">
-                  {howMany}
-                  {d.gear && d.gear !== 'None' ? ` · ${d.gear}` : ''}
-                </span>
-              </span>
-              <span aria-hidden="true" className="text-xl leading-none text-ink-200">
-                ›
-              </span>
-            </button>
-          )}
-          <div className="flex flex-wrap items-center gap-2">
-            {minutes}
-            {(d || isOldRotation(b)) && (
-              <button type="button" onClick={onSwap} className="min-h-10 rounded-full border border-border-100 bg-surface-100 px-4 text-sm font-medium hover:bg-surface-200">
-                Swap
-              </button>
-            )}
-          </div>
-          {foot}
+          <RotationCard block={b} drill={d} byId={byId} known={known} groupCount={gc} onChoose={onSwap} onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))} />
+        </>
+      )}
+      {d?.cues[0] && (
+        <p className="text-sm">
+          <span className="text-ink-200">Say:</span> “{d.cues[0]}”
+        </p>
+      )}
+      {feedback ? <FeedbackLine fb={feedback} /> : d && !known.has(d.id) ? <span className="text-[13px] text-ink-200">New to the kids</span> : null}
+      {d && (
+        <button type="button" onClick={() => openDrill(d.id)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-border-100 bg-surface-100 px-3.5 py-3 text-left hover:bg-surface-200">
+          <span className="flex flex-col">
+            <b className="text-[15px] font-semibold">How to run it</b>
+            <span className="text-[13px] text-ink-200">
+              {howMany}
+              {d.gear && d.gear !== 'None' ? ` · ${d.gear}` : ''}
+            </span>
+          </span>
+          <span aria-hidden="true" className="text-xl leading-none text-ink-200">
+            ›
+          </span>
+        </button>
+      )}
+      {d && (
+        <div>
+          <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} variant="full" onChange={onFavorite} />
         </div>
       )}
+    </div>
+  );
+}
+
+/** A bottom sheet on phones: Escape, the backdrop or the drag handle's tap closes it. */
+function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    ref.current?.focus();
+    const o = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = o;
+    };
+  }, []);
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden print:hidden">
+      <button type="button" aria-label="Close" tabIndex={-1} onClick={onClose} className="absolute inset-0 bg-ink-100/50" />
+      <div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-2xl bg-surface-100 shadow-lg outline-none">
+        <button type="button" aria-label="Close" onClick={onClose} className="flex h-6 shrink-0 items-center justify-center">
+          <span className="h-1 w-10 rounded-full bg-border-100" />
+        </button>
+        <div className="overflow-y-auto px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-1">{children}</div>
+      </div>
     </div>
   );
 }
