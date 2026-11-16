@@ -54,7 +54,7 @@ export function ProgressScoring({ u, months, days, missing, now }: { u: Progress
           Progress scoring analytics need their database update. Run <code className="font-mono">supabase/migrations/20261119000000_progress_usage.sql</code> in the Supabase SQL editor, then reload.
         </p>
       )}
-      {!missing && !u && <p className="text-sm text-ink-200">No team has scored a month yet. The first rounds open after each team’s first practice of the month.</p>}
+      {!missing && !u && <p className="text-sm text-ink-200">{months.length ? 'No team had progress scoring that month. Pick a month above.' : 'No team has scored a month yet. The first rounds open after each team’s first practice of the month.'}</p>}
       {u && (
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-6">

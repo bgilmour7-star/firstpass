@@ -108,6 +108,9 @@ export class LocalProgressStore implements ProgressStore {
   async recordGoalTaken() {
     // Local mode keeps no analytics.
   }
+  async unrecordGoalTaken() {
+    // Local mode keeps no analytics.
+  }
   async openDueRound(team: Team, practices: Practice[], now = new Date()) {
     if (!levelSetFor(team.ageGroup)) return;
     const month = monthOf(now);

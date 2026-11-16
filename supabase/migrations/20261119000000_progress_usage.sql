@@ -3,7 +3,7 @@
 --
 -- Two small records the app didn't keep yet, and one read for analytics viewers:
 --   progress_report_views     the first time each coach opened each month's report
---   progress_goal_suggestions each time a coach took a goal suggestion ("Keep as is" is already in
+--   progress_goal_suggestions each time a coach took a goal suggestion, removed again on Undo ("Keep as is" is already in
 --                             practice_suggestions_kept, under keys starting "goal:")
 --   progress_usage(month)     the rows behind the Progress scoring section: ids and counts, team names,
 --                             never a coach's name and nothing about a kid
@@ -64,6 +64,20 @@ $$;
 revoke all on function public.record_goal_suggestion(uuid, text) from public, anon;
 grant execute on function public.record_goal_suggestion(uuid, text) to authenticated;
 
+-- Undo takes it back, so a swap that was undone isn't counted as taken.
+create or replace function public.unrecord_goal_suggestion(practice uuid, k text)
+returns void language plpgsql security definer set search_path = ''
+as $$
+declare t uuid;
+begin
+  select p.team_id into t from public.practices p where p.id = practice;
+  if t is null or not public.is_team_member(t) then return; end if;
+  delete from public.progress_goal_suggestions where practice_id = practice and key = k;
+end;
+$$;
+revoke all on function public.unrecord_goal_suggestion(uuid, text) from public, anon;
+grant execute on function public.unrecord_goal_suggestion(uuid, text) to authenticated;
+
 -- 3. The rows behind Analytics → Progress scoring, for one month (YYYY-MM-01) and the one before.
 create or replace function public.progress_usage(m date)
 returns jsonb language plpgsql stable security definer set search_path = ''
@@ -99,10 +113,10 @@ begin
       from public.progress_report_views v join public.progress_rounds r on r.id = v.round_id where r.month = m), '[]'::jsonb),
     'taken', coalesce((
       select jsonb_agg(jsonb_build_object('teamId', x.team_id, 'key', x.key))
-      from public.progress_goal_suggestions x where x.taken_at >= m and x.taken_at < (m + interval '1 month')), '[]'::jsonb),
+      from public.progress_goal_suggestions x where (x.taken_at at time zone 'America/Vancouver')::date >= m and (x.taken_at at time zone 'America/Vancouver')::date < (m + interval '1 month')), '[]'::jsonb),
     'kept', coalesce((
       select jsonb_agg(jsonb_build_object('teamId', k.team_id, 'key', k.key))
-      from public.practice_suggestions_kept k where k.key like 'goal:%' and k.kept_at >= m and k.kept_at < (m + interval '1 month')), '[]'::jsonb),
+      from public.practice_suggestions_kept k where k.key like 'goal:%' and (k.kept_at at time zone 'America/Vancouver')::date >= m and (k.kept_at at time zone 'America/Vancouver')::date < (m + interval '1 month')), '[]'::jsonb),
     'months', coalesce((select jsonb_agg(distinct r.month order by r.month desc) from public.progress_rounds r), '[]'::jsonb)
   );
 end;

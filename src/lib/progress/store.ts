@@ -40,6 +40,8 @@ export interface ProgressStore {
   recordView(roundId: string): Promise<void>;
   /** A coach took a goal suggestion (analytics, part E). Never throws. */
   recordGoalTaken(practiceId: string, key: string): Promise<void>;
+  /** Undo of a goal swap: no longer counted as taken. Never throws. */
+  unrecordGoalTaken(practiceId: string, key: string): Promise<void>;
   /** Local mode only: open this month's round like the timer would. Supabase: no-op (the timer does it). */
   openDueRound(team: Team, practices: Practice[], now?: Date): Promise<void>;
 }

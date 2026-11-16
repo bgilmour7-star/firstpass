@@ -94,6 +94,10 @@ export class SupabaseProgressStore implements ProgressStore {
     const db = await supabaseServer();
     await db.rpc('record_goal_suggestion', { practice: practiceId, k: key }).then(() => undefined, () => undefined);
   }
+  async unrecordGoalTaken(practiceId: string, key: string) {
+    const db = await supabaseServer();
+    await db.rpc('unrecord_goal_suggestion', { practice: practiceId, k: key }).then(() => undefined, () => undefined);
+  }
   async openDueRound() {
     // The database timer opens rounds (open_progress_rounds, every 10 minutes).
   }

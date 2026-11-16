@@ -178,10 +178,12 @@ export async function saveCheckin(practiceId: string, input: unknown): Promise<{
 }
 
 /** A coach took a season-goal suggestion (decision 0030): counted for Admin → Analytics. Nothing comes back. */
-export async function goalSuggestionTaken(practiceId: string, key: string): Promise<void> {
+export async function goalSuggestionTaken(practiceId: string, key: string, taken = true): Promise<void> {
   const { team } = await requireTeam('/plans');
   if (typeof practiceId !== 'string' || !/^goal:(Skating|Puck control|Passing|Shooting|Game sense|Effort & fun):[a-z0-9-]{1,50}$/.test(key)) return;
   const p = await (await getAppStore()).getPractice(practiceId);
   if (!p || p.teamId !== team.id) return;
-  await (await getProgressStore()).recordGoalTaken(practiceId, key);
+  const store = await getProgressStore();
+  // Undo takes it back, so a swap that was undone isn't counted.
+  await (taken === false ? store.unrecordGoalTaken(practiceId, key) : store.recordGoalTaken(practiceId, key));
 }

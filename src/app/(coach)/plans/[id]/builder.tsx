@@ -228,6 +228,7 @@ export function Builder({
   function undo(a: Applied) {
     setBlocks((bs) => (a.added ? bs.filter((y) => y.id !== a.added) : bs.map((y) => (y.id === a.blockId ? a.before : y))));
     setApplied((prev) => prev.filter((y) => y.key !== a.key));
+    if (a.key.startsWith('goal:')) void goalSuggestionTaken(plan.id, a.key, false).catch(() => undefined);
   }
   function keepSug(x: Suggestion) {
     setKeptBy((m) => new Map(m).set(x.key, 'you'));
