@@ -190,9 +190,9 @@ Acceptance: with the local sample, Skating shows ahead of its tick and Shooting 
 
 ### 8.4 A goal for every skill (PR D, decision 0031 · any time, smallest first)
 Goal: a head coach can set a season goal on each of the six skills, not just three.
-Context: 0030 P4 (max 3), `supabase/migrations/20261118000000_progress_goals.sql` (`set_progress_goal`), `src/lib/progress/store-local.ts`, `src/app/(coach)/progress/goals/editor.tsx`, `src/app/(coach)/team/ui.tsx`, `src/lib/plans/suggest.ts`, `src/lib/progress/ice-time.ts`.
+Context: 0030 P4 (max 3), `supabase/migrations/20261118000000_progress_goals.sql` (`set_progress_goal`), `src/lib/progress/store-local.ts`, `src/app/(coach)/progress/goals/{editor,page}.tsx`, `src/app/(coach)/progress/page.tsx`, `src/lib/plans/suggest.ts`, `src/lib/progress/ice-time.ts`.
 - [ ] Migration `20261120000000_goals_per_skill.sql`: `create or replace function public.set_progress_goal` without the 3-goal check (one active goal per skill stays). Safe to run twice. **Brett: run it (full SQL in the PR).**
-- [ ] Local store and both editors: no cap beyond one per skill; remove "3 is the most for now". The goals page lists all six skills, each with Set a goal.
+- [ ] Local store and the goals editor: no cap beyond one per skill; copy that says "up to three" and "of 3" counts six. The goals page lists all six skills, each with Set a goal.
 - [ ] Steering stays one goal suggestion per plan: pick the goal furthest behind its target this month (tie: largest gap). Ice-time targets already weight by gap; add a test with six goals that the shares still sum to 1, keep the 10% floor, and favour the largest gaps.
 - [ ] Home chart (8.3): every goal skill gets its flag and tick; only goals that are behind are shaded, so six goals don't shade every row. The top sentence names at most two skills, the furthest behind first.
 Acceptance: a head coach sets goals on all six skills; the plan offers one swap, for the skill furthest behind; non-head coaches still can't set goals (function test).
