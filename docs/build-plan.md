@@ -214,5 +214,23 @@ Files: `src/lib/today/phase.ts` (pure, tested), `src/app/(coach)/today/{page,tod
 - [x] Team settings at the bottom of the rail above the account; out of the account menu. No goal marks on Home's strip.
 Acceptance: a plan five days out shows Before; on practice day the page turns to During at 15 minutes before and to After at the end; Up next skips water.
 
+## Milestone 10 — Navigation speed (2026-11-16)
+
+Measured: real visits wait 2–4 s for the first byte on Home, Drills, the planner and check-in (web_vitals TTFB, 30 days), while the same pages render in 10–80 ms locally. The time is Supabase round trips (sign-in checked in the middleware, the layout and the page; queries one after another; the whole drill library on most pages) and cold starts. No route had a loading state, so a tap changed nothing until the page arrived.
+
+### 10.1 Taps feel instant (UI only)
+- [x] A `loading.tsx` per section, shaped like the page (`src/components/skeleton.tsx`): Home, Next practice and the planner, Drills, and a plain one for the rest. Next.js prefetches them, so the skeleton shows on tap.
+- [x] Nav links: the tapped item fills and shows a spinner while its page loads (`useLinkStatus`); the phone menu closes on tap; switching team shows a spinner.
+- [x] A thin bar across the top after 150 ms while a nav page loads.
+
+### 10.2 Pages come back faster
+- [ ] Check sign-in once per request: `cache()` around `currentUser` and `activeTeam`; one query for is_admin and can_see_analytics.
+- [ ] Middleware: `getClaims()` (local JWT check) in place of `getUser()`, once the project's JWT signing keys are confirmed.
+- [ ] Independent queries in parallel in the layout and pages (Promise.all).
+- [ ] Next practice and the planner send only the drills the plan uses, not the library (185 KB of page data today).
+- [ ] Vercel: functions in the region nearest Supabase (Montreal, if offered on the plan) and Fluid compute on.
+- [ ] Decision for Brett: cache the live drill library across coaches, refreshed when a drill goes live.
+Acceptance: TTFB p50 under 1 s on Home and the planner in web_vitals over the following week.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

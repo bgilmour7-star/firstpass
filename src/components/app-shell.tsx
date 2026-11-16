@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { signOut } from '@/app/auth/actions';
 import { switchTeam } from '@/app/(coach)/team/actions';
 import { AppWorker } from './pwa';
@@ -47,6 +48,9 @@ export function AppShell({ email, isAdmin, local, teamName, teams, activeTeamId,
   const enter = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const leave = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const expanded = !collapsed || peek;
+  // Navigation feedback (2026-11-16): nav links report while their page loads, for the bar at the top.
+  const [pending, setPending] = useState(0);
+  const report = useCallback((on: boolean) => setPending((n) => Math.max(0, n + (on ? 1 : -1))), []);
 
   const toggle = useCallback(() => {
     setCollapsed((c) => {
@@ -71,6 +75,8 @@ export function AppShell({ email, isAdmin, local, teamName, teams, activeTeamId,
   useEffect(() => setDrawer(false), [path]);
 
   return (
+    <Pending.Provider value={report}>
+    <ProgressBar active={pending > 0} />
     <div className={`min-h-dvh [--rail-w:0px] ${collapsed ? 'lg:[--rail-w:64px]' : 'lg:[--rail-w:248px]'}`}>
       {/* Desktop rail */}
       <aside
@@ -114,7 +120,7 @@ export function AppShell({ email, isAdmin, local, teamName, teams, activeTeamId,
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <button type="button" aria-label="Close menu" onClick={() => setDrawer(false)} className="absolute inset-0 bg-ink-100/40" />
           <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-surface-200 pb-[env(safe-area-inset-bottom,0px)] pt-[env(safe-area-inset-top,0px)] shadow-xl">
-            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} teams={teams} activeTeamId={activeTeamId} next={next} reviewCount={reviewCount} analytics={analytics} expanded />
+            <Nav path={path} email={email} isAdmin={isAdmin} local={local} teamName={teamName} teams={teams} activeTeamId={activeTeamId} next={next} reviewCount={reviewCount} analytics={analytics} expanded onNavigate={() => setDrawer(false)} />
           </div>
         </div>
       )}
@@ -124,6 +130,66 @@ export function AppShell({ email, isAdmin, local, teamName, teams, activeTeamId,
         <AppWorker />
       </main>
     </div>
+    </Pending.Provider>
+  );
+}
+
+const Pending = createContext<(on: boolean) => void>(() => {});
+
+/**
+ * A thin bar across the top while a page loads. It waits 150 ms, so quick loads don't flicker,
+ * then creeps toward the end and finishes when the page arrives.
+ */
+function ProgressBar({ active }: { active: boolean }) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (!active) return setShown(false);
+    const t = setTimeout(() => setShown(true), 150);
+    return () => clearTimeout(t);
+  }, [active]);
+  return (
+    <div aria-hidden="true" className={`pointer-events-none fixed inset-x-0 top-0 z-[70] h-[3px] transition-opacity duration-200 print:hidden ${shown ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`h-full bg-rink-100 transition-[width] ease-out motion-reduce:transition-none ${shown ? 'w-[85%] duration-[4000ms]' : 'w-0 duration-0'}`} />
+    </div>
+  );
+}
+
+/** Inside a nav link: while its page loads, the link fills and shows a small spinner at once. */
+function LinkPending() {
+  const { pending } = useLinkStatus();
+  const report = useContext(Pending);
+  useEffect(() => {
+    if (!pending) return;
+    report(true);
+    return () => report(false);
+  }, [pending, report]);
+  if (!pending) return null;
+  return (
+    <>
+      <span aria-hidden="true" className="absolute inset-0 -z-10 rounded-[10px] bg-surface-300" />
+      <Spinner className="absolute right-3 top-1/2 -translate-y-1/2" />
+    </>
+  );
+}
+
+/** Inside a team in the switcher: a spinner while the switch goes through. */
+function SwitchPending() {
+  const { pending } = useFormStatus();
+  const report = useContext(Pending);
+  useEffect(() => {
+    if (!pending) return;
+    report(true);
+    return () => report(false);
+  }, [pending, report]);
+  return pending ? <Spinner className="absolute right-3 top-1/2 -translate-y-1/2" /> : null;
+}
+
+function Spinner({ className = '' }: { className?: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" className={`shrink-0 text-ink-200 motion-safe:animate-spin ${className}`}>
+      <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
+      <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -140,6 +206,7 @@ function Nav({
   analytics,
   expanded,
   pin,
+  onNavigate,
 }: {
   path: string;
   email: string;
@@ -153,6 +220,8 @@ function Nav({
   analytics: boolean;
   expanded: boolean;
   pin?: { collapsed: boolean; toggle: () => void };
+  /** The phone menu closes as soon as a link is tapped, not when the next page arrives. */
+  onNavigate?: () => void;
 }) {
   const [menu, setMenu] = useState(false);
   const acct = useRef<HTMLDivElement>(null);
@@ -185,7 +254,8 @@ function Nav({
     // /team/new is Create a team and /team/settings has its own item, not Home.
     const on = (path === href || path.startsWith(href + '/')) && !(href === '/team' && (path === '/team/new' || path.startsWith('/team/settings')));
     return (
-      <Link key={href} href={href} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
+      <Link key={href} href={href} onClick={onNavigate} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} isolate ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
+        {!on && <LinkPending />}
         <span className="relative grid size-6 place-items-center">
           {icon}
           {badge > 0 && !expanded && <span aria-hidden="true" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-surface-200 bg-whistle-100" />}
@@ -368,8 +438,9 @@ function TeamSwitcher({ teams, activeId, path, expanded, fade }: { teams: Switch
                     <button
                       type="submit"
                       aria-current={on ? 'true' : undefined}
-                      className={`grid min-h-[52px] w-full grid-cols-[28px_minmax(0,1fr)_20px] items-center gap-2.5 rounded-lg px-2.5 text-left ${on ? 'bg-surface-200' : 'hover:bg-surface-200'}`}
+                      className={`relative grid min-h-[52px] w-full grid-cols-[28px_minmax(0,1fr)_20px] items-center gap-2.5 rounded-lg px-2.5 text-left ${on ? 'bg-surface-200' : 'hover:bg-surface-200'}`}
                     >
+                      {!on && <SwitchPending />}
                       <TeamBadge name={t.name} size="md" />
                       <span className="flex min-w-0 flex-col">
                         <b className="truncate text-sm font-semibold">{t.name}</b>
