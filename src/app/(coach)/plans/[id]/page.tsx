@@ -12,6 +12,7 @@ import { goalsView } from '@/lib/progress/goals-view';
 import { STATUS_WORDS } from '@/lib/progress/pace';
 import { drillFeedback, type DrillFeedback } from '@/lib/plans/feedback';
 import { drillsForAge } from '@/lib/drills/age';
+import { teamPractices } from '@/lib/app/read';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +25,7 @@ export default async function PlanPage({ params, searchParams }: { params: Promi
   if (!practice || practice.teamId !== team.id) notFound();
   // Opening the plan clears its "changed since you last looked" dot on the Plans list.
   await store.markViewed(practice.id, coach.id).catch(() => undefined);
-  const [all, drills, share, checkins, favorites, kept] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.activeShare(practice.id), store.teamCheckins(team.id).catch(() => []), store.favorites(team.id), store.keptSuggestions(practice.id).catch(() => [])]);
+  const [all, drills, share, checkins, favorites, kept] = await Promise.all([teamPractices(team.id), store.libraryDrills(), store.activeShare(practice.id), store.teamCheckins(team.id).catch(() => []), store.favorites(team.id), store.keptSuggestions(practice.id).catch(() => [])]);
   // Drills the kids have done before this practice ("known"), for the New tag and the library drawer.
   const earlier = all.filter((p) => p.id !== practice.id && p.date < practice.date).sort((a, b) => b.date.localeCompare(a.date));
   const known = [...new Set(earlier.flatMap((p) => p.blocks.flatMap(drillIds)))];

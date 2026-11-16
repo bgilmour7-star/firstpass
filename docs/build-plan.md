@@ -224,11 +224,11 @@ Measured: real visits wait 2–4 s for the first byte on Home, Drills, the plann
 - [x] A thin bar across the top after 150 ms while a nav page loads.
 
 ### 10.2 Pages come back faster
-- [ ] Check sign-in once per request: `cache()` around `currentUser` and `activeTeam`; one query for is_admin and can_see_analytics.
-- [ ] Middleware: `getClaims()` (local JWT check) in place of `getUser()`, once the project's JWT signing keys are confirmed.
-- [ ] Independent queries in parallel in the layout and pages (Promise.all).
-- [ ] Next practice and the planner send only the drills the plan uses, not the library (185 KB of page data today).
-- [ ] Vercel: functions in the region nearest Supabase (Montreal, if offered on the plan) and Fluid compute on.
+- [x] Check sign-in once per request: `cache()` around the signed-in coach and the active team; the team's practices shared by layout and page (`src/lib/app/read.ts`). (is_admin and can_see_analytics already run side by side; folding them into one call needs a migration, not worth it.)
+- [x] Middleware: `getClaims()` in place of `getUser()`. Local check with asymmetric JWT signing keys; falls back to Supabase Auth with the legacy shared secret. Brett: switch the project to asymmetric keys to get the saving.
+- [x] Independent queries in parallel in the app and admin layouts.
+- [x] Next practice sends only the drills the practice uses (185 KB → 29 KB of page data). The planner keeps the library: its drawer adds drills from it.
+- [x] Vercel: functions in Montreal (`yul1`, the same AWS region as Supabase's ca-central-1) and Fluid compute on, in `vercel.json`.
 - [ ] Decision for Brett: cache the live drill library across coaches, refreshed when a drill goes live.
 Acceptance: TTFB p50 under 1 s on Home and the planner in web_vitals over the following week.
 
