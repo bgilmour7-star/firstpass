@@ -23,7 +23,8 @@ Date: 2026-11-16 · Decided by: Brett (canvas "Firstpass Team · Home, Settings 
   round: "Score your first round…" with a button. No goals: the chart without flags and a Set goals nudge. One sentence on
   top joins it to the plan ("Sunday's plan gives it 18 of 50 minutes").
 
-- **A goal for every skill** (changes 0030, which allowed 3): one active goal per skill, up to six. Plans still get one
+- **A goal for every skill** (changes 0030, which allowed 3): one active goal per skill, up to six. U7 is about
+  all-round development; focus comes at later ages, so a goal on each skill is the expected setup. Plans still get one
   goal suggestion each, for the goal furthest behind; Home shades only goals that are behind.
 
 ## Why

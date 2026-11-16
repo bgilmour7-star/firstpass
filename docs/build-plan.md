@@ -192,11 +192,11 @@ Acceptance: with the local sample, Skating shows ahead of its tick and Shooting 
 Goal: a head coach can set a season goal on each of the six skills, not just three.
 Context: 0030 P4 (max 3), `supabase/migrations/20261118000000_progress_goals.sql` (`set_progress_goal`), `src/lib/progress/store-local.ts`, `src/app/(coach)/progress/goals/editor.tsx`, `src/app/(coach)/team/ui.tsx`, `src/lib/plans/suggest.ts`, `src/lib/progress/ice-time.ts`.
 - [ ] Migration `20261120000000_goals_per_skill.sql`: `create or replace function public.set_progress_goal` without the 3-goal check (one active goal per skill stays). Safe to run twice. **Brett: run it (full SQL in the PR).**
-- [ ] Local store and both editors: no cap beyond one per skill; remove "3 is the most for now".
+- [ ] Local store and both editors: no cap beyond one per skill; remove "3 is the most for now". The goals page lists all six skills, each with Set a goal.
 - [ ] Steering stays one goal suggestion per plan: pick the goal furthest behind its target this month (tie: largest gap). Ice-time targets already weight by gap; add a test with six goals that the shares still sum to 1, keep the 10% floor, and favour the largest gaps.
 - [ ] Home chart (8.3): every goal skill gets its flag and tick; only goals that are behind are shaded, so six goals don't shade every row. The top sentence names at most two skills, the furthest behind first.
 Acceptance: a head coach sets goals on all six skills; the plan offers one swap, for the skill furthest behind; non-head coaches still can't set goals (function test).
-Pushback noted: six goals means no focus. The goals page says so in one line once a coach sets a fourth: "Fewer goals steer harder: plans favour the ones furthest behind."
+Why: U7 is about all-round development; focus comes at later ages (Brett, 2026-11-16). A goal per skill is the expected setup, not an edge case, so the goals page offers all six and nothing warns against it.
 
 ### Order
 D first (small, one migration), then A, B, C. A is the riskiest of the rest (moves server actions and email settings); B and C are UI on existing data.
