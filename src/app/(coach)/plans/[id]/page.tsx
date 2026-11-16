@@ -86,7 +86,7 @@ async function seasonGoals(team: Awaited<ReturnType<typeof requireTeam>>['team']
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const v = goalsView(goals, state.rounds, state.scores, userId, practices, byId, today);
   return {
-    list: v.goals.map((g) => ({ attribute: g.goal.attribute, status: g.status ? STATUS_WORDS[g.status] : 'Not scored yet', behind: g.status === 'behind', now: g.now, target: g.target, targetShare: g.targetShare })),
+    list: v.goals.map((g) => ({ attribute: g.goal.attribute, status: g.status ? STATUS_WORDS[g.status] : 'Not scored yet', behind: g.status === 'behind', now: g.now, expected: g.expected, target: g.target, targetShare: g.targetShare })),
     targets: v.targets,
   };
 }

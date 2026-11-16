@@ -88,7 +88,7 @@ const goalInput = z.object({
 const GOAL_MESSAGES: Record<string, string> = {
   'not-head-coach': 'Only the head coach sets season goals.',
   'no-report': 'Goals start from a finished progress report. Score this month first.',
-  'too-many-goals': 'Three goals at a time. Remove one to add another.',
+  'too-many-goals': 'More than three goals isn’t switched on yet. Try again in a few minutes.',
   'bad-target': 'That goal doesn’t fit the team. Check the kids add up to your skaters.',
   'bad-date': 'Pick a date after today.',
   'goals-migration-missing': 'Season goals need their database update first.',

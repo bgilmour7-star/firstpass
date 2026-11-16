@@ -31,7 +31,6 @@ export function GoalEditor({
   start: Attribute | null;
 }) {
   const router = useRouter();
-  const full = existing.length >= 3;
   const first = start ?? existing[0]?.attribute ?? attributes[0];
   const [attr, setAttr] = useState<Attribute>(first);
   const ex = (a: Attribute) => existing.find((g) => g.attribute === a);
@@ -50,7 +49,6 @@ export function GoalEditor({
   const nowScore = average(cur);
   const goalScore = average(goal);
   const changed = goal.some((n, i) => n !== cur[i]);
-  const blocked = full && !ex(attr);
 
   const save = () =>
     startT(async () => {
@@ -84,9 +82,6 @@ export function GoalEditor({
         ))}
       </div>
 
-      {blocked ? (
-        <p className="rounded-[10px] bg-surface-200 px-4 py-3 text-sm">Three goals at a time keeps practice from being pulled every way. Remove one below to add {attr.toLowerCase()}.</p>
-      ) : (
         <>
           <div className="grid grid-cols-[28px_minmax(0,1fr)_44px_88px] items-end gap-x-3 border-b border-border-100 pb-2 text-xs text-ink-200">
             <span />
@@ -148,11 +143,10 @@ export function GoalEditor({
             {pending ? 'Saving…' : ex(attr) ? `Change the ${attr.toLowerCase()} goal` : `Set the ${attr.toLowerCase()} goal`}
           </button>
         </>
-      )}
 
       {existing.length > 0 && (
         <section className="flex flex-col gap-2 border-t border-border-100 pt-4">
-          <h2 className="font-display text-base font-bold">Goals now ({existing.length} of 3)</h2>
+          <h2 className="font-display text-base font-bold">Goals now ({existing.length} of {attributes.length})</h2>
           <ul className="flex flex-col">
             {existing.map((g) => (
               <li key={g.id} className="flex min-h-11 items-center gap-3 border-b border-border-100 py-1 text-sm last:border-b-0">

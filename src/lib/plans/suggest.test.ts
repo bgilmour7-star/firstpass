@@ -159,6 +159,21 @@ describe('the season goal rule (decision 0030)', () => {
   it('never swaps a Big hit away', () => {
     expect(goalRun({ feedback: { 'tour-bus': fb({ loved: true }) } }).list).toHaveLength(0);
   });
+  it('with a goal on every skill, picks the one furthest behind its line (decision 0031)', () => {
+    const six = (behindShooting: number, behindPassing: number) => [
+      { attribute: 'Skating', behind: false, now: 2.7, expected: 2.5, target: 3.4 },
+      { attribute: 'Puck control', behind: false, now: 2.0, expected: 2.0, target: 3.0 },
+      { attribute: 'Passing', behind: true, now: 1.8, expected: 1.8 + behindPassing, target: 3.0 },
+      { attribute: 'Shooting', behind: true, now: 2.1, expected: 2.1 + behindShooting, target: 3.5 },
+      { attribute: 'Game sense', behind: false, now: 2.0, expected: 2.0, target: 3.0 },
+      { attribute: 'Effort & fun', behind: false, now: 3.2, expected: 3.2, target: 4.0 },
+    ];
+    const both = { ...targets, Passing: 0.3, Shooting: 0.3 };
+    const shootingFirst = goalRun({ goals: six(0.4, 0.1), targets: both }).list.find((x) => x.source === 'goal');
+    expect(shootingFirst?.key).toMatch(/^goal:Shooting:/);
+    const passingFirst = goalRun({ goals: six(0.1, 0.4), targets: both }).list.find((x) => x.source === 'goal');
+    expect(passingFirst?.key ?? 'none').not.toMatch(/^goal:Shooting:/);
+  });
   it('comes after the check-in suggestions and only if there is room', () => {
     const full = goalRun({
       checkins: [checkin('Brett', { ready: ['Sharks'], steam: 'tired', steamFrom: 's', marks: [mark('s', 'ski-racer', 'flop', ['waiting'])] })],

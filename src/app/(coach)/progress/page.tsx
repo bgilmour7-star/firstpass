@@ -111,7 +111,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-ink-200">Pick up to three skills to work on this season. Plans lean toward the ones that fall behind.</p>
+                  <p className="text-sm text-ink-200">Set a goal for each skill you want to grow this season. Plans lean toward the ones that fall behind.</p>
                 )}
               </section>
             )}

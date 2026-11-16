@@ -92,7 +92,6 @@ export class LocalProgressStore implements ProgressStore {
     const start = teamReport(base, s.scores.map((x) => ({ ...x, name: '' }))).attributes.find((a) => a.attribute === g.attribute)?.score;
     if (start == null) throw new Error('no-report');
     const goals = s.goals ?? [];
-    if (goals.filter((x) => x.teamId === teamId && !x.endedAt && x.attribute !== g.attribute).length >= 3) throw new Error('too-many-goals');
     const now = new Date().toISOString();
     s.goals = [...goals.map((x) => (x.teamId === teamId && x.attribute === g.attribute && !x.endedAt ? { ...x, endedAt: now } : x)), { id: randomUUID(), teamId, attribute: g.attribute, target: g.target, byDate: g.byDate, baselineRoundId: base.id, baselineScore: start, setAt: now, endedAt: null }];
     await write(s);
