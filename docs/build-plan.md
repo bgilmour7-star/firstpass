@@ -174,10 +174,10 @@ Acceptance: a coach on two teams turns off progress emails for one team from Acc
 ### 8.2 Home: Next up and the next practice (PR B)
 Goal: Home opens on the one thing to do and shows the next practice as its drills.
 Context: decision 0031. Files: `src/app/(coach)/team/page.tsx`, a new `src/lib/home/next-up.ts`, `src/app/(coach)/team/home.tsx` (replaces the read-only parts of `summary.tsx`). Reuse the check-in rule from `plans/[id]/page.tsx` (`prev && recentEnough && !checkedIn`), `progressState` for an open round, ice times for unplanned ice.
-- [ ] `next-up.ts`: a pure function returning `checkin | score | plan | null` in that priority, with tests for each and for "nothing waiting".
-- [ ] Next up block (desktop row, phone stacked): title, one line, main button, Later (hides it on that device until tomorrow, `localStorage`). Open the plan is the main button only when Next up is empty.
-- [ ] Next practice: drills only, in order, `RinkDiagram` thumbs, start time and minutes, **Shooting goal** (focus serves a goal that is behind, from `goalsView`) and **New today** (not known to the kids). Equal widths up to 6; 7+ shows 5 and "+N more drills"; phones scroll. No plan yet: "Make a plan" as the main button, nothing to preview.
-- [ ] Right column (desktop): Season so far, then Coaches with Copy invite link (join link on) or Turn on invite link (head coach, off). Header: team name, one line, Settings as a text button. Remove Invite a coach and the Parents note.
+- [x] `next-up.ts`: a pure function returning `checkin | score | plan | null` in that priority, with tests for each and for "nothing waiting".
+- [x] Next up block (desktop row, phone stacked): title, one line, main button, Later (hides it on that device until tomorrow, `localStorage`). Open the plan is the main button only when Next up is empty.
+- [x] Next practice: drills only, in order, `RinkDiagram` thumbs, start time and minutes, **Shooting goal** (focus serves a goal that is behind, from `goalsView`) and **New today** (not known to the kids). Equal widths up to 6; 7+ shows 5 and "+N more drills"; phones scroll. No plan yet: "Make a plan" as the main button, nothing to preview.
+- [x] Right column (desktop): Season so far, then Coaches with Copy invite link (join link on) or Turn on invite link (head coach, off). Header: team name, one line, Settings as a text button. Remove Invite a coach and the Parents note.
 Acceptance: after Sunday's practice, Home shows "How did Sunday go?" until you check in, then the December round if it's open, then Thursday's missing plan; the strip matches the plan, including the 7-drill case.
 
 ### 8.3 Home: Progress as a chart (PR C)
