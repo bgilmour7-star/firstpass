@@ -51,3 +51,31 @@ export async function setProgressScoring(userId: string, on: boolean): Promise<{
   revalidatePath('/team');
   return { ok: true };
 }
+
+/** Each coach: whether they get the monthly progress emails. */
+export async function setProgressEmails(on: boolean): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { coach, team } = await requireTeam('/team');
+  try {
+    await (await getProgressStore()).setEmails(team.id, coach.id, on);
+  } catch (e) {
+    return { ok: false, error: e instanceof Error && e.message === 'progress-migration-missing' ? 'Progress emails need their database update first.' : 'Couldn’t save that.' };
+  }
+  return { ok: true };
+}
+
+/** Head coach: email the coaches who haven't scored this month, now (once each per month). */
+export async function sendProgressReminder(roundId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { team } = await requireTeam('/progress');
+  if (typeof roundId !== 'string' || !roundId) return { ok: false, error: 'Something didn’t add up.' };
+  const store = await getProgressStore();
+  const rounds = (await store.rounds(team.id)) ?? [];
+  if (!rounds.some((r) => r.id === roundId)) return { ok: false, error: 'That isn’t your team’s month.' };
+  try {
+    await store.remind(roundId);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : '';
+    return { ok: false, error: m === 'not-head-coach' ? 'Only the head coach can send a reminder.' : m === 'round-closed' ? 'This month’s scoring has closed.' : m === 'progress-migration-missing' ? 'Reminders need their database update first.' : 'Couldn’t send that.' };
+  }
+  revalidatePath('/progress');
+  return { ok: true };
+}

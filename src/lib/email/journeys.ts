@@ -15,15 +15,17 @@ import { coachJoinedEmail, headCoachEmail, inviteEmail } from './account-emails'
 import { checkinEmail } from './checkin-email';
 import { coachFirstPracticeEmail, coachNudgeEmail, waitlistLastAskEmail, waitlistNudgeEmail, waitlistWelcomeEmail, type DiscoveryInput } from './discovery-emails';
 import { draftReadyEmail, outcomeEmail } from './request-emails';
+import { progressReminderEmail, progressReportEmail, progressScoringEmail, type ProgressReportInput } from './progress-emails';
 import { SUPABASE_TEMPLATES, type SupabaseTemplate } from './supabase-templates';
 import { waitlistAlertEmail } from './waitlist-emails';
 
-export type Section = 'waitlist' | 'coach' | 'practice' | 'requests' | 'sign-in';
+export type Section = 'waitlist' | 'coach' | 'practice' | 'progress' | 'requests' | 'sign-in';
 
 export const SECTIONS: { id: Section; title: string; note?: string }[] = [
   { id: 'waitlist', title: 'Joins the waitlist', note: 'Stops when they finish the survey or unsubscribe. A dashed box only goes out if its condition is met.' },
   { id: 'coach', title: 'Invited to coach a team', note: 'Grey boxes go to someone other than the person in this journey.' },
   { id: 'practice', title: 'Every practice', note: 'One email, no reminder. A coach who skips it is asked again when they open the next practice.' },
+  { id: 'progress', title: 'Every month: team progress', note: 'Starts after the first practice of the month. The report only goes to coaches who have scored.' },
   { id: 'requests', title: 'Drill requests' },
   { id: 'sign-in', title: 'Signing in', note: 'Not a journey: each one is sent on its own when someone asks.' },
 ];
@@ -76,6 +78,16 @@ export type Entry = QueuedEntry | (Base & { sentBy: 'app' | 'cron' | 'supabase' 
 const BRETT = 'Brett at Firstpass, reply-to hello@';
 const FIRSTPASS = 'Firstpass <hello@firstpass.coach>';
 const SITE = 'https://firstpass.coach';
+
+const progressSample = { teamName: 'Nanaimo U7 Avalanche', month: 'November', firstName: 'Brett', settingsUrl: `${SITE}/team#emails` };
+const progressReportSample: ProgressReportInput = {
+  ...progressSample, url: `${SITE}/progress`, skaters: 12, coaches: ['Brett', 'Kara', 'Sam'], first: false,
+  rows: [
+    { attribute: 'Skating', score: 2.7, change: 0.3 }, { attribute: 'Puck control', score: 2.7, change: 0.2 }, { attribute: 'Passing', score: 1.9, change: 0.1 },
+    { attribute: 'Shooting', score: 2.1, change: 0.1 }, { attribute: 'Game sense', score: 2.3, change: 0.2 }, { attribute: 'Effort & fun', score: 3.6, change: 0.2 },
+  ],
+  gap: { attribute: 'Shooting', coaches: [{ name: 'Brett', average: 1.7 }, { name: 'Kara', average: 2.7 }, { name: 'Sam', average: 1.9 }] },
+};
 
 const waitlistSample: DiscoveryInput = { firstName: null, teamName: null, surveyUrl: `${SITE}/s/sample`, unsubscribeUrl: `${SITE}/unsubscribe/sample` };
 const coachSample: DiscoveryInput = { firstName: 'Kara', teamName: 'Nanaimo U7 Avalanche', surveyUrl: `${SITE}/s/sample`, unsubscribeUrl: `${SITE}/unsubscribe/sample` };
@@ -150,6 +162,26 @@ export const REGISTRY: Entry[] = [
     trigger: 'A planned practice ends', delay: '30 minutes', condition: 'Not checked in, email not turned off, within 6 hours', audience: 'person', to: 'Every coach on the team', from: FIRSTPASS,
     file: 'src/lib/email/checkin-email.ts', fn: 'checkinEmail', sentBy: 'cron', tag: 'checkin',
     preview: () => checkinEmail({ teamName: 'Nanaimo U7 Avalanche', practiceDate: '2026-10-28', startTime: '17:45', nextDate: '2026-10-30', checkedIn: ['Kara'], checkinUrl: `${SITE}/plans/sample/check-in`, settingsUrl: `${SITE}/team#emails` }),
+  },
+
+  // Every month: team progress (decision 0030)
+  {
+    id: 'progress.scoring', section: 'progress', journey: 'progress', step: 'scoring', name: 'Time for progress scoring', when: 'Morning after the month’s 1st practice',
+    trigger: 'The month’s first practice ends (a round opens)', delay: 'Next morning, 9:00', condition: 'Not scored yet, progress emails on', audience: 'person', to: 'Every coach who scores', from: FIRSTPASS,
+    file: 'src/lib/email/progress-emails.ts', fn: 'progressScoringEmail', sentBy: 'cron', tag: 'progress-scoring',
+    preview: () => progressScoringEmail({ ...progressSample, url: `${SITE}/progress/score`, skaters: 12, previousMonth: 'October', others: ['Kara', 'Sam'] }),
+  },
+  {
+    id: 'progress.reminder', section: 'progress', journey: 'progress', step: 'reminder', name: 'Scoring reminder', when: 'Day 2 · if not scored',
+    trigger: 'Scoring email sent, or the head coach taps Send a reminder', delay: '2 days, 18:00', condition: 'Not scored yet, once per round', audience: 'person', to: 'Coaches who haven’t scored', from: FIRSTPASS,
+    file: 'src/lib/email/progress-emails.ts', fn: 'progressReminderEmail', sentBy: 'cron', tag: 'progress-reminder',
+    preview: () => progressReminderEmail({ ...progressSample, firstName: 'Sam', url: `${SITE}/progress/score`, done: ['Brett', 'Kara'] }),
+  },
+  {
+    id: 'progress.report', section: 'progress', journey: 'progress', step: 'report', name: 'Monthly progress report', when: 'Day 3',
+    trigger: 'Scoring email sent', delay: '3 days, 9:00', condition: 'At least one coach scored; only to coaches who scored', audience: 'person', to: 'Coaches who scored', from: FIRSTPASS,
+    file: 'src/lib/email/progress-emails.ts', fn: 'progressReportEmail', sentBy: 'cron', tag: 'progress-report',
+    preview: () => progressReportEmail(progressReportSample),
   },
 
   // Drill requests

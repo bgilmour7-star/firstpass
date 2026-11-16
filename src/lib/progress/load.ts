@@ -27,6 +27,7 @@ export type ProgressState =
       scoring: boolean;
       coaches: { userId: string; name: string }[];
       skaters: number;
+      isHead: boolean;
     };
 
 export async function progressState(team: Team, userId: string): Promise<ProgressState> {
@@ -56,6 +57,7 @@ export async function progressState(team: Team, userId: string): Promise<Progres
     scoring: flags[userId] !== false,
     coaches,
     skaters,
+    isHead: userId === 'local' || teamCoaches.some((c) => c.userId === userId && c.role === 'head_coach'),
   };
 }
 

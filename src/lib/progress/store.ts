@@ -25,6 +25,11 @@ export interface ProgressStore {
   scoringFlags(teamId: string): Promise<ScoringFlags>;
   /** Head coach only: throws 'not-head-coach'. */
   setScoring(teamId: string, userId: string, on: boolean): Promise<void>;
+  /** This coach's own progress emails setting (on by default). */
+  emailsOn(teamId: string, userId: string): Promise<boolean>;
+  setEmails(teamId: string, userId: string, on: boolean): Promise<void>;
+  /** Head coach: send the reminder now to coaches who haven't finished. Throws 'not-head-coach'. */
+  remind(roundId: string): Promise<void>;
   /** Local mode only: open this month's round like the timer would. Supabase: no-op (the timer does it). */
   openDueRound(team: Team, practices: Practice[], now?: Date): Promise<void>;
 }

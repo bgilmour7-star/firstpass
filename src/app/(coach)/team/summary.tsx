@@ -11,7 +11,7 @@ import type { RinkDiagramProps } from '../../../../design-system/index';
 import { deleteTeam, leaveTeam, saveTeam } from './actions';
 import { CalendarSettings } from './calendar';
 import { Coaches } from './coaches';
-import { EmailSettings } from './emails';
+import { EmailSettings, ProgressEmailSettings } from './emails';
 import { Count, Drawer, FocusPicker, GearEditor, GroupsEditor, ICE_OPTIONS, Segmented, field, gearLine, primary, quiet, shownGroups, tiers } from './ui';
 
 export type NextPractice = { id: string; date: string; startTime: string; minutes: number; ice: 'half' | 'full'; rink: string | null; drills: number; diagram: { spec: unknown; name: string } | null };
@@ -30,6 +30,8 @@ export function TeamSummary(p: {
   isHead: boolean;
   /** Who scores team progress (decision 0030), when the team's age group has it. */
   scoring?: Record<string, boolean>;
+  /** This coach's progress emails setting, when the team has progress. */
+  progressEmails?: boolean;
   coaches: Coach[];
   practicesRun: number;
   joinCode: string | null;
@@ -282,6 +284,7 @@ export function TeamSummary(p: {
         {!p.local && (
           <div className="border-t border-border-100 pt-5">
             <EmailSettings initial={p.emails} email={p.email} />
+            {p.progressEmails !== undefined && <ProgressEmailSettings initial={p.progressEmails} />}
           </div>
         )}
         <div className="flex-1" />

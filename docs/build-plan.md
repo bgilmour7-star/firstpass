@@ -124,11 +124,11 @@ Acceptance: Brett scores U7 Avalanche on his phone in under 3 minutes, Kara can'
 ### 7.2 Emails (PR B)
 Goal: the monthly rhythm runs without anyone remembering it.
 Context: spec → Emails. Artboards "Email · monthly progress scoring", "Email · nudge…", "Email · November progress report".
-- [ ] `src/lib/email/progress-emails.ts` (three templates, table layout, branded frame) with tests: no kids' names possible, the report names only coaches who scored, turn-off link present.
-- [ ] **Register the three emails in `src/lib/email/journeys.ts`:** new `progress` section ("Every month: team progress") and entries `progress.scoring`, `progress.reminder`, `progress.report` exactly as in the spec, so Admin → Emails shows the journey with samples and "Send me a test". The registry test must pass.
-- [ ] Migration (same file or `20261117000000_progress_emails.sql`): `progress_emails`, `claim_progress_emails(secret)`, `send_progress_reminder(round)` for the head coach's button. **Brett: run it.**
-- [ ] Cron route sends scoring (9:00 the morning after a round opens), reminder (day 2, 18:00, once), report (day 3, 9:00, scorers only); idempotency key `progress-${kind}-${round}-${user}`; failed sends retried next run.
-- [ ] "Send a reminder" on the done screen and the report's Coaches section.
+- [x] `src/lib/email/progress-emails.ts` (three templates, table layout, branded frame) with tests: no kids' names possible, the report names only coaches who scored, turn-off link present.
+- [x] **Register the three emails in `src/lib/email/journeys.ts`:** new `progress` section ("Every month: team progress") and entries `progress.scoring`, `progress.reminder`, `progress.report` exactly as in the spec, so Admin → Emails shows the journey with samples and "Send me a test". The registry test must pass.
+- [x] Migration (same file or `20261117000000_progress_emails.sql`): `progress_emails`, `claim_progress_emails(secret)`, `send_progress_reminder(round)` for the head coach's button. **Brett: run it.**
+- [x] Cron route sends scoring (9:00 the morning after a round opens), reminder (day 2, 18:00, once), report (day 3, 9:00, scorers only); idempotency key `progress-${kind}-${round}-${user}`; failed sends retried next run.
+- [x] "Send a reminder" for the head coach on Progress (locked view and report) while someone hasn't scored. "Email me about progress" on the Team page.
 Acceptance: on the pilot teams' December round, every coach gets one scoring email, non-scorers one reminder, scorers one report; Admin → Emails shows the new section with counts.
 
 ### 7.3 Goals and plan steering (PR C)

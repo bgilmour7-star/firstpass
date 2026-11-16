@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { checkinEmail } from '@/lib/email/checkin-email';
 import { draftReadyEmail } from '@/lib/email/request-emails';
+import { progressReminderEmail, progressReportEmail, progressScoringEmail } from '@/lib/email/progress-emails';
+import { reminderInput, reportInput, scoringInput, type Due as ProgressDue, type ScoreRow } from '@/lib/progress/emails';
 
 // Called every 10 minutes by the database's timer (pg_cron, see the checkin_emails migration).
 // The timer's secret travels as a bearer token and is checked by the database itself, so this
@@ -60,7 +62,9 @@ export async function POST(request: NextRequest) {
 
   // The same timer sends "Claude's draft is ready" for coaches' drill requests (decision 0018).
   const requests = await sendRequestEmails(db, secret, resendKey);
-  return NextResponse.json({ sent, failed, requests });
+  // And the monthly team progress emails (decision 0030).
+  const progress = await sendProgressEmails(db, secret, resendKey);
+  return NextResponse.json({ sent, failed, requests, progress });
 }
 
 type RequestDue = { request_id: string; kind: 'new' | 'change'; to_email: string | null; requester_name: string | null; team_name: string; drill_id: string | null; drill_name: string | null; description: string };
@@ -91,6 +95,43 @@ async function sendRequestEmails(db: SupabaseClient<any, 'public', any>, secret:
     failed++;
     console.error('[request-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
     await db.rpc('release_request_email', { secret, request: d.request_id });
+  }
+  return { sent, failed };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function sendProgressEmails(db: SupabaseClient<any, 'public', any>, secret: string, resendKey: string) {
+  const { data, error } = await db.rpc('claim_progress_emails', { secret });
+  // Before the progress emails SQL has run there's nothing to send.
+  if (error) {
+    if (!/claim_progress_emails|does not exist|schema cache/i.test(error.message)) console.error('[progress-email] claiming failed: %s', error.message);
+    return { sent: 0, failed: 0 };
+  }
+  let sent = 0;
+  let failed = 0;
+  const rounds = new Map<string, ScoreRow[]>();
+  for (const d of (data ?? []) as ProgressDue[]) {
+    if (!rounds.has(d.round_id)) {
+      const r = await db.rpc('progress_email_scores', { secret, r: d.round_id });
+      rounds.set(d.round_id, (r.data ?? []) as ScoreRow[]);
+    }
+    const rows = rounds.get(d.round_id)!;
+    const links = { site: SITE };
+    const report = d.kind === 'report' ? reportInput(d, rows, links) : null;
+    const email = d.kind === 'scoring' ? progressScoringEmail(scoringInput(d, rows, links)) : d.kind === 'reminder' ? progressReminderEmail(reminderInput(d, rows, links)) : report ? progressReportEmail(report) : null;
+    if (!email) continue; // a report with no finished coach: nothing to say (the claim stays, so it isn't retried)
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${resendKey}`, 'content-type': 'application/json', 'idempotency-key': `progress-${d.kind}-${d.round_id}-${d.user_id}` },
+      body: JSON.stringify({ from: FROM, to: [d.email], subject: email.subject, html: email.html, text: email.text, tags: [{ name: 'kind', value: `progress-${d.kind}` }] }),
+    }).catch(() => null);
+    if (res?.ok) {
+      sent++;
+      continue;
+    }
+    failed++;
+    console.error('[progress-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
+    await db.rpc('release_progress_email', { secret, r: d.round_id, coach: d.user_id, k: d.kind });
   }
   return { sent, failed };
 }

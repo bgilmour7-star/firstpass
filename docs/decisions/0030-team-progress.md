@@ -28,6 +28,14 @@ Coaches want to see the season move, and goals need a baseline. Counting kids pe
 gives a spread rather than one number, so it's honest about a mixed group. Scoring on your own first keeps answers
 independent, which is what makes the side-by-side useful.
 
-## Later (spec, PRs B to E)
-Emails (scoring, reminder, report) registered in `journeys.ts`; season goals as a target spread with monthly targets
+## Emails (PR B, 2026-11-15)
+- Three emails ride the check-in emails' 10-minute timer: **scoring** (day 1 after the round opens, 9:00), **reminder**
+  (day 3, 18:00, or straight away when the head coach taps it; once per coach), **report** (day 4, 9:00, only to
+  coaches who had finished by then). Days counted in Vancouver time from the day the round opened. Nothing goes for a
+  closed round or one over 20 days old. Each coach turns them off on the Team page (`progress_emails`).
+- The cron route never sees a key: the database checks the timer's secret, hands over coaches' first names and the
+  finished coaches' counts, and records each send in `progress_emails` so nobody gets the same one twice.
+
+## Later (spec, PRs C to E)
+Season goals as a target spread with monthly targets
 steering plan suggestions; the over-the-season view; Admin → Analytics "Progress scoring".

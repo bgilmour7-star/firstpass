@@ -17,6 +17,8 @@ export type Round = {
   levelsVersion: string;
   /** Team size when the round opened. */
   skaters: number;
+  /** When the head coach asked for the reminder to go now (decision 0030, part B). */
+  remindAt?: string | null;
 };
 
 export type CoachScore = {

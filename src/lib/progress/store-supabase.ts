@@ -7,7 +7,7 @@ import type { ProgressStore, RoundStatus, ScoreSave, ScoringFlags } from './stor
 // Every query runs as the signed-in coach. RLS limits rounds to their teams and scores to their own,
 // plus teammates' once they've finished (supabase/migrations/20261116000000_team_progress.sql).
 
-type RoundRow = { id: string; team_id: string; month: string; opened_at: string; closed_at: string | null; levels_version: string; skaters: number };
+type RoundRow = { id: string; team_id: string; month: string; opened_at: string; closed_at: string | null; levels_version: string; skaters: number; remind_at?: string | null };
 type ScoreRow = { round_id: string; user_id: string; answers: Answers; done: string[]; no_change: string[]; started_at: string; finished_at: string | null; seconds: number | null };
 
 const missing = (m: string) => /progress_|relation|schema cache|function/i.test(m);
@@ -15,9 +15,9 @@ const missing = (m: string) => /progress_|relation|schema cache|function/i.test(
 export class SupabaseProgressStore implements ProgressStore {
   async rounds(teamId: string): Promise<Round[] | null> {
     const db = await supabaseServer();
-    const { data, error } = await db.from('progress_rounds').select('id, team_id, month, opened_at, closed_at, levels_version, skaters').eq('team_id', teamId).order('month', { ascending: false });
+    const { data, error } = await db.from('progress_rounds').select('*').eq('team_id', teamId).order('month', { ascending: false });
     if (error) return missing(error.message) ? null : [];
-    return ((data ?? []) as RoundRow[]).map((r) => ({ id: r.id, teamId: r.team_id, month: r.month, openedAt: r.opened_at, closedAt: r.closed_at, levelsVersion: r.levels_version, skaters: r.skaters }));
+    return ((data ?? []) as RoundRow[]).map((r) => ({ id: r.id, teamId: r.team_id, month: r.month, openedAt: r.opened_at, closedAt: r.closed_at, levelsVersion: r.levels_version, skaters: r.skaters, remindAt: r.remind_at ?? null }));
   }
   async scores(teamId: string): Promise<Omit<CoachScore, 'name'>[]> {
     const db = await supabaseServer();
@@ -49,6 +49,22 @@ export class SupabaseProgressStore implements ProgressStore {
     const db = await supabaseServer();
     const { error } = await db.rpc('set_progress_scoring', { team: teamId, coach: userId, wanted: on });
     if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : missing(error.message) ? 'progress-migration-missing' : error.message);
+  }
+  async emailsOn(teamId: string, userId: string) {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('team_members').select('progress_emails').eq('team_id', teamId).eq('user_id', userId).maybeSingle();
+    if (error || !data) return true;
+    return (data as { progress_emails: boolean }).progress_emails;
+  }
+  async setEmails(teamId: string, _userId: string, on: boolean) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('set_progress_emails', { team: teamId, wanted: on });
+    if (error) throw new Error(missing(error.message) ? 'progress-migration-missing' : error.message);
+  }
+  async remind(roundId: string) {
+    const db = await supabaseServer();
+    const { error } = await db.rpc('send_progress_reminder', { r: roundId });
+    if (error) throw new Error(/not-head-coach/.test(error.message) ? 'not-head-coach' : /round-closed/.test(error.message) ? 'round-closed' : missing(error.message) ? 'progress-migration-missing' : error.message);
   }
   async openDueRound() {
     // The database timer opens rounds (open_progress_rounds, every 10 minutes).
