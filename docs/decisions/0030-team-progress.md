@@ -48,5 +48,11 @@ independent, which is what makes the side-by-side useful.
   one swap after the check-in suggestions: the longest drill in a skill over its share, for a drill whose Main is the
   goal's skill, the kids' known drills first, never a Big hit. Suggest, never apply.
 
-## Later (spec, PRs D and E)
-The over-the-season view; Admin → Analytics "Progress scoring".
+## Over the season (PR D, 2026-11-15)
+`/progress/season`, beside the latest report: a chart per goal on the full 1–5 scale (score solid, pace dashed grey,
+goal level teal, a point orange only where it fell behind), every month's scores with the season change and ice-time
+share, what practices worked on each month (Main / Some pips from the drills' minutes), the biggest gap between
+coaches by month, and every report linked. Only months this coach scored show (P2). No new tables.
+
+## Later (spec, PR E)
+Admin → Analytics "Progress scoring".
