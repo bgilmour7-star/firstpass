@@ -162,7 +162,7 @@ Design: canvas "Firstpass Team · Home, Settings and Account" (https://claude.ai
 ### 8.1 Split settings out (PR A)
 Goal: Home has nothing to edit; settings and your emails each have their own place.
 Context: decision 0031; 0026 (drawers). Files: `src/app/(coach)/team/{page,summary,coaches,emails,calendar,actions}.tsx`, `src/app/(coach)/account/page.tsx`, `src/components/app-shell.tsx`.
-- [x] **`/team/settings`**: move the section drawers from `summary.tsx` into a settings page (same `SectionDrawer`, same actions). Order: Team name, Practices and ice, Calendar, Skill groups, Coaches, Join link (head coach), Gear, Planning, Leave or delete. `?edit=<section>` works there; `/team?edit=<section>` redirects to it.
+- [x] **`/team/settings`**: move the section drawers from `summary.tsx` into a settings page (same `SectionDrawer`, same actions). Order: Team name, Practices and ice, Calendar, Skill groups, Coaches (with the join link, as before), Gear, Planning, Leave or delete. `?edit=<section>` works there; `/team?edit=<section>` redirects to it.
 - [x] Calendar row shows the source and freshness ("Your association's calendar · Synced 2 hours ago · 22 practices to come"); the address lives inside Change.
 - [x] Coaches: one ⋯ per coach (head coach only) with **Hand over head coach** (`handOverTeam`) and **Remove from team** (`removeCoach`), using the plan builder's `Menu`.
 - [x] **Leave or delete** section: each button with its consequence line; Delete keeps the typed-name confirmation.

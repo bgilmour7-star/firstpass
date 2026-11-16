@@ -19,6 +19,28 @@ const shown = (c: TeamCoach) => c.firstName ?? c.email;
  * Team settings (decision 0031): what everyone on the team shares, one section edited at a time in a
  * drawer (0026). Head coaches edit; other coaches see it read-only. Your own emails are in Account.
  */
+type RowProps = { s: Section | null; title: string; action?: string; isHead: boolean; onEdit: (s: Section) => void; children: React.ReactNode };
+
+/** One section of Team settings, at module level so opening a drawer doesn't remount it (focus goes back to its Edit). */
+function SettingsRow({ s, title, action = 'Edit', isHead, onEdit, children }: RowProps) {
+  const id = `h-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  return (
+    <section aria-labelledby={id} className="flex flex-col gap-2.5 border-t border-border-100 py-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id={id} className="text-[17px] font-semibold">
+          {title}
+        </h2>
+        {isHead && s && (
+          <button type="button" onClick={() => onEdit(s)} aria-label={`${action} ${title.toLowerCase()}`} className="min-h-11 px-1 text-sm font-medium text-rink-100 hover:underline">
+            {action}
+          </button>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export function TeamSettings(p: {
   team: Team;
   me: string;
@@ -44,22 +66,6 @@ export function TeamSettings(p: {
   const gear = gearLine(team.gear);
   const head = p.coaches.find((c) => c.role === 'head_coach');
 
-  const Row = ({ s, title, action = 'Edit', children }: { s: Section | null; title: string; action?: string; children: React.ReactNode }) => (
-    <section aria-labelledby={`h-${title}`} className="flex flex-col gap-2.5 border-t border-border-100 py-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id={`h-${title}`} className="text-[17px] font-semibold">
-          {title}
-        </h2>
-        {isHead && s && (
-          <button type="button" onClick={() => setEdit(s)} aria-label={`${action} ${title.toLowerCase()}`} className="min-h-11 px-1 text-sm font-medium text-rink-100 hover:underline">
-            {action}
-          </button>
-        )}
-      </div>
-      {children}
-    </section>
-  );
-
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col pb-10 pt-2">
       <Link href="/team" className="inline-flex min-h-11 w-fit items-center gap-1 text-sm font-medium text-rink-100 hover:underline">
@@ -74,13 +80,13 @@ export function TeamSettings(p: {
         .
       </p>
 
-      <Row s="name" title="Team name">
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="name" title="Team name">
         <p className="text-[15px]">
           {team.name} · {team.ageGroup}
         </p>
-      </Row>
+      </SettingsRow>
 
-      <Row s="ice" title="Practices and ice">
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="ice" title="Practices and ice">
         {p.slots.length ? (
           <ul className="flex flex-col">
             {p.slots.map((s) => (
@@ -98,9 +104,9 @@ export function TeamSettings(p: {
             {ICE_WORD[team.ice]} · {team.practiceMinutes} min practices
           </p>
         )}
-      </Row>
+      </SettingsRow>
 
-      <Row s="ice" title="Calendar" action={p.calendar ? 'Change' : 'Add'}>
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="ice" title="Calendar" action={p.calendar ? 'Change' : 'Add'}>
         {p.calendar ? (
           <>
             <p className="text-[15px]">Your association&apos;s calendar</p>
@@ -112,9 +118,9 @@ export function TeamSettings(p: {
         ) : (
           <p className="text-sm text-ink-200">No calendar link yet. With one, ice times come in by themselves.</p>
         )}
-      </Row>
+      </SettingsRow>
 
-      <Row s="groups" title="Skill groups">
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="groups" title="Skill groups">
         <ul className={`grid gap-2 sm:gap-4 ${groups.length === 1 ? 'grid-cols-1' : groups.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
           {groups.map((g, i) => (
             <li key={g.group} className="flex min-w-0 flex-col gap-0.5">
@@ -124,7 +130,7 @@ export function TeamSettings(p: {
             </li>
           ))}
         </ul>
-      </Row>
+      </SettingsRow>
 
       <section id="coaches" aria-labelledby="h-coaches" className="flex scroll-mt-24 flex-col gap-2.5 border-t border-border-100 py-5">
         <h2 id="h-coaches" className="text-[17px] font-semibold">
@@ -133,16 +139,16 @@ export function TeamSettings(p: {
         <Coaches coaches={p.coaches} me={p.me} isHead={isHead} initialCode={p.joinCode} origin={p.origin} embedded onHandedOver={() => router.refresh()} scoring={p.scoring} />
       </section>
 
-      <Row s="gear" title="Gear">
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="gear" title="Gear">
         <p className={`text-[15px] ${gear ? '' : 'text-ink-200'}`}>{gear ?? 'Not set yet. Drills that need gear say so.'}</p>
-      </Row>
+      </SettingsRow>
 
-      <Row s="planning" title="Planning">
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="planning" title="Planning">
         <p className="text-[15px]">
           Up to {team.newDrillsPerWeek} new drill{team.newDrillsPerWeek === 1 ? '' : 's'} a week · {team.coachesOnIce} coach{team.coachesOnIce === 1 ? '' : 'es'} on the ice
           {team.focus.length ? ` · Focus: ${team.focus.join(', ')}` : ''}
         </p>
-      </Row>
+      </SettingsRow>
 
       <LeaveOrDelete team={team} isHead={isHead} others={p.coaches.length - 1} onHandOver={() => document.getElementById('coaches')?.scrollIntoView({ behavior: 'smooth' })} />
 
