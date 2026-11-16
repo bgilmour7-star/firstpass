@@ -53,7 +53,7 @@ export default async function Library({
   const filters = (
     <nav
       aria-label="Filter by what it works on"
-      className="-mx-1 flex gap-1 overflow-x-auto px-1"
+      className="-mx-1 flex gap-2 overflow-x-auto px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       <Chip href="/drills" on={!filter && !onlyFavs}>
         All
@@ -78,19 +78,19 @@ export default async function Library({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+      {/* Title and Request a drill share a row on every screen; the line under them is short (2026-11-16). */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold">Drills</h1>
-          <p className="text-sm text-ink-200">
-            {all.length} drill{all.length === 1 ? "" : "s"} for the {team.name}
-            {team.ageGroup ? ` (${team.ageGroup})` : ""}, each from a coaching
-            source and checked by a coach.
-            {coach.isAdmin &&
-              " Only drills marked Live in Drill review show here."}
-          </p>
-          {notice && <p className="mt-1 text-sm">{notice}</p>}
+          <RequestDrill />
         </div>
-        <RequestDrill />
+        <p className="text-sm text-ink-200">
+          {all.length} drill{all.length === 1 ? "" : "s"} for {team.ageGroup || team.name}, each from a coaching
+          source and checked by a coach.
+          {coach.isAdmin &&
+            " Only drills marked Live in Drill review show here."}
+        </p>
+        {notice && <p className="text-sm">{notice}</p>}
       </div>
 
       {shown.length === 0 ? (
@@ -222,7 +222,7 @@ function Chip({
     <Link
       href={href}
       aria-current={on ? "page" : undefined}
-      className={`inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 text-sm ${on ? "bg-ink-100 text-surface-100" : "text-ink-100 hover:bg-surface-200"}`}
+      className={`inline-flex min-h-9 items-center whitespace-nowrap rounded-full border px-3.5 text-sm ${on ? "border-ink-100 bg-ink-100 text-surface-100" : "border-border-100 text-ink-100 hover:bg-surface-200"}`}
     >
       {children}
     </Link>
