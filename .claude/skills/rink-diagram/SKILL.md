@@ -10,7 +10,7 @@ A diagram is data: the `diagram` (and each added level's `diagram`) in `content/
 ## Two jobs, one loop
 
 **Working diagram requests** (a reviewer asked for a change on the drill review screen):
-1. `npm run drills -- requests` lists open requests with their ids and drills. If it fails for lack of Supabase access, say so and ask Brett to paste the requests (see docs/setup.md, "Let Claude work diagram requests").
+1. `npm run drills -- requests` lists open requests with their ids and drills. If it fails for lack of Supabase access (no `SUPABASE_SERVICE_ROLE_KEY`), use the Supabase connector instead (next section). Ask Brett to paste the requests only if neither works.
 2. Work them one at a time, oldest first. `npm run drills -- pull <drillId>` so you edit what is live, not a stale file.
 3. Read the request and the drill's source (below), then change only what the request asks. Keep everything else where it is: the reviewer compares before and after side by side.
 4. Check it (below), `npm run drills -- push <drillId>`, then `npm run drills -- resolve <requestId> "<one plain sentence on what changed>"`. That sentence shows in drill review under "What changed", so name the zone or step and say what moved ("Added a third skater pushing off the bottom boards in zone B. Nothing else moved.").
@@ -21,6 +21,31 @@ A diagram is data: the `diagram` (and each added level's `diagram`) in `content/
 2. Draw it, check it, and leave the drill In review. Never change `status`: reviewers own it.
 
 Then `npm run check`, and commit the JSON so the drill's history lives in git (one commit per drill or per batch of requests, saying what changed).
+
+## Without the CLI keys: the Supabase connector
+
+Cloud sessions usually have the Supabase connector (`execute_sql`, project `hxpwsjqibphnhbzxyjiw`) but not the service role key. Each CLI step has a SQL twin. Keep each write a single statement.
+
+- **requests**
+  ```sql
+  select id, drill_id, note, created_at from public.diagram_requests where resolved_at is null order by created_at;
+  ```
+- **pull** (note `updated_at`; the push checks it). Write `content` plus `"status"` to `content/drills/<id>.json`: what's live often differs from the file in git, so never edit the git copy without pulling.
+  ```sql
+  select id, status, updated_at, content from public.drills where id = '<drillId>';
+  ```
+- **push**: the whole drill JSON without `status` (keep `id`), minified. It only writes if nobody saved the drill since your pull; 0 rows back means someone did, so pull again and redo the change.
+  ```sql
+  update public.drills set content = $json$<drill JSON>$json$::jsonb, updated_at = now()
+  where id = '<drillId>' and updated_at = '<updated_at from the pull>' returning id, status;
+  ```
+- **resolve**
+  ```sql
+  update public.diagram_requests set resolved_at = now(), resolution = $r$<what changed>$r$
+  where id = '<requestId>' and resolved_at is null returning id;
+  ```
+
+Status never changes in any of these, live drills included: a reviewer's diagram request on a live drill is theirs to ask for, and the redraw goes straight to the live drill. Then commit the pulled-and-edited JSON as usual.
 
 ## Coordinates and framing
 

@@ -37,7 +37,7 @@ Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace 
 Vercel → Project → Settings → Deployment Protection → set Vercel Authentication to preview deployments only (or off). The app has its own sign-in; the head coach shouldn't need a Vercel account.
 
 ## Let Claude work diagram requests
-Claude's cloud sessions can't reach Supabase by default. Add your Supabase host (`<ref>.supabase.co`) to the Claude environment's allowed domains and add `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as environment secrets. Until then, paste open requests into the chat.
+Claude's cloud sessions can't reach Supabase by default. Add your Supabase host (`<ref>.supabase.co`) to the Claude environment's allowed domains and add `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as environment secrets. Until then, Claude works them through the Supabase connector (the SQL is in the rink-diagram skill); paste open requests into the chat only if the connector isn't attached either.
 
 ## Local development
 `npm install && npm run dev`, open http://localhost:3000. Without Supabase variables the app runs in local mode on `content/drills/*.json` with no sign-in. To use the real database locally, `vercel env pull .env.local`.

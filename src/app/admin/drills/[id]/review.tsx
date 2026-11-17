@@ -85,7 +85,7 @@ export function DrillReview({ detail, asked = null }: { detail: DrillDetail; ask
       const r = await requestDiagramChange(draft.id, requestText);
       if (r.ok) {
         setRequestText('');
-        setRequestMsg({ kind: 'ok', text: 'Sent. It’s at the top of the list below, waiting for Claude.' });
+        setRequestMsg({ kind: 'ok', text: 'Sent. It’s in Open requests below. Ask Claude to work the diagram requests to get it redrawn.' });
         router.refresh();
       } else setRequestMsg({ kind: 'error', text: r.error });
     });
@@ -764,7 +764,7 @@ function DiagramChanges({
   const open = requests.filter((r) => !r.resolvedAt);
   const done = requests.filter((r) => r.resolvedAt);
   return (
-    <Section title="Diagram changes" hint="Describe the change. Claude redraws it and marks it done here.">
+    <Section title="Diagram changes" hint="Describe the change. Then ask Claude to work the diagram requests; it redraws and marks it done here.">
       <div className="flex flex-col gap-2">
         <label htmlFor="diagram-request" className="sr-only">
           What should change in the diagram
@@ -792,7 +792,7 @@ function DiagramChanges({
       {open.length > 0 && (
         <div className="flex flex-col gap-2 rounded-md border border-border-100 p-3">
           <p className="text-sm">
-            <b>Open requests.</b> Claude picks them up when you ask it to work the diagram requests. Approving waits until each one is closed.
+            <b>Open requests.</b> Nothing redraws them on its own: open Claude in the First Pass project and say “work the diagram requests”. Approving waits until each one is closed.
           </p>
           <ul className="flex flex-col">
             {open.map((r) => {
