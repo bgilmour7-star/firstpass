@@ -1,75 +1,52 @@
 {
   "id": "u9-race-to-the-puck",
-  "funName": "Race to the Puck",
-  "plainName": "Weave, race and shoot",
-  "sourceTitle": "Relay Race",
-  "minutes": 8,
-  "gear": "6 pylons, pucks",
-  "worksAsStation": false,
-  "description": "Two lines, one in each corner, with a row of pylons in front of each. The coach puts a puck in the middle of the ice. On the whistle, the first skater in each line weaves through the pylons and races to the puck. Whoever gets there first shoots on the net; the other one tries to stop the shot.",
-  "steps": [
-    "On the whistle, weave through the pylons and race to the puck.",
-    "First one there shoots. Second one tries to stop the shot."
-  ],
   "cues": [
     "Quick feet through the pylons!",
     "Get there first!",
     "Second? Get between the puck and the net."
   ],
+  "gear": "6 pylons, pucks",
+  "part": "game",
   "focus": [
     {
-      "attribute": "Effort & fun",
+      "why": "A head-to-head race every turn.",
       "level": 2,
-      "why": "A head-to-head race every turn."
+      "attribute": "Effort & fun"
     },
     {
-      "attribute": "Shooting",
+      "why": "A quick shot with someone chasing.",
       "level": 1,
-      "why": "A quick shot with someone chasing."
+      "attribute": "Shooting"
     }
   ],
-  "groupModel": "basic",
-  "part": "game",
+  "steps": [
+    "On the whistle, skate around the far side of each pylon and race to the puck.",
+    "First one there shoots. Second one tries to stop the shot."
+  ],
   "effort": "hard",
   "format": "line",
-  "lessons": [],
-  "levelName": "",
   "levels": [],
   "source": {
-    "label": "Hockey Canada U9 Plan 15 · fun game",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u9-program/downloads/2020/u9-practice-plan-15-e.pdf",
-    "note": "The plan doesn't place the pylons; we use three in a zig-zag along each side boards. No goalie is shown; add one if you have one."
+    "note": "The plan doesn't place the pylons; we use three in a zig-zag along each side boards. No goalie is shown; add one if you have one.",
+    "label": "Hockey Canada U9 Plan 15 \u00b7 fun game"
   },
+  "funName": "Race to the Puck",
+  "lessons": [],
+  "minutes": 8,
+  "ageGroups": [
+    "U9"
+  ],
+  "levelName": "",
+  "plainName": "Weave, race and shoot",
+  "groupModel": "basic",
+  "description": "Two lines, one in each corner, with a row of pylons in front of each. The coach puts a puck in the middle of the ice. On the whistle, the first skater in each line skates around the far side of each pylon, turning hard, and races to the puck. Whoever gets there first shoots on the net; the other one tries to stop the shot.",
+  "sourceTitle": "Relay Race",
+  "worksAsStation": false,
+  "status": "in_review",
   "diagram": {
-    "scope": "half",
     "side": "left",
-    "players": [
-      {
-        "role": "O",
-        "x": 18,
-        "y": 8
-      },
-      {
-        "role": "O",
-        "x": 10,
-        "y": 16
-      },
-      {
-        "role": "O",
-        "x": 18,
-        "y": 77
-      },
-      {
-        "role": "O",
-        "x": 10,
-        "y": 69
-      },
-      {
-        "role": "C",
-        "x": 64,
-        "y": 42
-      }
-    ],
+    "scope": "half",
     "cones": [
       {
         "x": 30,
@@ -96,6 +73,33 @@
         "y": 73
       }
     ],
+    "players": [
+      {
+        "x": 18,
+        "y": 8,
+        "role": "O"
+      },
+      {
+        "x": 10,
+        "y": 16,
+        "role": "O"
+      },
+      {
+        "x": 18,
+        "y": 77,
+        "role": "O"
+      },
+      {
+        "x": 10,
+        "y": 69,
+        "role": "O"
+      },
+      {
+        "x": 64,
+        "y": 42,
+        "role": "C"
+      }
+    ],
     "pucks": [
       {
         "x": 52,
@@ -104,68 +108,141 @@
     ],
     "paths": [
       {
+        "step": 1,
         "type": "skate",
+        "stepAt": 0.85,
+        "caption": "On the whistle, skate around the far side of each pylon and race to the puck.",
         "points": [
           [
             21,
             9
           ],
           [
+            26,
+            6
+          ],
+          [
             30,
-            17
+            5
+          ],
+          [
+            34,
+            8
+          ],
+          [
+            35,
+            16
+          ],
+          [
+            37,
+            23
           ],
           [
             40,
-            13
+            24
+          ],
+          [
+            43,
+            22
+          ],
+          [
+            45,
+            15
+          ],
+          [
+            47,
+            7
           ],
           [
             50,
-            18
+            5.5
+          ],
+          [
+            54,
+            8
           ],
           [
             56,
-            30
+            20
+          ],
+          [
+            56,
+            32
           ],
           [
             53,
             39
           ]
-        ],
-        "step": 1,
-        "caption": "On the whistle, weave through the pylons and race to the puck.",
-        "stepAt": 0.85
+        ]
       },
       {
         "type": "skate",
+        "stepWith": 1,
         "points": [
           [
             21,
             76
           ],
           [
+            26,
+            79
+          ],
+          [
             30,
-            68
+            80
+          ],
+          [
+            34,
+            77
+          ],
+          [
+            35,
+            69
+          ],
+          [
+            37,
+            62
           ],
           [
             40,
-            72
+            61
+          ],
+          [
+            43,
+            63
+          ],
+          [
+            45,
+            70
+          ],
+          [
+            47,
+            78
           ],
           [
             50,
-            67
+            79.5
+          ],
+          [
+            54,
+            77
           ],
           [
             56,
-            56
+            65
+          ],
+          [
+            56,
+            53
           ],
           [
             55,
             47
           ]
-        ],
-        "stepWith": 1
+        ]
       },
       {
+        "step": 2,
         "type": "shot",
         "points": [
           [
@@ -177,11 +254,11 @@
             42.5
           ]
         ],
-        "step": 2,
         "caption": "First one there shoots. Second one tries to stop the shot."
       },
       {
         "type": "skate",
+        "stepWith": 2,
         "points": [
           [
             53,
@@ -195,13 +272,8 @@
             34,
             45
           ]
-        ],
-        "stepWith": 2
+        ]
       }
     ]
-  },
-  "status": "in_review",
-  "ageGroups": [
-    "U9"
-  ]
+  }
 }
