@@ -243,5 +243,11 @@ Acceptance: TTFB p50 under 1 s on Home and the planner in web_vitals over the fo
 - [ ] Brett: run `supabase/migrations/20261121000000_signup_journey.sql`.
 Acceptance: a new coach taps Continue with Google on a join link and lands on "You're on <team>", and the head coach gets the email; an existing email account signs in with Google to the same account.
 
+## Milestone 12 — Emails to coaches (decision 0035, 2026-11-18)
+- [x] Admin → Send: blocks editor (text, heading, image, button) in the Firstpass template, live preview, test send.
+- [x] Segments: all coaches, head coaches, by age group, signed up but stalled; count confirmed before sending.
+- [x] Batch sending through Resend with carry-on; its own opt-out for update emails; image uploads to Supabase Storage.
+- [ ] Brett: run `supabase/migrations/20261123000000_broadcasts.sql`.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

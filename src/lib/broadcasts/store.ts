@@ -1,0 +1,41 @@
+import 'server-only';
+import { usingSupabase } from '../drills/store';
+import type { Age, Broadcast, Draft, Recipient, Segment, SendCounts } from './schema';
+
+// The one seam for emails to coaches (decision 0035). Supabase in production, Brett only (RLS on
+// can_see_analytics()); a JSON file in local mode (.local/broadcasts.json) so the screens can be built offline,
+// where nothing is ever sent.
+
+export type Queued = { sendId: string; personId: string; email: string; firstName: string | null; unsubscribeToken: string };
+
+export interface BroadcastStore {
+  /** Newest first. Throws 'broadcasts-migration-missing' before the SQL has run. */
+  list(): Promise<Broadcast[]>;
+  get(id: string): Promise<Broadcast | null>;
+  create(): Promise<string>;
+  /** Drafts only. False if it isn't a draft any more. */
+  save(id: string, draft: Draft): Promise<boolean>;
+  /** Drafts only. */
+  remove(id: string): Promise<boolean>;
+  recipients(segment: Segment, age: Age | null): Promise<Recipient[]>;
+  /** Draft → sending, with one queued row per recipient. False if it was already started. */
+  start(id: string, to: Recipient[]): Promise<boolean>;
+  queued(id: string, limit: number): Promise<Queued[]>;
+  mark(sendIds: string[], outcome: { sent: true } | { sent: false; error: string }): Promise<void>;
+  /** Sending → sent once nothing is queued. */
+  finish(id: string): Promise<void>;
+  counts(id: string): Promise<SendCounts>;
+  /** Public URL of an uploaded image. Local mode can't host images and throws 'no-images-locally'. */
+  uploadImage(type: string, bytes: ArrayBuffer): Promise<string>;
+  updatesStatus(token: string): Promise<boolean | null>;
+  updatesOff(token: string): Promise<boolean>;
+}
+
+export async function getBroadcastStore(): Promise<BroadcastStore> {
+  if (usingSupabase()) {
+    const { SupabaseBroadcastStore } = await import('./store-supabase');
+    return new SupabaseBroadcastStore();
+  }
+  const { LocalBroadcastStore } = await import('./store-local');
+  return new LocalBroadcastStore();
+}
