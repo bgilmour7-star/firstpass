@@ -1,11 +1,12 @@
 // An email to coaches from Admin → Send (decision 0035), in the Firstpass frame: "Hi Kara," then Brett's blocks of
 // text, headings, images and buttons, and a footer with its own opt-out for update emails. Text supports **bold**
-// and [links](https://…); everything else is escaped.
+// and [links](https://…); everything else is escaped. With a ref, every firstpass.coach link carries
+// ?from=<ref>-<n> so the app can tell which email and link brought a coach back (decision 0036).
 
 import type { Block, Draft } from '../broadcasts/schema';
 import { esc, footerLink, shell, type Email } from './layout';
 
-export type BroadcastInput = { draft: Pick<Draft, 'subject' | 'preheader' | 'greeting' | 'blocks'>; firstName: string | null; unsubscribeUrl: string };
+export type BroadcastInput = { draft: Pick<Draft, 'subject' | 'preheader' | 'greeting' | 'blocks'>; firstName: string | null; unsubscribeUrl: string; ref?: string | null };
 
 const INK = '#0E1B1E';
 const RINK = '#0C6E8F';
@@ -13,13 +14,53 @@ const BODY = "'Lexend',Helvetica,Arial,sans-serif";
 const DISPLAY = "'Bricolage Grotesque',Helvetica,Arial,sans-serif";
 const WHY = 'You got this because you have a Firstpass account.';
 
-/** **bold** and [label](https://url), on text that is already escaped. */
-function inline(escaped: string): string {
-  return escaped
-    .replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>')
-    .replace(/\[([^\]\n]{1,120})\]\((https:\/\/[^\s)"<>]+)\)/g, `<a href="$2" style="color:${RINK};">$1</a>`);
+const LINK = /\[([^\]\n]{1,120})\]\((https:\/\/[^\s)"<>]+)\)/g;
+const OURS = /^https:\/\/(www\.)?firstpass\.coach([/?#]|$)/i;
+
+/** Numbers each firstpass.coach link in reading order and adds ?from=<ref>-<n>. Other links are left alone. */
+type Tagger = (url: string) => string;
+function tagger(ref: string | null | undefined): Tagger {
+  let n = 0;
+  return (url) => {
+    if (!OURS.test(url)) return url;
+    n += 1;
+    if (!ref) return url;
+    try {
+      const u = new URL(url);
+      u.searchParams.set('from', `${ref}-${n}`);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  };
 }
-const inlineText = (s: string) => s.replace(/\*\*([^*\n]+)\*\*/g, '$1').replace(/\[([^\]\n]{1,120})\]\((https:\/\/[^\s)"<>]+)\)/g, '$1 ($2)');
+
+/** Splits raw text into plain runs and [label](https://url) links, the one place links are found, so the email and
+ * emailLinks() always number them the same way. */
+function pieces(raw: string): ({ text: string } | { label: string; url: string })[] {
+  const out: ({ text: string } | { label: string; url: string })[] = [];
+  let at = 0;
+  for (const m of raw.matchAll(LINK)) {
+    if (m.index! > at) out.push({ text: raw.slice(at, m.index) });
+    out.push({ label: m[1], url: m[2] });
+    at = m.index! + m[0].length;
+  }
+  if (at < raw.length) out.push({ text: raw.slice(at) });
+  return out;
+}
+const bold = (escaped: string) => escaped.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+const unbold = (s: string) => s.replace(/\*\*([^*\n]+)\*\*/g, '$1');
+
+/** **bold** and [label](https://url) on raw text; everything is escaped. */
+function inline(raw: string, tag: Tagger): string {
+  return pieces(raw)
+    .map((p) => ('text' in p ? bold(esc(p.text)) : `<a href="${esc(tag(p.url))}" style="color:${RINK};">${bold(esc(p.label))}</a>`))
+    .join('');
+}
+const inlineText = (raw: string, tag: Tagger) =>
+  pieces(raw)
+    .map((p) => ('text' in p ? unbold(p.text) : `${unbold(p.label)} (${tag(p.url)})`))
+    .join('');
 const paragraphs = (text: string) =>
   text
     .replace(/\r\n/g, '\n')
@@ -27,49 +68,65 @@ const paragraphs = (text: string) =>
     .map((p) => p.trim())
     .filter(Boolean);
 
-function blockHtml(b: Block): string[] {
+function blockHtml(b: Block, tag: Tagger): string[] {
   switch (b.type) {
     case 'text':
-      return paragraphs(b.text).map((p) => inline(esc(p)).replace(/\n/g, '<br>'));
+      return paragraphs(b.text).map((p) => inline(p, tag).replace(/\n/g, '<br>'));
     case 'heading':
       return b.text.trim() ? [`<div style="padding-top:10px;font:800 21px/26px ${DISPLAY};color:${INK};">${esc(b.text.trim())}</div>`] : [];
     case 'image': {
       if (!b.url) return [];
       const img = `<img src="${esc(b.url)}" alt="${esc(b.alt)}" width="456" style="display:block;width:100%;max-width:456px;height:auto;border:0;border-radius:8px;">`;
-      return [b.link ? `<a href="${esc(b.link)}">${img}</a>` : img];
+      return [b.link ? `<a href="${esc(tag(b.link))}">${img}</a>` : img];
     }
     case 'button':
       return b.label.trim() && b.url
-        ? [`<div style="padding:8px 0 4px;"><a href="${esc(b.url)}" style="display:inline-block;background:${RINK};color:#FFFFFF;text-decoration:none;font:600 16px/1 ${BODY};padding:15px 28px;border-radius:999px;">${esc(b.label.trim())}</a></div>`]
+        ? [`<div style="padding:8px 0 4px;"><a href="${esc(tag(b.url))}" style="display:inline-block;background:${RINK};color:#FFFFFF;text-decoration:none;font:600 16px/1 ${BODY};padding:15px 28px;border-radius:999px;">${esc(b.label.trim())}</a></div>`]
         : [];
   }
 }
 
-function blockText(b: Block): string[] {
+function blockText(b: Block, tag: Tagger): string[] {
   switch (b.type) {
     case 'text':
-      return paragraphs(b.text).map(inlineText);
+      return paragraphs(b.text).map((p) => inlineText(p, tag));
     case 'heading':
       return b.text.trim() ? [b.text.trim().toUpperCase()] : [];
     case 'image':
-      return b.url ? [`[Image: ${b.alt || 'picture'}]${b.link ? ` ${b.link}` : ''}`] : [];
+      return b.url ? [`[Image: ${b.alt || 'picture'}]${b.link ? ` ${tag(b.link)}` : ''}`] : [];
     case 'button':
-      return b.label.trim() && b.url ? [`${b.label.trim()}: ${b.url}`] : [];
+      return b.label.trim() && b.url ? [`${b.label.trim()}: ${tag(b.url)}`] : [];
   }
 }
 
 export function broadcastEmail(i: BroadcastInput): Email {
   const subject = i.draft.subject.trim() || '(No subject)';
   const hi = `Hi ${i.firstName?.trim() || 'there'},`;
-  const body = i.draft.blocks.flatMap(blockHtml);
+  const htmlTag = tagger(i.ref);
+  const textTag = tagger(i.ref);
+  const body = i.draft.blocks.flatMap((b) => blockHtml(b, htmlTag));
   const html = shell({
     preheader: i.draft.preheader.trim() || subject,
     title: subject,
     paragraphs: [...(i.draft.greeting ? [esc(hi)] : []), ...body],
     footer: [`${esc(WHY)} ${footerLink('Stop update emails', i.unsubscribeUrl)}. You'll still get practice emails.`],
   });
-  const text = [subject, '', ...(i.draft.greeting ? [hi, ''] : []), ...i.draft.blocks.flatMap(blockText).flatMap((p) => [p, '']), '--', `${WHY} Stop update emails: ${i.unsubscribeUrl}. You'll still get practice emails.`].join('\n');
+  const text = [subject, '', ...(i.draft.greeting ? [hi, ''] : []), ...i.draft.blocks.flatMap((b) => blockText(b, textTag)).flatMap((p) => [p, '']), '--', `${WHY} Stop update emails: ${i.unsubscribeUrl}. You'll still get practice emails.`].join('\n');
   return { subject, html, text };
+}
+
+/** The firstpass.coach links in an email, numbered as the tags number them, for Admin → Send's per-link counts. */
+export function emailLinks(blocks: Block[]): { n: number; label: string; url: string }[] {
+  const out: { n: number; label: string; url: string }[] = [];
+  const add = (label: string, url: string) => {
+    if (OURS.test(url)) out.push({ n: out.length + 1, label, url });
+  };
+  for (const b of blocks) {
+    if (b.type === 'text') for (const p of paragraphs(b.text)) for (const x of pieces(p)) if ('url' in x) add(unbold(x.label), x.url);
+    if (b.type === 'image' && b.url && b.link) add(`Image: ${b.alt || 'picture'}`, b.link);
+    if (b.type === 'button' && b.label.trim() && b.url) add(b.label.trim(), b.url);
+  }
+  return out;
 }
 
 export const BROADCAST_SAMPLE: BroadcastInput = {

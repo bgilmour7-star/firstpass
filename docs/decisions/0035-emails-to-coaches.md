@@ -26,7 +26,7 @@ having to do it manually through my gmail account… It will need to be able to 
   The editor says never a photo of a child.
 
 ## Not done
-- Scheduling a send for later, open and click counts (Resend has them by tag `broadcast`), and sending to association
+- Scheduling a send for later, open counts (Resend open tracking is off), click and activity counts (done in 0036), and sending to association
   leads or the old waitlist.
 - CASL: commercial emails need the sender's mailing address. The footer says "Nanaimo, BC"; Brett to decide whether a
   full mailing address goes in (not legal advice).

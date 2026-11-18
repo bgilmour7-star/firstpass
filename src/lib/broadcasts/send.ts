@@ -57,7 +57,7 @@ export async function deliver(store: BroadcastStore, b: Broadcast, now = Date.no
 async function sendBatch(key: string, b: Broadcast, batch: Queued[]): Promise<{ ok: true } | { ok: false; retry: boolean; error: string }> {
   const emails = batch.map((q) => {
     const unsubscribeUrl = updatesUrl(q.unsubscribeToken);
-    const e = broadcastEmail({ draft: b, firstName: q.firstName, unsubscribeUrl });
+    const e = broadcastEmail({ draft: b, firstName: q.firstName, unsubscribeUrl, ref: b.ref });
     return { from: FROM_BRETT, to: [q.email], subject: e.subject, html: e.html, text: e.text, tags: [{ name: 'kind', value: 'broadcast' }], headers: { 'List-Unsubscribe': `<${unsubscribeUrl}>` } };
   });
   const idempotencyKey = `broadcast-${b.id}-${createHash('sha256').update(batch.map((q) => q.personId).join(',')).digest('hex').slice(0, 32)}`;

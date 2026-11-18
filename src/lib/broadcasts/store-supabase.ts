@@ -1,7 +1,7 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { supabaseServer } from '../supabase/server';
-import { OPTED_OUT, draftSchema, type Age, type Broadcast, type Draft, type Recipient, type Segment, type SendCounts, type Status } from './schema';
+import { OPTED_OUT, draftSchema, type Age, type Broadcast, type Draft, type Recipient, type Segment, type SendCounts, type Stats, type Status } from './schema';
 import type { BroadcastStore, Queued } from './store';
 
 type Err = { code?: string; message: string };
@@ -12,27 +12,34 @@ const fail = (e: Err): never => {
 
 type Row = {
   id: string; subject: string; preheader: string; greeting: boolean; blocks: unknown; segment: Segment; age_group: Age | null;
-  status: Status; recipients: number; created_at: string; updated_at: string; sent_at: string | null;
+  status: Status; recipients: number; created_at: string; updated_at: string; sent_at: string | null; ref?: string | null;
 };
-const COLS = 'id, subject, preheader, greeting, blocks, segment, age_group, status, recipients, created_at, updated_at, sent_at';
+const BASE = 'id, subject, preheader, greeting, blocks, segment, age_group, status, recipients, created_at, updated_at, sent_at';
+const COLS = `${BASE}, ref`;
+// Before 20261124000000_email_attribution.sql there's no ref column: read without it so Send keeps working.
+const noRef = (e: Err) => e.code === '42703' || /column .*ref.* does not exist/i.test(e.message);
 const BUCKET = 'email-images';
 
 function toBroadcast(r: Row): Broadcast {
   // A stored body that no longer parses (an older block shape) shows as empty rather than breaking the page.
   const parsed = draftSchema.safeParse({ subject: r.subject, preheader: r.preheader, greeting: r.greeting, blocks: r.blocks, segment: r.segment, ageGroup: r.age_group });
   const d: Draft = parsed.success ? parsed.data : { subject: r.subject, preheader: r.preheader, greeting: r.greeting, blocks: [], segment: r.segment, ageGroup: r.age_group };
-  return { ...d, id: r.id, status: r.status, recipients: r.recipients, createdAt: r.created_at, updatedAt: r.updated_at, sentAt: r.sent_at };
+  return { ...d, id: r.id, ref: r.ref ?? null, status: r.status, recipients: r.recipients, createdAt: r.created_at, updatedAt: r.updated_at, sentAt: r.sent_at };
 }
 
 export class SupabaseBroadcastStore implements BroadcastStore {
   async list() {
-    const { data, error } = await (await supabaseServer()).from('broadcasts').select(COLS).order('created_at', { ascending: false });
+    const db = await supabaseServer();
+    let { data, error } = (await db.from('broadcasts').select(COLS).order('created_at', { ascending: false })) as { data: unknown[] | null; error: Err | null };
+    if (error && noRef(error)) ({ data, error } = await db.from('broadcasts').select(BASE).order('created_at', { ascending: false }));
     if (error) fail(error);
     return ((data ?? []) as Row[]).map(toBroadcast);
   }
 
   async get(id: string) {
-    const { data, error } = await (await supabaseServer()).from('broadcasts').select(COLS).eq('id', id).maybeSingle();
+    const db = await supabaseServer();
+    let { data, error } = (await db.from('broadcasts').select(COLS).eq('id', id).maybeSingle()) as { data: unknown; error: Err | null };
+    if (error && noRef(error)) ({ data, error } = await db.from('broadcasts').select(BASE).eq('id', id).maybeSingle());
     if (error) fail(error);
     return data ? toBroadcast(data as Row) : null;
   }
@@ -128,6 +135,27 @@ export class SupabaseBroadcastStore implements BroadcastStore {
     const { error } = await db.storage.from(BUCKET).upload(path, bytes, { contentType: type, cacheControl: '31536000', upsert: false });
     if (error) throw new Error(/bucket not found/i.test(error.message) ? 'broadcasts-migration-missing' : error.message);
     return db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+
+  async stats(id: string): Promise<Stats | null> {
+    const { data, error } = await (await supabaseServer()).rpc('broadcast_stats', { b: id });
+    if (error) {
+      if (missing(error)) return null;
+      fail(error);
+    }
+    return data as Stats;
+  }
+
+  async recordClick(ref: string, link: number): Promise<'stored' | 'ignored' | 'signed-out'> {
+    const db = await supabaseServer();
+    const { data: u } = await db.auth.getUser();
+    if (!u.user) return 'signed-out';
+    const { data, error } = await db.rpc('record_email_click', { ref, link });
+    if (error) {
+      console.error('[email-click] %s', error.message);
+      return 'ignored';
+    }
+    return data === true ? 'stored' : 'ignored';
   }
 
   async updatesStatus(token: string) {

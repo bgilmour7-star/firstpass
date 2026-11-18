@@ -45,7 +45,14 @@ export const draftSchema = z.object({
 export type Draft = z.output<typeof draftSchema>;
 
 export type Status = 'draft' | 'sending' | 'sent';
-export type Broadcast = Draft & { id: string; status: Status; recipients: number; createdAt: string; updatedAt: string; sentAt: string | null };
+/** ref: the short code in link tags (decision 0036); null before 20261124000000_email_attribution.sql has run. */
+export type Broadcast = Draft & { id: string; ref: string | null; status: Status; recipients: number; createdAt: string; updatedAt: string; sentAt: string | null };
+/** What happened after an email (decision 0036): coaches it reached, who came back from each link, and what coaches
+ * who clicked and didn't click did in the 7 days after. */
+export type Activity = { coaches: number; edited: number; checkedIn: number; scored: number; any: number };
+export type Stats = { sent: number; clicked: number; links: { link: number; coaches: number }[]; groups: { clicked?: Activity; notClicked?: Activity } };
+export { EMAIL_REF } from './ref';
+
 export type Recipient = { personId: string; email: string; firstName: string | null; teamName: string | null; unsubscribeToken: string };
 /** skipped: opted out after Send, so never emailed (stored as failed with OPTED_OUT). */
 export type SendCounts = { queued: number; sent: number; failed: number; skipped: number };

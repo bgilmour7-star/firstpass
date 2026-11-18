@@ -4,7 +4,8 @@ import { requireAnalytics } from '@/lib/auth';
 import { getBroadcastStore } from '@/lib/broadcasts/store';
 import { SEGMENT_LABEL } from '@/lib/broadcasts/schema';
 import { updatesUrl } from '@/lib/broadcasts/send';
-import { broadcastEmail } from '@/lib/email/broadcast-email';
+import { broadcastEmail, emailLinks } from '@/lib/email/broadcast-email';
+import { After } from './after';
 import { Compose } from './compose';
 import { CarryOn } from './carry-on';
 
@@ -35,7 +36,7 @@ export default async function EmailPage({ params }: { params: Promise<{ id: stri
         <Compose id={b.id} initial={{ subject: b.subject, preheader: b.preheader, greeting: b.greeting, blocks: b.blocks, segment: b.segment, ageGroup: b.ageGroup }} to={admin.email} />
       </div>
     );
-  const c = await store.counts(b.id);
+  const [c, stats] = await Promise.all([store.counts(b.id), store.stats(b.id)]);
   const html = broadcastEmail({ draft: b, firstName: 'Brett', unsubscribeUrl: updatesUrl('preview') }).html;
   return (
     <div className="flex flex-col gap-5 pb-16">
@@ -53,6 +54,7 @@ export default async function EmailPage({ params }: { params: Promise<{ id: stri
         {c.queued ? <> · <span className="font-mono">{c.queued}</span> still to send</> : null}
       </p>
       {b.status === 'sending' && c.queued > 0 && <CarryOn id={b.id} left={c.queued} />}
+      <After stats={stats} links={emailLinks(b.blocks)} />
       <iframe title="The email that went out" srcDoc={html} sandbox="" className="h-[720px] w-full max-w-[560px] rounded-xl border border-border-100 bg-surface-200" />
     </div>
   );

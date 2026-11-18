@@ -4,7 +4,7 @@ import { deliver } from './send';
 import type { BroadcastStore, Queued } from './store';
 import type { Broadcast } from './schema';
 
-const b: Broadcast = { id: 'b1', subject: 'Hi', preheader: '', greeting: true, blocks: [{ type: 'text', text: 'Hello' }], segment: 'all', ageGroup: null, status: 'sending', recipients: 0, createdAt: '', updatedAt: '', sentAt: null };
+const b: Broadcast = { id: 'b1', ref: 'ab12cd34', subject: 'Hi', preheader: '', greeting: true, blocks: [{ type: 'text', text: 'Hello' }], segment: 'all', ageGroup: null, status: 'sending', recipients: 0, createdAt: '', updatedAt: '', sentAt: null };
 
 function fakeStore(n: number) {
   const rows = Array.from({ length: n }, (_, i): Queued & { status: string } => ({ sendId: `s${i}`, personId: `p${i}`, email: `c${i}@x.ca`, firstName: i % 2 ? `Coach${i}` : null, unsubscribeToken: `tok${i}`, optedOut: false, status: 'queued' }));
