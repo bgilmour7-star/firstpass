@@ -343,7 +343,7 @@ function Thanks({ email, audience, s, preview = false }: { email: string; audien
           {audience === 'waitlist' && (
             <p>
               Firstpass is open now.{' '}
-              <Link href="/login" className="font-semibold text-rink-100 underline underline-offset-2">
+              <Link href="/signup" className="font-semibold text-rink-100 underline underline-offset-2">
                 Plan your first practice
               </Link>
             </p>

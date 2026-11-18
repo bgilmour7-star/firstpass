@@ -16,7 +16,7 @@ import { StickyHeader } from './sticky-header';
 // ready", proved with the product: real drills from the library drawn by RinkDiagram, and crops of
 // real screens. A dashed pass line runs down the left from a puck (the hero) to a teammate ring
 // (the closing band), so the page reads like the logo: puck, pass, teammate. Sign-up is open (decision
-// 0033): every call to action is "Plan your first practice", straight to sign-in. Tablet and up only: on a
+// 0033): every call to action is "Plan your first practice", straight to sign-up. Tablet and up only: on a
 // phone the two ends are screens apart, so the line is just a stripe that costs margin.
 
 const RD = firstpass.RinkDiagram as RinkDiagramApi;
