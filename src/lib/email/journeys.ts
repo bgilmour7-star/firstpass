@@ -5,7 +5,7 @@
 //
 // Two kinds of entry:
 // - queued: discovery emails in the outbox (email_sends), keyed by journey + step. The database
-//   queues them (enqueue_discovery_emails, the waitlist trigger); the cron route checks the entry's
+//   queues them (enqueue_discovery_emails); the cron route checks the entry's
 //   condition at send time, so a survey finished after queueing skips the rest.
 // - sent elsewhere: emails the app sends from an action or route, or Supabase sends from its
 //   templates. Registered so the page shows everything, with a sample to preview.
@@ -13,20 +13,21 @@
 import { type Email } from './layout';
 import { coachJoinedEmail, headCoachEmail, inviteEmail } from './account-emails';
 import { checkinEmail } from './checkin-email';
-import { coachFirstPracticeEmail, coachNudgeEmail, waitlistLastAskEmail, waitlistNudgeEmail, waitlistWelcomeEmail, type DiscoveryInput } from './discovery-emails';
+import { coachFirstPracticeEmail, coachNudgeEmail, signupNudgeEmail, signupWelcomeEmail, type DiscoveryInput } from './discovery-emails';
 import { draftReadyEmail, outcomeEmail } from './request-emails';
 import { progressReminderEmail, progressReportEmail, progressScoringEmail, type ProgressReportInput } from './progress-emails';
 import { SUPABASE_TEMPLATES, type SupabaseTemplate } from './supabase-templates';
 import { waitlistAlertEmail } from './waitlist-emails';
 
-export type Section = 'waitlist' | 'coach' | 'practice' | 'progress' | 'requests' | 'sign-in';
+export type Section = 'signup' | 'leads' | 'coach' | 'practice' | 'progress' | 'requests' | 'sign-in';
 
 export const SECTIONS: { id: Section; title: string; note?: string }[] = [
-  { id: 'waitlist', title: 'Association leads (the waitlist)', note: 'Sign-up is open (decision 0033): the survey series is retired, and you hear about each association that asks.' },
-  { id: 'coach', title: 'Invited to coach a team', note: 'Grey boxes go to someone other than the person in this journey.' },
+  { id: 'signup', title: 'Creates an account', note: 'Everyone who signs up, invited coaches included (decision 0034). Accounts made before this journey started aren’t emailed.' },
+  { id: 'coach', title: 'Invited to coach a team, and their first practice', note: 'Grey boxes go to someone other than the person in this journey. The first-practice email only goes to coaches who haven’t answered the survey.' },
   { id: 'practice', title: 'Every practice', note: 'One email, no reminder. A coach who skips it is asked again when they open the next practice.' },
   { id: 'progress', title: 'Every month: team progress', note: 'Starts after the first practice of the month. The report only goes to coaches who have scored.' },
   { id: 'requests', title: 'Drill requests' },
+  { id: 'leads', title: 'Association leads', note: 'From “Run an association?” on firstpass.coach. You reply yourself, and track them on the Leads tab.' },
   { id: 'sign-in', title: 'Signing in', note: 'Not a journey: each one is sent on its own when someone asks.' },
 ];
 
@@ -89,7 +90,7 @@ const progressReportSample: ProgressReportInput = {
   gap: { attribute: 'Shooting', coaches: [{ name: 'Brett', average: 1.7 }, { name: 'Kara', average: 2.7 }, { name: 'Sam', average: 1.9 }] },
 };
 
-const waitlistSample: DiscoveryInput = { firstName: null, teamName: null, surveyUrl: `${SITE}/s/sample`, unsubscribeUrl: `${SITE}/unsubscribe/sample` };
+const signupSample: DiscoveryInput = { firstName: 'Kara', teamName: null, surveyUrl: `${SITE}/s/sample`, unsubscribeUrl: `${SITE}/unsubscribe/sample` };
 const coachSample: DiscoveryInput = { firstName: 'Kara', teamName: 'Nanaimo U7 Avalanche', surveyUrl: `${SITE}/s/sample`, unsubscribeUrl: `${SITE}/unsubscribe/sample` };
 
 function queued(e: Omit<QueuedEntry, 'id' | 'sentBy' | 'preview' | 'tag'>): QueuedEntry {
@@ -99,36 +100,20 @@ function queued(e: Omit<QueuedEntry, 'id' | 'sentBy' | 'preview' | 'tag'>): Queu
 const DISCOVERY_FILE = 'src/lib/email/discovery-emails.ts';
 const notUnsubscribed = (f: SendFacts) => (f.unsubscribed ? 'unsubscribed' : null);
 const surveyOpen = (f: SendFacts) => notUnsubscribed(f) ?? (f.surveyDone ? 'survey-done' : null);
-// Sign-up is open (decision 0033): the waitlist survey series is retired. Anything still queued is skipped;
-// association leads get Brett's own email, and new coaches get the coach series once they've practised.
-const retired = () => 'retired';
-
 export const REGISTRY: Entry[] = [
-  // Joins the waitlist
+  // Creates an account (decision 0034). Queued by enqueue_discovery_emails for accounts made after the journey started.
   queued({
-    section: 'waitlist', journey: 'waitlist', step: 'welcome', name: 'Welcome + survey', when: 'Right away',
-    trigger: 'Joins the waitlist', delay: 'Right away (the next 10-minute run)', condition: 'Retired 2026-11-16 (decision 0033): never sent',
-    audience: 'person', to: 'The person who joined', from: BRETT, file: DISCOVERY_FILE, fn: 'waitlistWelcomeEmail',
-    render: waitlistWelcomeEmail, sample: waitlistSample, skip: retired,
+    section: 'signup', journey: 'signup', step: 'welcome', name: 'Welcome + survey', when: 'Right away',
+    trigger: 'Creates an account (their own team or an invite)', delay: 'Right away (the next 10-minute run)', condition: 'Not an admin, survey not done, not unsubscribed',
+    audience: 'person', to: 'The person who signed up', from: BRETT, file: DISCOVERY_FILE, fn: 'signupWelcomeEmail',
+    render: signupWelcomeEmail, sample: signupSample, skip: (f) => (f.isAdmin ? 'admin' : surveyOpen(f)),
   }),
   queued({
-    section: 'waitlist', journey: 'waitlist', step: 'nudge', name: 'Survey nudge', when: 'Day 3 · if no survey',
-    trigger: 'Joins the waitlist', delay: '3 days', condition: 'Retired 2026-11-16 (decision 0033): never sent',
-    audience: 'person', to: 'The person who joined', from: BRETT, file: DISCOVERY_FILE, fn: 'waitlistNudgeEmail',
-    render: waitlistNudgeEmail, sample: waitlistSample, skip: retired,
+    section: 'signup', journey: 'signup', step: 'nudge', name: 'Survey nudge', when: 'Day 3 · if no survey',
+    trigger: 'The welcome email went out', delay: '3 days', condition: 'Survey not done and not unsubscribed',
+    audience: 'person', to: 'The person who signed up', from: BRETT, file: DISCOVERY_FILE, fn: 'signupNudgeEmail',
+    render: signupNudgeEmail, sample: signupSample, skip: (f) => (f.isAdmin ? 'admin' : surveyOpen(f)),
   }),
-  queued({
-    section: 'waitlist', journey: 'waitlist', step: 'last-ask', name: 'Last ask', when: 'Day 7 · if no survey',
-    trigger: 'Joins the waitlist', delay: '7 days', condition: 'Retired 2026-11-16 (decision 0033): never sent',
-    audience: 'person', to: 'The person who joined', from: BRETT, file: DISCOVERY_FILE, fn: 'waitlistLastAskEmail',
-    render: waitlistLastAskEmail, sample: waitlistSample, skip: retired,
-  }),
-  {
-    id: 'waitlist.alert', section: 'waitlist', journey: 'waitlist', step: 'alert', name: 'New association lead', when: 'Right away · to you',
-    trigger: 'An association asks about Firstpass (or asks again)', condition: 'Always', audience: 'other', to: 'hello@firstpass.coach (WAITLIST_ALERT_TO)', from: FIRSTPASS,
-    file: 'src/lib/email/waitlist-emails.ts', fn: 'waitlistAlertEmail', sentBy: 'app', tag: 'waitlist-alert',
-    preview: () => waitlistAlertEmail({ kind: 'association', email: 'coordinator@example.com', ageGroup: null, orgName: 'Nanaimo Minor Hockey', teamCount: 14, source: null }, true),
-  },
 
   // Invited to coach a team
   {
@@ -199,6 +184,14 @@ export const REGISTRY: Entry[] = [
     trigger: 'An admin accepts or declines the request', condition: 'Always', audience: 'person', to: 'The coach who asked', from: FIRSTPASS,
     file: 'src/lib/email/request-emails.ts', fn: 'outcomeEmail', sentBy: 'app', tag: 'drill-request-outcome',
     preview: () => outcomeEmail({ kind: 'new', accepted: true, name: 'Kara', drillName: 'Sharks and Minnows', reason: null, description: 'A tag game where the weaker skaters get a head start.', url: `${SITE}/drills/sample` }),
+  },
+
+  // Association leads
+  {
+    id: 'waitlist.alert', section: 'leads', journey: 'waitlist', step: 'alert', name: 'New association lead', when: 'Right away · to you',
+    trigger: 'An association asks about Firstpass (or asks again)', condition: 'Always', audience: 'other', to: 'hello@firstpass.coach (WAITLIST_ALERT_TO)', from: FIRSTPASS,
+    file: 'src/lib/email/waitlist-emails.ts', fn: 'waitlistAlertEmail', sentBy: 'app', tag: 'waitlist-alert',
+    preview: () => waitlistAlertEmail({ kind: 'association', email: 'coordinator@example.com', ageGroup: null, orgName: 'Nanaimo Minor Hockey', teamCount: 14, source: null }, true),
   },
 
   // Signing in (Supabase sends these from supabase/templates)

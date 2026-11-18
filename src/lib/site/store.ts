@@ -29,11 +29,11 @@ export interface SiteStore {
   usage(sinceIso: string): Promise<UsageRows>;
   /** Progress scoring for one month, YYYY-MM-01 (decision 0030). Throws 'progress-usage-migration-missing' before its SQL. */
   progressUsage(month: string): Promise<ProgressUsageRows>;
-  /** When each team was created and each coach first joined a team, as ISO timestamps. Timestamps only, no names. Throws 'growth-migration-missing' before the SQL has run. */
+  /** When each team was created, each coach first joined a team and each account was made (decision 0034), as ISO timestamps. Timestamps only, no names. Throws 'growth-migration-missing' before the SQL has run. */
   growth(): Promise<Growth>;
 }
 
-export type Growth = { teams: string[]; coaches: string[] };
+export type Growth = { teams: string[]; coaches: string[]; accounts: string[] };
 
 export async function getSiteStore(): Promise<SiteStore> {
   if (usingSupabase()) {

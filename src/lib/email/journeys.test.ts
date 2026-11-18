@@ -50,22 +50,26 @@ describe('email journey registry', () => {
     }
   });
 
-  it('declares the five discovery steps from the spec, all through the outbox', () => {
+  it('declares the four discovery steps, all through the outbox', () => {
     const queued = REGISTRY.filter((e) => e.sentBy === 'outbox').map((e) => e.id);
-    expect(queued).toEqual(['waitlist.welcome', 'waitlist.nudge', 'waitlist.last-ask', 'coach.first-practice', 'coach.nudge']);
+    expect(queued).toEqual(['signup.welcome', 'signup.nudge', 'coach.first-practice', 'coach.nudge']);
     expect(queuedEntry('coach', 'last-ask')).toBeUndefined();
     expect(queuedEntry('waitlist', 'alert')).toBeUndefined();
+    // The retired waitlist series (decision 0033) is gone: anything left in the outbox skips as not-registered.
+    expect(queuedEntry('waitlist', 'welcome')).toBeUndefined();
   });
 
   it('checks conditions at send time', () => {
     const f = (o: Partial<SendFacts> = {}): SendFacts => ({ surveyDone: false, unsubscribed: false, isAdmin: false, audience: 'waitlist', ...o });
     const skip = (j: string, s: string, facts: SendFacts) => queuedEntry(j, s)!.skip(facts);
-    // The waitlist series is retired (decision 0033): nothing still queued goes out.
-    for (const step of ['welcome', 'nudge', 'last-ask']) expect(skip('waitlist', step, f())).toBe('retired');
+    expect(skip('signup', 'welcome', f({ audience: 'coach' }))).toBeNull();
+    expect(skip('signup', 'welcome', f({ audience: 'coach', isAdmin: true }))).toBe('admin');
+    expect(skip('signup', 'nudge', f({ audience: 'coach', surveyDone: true }))).toBe('survey-done');
+    expect(skip('signup', 'nudge', f({ audience: 'coach', unsubscribed: true }))).toBe('unsubscribed');
     expect(skip('coach', 'first-practice', f({ audience: 'coach', isAdmin: true }))).toBe('admin');
     expect(skip('coach', 'nudge', f({ audience: 'coach', surveyDone: true }))).toBe('survey-done');
     expect(skip('coach', 'nudge', f({ audience: 'coach' }))).toBeNull();
   });
 
-  it('keys each send by journey, step and person', () => expect(idempotencyKey('waitlist', 'nudge', 'p1')).toBe('waitlist-nudge-p1'));
+  it('keys each send by journey, step and person', () => expect(idempotencyKey('signup', 'nudge', 'p1')).toBe('signup-nudge-p1'));
 });

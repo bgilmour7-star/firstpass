@@ -123,7 +123,7 @@ export class LocalSiteStore implements SiteStore {
     try {
       app = JSON.parse(await fs.readFile(join(process.cwd(), '.local', 'app.json'), 'utf8'));
     } catch {
-      return { teams: [], coaches: [] };
+      return { teams: [], coaches: [], accounts: [] };
     }
     const members = app.members ?? [];
     const fallback = '2026-10-14T00:00:00Z';
@@ -138,7 +138,8 @@ export class LocalSiteStore implements SiteStore {
       }
       return [...first.values()];
     };
-    return { teams: earliest((m) => m.teamId), coaches: earliest((m) => m.userId) };
+    // Local mode has no accounts: a coach's first membership stands in for it.
+    return { teams: earliest((m) => m.teamId), coaches: earliest((m) => m.userId), accounts: earliest((m) => m.userId) };
   }
 }
 

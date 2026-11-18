@@ -237,7 +237,10 @@ Acceptance: TTFB p50 under 1 s on Home and the planner in web_vitals over the fo
 - [x] Continue with Google on sign-in and join (`googleSignIn`, `/auth/callback`): Google's first name, no password offer, `afterSignIn` joins from a join link.
 - [x] `safeNext` refuses `/\…` and control characters (open redirect through the callback), with tests.
 - [ ] Brett: Google Cloud OAuth client and Supabase Google provider (docs/setup.md step 8).
-- [ ] Brett: landing page "Get early access", waitlist emails and the survey thank-you still talk about the waitlist.
+- [x] Landing page, waitlist emails and the survey thank-you no longer talk about the waitlist (PRs #42, #46, decision 0034).
+- [x] Sign-up email journey: welcome + survey on sign-up, day-3 nudge; first-practice email waits for it (decision 0034).
+- [x] Admin: Waitlist tab is now Leads; Analytics counts new accounts and adds "Created an account" to the funnel.
+- [ ] Brett: run `supabase/migrations/20261121000000_signup_journey.sql`.
 Acceptance: a new coach taps Continue with Google on a join link and lands on "You're on <team>", and the head coach gets the email; an existing email account signs in with Google to the same account.
 
 ## Later

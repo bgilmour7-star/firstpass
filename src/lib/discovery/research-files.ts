@@ -54,7 +54,7 @@ export function personFile(p: Person, responses: SurveyResponse[], notes: Note[]
   lines.push('', '## Survey', '');
   if (!responses.length) lines.push('Not answered.');
   for (const r of responses) {
-    lines.push(`### ${day(r.createdAt)} · ${r.audience === 'older' ? 'U11+ screen' : r.audience === 'coach' ? 'Coach survey' : 'Waitlist survey'}`, '');
+    lines.push(`### ${day(r.createdAt)} · ${r.audience === 'older' ? 'U11+ screen' : r.audience === 'coach' ? 'Coach survey' : 'Sign-up survey'}`, '');
     const how = labelOf(PLANNED_HOW, r.plannedHow, false);
     const changed = labelOf(CHANGED_PLAN, r.extra.changed_plan, false);
     const when = labelOf(PLANNED_WHEN, r.plannedWhen, false);
