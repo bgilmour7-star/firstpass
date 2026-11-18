@@ -4,7 +4,7 @@ import { requireAnalytics } from '@/lib/auth';
 import { Survey } from '../../[token]/survey';
 
 // Brett's preview of the discovery survey (decision 0027), linked from Admin → Survey. The same
-// screens a waitlist sign-up or a coach sees, with a sample email; nothing is saved. Brett only.
+// screens a new sign-up (audience 'waitlist', decision 0034) or a coach after their first practice sees, with a sample email; nothing is saved. Brett only.
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Survey preview · Firstpass', robots: { index: false, follow: false } };

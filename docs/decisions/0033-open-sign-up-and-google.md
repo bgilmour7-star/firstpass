@@ -47,3 +47,6 @@ Date: 2026-11-16 · Decided by: Brett ("I'm okay with removing invite only. We d
   create an account page". `/signup` is the same email-first flow and Google button, headed "Create your free account"
   with "Your first team is free". An email that already has an account still goes to Welcome back. The survey
   thank-you links there too. "Sign in" in the header and footer stays on `/login`.
+
+## Follow-up
+- The sign-up email journey, Leads tab and new-account analytics: decision 0034.

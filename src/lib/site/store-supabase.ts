@@ -120,7 +120,9 @@ export class SupabaseSiteStore implements SiteStore {
     const db = await supabaseServer();
     const { data, error } = await db.rpc('analytics_growth');
     if (error) throw new Error(missing(error) ? 'growth-migration-missing' : error.message);
-    const rows = (data ?? []) as { kind: 'team' | 'coach'; at: string }[];
-    return { teams: rows.filter((r) => r.kind === 'team').map((r) => r.at), coaches: rows.filter((r) => r.kind === 'coach').map((r) => r.at) };
+    const rows = (data ?? []) as { kind: 'team' | 'coach' | 'account'; at: string }[];
+    const of = (k: string) => rows.filter((r) => r.kind === k).map((r) => r.at);
+    // 'account' rows arrive with 20261121000000_signup_journey.sql; before it, there are none.
+    return { teams: of('team'), coaches: of('coach'), accounts: of('account') };
   }
 }

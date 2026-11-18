@@ -36,11 +36,11 @@ export default async function SurveyPage({ searchParams }: { searchParams: Promi
           <p className="flex flex-wrap items-center gap-x-1 text-sm">
             <span className="text-ink-200">See the survey:</span>
             <Link href="/s/preview/waitlist" target="_blank" className="inline-flex min-h-11 items-center px-1 font-medium text-rink-100 hover:underline">
-              Waitlist
+              Sign-up
             </Link>
             <span aria-hidden="true" className="text-ink-200">·</span>
             <Link href="/s/preview/coach" target="_blank" className="inline-flex min-h-11 items-center px-1 font-medium text-rink-100 hover:underline">
-              Coach
+              After first practice
             </Link>
             <span className="text-ink-200">(opens in a new tab, answers aren’t saved)</span>
           </p>
@@ -79,7 +79,7 @@ export default async function SurveyPage({ searchParams }: { searchParams: Promi
         )}
 
         {shown.length === 0 ? (
-          <p className="text-sm text-ink-200">{responses.length ? 'No answers match this filter.' : 'No answers yet. The welcome email asks every new waitlist sign-up; coaches are asked 2 days after their first practice.'}</p>
+          <p className="text-sm text-ink-200">{responses.length ? 'No answers match this filter.' : 'No answers yet. The welcome email asks everyone who signs up; coaches who haven’t answered are asked 2 days after their first practice.'}</p>
         ) : (
           <ol className="flex flex-col">
             {shown.map((r) => {

@@ -22,20 +22,25 @@ describe('summarize', () => {
   it('has one row per day, quiet days included, and finds the peak', () => {
     const s = summarize([view(ago(0), 'a'), view(ago(0, 1), 'b'), view(ago(3), 'c')], [], { days: 7, now: NOW });
     expect(s.daily).toHaveLength(7);
-    expect(s.daily.at(-1)).toEqual({ day: '2026-10-20', visits: 2, signups: 0 });
+    expect(s.daily.at(-1)).toEqual({ day: '2026-10-20', visits: 2, accounts: 0 });
     expect(s.peak).toEqual({ day: '2026-10-20', visits: 2 });
     expect(s.from).toBe('2026-10-14');
   });
 
-  it('builds the funnel from distinct visitors, taps, and new teams that checked in (decision 0033)', () => {
+  it('builds the funnel from distinct visitors, taps, new accounts, and new teams that checked in (decisions 0033, 0034)', () => {
     const at = ago(1);
     const events: PageEvent[] = [view(at, 'a'), view(at, 'b'), view(at, 'c'), { ...view(at, 'a'), name: 'reached_form' }, { ...view(at, 'a'), name: 'form_start' }, { ...view(at, 'a'), name: 'form_start' }, { ...view(at, 'b'), name: 'form_start' }];
     const app = {
       teams: [{ id: 't1', createdAt: at }, { id: 't2', createdAt: at }, { id: 'old', createdAt: ago(30) }],
       practices: [{ teamId: 't1', createdAt: at, checkedIn: true }, { teamId: 't2', createdAt: at, checkedIn: false }, { teamId: 'old', createdAt: at, checkedIn: true }],
+      accounts: [at, at, ago(0), ago(9)],
     };
     const s = summarize(events, [entry(at)], { days: 7, now: NOW, app });
-    expect(s.funnel.map((f) => f.visitors)).toEqual([3, 2, 2, 1]);
+    expect(s.funnel.map((f) => f.label)).toEqual(['Visited', 'Tapped Plan your first practice', 'Created an account', 'Made a team', 'Checked in after a practice']);
+    expect(s.funnel.map((f) => f.visitors)).toEqual([3, 2, 3, 2, 1]);
+    // New accounts: 3 this week, 1 the week before, and one bar per day.
+    expect(s.accounts).toEqual({ now: 3, before: 1 });
+    expect(s.daily.reduce((n, d) => n + d.accounts, 0)).toBe(3);
   });
 
   it('groups sources, with no tag counted as direct', () => {

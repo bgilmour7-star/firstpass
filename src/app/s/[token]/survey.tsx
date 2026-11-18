@@ -310,7 +310,7 @@ function when(times: string[]) {
 function PreviewNote({ audience }: { audience: Audience }) {
   return (
     <p role="note" className="mx-6 mt-2 rounded-lg bg-surface-200 px-3.5 py-2.5 text-[13px] leading-[19px] text-ink-200">
-      Preview of the {audience === 'coach' ? 'coach' : 'waitlist'} survey. Answers aren’t saved.
+      Preview of the {audience === 'coach' ? 'after first practice' : 'sign-up'} survey. Answers aren’t saved.
     </p>
   );
 }
@@ -339,12 +339,12 @@ function Thanks({ email, audience, s, preview = false }: { email: string; audien
               I will {s.phone ? 'text' : 'email'} you to set up a 20-minute call{when(s.callTimes)}.
             </p>
           )}
-          {/* Sign-up is open (decision 0033): someone from the waitlist can start right away. */}
+          {/* The sign-up survey (decision 0034): they have an account, so send them back to it. Firstpass's home
+              page takes a signed-in coach to their team and shows anyone else the sign-in. */}
           {audience === 'waitlist' && (
             <p>
-              Firstpass is open now.{' '}
-              <Link href="/signup" className="font-semibold text-rink-100 underline underline-offset-2">
-                Plan your first practice
+              <Link href="/" className="font-semibold text-rink-100 underline underline-offset-2">
+                Back to Firstpass
               </Link>
             </p>
           )}

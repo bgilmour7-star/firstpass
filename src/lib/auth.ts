@@ -8,7 +8,7 @@ import type { Team } from './plans/schema';
 import { TEAM_COOKIE } from './nav';
 import { editorLabel } from './plans/activity';
 
-/** analytics: may see Admin → Analytics (Brett only; the waitlist holds personal emails, decision 0019). */
+/** analytics: may see Admin → Analytics (Brett only; leads and discovery hold personal emails, decision 0019). */
 export type Admin = { id: string; email: string; local: boolean; analytics: boolean };
 /** name: the first name the coach gave at sign-up, else one made from their email (decision 0013). */
 export type Coach = { id: string; email: string; name: string; hasPassword: boolean; local: boolean; isAdmin: boolean; analytics: boolean };

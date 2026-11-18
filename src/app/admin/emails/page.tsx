@@ -44,7 +44,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
                 <h2 id={`j-${sec.id}`} className="font-body text-base font-semibold">
                   {sec.title}
                 </h2>
-                {(sec.id === 'waitlist' || sec.id === 'coach') && <span className="font-mono text-xs text-ink-200">{n} started · 30 days</span>}
+                {(sec.id === 'signup' || sec.id === 'coach') && <span className="font-mono text-xs text-ink-200">{n} started · 30 days</span>}
               </div>
               <ol className="flex flex-wrap items-stretch gap-2">
                 {list.map((e, i) => {

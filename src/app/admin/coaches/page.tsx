@@ -5,7 +5,7 @@ import { MigrationMissing, loadDiscovery, shortDay } from '../survey/load';
 
 export const dynamic = 'force-dynamic';
 
-// Admin → Coaches (decision 0027): everyone in discovery, waitlist and account alike, one row each.
+// Admin → Coaches (decision 0027): everyone in discovery, one row each: accounts, plus people from the old waitlist (decision 0033).
 // Brett only. Each opens their page with notes, answers and usage.
 
 export default async function CoachesPage() {
@@ -23,12 +23,12 @@ export default async function CoachesPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-[30px] font-bold leading-[1.1]">Coaches</h1>
         <p className="text-sm text-ink-200">
-          Visible to Brett only · {people.length} {people.length === 1 ? 'person' : 'people'} from the waitlist and accounts
+          Visible to Brett only · {people.length} {people.length === 1 ? 'person' : 'people'} with accounts, plus the old waitlist
         </p>
       </div>
       {missing && <MigrationMissing />}
       {people.length === 0 ? (
-        !missing && <p className="text-sm text-ink-200">Nobody yet. Waitlist sign-ups and new accounts appear here.</p>
+        !missing && <p className="text-sm text-ink-200">Nobody yet. New accounts appear here.</p>
       ) : (
         <>
           {/* Phones: one card per person. */}

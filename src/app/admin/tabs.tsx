@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// Brett's pages under Admin (decisions 0019, 0027): Analytics, Waitlist, Survey, Coaches, Emails.
+// Brett's pages under Admin (decisions 0019, 0027): Analytics, Leads, Survey, Coaches, Emails.
 // Shown only on those pages; drill review keeps its own screen.
 const TABS = [
   { href: '/admin/analytics', label: 'Analytics' },
-  { href: '/admin/waitlist', label: 'Waitlist' },
+  { href: '/admin/leads', label: 'Leads' },
   { href: '/admin/survey', label: 'Survey' },
   { href: '/admin/coaches', label: 'Coaches' },
   { href: '/admin/emails', label: 'Emails' },

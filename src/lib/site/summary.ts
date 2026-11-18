@@ -17,10 +17,13 @@ export type Summary = {
   to: string;
   visits: Metric;
   uniques: Metric;
+  /** Rows in the waitlist table: association leads since sign-up opened (decision 0033). */
   signups: Metric & { coaches: number; associations: number };
+  /** Accounts created (decision 0034), from the app. Not linked to visits. */
+  accounts: Metric;
   /** Sign-ups ÷ unique visitors, as a fraction. Null with no visitors. */
   conversion: { now: number | null; before: number | null };
-  daily: { day: string; visits: number; signups: number }[];
+  daily: { day: string; visits: number; accounts: number }[];
   peak: { day: string; visits: number } | null;
   funnel: { label: string; visitors: number }[];
   sources: { source: string; visitors: number; signups: number }[];
@@ -31,7 +34,7 @@ export type Summary = {
 type Metric = { now: number; before: number };
 
 /** New teams and their plans, from the app (Admin → Analytics → In the app's rows), for the funnel's last steps. */
-export type FunnelApp = { teams: { id: string; createdAt: string }[]; practices: { teamId: string; createdAt: string; checkedIn: boolean }[] };
+export type FunnelApp = { teams: { id: string; createdAt: string }[]; practices: { teamId: string; createdAt: string; checkedIn: boolean }[]; accounts?: string[] };
 
 export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: { days: number; now?: Date; app?: FunnelApp }): Summary {
   const now = opts.now ?? new Date();
@@ -62,15 +65,17 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
   const days: string[] = [];
   for (let t = start + DAY; t <= end + 1; t += DAY) days.push(vanDay(new Date(t)));
   const unique = [...new Set(days)];
+  const allAccounts = opts.app?.accounts ?? [];
+  const accounts = allAccounts.filter((t) => inWin(t));
   const daily = unique.map((day) => ({
     day,
     visits: views.filter((e) => vanDay(e.occurredAt) === day).length,
-    signups: joined.filter((w) => vanDay(w.createdAt) === day).length,
+    accounts: accounts.filter((t) => vanDay(t) === day).length,
   }));
   const peak = daily.reduce<Summary['peak']>((best, d) => (d.visits > 0 && (!best || d.visits > best.visits) ? { day: d.day, visits: d.visits } : best), null);
 
   const reached = (name: PageEvent['name']) => visitors(cur.filter((e) => e.name === name));
-  // Sign-up is open (decision 0033): from a visit to a team that has run a practice. The last two steps are counted
+  // Sign-up is open (decision 0033): from a visit to a team that has run a practice. The last three steps are counted
   // in the app, not linked to visits (no cookies), so they can include coaches who came another way.
   const newTeams = new Set((opts.app?.teams ?? []).filter((t) => inWin(t.createdAt)).map((t) => t.id));
   // Every new team gets its first plan at setup, so the step that shows real use is a practice run and checked in.
@@ -78,6 +83,7 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
   const funnel = [
     { label: 'Visited', visitors: uniques },
     { label: 'Tapped Plan your first practice', visitors: reached('form_start') },
+    { label: 'Created an account', visitors: accounts.length },
     { label: 'Made a team', visitors: newTeams.size },
     { label: 'Checked in after a practice', visitors: checkedIn.size },
   ];
@@ -121,6 +127,7 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     visits: { now: views.length, before: prevViews.length },
     uniques: { now: uniques, before: prevUniques },
     signups: { now: joined.length, before: joinedBefore.length, coaches: coaches.length, associations: joined.length - coaches.length },
+    accounts: { now: accounts.length, before: allAccounts.filter((t) => inPrev(t)).length },
     conversion: { now: uniques ? joined.length / uniques : null, before: prevUniques ? joinedBefore.length / prevUniques : null },
     daily,
     peak,
@@ -146,6 +153,7 @@ export function change(now: number, before: number, as: 'percent' | 'count' | 'p
 
 export type GrowthSummary = {
   teams: GrowthMetric;
+  accounts: GrowthMetric;
   coaches: GrowthMetric;
   /** One row per Vancouver day in the period: the running totals at the end of that day. */
   daily: { day: string; teams: number; coaches: number }[];
@@ -153,7 +161,7 @@ export type GrowthSummary = {
 type GrowthMetric = { total: number; inPeriod: number; before: number };
 
 /** Teams created and coaches joined: all-time totals, the period's additions, and running totals per day. */
-export function summarizeGrowth(g: { teams: string[]; coaches: string[] }, opts: { days: number; now?: Date }): GrowthSummary {
+export function summarizeGrowth(g: { teams: string[]; coaches: string[]; accounts?: string[] }, opts: { days: number; now?: Date }): GrowthSummary {
   const end = (opts.now ?? new Date()).getTime();
   const start = end - opts.days * DAY;
   const prevStart = start - opts.days * DAY;
@@ -168,6 +176,7 @@ export function summarizeGrowth(g: { teams: string[]; coaches: string[] }, opts:
   const upTo = (list: string[], day: string) => list.filter((t) => ms(t) <= end && vanDay(t) <= day).length;
   return {
     teams: metric(g.teams),
+    accounts: metric(g.accounts ?? []),
     coaches: metric(g.coaches),
     daily: [...new Set(days)].map((day) => ({ day, teams: upTo(g.teams, day), coaches: upTo(g.coaches, day) })),
   };

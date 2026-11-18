@@ -15,8 +15,8 @@ import type { Growth } from '@/lib/site/store';
 export const dynamic = 'force-dynamic';
 
 // Admin → Analytics (decision 0019; canvas "Admin · Analytics"). The landing page's visits,
-// counted without cookies, sign-ups, and teams and coaches. Brett only. The waitlist itself, with a
-// status per person, has its own tab (/admin/waitlist).
+// counted without cookies, new accounts, and teams and coaches. Brett only. Association leads, with a
+// status per person, has its own tab (Leads, /admin/leads).
 
 const PERIODS = [7, 30] as const;
 const DAY = 86_400_000;
@@ -41,7 +41,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     else throw e;
   }
   // Teams and coaches come from the app, not the landing page, so they load on their own.
-  let growth: Growth = { teams: [], coaches: [] };
+  let growth: Growth = { teams: [], coaches: [], accounts: [] };
   let growthMissing = false;
   try {
     growth = await store.growth();
@@ -63,7 +63,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     else throw e;
   }
   const usage = summarizeUsage(rows, { days });
-  const s = summarize(events, waitlist, { days, app: { teams: rows.teams, practices: rows.practices } });
+  const s = summarize(events, waitlist, { days, app: { teams: rows.teams, practices: rows.practices, accounts: growth.accounts } });
   const speed = summarizeSpeed(vitals, { days });
   // Progress scoring (decision 0030, part E): one month at a time, the newest scored month by default.
   let progressRows: ProgressUsageRows = EMPTY_PROGRESS_USAGE;
@@ -119,12 +119,12 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {missing && (
         <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
-          The waitlist tables aren’t set up yet. Run <code className="font-mono">supabase/migrations/20261026000000_waitlist_and_analytics.sql</code> in the Supabase SQL editor, then reload.
+          The landing page tables aren’t set up yet. Run <code className="font-mono">supabase/migrations/20261026000000_waitlist_and_analytics.sql</code> in the Supabase SQL editor, then reload.
         </p>
       )}
 
       <div id="site" className="-mb-3 scroll-mt-6">
-        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and taps on Plan your first practice, counted without cookies. Sign-ups below are association leads (and the waitlist before sign-up opened)." />
+        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and taps on Plan your first practice, counted without cookies. New accounts are counted in the app, so they include coaches who came another way." />
       </div>
       <Headline s={s} />
       <VisitsChart s={s} />
@@ -148,7 +148,7 @@ function Headline({ s }: { s: Summary }) {
   const tiles = [
     { label: 'Visits', value: s.visits.now.toLocaleString('en-CA'), delta: change(s.visits.now, s.visits.before, 'percent'), note: prev },
     { label: 'Unique visitors', value: s.uniques.now.toLocaleString('en-CA'), delta: change(s.uniques.now, s.uniques.before, 'percent'), note: 'counted per day' },
-    { label: 'Association leads', value: String(s.signups.now), delta: change(s.signups.now, s.signups.before, 'count'), note: prev },
+    { label: 'New accounts', value: String(s.accounts.now), delta: change(s.accounts.now, s.accounts.before, 'count'), note: prev },
     {
       label: 'Visitors who tapped',
       value: pct(s.funnel[0].visitors ? s.funnel[1].visitors / s.funnel[0].visitors : null),
@@ -187,7 +187,7 @@ function VisitsChart({ s }: { s: Summary }) {
   const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f));
   const ticks = [...new Set([0, Math.round((n - 1) / 4), Math.round((n - 1) / 2), Math.round((3 * (n - 1)) / 4), n - 1])];
   const peakIdx = s.peak ? s.daily.findIndex((d) => d.day === s.peak!.day) : -1;
-  const maxSign = Math.max(...s.daily.map((d) => d.signups), 1);
+  const maxSign = Math.max(...s.daily.map((d) => d.accounts), 1);
   const slot = (W - L - R) / Math.max(n - 1, 1);
   const describe = s.peak ? `Peak of ${s.peak.visits} on ${shortDay(s.peak.day)}.` : 'No visits yet.';
 
@@ -228,18 +228,18 @@ function VisitsChart({ s }: { s: Summary }) {
         {/* Hover targets wider than the line, one per day, with the day's numbers. */}
         {s.daily.map((d, i) => (
           <rect key={d.day} x={x(i) - slot / 2} y={T} width={slot} height={H - T - B} fill="transparent">
-            <title>{`${shortDay(d.day)}: ${d.visits} visits, ${d.signups} sign-ups`}</title>
+            <title>{`${shortDay(d.day)}: ${d.visits} visits, ${d.accounts} new account${d.accounts === 1 ? '' : 's'}`}</title>
           </rect>
         ))}
       </svg>
       <div className="flex flex-col gap-1">
-        <span className="text-[13px] text-ink-200">Sign-ups per day</span>
-        <svg viewBox={`0 0 ${W} 50`} width="100%" role="img" aria-label={`Sign-ups per day: ${s.signups.now} in all.`} className="block overflow-visible">
+        <span className="text-[13px] text-ink-200">New accounts per day</span>
+        <svg viewBox={`0 0 ${W} 50`} width="100%" role="img" aria-label={`New accounts per day: ${s.accounts.now} in all.`} className="block overflow-visible">
           <path d={`M${L} 46H${W - R}`} stroke="var(--border-100)" strokeWidth="1" />
           {s.daily.map((d, i) =>
-            d.signups ? (
-              <rect key={d.day} x={x(i) - 4} y={46 - (40 * d.signups) / maxSign} width="8" height={(40 * d.signups) / maxSign} rx="2" fill="var(--ink-100)">
-                <title>{`${shortDay(d.day)}: ${d.signups} sign-up${d.signups === 1 ? '' : 's'}`}</title>
+            d.accounts ? (
+              <rect key={d.day} x={x(i) - 4} y={46 - (40 * d.accounts) / maxSign} width="8" height={(40 * d.accounts) / maxSign} rx="2" fill="var(--ink-100)">
+                <title>{`${shortDay(d.day)}: ${d.accounts} new account${d.accounts === 1 ? '' : 's'}`}</title>
               </rect>
             ) : null,
           )}
@@ -252,7 +252,7 @@ function VisitsChart({ s }: { s: Summary }) {
             <tr className="text-left font-body text-ink-200">
               <th className="pb-1.5 font-medium">Day</th>
               <th className="pb-1.5 text-right font-medium">Visits</th>
-              <th className="pb-1.5 text-right font-medium">Sign-ups</th>
+              <th className="pb-1.5 text-right font-medium">New accounts</th>
             </tr>
           </thead>
           <tbody>
@@ -260,7 +260,7 @@ function VisitsChart({ s }: { s: Summary }) {
               <tr key={d.day} className="border-t border-border-100">
                 <td className="py-1">{shortDay(d.day)}</td>
                 <td className="py-1 text-right">{d.visits}</td>
-                <td className="py-1 text-right">{d.signups}</td>
+                <td className="py-1 text-right">{d.accounts}</td>
               </tr>
             ))}
           </tbody>
@@ -272,10 +272,10 @@ function VisitsChart({ s }: { s: Summary }) {
 
 function Funnel({ s }: { s: Summary }) {
   const top = s.funnel[0].visitors || 1;
-  const [visited, tapped, teams, planned] = s.funnel.map((f) => f.visitors);
+  const [visited, tapped, accounts, teams, planned] = s.funnel.map((f) => f.visitors);
   const note =
     visited > 0
-      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} checked in after a practice. ` : ''}Teams and check-ins are counted in the app (test teams included), so they include coaches who came another way.`
+      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${accounts ? `${Math.min(teams, accounts)} of ${accounts} new account${accounts === 1 ? '' : 's'} made a team. ` : ''}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} checked in after a practice. ` : ''}Accounts, teams and check-ins are counted in the app (test teams and invited coaches included), so they include people who came another way.`
       : 'No visits yet.';
   return (
     <section aria-labelledby="funnel-title" className="flex flex-col gap-3.5">
@@ -317,10 +317,7 @@ function Sources({ s }: { s: Summary }) {
                 Visitors
               </th>
               <th scope="col" className={`${th} text-right`}>
-                Sign-ups
-              </th>
-              <th scope="col" className={`${th} text-right`}>
-                Joined
+                Association leads
               </th>
             </tr>
           </thead>
@@ -332,7 +329,6 @@ function Sources({ s }: { s: Summary }) {
                 </td>
                 <td className={`${td} text-right font-mono`}>{r.visitors}</td>
                 <td className={`${td} text-right font-mono`}>{r.signups}</td>
-                <td className={`${td} text-right font-mono`}>{r.visitors ? pct(r.signups / r.visitors) : '–'}</td>
               </tr>
             ))}
           </tbody>
@@ -361,19 +357,10 @@ function Who({ s }: { s: Summary }) {
   return (
     <section aria-labelledby="who-title" className="flex flex-col gap-4 border-t border-border-100 pt-8">
       <h2 id="who-title" className="text-lg font-semibold">
-        Who’s signing up
+        Who’s visiting
       </h2>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-x-10 gap-y-7">
-        {col(
-          'Kind',
-          s.signups.now
-            ? [
-                { label: 'Coaches', value: String(s.signups.coaches) },
-                { label: 'Associations', value: String(s.signups.associations) },
-              ]
-            : [],
-        )}
-        {col('Coaches by age group', s.ageGroups.map((a) => ({ label: a.label, value: String(a.count) })))}
+        {col('Association leads', s.signups.associations ? [{ label: 'From the landing page', value: String(s.signups.associations) }] : [])}
         {col('Visitors’ devices', s.devices.map((d) => ({ label: d.label, value: pct(d.share) })))}
         {col('Visitors’ regions', s.regions.map((r) => ({ label: r.label, value: pct(r.share) })))}
       </div>

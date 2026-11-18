@@ -8,8 +8,8 @@ export const FILTERS = [
   { id: 'card', label: 'Card to send' },
   { id: 'U7', label: 'U7' },
   { id: 'U9', label: 'U9' },
-  { id: 'waitlist', label: 'Waitlist' },
-  { id: 'using', label: 'Using it' },
+  { id: 'waitlist', label: 'Sign-up survey' },
+  { id: 'using', label: 'After first practice' },
   { id: 'older', label: 'U11+' },
 ] as const;
 export type FilterId = (typeof FILTERS)[number]['id'];
