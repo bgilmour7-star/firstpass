@@ -4,8 +4,7 @@ import type { Activity, Stats } from '@/lib/broadcasts/schema';
 // clicked and didn't click did in the 7 days after. Counts of coaches only.
 
 const ROWS: { key: keyof Omit<Activity, 'coaches'>; label: string }[] = [
-  { key: 'any', label: 'Did anything in Firstpass' },
-  { key: 'viewed', label: 'Opened a practice' },
+  { key: 'any', label: 'Planned, checked in or scored' },
   { key: 'edited', label: 'Planned or edited a practice' },
   { key: 'checkedIn', label: 'Checked in after a practice' },
   { key: 'scored', label: 'Scored progress' },
@@ -31,7 +30,7 @@ export function After({ stats, links }: { stats: Stats | null; links: { n: numbe
           After this email
         </h2>
         <p className="text-sm text-ink-200">
-          <b className="font-mono font-semibold text-ink-100">{stats.clicked}</b> of {stats.sent} coaches opened Firstpass from a link in it ({pct(stats.clicked, stats.sent)}). Counted when they’re signed in, on any device they open the link on.
+          <b className="font-mono font-semibold text-ink-100">{stats.clicked}</b> of {stats.sent} coaches opened Firstpass from a link in it ({pct(stats.clicked, stats.sent)}). Counted when they open the link signed in, or sign in on the same device right after.
         </p>
       </div>
       {links.length > 0 ? (
@@ -80,8 +79,8 @@ export function After({ stats, links }: { stats: Stats | null; links: { n: numbe
               <th scope="row" className={`${td} text-left font-normal`}>
                 {r.label}
               </th>
-              <td className={`${td} text-right font-mono`}>{clicked ? `${clicked[r.key]} · ${pct(clicked[r.key], clicked.coaches)}` : '–'}</td>
-              <td className={`${td} text-right font-mono`}>{not ? `${not[r.key]} · ${pct(not[r.key], not.coaches)}` : '–'}</td>
+              <td className={`${td} whitespace-nowrap text-right font-mono`}>{clicked ? `${clicked[r.key]} · ${pct(clicked[r.key], clicked.coaches)}` : '–'}</td>
+              <td className={`${td} whitespace-nowrap text-right font-mono`}>{not ? `${not[r.key]} · ${pct(not[r.key], not.coaches)}` : '–'}</td>
             </tr>
           ))}
         </tbody>

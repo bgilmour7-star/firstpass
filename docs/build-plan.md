@@ -249,7 +249,8 @@ Acceptance: a new coach taps Continue with Google on a join link and lands on "Y
 - [x] Batch sending through Resend with carry-on; its own opt-out for update emails; image uploads to Supabase Storage.
 - [ ] Brett: run `supabase/migrations/20261123000000_broadcasts.sql`.
 - [x] Link attribution: tagged firstpass.coach links, clicks recorded for signed-in coaches, "After this email" per link and 7-day activity (decision 0036).
-- [ ] Brett: run `supabase/migrations/20261124000000_email_attribution.sql`.
+- [x] Brett: run `supabase/migrations/20261124000000_email_attribution.sql`.
+- [ ] Brett: run `supabase/migrations/20261125000000_email_attribution_fixes.sql`.
 
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

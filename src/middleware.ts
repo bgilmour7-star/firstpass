@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { EMAIL_REF } from './lib/broadcasts/ref';
 import { createServerClient } from '@supabase/ssr';
 
 // Keeps the Supabase session fresh and sends signed-out visitors to /login.
@@ -38,6 +39,22 @@ export async function middleware(request: NextRequest) {
   // A corrupt session cookie makes getClaims() throw: treat it as signed out, as getUser() did.
   const { data } = await supabase.auth.getClaims().catch(() => ({ data: null }));
   const signedIn = Boolean(data?.claims?.sub);
+  // An update email's link tag (?from=<ref>-<n>, decision 0036). Signed in: count the click here, before any page
+  // redirects the request somewhere else, then carry on to the same page without the tag. Signed out: it rides
+  // through sign-in in next (below), and the page keeps it in the tab (EmailClick) for open pages.
+  const from = request.nextUrl.searchParams.get('from');
+  const tag = from ? from.match(EMAIL_REF) : null;
+  if (tag && signedIn && request.method === 'GET') {
+    await supabase.rpc('record_email_click', { ref: tag[1], link: Number(tag[2]) }).then(
+      ({ error }) => error && console.error('[email-click] %s', error.message),
+      () => {},
+    );
+    const clean = request.nextUrl.clone();
+    clean.searchParams.delete('from');
+    const out = NextResponse.redirect(clean);
+    response.cookies.getAll().forEach((c) => out.cookies.set(c));
+    return out;
+  }
   // /api/cron/ is called by the database's timer and checks its own secret (decision 0010).
   // /join/ shows who invited you and signs you in on the spot (decision 0013); joining itself
   // needs a session. /email/ holds the logo the emails load, /og/ the share card. / is the public landing page and
@@ -53,8 +70,7 @@ export async function middleware(request: NextRequest) {
     login.pathname = '/login';
     login.search = '';
     // Keep an update email's link tag (decision 0036) through sign-in, so the click is counted once they're in.
-    const from = request.nextUrl.searchParams.get('from');
-    login.searchParams.set('next', from && /^[0-9a-f]{8}-\d{1,2}$/.test(from) ? `${request.nextUrl.pathname}?from=${from}` : request.nextUrl.pathname);
+    login.searchParams.set('next', tag ? `${request.nextUrl.pathname}?from=${from}` : request.nextUrl.pathname);
     return NextResponse.redirect(login);
   }
   return response;

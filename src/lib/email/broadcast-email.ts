@@ -35,16 +35,32 @@ function tagger(ref: string | null | undefined): Tagger {
   };
 }
 
-/** **bold** and [label](https://url), on text that is already escaped (so a URL's & arrives as &amp;). */
-function inline(escaped: string, tag: Tagger): string {
-  return escaped
-    .replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>')
-    .replace(LINK, (m, label: string, url: string) =>
-      // A < > or " in the URL means it isn't a link in the raw text either (emailLinks wouldn't count it).
-      /&(lt|gt|quot);/.test(url) ? m : `<a href="${esc(tag(url.replace(/&amp;/g, '&')))}" style="color:${RINK};">${label}</a>`,
-    );
+/** Splits raw text into plain runs and [label](https://url) links, the one place links are found, so the email and
+ * emailLinks() always number them the same way. */
+function pieces(raw: string): ({ text: string } | { label: string; url: string })[] {
+  const out: ({ text: string } | { label: string; url: string })[] = [];
+  let at = 0;
+  for (const m of raw.matchAll(LINK)) {
+    if (m.index! > at) out.push({ text: raw.slice(at, m.index) });
+    out.push({ label: m[1], url: m[2] });
+    at = m.index! + m[0].length;
+  }
+  if (at < raw.length) out.push({ text: raw.slice(at) });
+  return out;
 }
-const inlineText = (s: string, tag: Tagger) => s.replace(/\*\*([^*\n]+)\*\*/g, '$1').replace(LINK, (_m, label: string, url: string) => `${label} (${tag(url)})`);
+const bold = (escaped: string) => escaped.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+const unbold = (s: string) => s.replace(/\*\*([^*\n]+)\*\*/g, '$1');
+
+/** **bold** and [label](https://url) on raw text; everything is escaped. */
+function inline(raw: string, tag: Tagger): string {
+  return pieces(raw)
+    .map((p) => ('text' in p ? bold(esc(p.text)) : `<a href="${esc(tag(p.url))}" style="color:${RINK};">${bold(esc(p.label))}</a>`))
+    .join('');
+}
+const inlineText = (raw: string, tag: Tagger) =>
+  pieces(raw)
+    .map((p) => ('text' in p ? unbold(p.text) : `${unbold(p.label)} (${tag(p.url)})`))
+    .join('');
 const paragraphs = (text: string) =>
   text
     .replace(/\r\n/g, '\n')
@@ -55,7 +71,7 @@ const paragraphs = (text: string) =>
 function blockHtml(b: Block, tag: Tagger): string[] {
   switch (b.type) {
     case 'text':
-      return paragraphs(b.text).map((p) => inline(esc(p), tag).replace(/\n/g, '<br>'));
+      return paragraphs(b.text).map((p) => inline(p, tag).replace(/\n/g, '<br>'));
     case 'heading':
       return b.text.trim() ? [`<div style="padding-top:10px;font:800 21px/26px ${DISPLAY};color:${INK};">${esc(b.text.trim())}</div>`] : [];
     case 'image': {
@@ -106,7 +122,7 @@ export function emailLinks(blocks: Block[]): { n: number; label: string; url: st
     if (OURS.test(url)) out.push({ n: out.length + 1, label, url });
   };
   for (const b of blocks) {
-    if (b.type === 'text') for (const p of paragraphs(b.text)) for (const m of p.matchAll(LINK)) add(m[1], m[2]);
+    if (b.type === 'text') for (const p of paragraphs(b.text)) for (const x of pieces(p)) if ('url' in x) add(unbold(x.label), x.url);
     if (b.type === 'image' && b.url && b.link) add(`Image: ${b.alt || 'picture'}`, b.link);
     if (b.type === 'button' && b.label.trim() && b.url) add(b.label.trim(), b.url);
   }

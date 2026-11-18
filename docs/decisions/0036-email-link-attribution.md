@@ -8,14 +8,17 @@ app?" … "yes, i want to see session attribution")
   (text links, linked images, buttons; never the opt-out) gets `?from=<ref>-<n>`: the email's 8-character ref
   (`broadcasts.ref`) and the link's number in reading order. Links to other sites aren't touched. Previews and test
   sends aren't tagged. Resend open and click tracking stay off.
-- **A click is a session from the email.** `EmailClick` in the root layout reads the tag on any page, takes it off the
-  address bar, and calls `record_email_click` for the signed-in coach (one per coach, email and link per 10 minutes).
-  Signed out, the middleware carries the tag through sign-in (`next=/path?from=…`), with sessionStorage as a backup in
-  the same tab. No cookies.
+- **A click is a session from the email.** Signed in: the middleware calls `record_email_click` before any page can
+  redirect, then sends the coach on to the same page without the tag. Signed out on a page that needs sign-in: the
+  tag rides through sign-in in `next`. Signed out on an open page (the home page): `EmailClick` in the root layout
+  takes the tag off the address bar, keeps it in the tab and retries on each page change until they're signed in.
+  Only email tags are touched; other `?from=` values (share, invite, shared ice) are the visit tracker's. One click
+  per coach, email and link per 10 minutes, and only from coaches it was sent to. No cookies.
 - **What happened next**, per email, on its Admin → Send page (`broadcast_stats`, Brett only): coaches who came back
-  from each link, and for coaches who clicked and didn't, how many opened a practice, planned or edited one, checked
-  in, or scored progress in the 7 days after their first click (or after it was sent). Only coaches it was sent to
+  from each link, and for coaches who clicked and didn't, how many planned or edited a practice, checked in, or scored
+  progress (not "opened a practice": practice_views keeps only each coach's latest view, so it would shrink) in the 7 days after their first click (or after it was sent). Only coaches it was sent to
   count, so admins and forwards don't.
+- Fixes after review: `20261125000000_email_attribution_fixes.sql`.
 - Privacy page: links carry a tag so Brett can see which email brought you back.
 
 ## Limits

@@ -49,7 +49,7 @@ export type Status = 'draft' | 'sending' | 'sent';
 export type Broadcast = Draft & { id: string; ref: string | null; status: Status; recipients: number; createdAt: string; updatedAt: string; sentAt: string | null };
 /** What happened after an email (decision 0036): coaches it reached, who came back from each link, and what coaches
  * who clicked and didn't click did in the 7 days after. */
-export type Activity = { coaches: number; viewed: number; edited: number; checkedIn: number; scored: number; any: number };
+export type Activity = { coaches: number; edited: number; checkedIn: number; scored: number; any: number };
 export type Stats = { sent: number; clicked: number; links: { link: number; coaches: number }[]; groups: { clicked?: Activity; notClicked?: Activity } };
 export { EMAIL_REF } from './ref';
 

@@ -100,3 +100,21 @@ describe('link tags (decision 0036)', () => {
     expect(EMAIL_REF.test('ab12cd34-100')).toBe(false);
   });
 });
+
+describe('link numbering with awkward text', () => {
+  it('matches emailLinks for labels with & " < \' and URLs with **', () => {
+    const label = `${'A & "B" <C> it\'s '.repeat(6)}`.slice(0, 118);
+    const blocks: Block[] = [
+      { type: 'text', text: `[${label}](https://firstpass.coach/a) then [x](https://firstpass.coach/b**c**)` },
+      { type: 'button', label: 'Go', url: 'https://firstpass.coach/plans' },
+    ];
+    const e = broadcastEmail({ draft: draft(blocks), firstName: null, unsubscribeUrl: 'https://firstpass.coach/unsubscribe/t/updates', ref: 'ab12cd34' });
+    const links = emailLinks(blocks);
+    expect(links.map((l) => l.n)).toEqual([1, 2, 3]);
+    expect(e.html).toContain('from=ab12cd34-1');
+    expect(e.html).toContain('b**c**?from=ab12cd34-2');
+    expect(e.html).toContain('plans?from=ab12cd34-3');
+    expect(e.html).not.toContain('<script');
+    expect(e.html).toContain('&lt;C&gt;');
+  });
+});
