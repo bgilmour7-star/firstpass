@@ -1,7 +1,7 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { supabaseServer } from '../supabase/server';
-import { draftSchema, type Age, type Broadcast, type Draft, type Recipient, type Segment, type SendCounts, type Status } from './schema';
+import { OPTED_OUT, draftSchema, type Age, type Broadcast, type Draft, type Recipient, type Segment, type SendCounts, type Status } from './schema';
 import type { BroadcastStore, Queued } from './store';
 
 type Err = { code?: string; message: string };
@@ -114,10 +114,11 @@ export class SupabaseBroadcastStore implements BroadcastStore {
   }
 
   async counts(id: string): Promise<SendCounts> {
-    const { data, error } = await (await supabaseServer()).from('broadcast_sends').select('status').eq('broadcast_id', id);
+    const { data, error } = await (await supabaseServer()).from('broadcast_sends').select('status, error').eq('broadcast_id', id);
     if (error) fail(error);
-    const rows = (data ?? []) as { status: keyof SendCounts }[];
-    return { queued: rows.filter((r) => r.status === 'queued').length, sent: rows.filter((r) => r.status === 'sent').length, failed: rows.filter((r) => r.status === 'failed').length };
+    const rows = (data ?? []) as { status: 'queued' | 'sent' | 'failed'; error: string | null }[];
+    const skipped = rows.filter((r) => r.status === 'failed' && r.error === OPTED_OUT).length;
+    return { queued: rows.filter((r) => r.status === 'queued').length, sent: rows.filter((r) => r.status === 'sent').length, failed: rows.filter((r) => r.status === 'failed').length - skipped, skipped };
   }
 
   async uploadImage(type: string, bytes: ArrayBuffer) {

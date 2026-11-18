@@ -191,7 +191,7 @@ export const REGISTRY: Entry[] = [
   // Updates you send (decision 0035)
   {
     id: 'updates.broadcast', section: 'updates', journey: 'updates', step: 'broadcast', name: 'An update from you', when: 'When you press Send',
-    trigger: 'You send an email from Admin → Send', condition: 'Confirmed account, not an admin, updates not turned off', audience: 'person', to: 'The coaches in the segment you pick', from: BRETT,
+    trigger: 'You send an email from Admin → Send', condition: 'Confirmed account, not an admin, hasn’t stopped update or survey emails', audience: 'person', to: 'The coaches in the segment you pick', from: BRETT,
     file: 'src/lib/email/broadcast-email.ts', fn: 'broadcastEmail', sentBy: 'app', tag: 'broadcast', preview: () => broadcastEmail(BROADCAST_SAMPLE),
   },
 

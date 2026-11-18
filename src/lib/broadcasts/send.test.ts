@@ -13,7 +13,7 @@ function fakeStore(n: number) {
     queued: async (_id, limit) => rows.filter((r) => r.status === 'queued').slice(0, limit),
     mark: async (ids, o) => rows.filter((r) => ids.includes(r.sendId)).forEach((r) => (r.status = o.sent ? 'sent' : 'failed')),
     finish: async () => void (finished = !rows.some((r) => r.status === 'queued')),
-    counts: async () => ({ queued: rows.filter((r) => r.status === 'queued').length, sent: rows.filter((r) => r.status === 'sent').length, failed: rows.filter((r) => r.status === 'failed').length }),
+    counts: async () => ({ queued: rows.filter((r) => r.status === 'queued').length, sent: rows.filter((r) => r.status === 'sent').length, failed: rows.filter((r) => r.status === 'failed').length, skipped: 0 }),
   };
   return { store: store as BroadcastStore, rows, done: () => finished };
 }
@@ -85,10 +85,25 @@ describe('deliver, people who opted out after Send', () => {
   });
 
   it('leaves a batch Resend says is already in progress (409) queued, not failed', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('in progress', { status: 409 })));
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"name":"concurrent_idempotent_requests"}', { status: 409 })));
     const { store, rows } = fakeStore(2);
     const r = await deliver(store, b);
     expect(r.left).toBe(2);
     expect(rows.every((x) => x.status === 'queued')).toBe(true);
+  });
+});
+
+describe('deliver, a 409 for a changed body', () => {
+  beforeEach(() => vi.stubEnv('RESEND_API_KEY', 'k'));
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+  it('is a real failure, not in progress', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"name":"invalid_idempotent_request"}', { status: 409 })));
+    const { store, rows } = fakeStore(2);
+    const r = await deliver(store, b);
+    expect(r.failed).toBe(2);
+    expect(rows.every((x) => x.status === 'failed')).toBe(true);
   });
 });

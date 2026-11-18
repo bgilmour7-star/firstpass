@@ -49,6 +49,7 @@ export default async function EmailPage({ params }: { params: Promise<{ id: stri
       </div>
       <p className="text-[15px]">
         <span className="font-mono">{c.sent}</span> sent{c.failed ? <> · <span className="font-mono text-flag-100">{c.failed}</span> failed</> : null}
+        {c.skipped ? <> · <span className="font-mono">{c.skipped}</span> opted out before it went out</> : null}
         {c.queued ? <> · <span className="font-mono">{c.queued}</span> still to send</> : null}
       </p>
       {b.status === 'sending' && c.queued > 0 && <CarryOn id={b.id} left={c.queued} />}

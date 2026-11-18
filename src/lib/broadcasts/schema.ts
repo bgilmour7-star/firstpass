@@ -47,7 +47,9 @@ export type Draft = z.output<typeof draftSchema>;
 export type Status = 'draft' | 'sending' | 'sent';
 export type Broadcast = Draft & { id: string; status: Status; recipients: number; createdAt: string; updatedAt: string; sentAt: string | null };
 export type Recipient = { personId: string; email: string; firstName: string | null; teamName: string | null; unsubscribeToken: string };
-export type SendCounts = { queued: number; sent: number; failed: number };
+/** skipped: opted out after Send, so never emailed (stored as failed with OPTED_OUT). */
+export type SendCounts = { queued: number; sent: number; failed: number; skipped: number };
+export const OPTED_OUT = 'Stopped these emails before it went out';
 
 export const EMPTY_DRAFT: Draft = { subject: '', preheader: '', greeting: true, blocks: [{ type: 'text', text: '' }], segment: 'all', ageGroup: null };
 

@@ -78,7 +78,7 @@ export class LocalBroadcastStore implements BroadcastStore {
   async mark() {}
   async finish() {}
   async counts(): Promise<SendCounts> {
-    return { queued: 0, sent: 0, failed: 0 };
+    return { queued: 0, sent: 0, failed: 0, skipped: 0 };
   }
   async uploadImage(): Promise<string> {
     throw new Error('no-images-locally');

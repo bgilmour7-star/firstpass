@@ -2,7 +2,7 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 import { broadcastEmail } from '../email/broadcast-email';
 import { FROM_BRETT, SITE } from '../email/layout';
-import type { Broadcast } from './schema';
+import { OPTED_OUT, type Broadcast } from './schema';
 import type { BroadcastStore, Queued } from './store';
 
 // Sending an email to coaches (decision 0035). Up to 100 people per Resend batch call, each with their own greeting
@@ -16,7 +16,6 @@ const BUDGET_MS = 45_000;
 export const updatesUrl = (token: string) => `${SITE}/unsubscribe/${token}/updates`;
 
 export type DeliverResult = { sent: number; failed: number; skipped: number; left: number; error?: string };
-export const OPTED_OUT = 'Stopped these emails before it went out';
 
 export async function deliver(store: BroadcastStore, b: Broadcast, now = Date.now): Promise<DeliverResult> {
   const key = process.env.RESEND_API_KEY;
@@ -70,7 +69,9 @@ async function sendBatch(key: string, b: Broadcast, batch: Queued[]): Promise<{ 
   if (res?.ok) return { ok: true };
   const detail = res ? `${res.status} ${(await res.text().catch(() => '')).slice(0, 200)}` : 'network';
   console.error('[broadcast] batch failed: %s', detail);
-  // 409: the same batch is already in progress (a double Carry on). Leave it queued rather than call it failed.
-  const retry = !res || res.status === 409 || res.status === 429 || res.status >= 500;
-  return { ok: false, retry, error: res?.status === 429 ? 'Resend is rate limiting. Try Carry on sending in a minute.' : res?.status === 409 ? 'That batch is already being sent. Wait a minute, then Carry on sending.' : `Resend said: ${detail}` };
+  // 409 concurrent_idempotent_requests: the same batch is already in progress (a double Carry on). Leave it queued
+  // rather than call it failed. Other 409s (the same key with a different body) are real failures.
+  const busy = res?.status === 409 && /concurrent_idempotent_requests/.test(detail);
+  const retry = !res || busy || res.status === 429 || res.status >= 500;
+  return { ok: false, retry, error: res?.status === 429 ? 'Resend is rate limiting. Try Carry on sending in a minute.' : busy ? 'That batch is already being sent. Wait a minute, then Carry on sending.' : `Resend said: ${detail}` };
 }
