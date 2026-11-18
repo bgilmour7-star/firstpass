@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
   // The installable app's files (decision 0021) load before anyone signs in: the manifest, icons, the
   // service worker and the offline page.
   const app = ['/manifest.webmanifest', '/sw.js', '/offline.html', '/apple-icon.png', '/icon.svg'].includes(path) || path.startsWith('/icons/');
-  const open = app || path === '/' || path === '/privacy' || path.startsWith('/og/') || ['/login', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/api/vitals', '/join/', '/email/', '/s/', '/unsubscribe/'].some((p) => path.startsWith(p));
+  const open = app || path === '/' || path === '/privacy' || path.startsWith('/og/') || ['/login', '/signup', '/auth/', '/not-allowed', '/p/', '/api/cron/', '/api/vitals', '/join/', '/email/', '/s/', '/unsubscribe/'].some((p) => path.startsWith(p));
   if (!signedIn && !open) {
     const login = request.nextUrl.clone();
     login.pathname = '/login';

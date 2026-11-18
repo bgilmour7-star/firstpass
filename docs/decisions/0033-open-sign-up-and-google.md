@@ -41,3 +41,9 @@ Date: 2026-11-16 · Decided by: Brett ("I'm okay with removing invite only. We d
   sign-up instead of "You're still on the waitlist".
 - **Analytics funnel:** Visited → Tapped Plan your first practice (`form_start`) → Made a team → Made a plan. The last two
   are counted in the app, not linked to visits.
+
+## Sign-up page (Brett, 2026-11-18)
+- **"Plan your first practice" goes to `/signup`, not `/login`.** Brett: the button "links to the sign in page, not the
+  create an account page". `/signup` is the same email-first flow and Google button, headed "Create your free account"
+  with "Your first team is free". An email that already has an account still goes to Welcome back. The survey
+  thank-you links there too. "Sign in" in the header and footer stays on `/login`.
