@@ -30,7 +30,7 @@ export function After({ stats, links }: { stats: Stats | null; links: { n: numbe
           After this email
         </h2>
         <p className="text-sm text-ink-200">
-          <b className="font-mono font-semibold text-ink-100">{stats.clicked}</b> of {stats.sent} coaches opened Firstpass from a link in it ({pct(stats.clicked, stats.sent)}). Counted when they open the link signed in, or sign in on the same device right after.
+          <b className="font-mono font-semibold text-ink-100">{stats.clicked}</b> of {stats.sent} coaches opened Firstpass from a link in it ({pct(stats.clicked, stats.sent)}). Counted when they open the link signed in, or sign in right after in the same browser tab.
         </p>
       </div>
       {links.length > 0 ? (
