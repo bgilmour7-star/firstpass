@@ -103,8 +103,8 @@ const surveyOpen = (f: SendFacts) => notUnsubscribed(f) ?? (f.surveyDone ? 'surv
 export const REGISTRY: Entry[] = [
   // Creates an account (decision 0034). Queued by enqueue_discovery_emails for accounts made after the journey started.
   queued({
-    section: 'signup', journey: 'signup', step: 'welcome', name: 'Welcome + survey', when: 'Right away',
-    trigger: 'Creates an account (their own team or an invite)', delay: 'Right away (the next 10-minute run)', condition: 'Not an admin, survey not done, not unsubscribed',
+    section: 'signup', journey: 'signup', step: 'welcome', name: 'Welcome + survey', when: '1 hour after sign-up',
+    trigger: 'Creates an account (their own team or an invite)', delay: '1 hour after they confirm their email', condition: 'Not an admin, survey not done, not unsubscribed',
     audience: 'person', to: 'The person who signed up', from: BRETT, file: DISCOVERY_FILE, fn: 'signupWelcomeEmail',
     render: signupWelcomeEmail, sample: signupSample, skip: (f) => (f.isAdmin ? 'admin' : surveyOpen(f)),
   }),

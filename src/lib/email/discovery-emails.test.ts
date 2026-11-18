@@ -7,7 +7,7 @@ const all = [signupWelcomeEmail(signup), signupNudgeEmail(signup), coachFirstPra
 
 describe('discovery emails', () => {
   it('has the expected subjects', () => {
-    expect(all.map((e) => e.subject)).toEqual(['Thanks for signing up for Firstpass', '3 minutes on your last practice?', 'How did your first practice go?', '3 minutes on your first practice?']);
+    expect(all.map((e) => e.subject)).toEqual(['Thanks for signing up for Firstpass', '3 minutes on how you plan practices?', 'How did your first practice go?', '3 minutes on your first practice?']);
   });
 
   it('keeps Brett’s copy word for word', () => {

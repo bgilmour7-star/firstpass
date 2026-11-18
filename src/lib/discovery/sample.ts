@@ -47,9 +47,8 @@ export function sampleData(now: Date): LocalDiscovery {
   const invites = people.map((p, i) => ({ token: i === 0 ? 'sample-waitlist' : i === 3 ? 'sample-coach' : `t${i}`, personId: p.id, audience: p.audience, usedAt: null }));
   const unsubscribeTokens = Object.fromEntries(people.map((p, i) => [p.id, i === 0 ? 'sample-waitlist' : i === 3 ? 'sample-coach' : `u${i}`]));
   const sends: SendStats = [
-    { journey: 'waitlist', step: 'welcome', sent: 6, skipped: 0, queued: 0 },
-    { journey: 'waitlist', step: 'nudge', sent: 2, skipped: 3, queued: 1 },
-    { journey: 'waitlist', step: 'last-ask', sent: 1, skipped: 3, queued: 2 },
+    { journey: 'signup', step: 'welcome', sent: 6, skipped: 0, queued: 1 },
+    { journey: 'signup', step: 'nudge', sent: 2, skipped: 3, queued: 1 },
     { journey: 'coach', step: 'first-practice', sent: 2, skipped: 0, queued: 0 },
     { journey: 'coach', step: 'nudge', sent: 1, skipped: 1, queued: 0 },
   ];

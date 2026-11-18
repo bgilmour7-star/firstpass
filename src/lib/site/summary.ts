@@ -21,13 +21,10 @@ export type Summary = {
   signups: Metric & { coaches: number; associations: number };
   /** Accounts created (decision 0034), from the app. Not linked to visits. */
   accounts: Metric;
-  /** Sign-ups ÷ unique visitors, as a fraction. Null with no visitors. */
-  conversion: { now: number | null; before: number | null };
   daily: { day: string; visits: number; accounts: number }[];
   peak: { day: string; visits: number } | null;
   funnel: { label: string; visitors: number }[];
   sources: { source: string; visitors: number; signups: number }[];
-  ageGroups: { label: string; count: number }[];
   devices: { label: string; share: number }[];
   regions: { label: string; share: number }[];
 };
@@ -101,7 +98,6 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     .sort((a, b) => b.visitors - a.visitors || b.signups - a.signups);
 
   const coaches = joined.filter((w) => w.kind === 'coach');
-  const ageGroups = ['U5', 'U7', 'U9', null].map((g) => ({ label: g ?? 'Not given', count: coaches.filter((w) => w.ageGroup === g).length })).filter((a) => a.count > 0).sort((a, b) => b.count - a.count);
 
   // Shares of visitors, each visitor counted once with their first view's device and place.
   const firstView = new Map<string, PageEvent>();
@@ -128,12 +124,10 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     uniques: { now: uniques, before: prevUniques },
     signups: { now: joined.length, before: joinedBefore.length, coaches: coaches.length, associations: joined.length - coaches.length },
     accounts: { now: accounts.length, before: allAccounts.filter((t) => inPrev(t)).length },
-    conversion: { now: uniques ? joined.length / uniques : null, before: prevUniques ? joinedBefore.length / prevUniques : null },
     daily,
     peak,
     funnel,
     sources,
-    ageGroups,
     devices: share((e) => (e.device ? DEVICE_LABEL[e.device] : null), 3, 'Other'),
     regions: share((e) => e.region, 4, 'Elsewhere'),
   };

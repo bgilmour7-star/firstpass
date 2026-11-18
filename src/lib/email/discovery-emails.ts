@@ -34,7 +34,7 @@ function text(subject: string, before: string[], button: string, url: string, af
   return [subject, '', ...before.flatMap((p) => [p, '']), `${button}: ${url}`, '', ...after.flatMap((p) => [p, '']), '--', ...footer].join('\n');
 }
 
-/** S1. Right after someone creates an account (decision 0034), invited coaches included. The survey before they've
+/** S1. An hour after someone creates an account (decision 0034), invited coaches included. The survey before they've
  * used Firstpass much: how they plan practices today and what's hard about it. Replaces the waitlist welcome (E1). */
 export function signupWelcomeEmail(i: DiscoveryInput): Email {
   const subject = 'Thanks for signing up for Firstpass';
@@ -56,7 +56,7 @@ export function signupWelcomeEmail(i: DiscoveryInput): Email {
 
 /** S2. Day 3, only if the survey isn't done. The last survey email before practice: it leads with "just reply". */
 export function signupNudgeEmail(i: DiscoveryInput): Email {
-  const subject = '3 minutes on your last practice?';
+  const subject = '3 minutes on how you plan practices?';
   const p1 = "Getting this back to the top of your inbox. I'm asking every coach who signs up how they plan practices today.";
   const p2 = "It's 7 questions and takes about 3 minutes. You'll get a $10 Tim Hortons card when you finish. Or just reply and finish this sentence.";
   const line = 'The hardest part of my last practice was…';
