@@ -18,8 +18,9 @@ import { draftReadyEmail, outcomeEmail } from './request-emails';
 import { progressReminderEmail, progressReportEmail, progressScoringEmail, type ProgressReportInput } from './progress-emails';
 import { SUPABASE_TEMPLATES, type SupabaseTemplate } from './supabase-templates';
 import { waitlistAlertEmail } from './waitlist-emails';
+import { BROADCAST_SAMPLE, broadcastEmail } from './broadcast-email';
 
-export type Section = 'signup' | 'leads' | 'coach' | 'practice' | 'progress' | 'requests' | 'sign-in';
+export type Section = 'signup' | 'updates' | 'leads' | 'coach' | 'practice' | 'progress' | 'requests' | 'sign-in';
 
 export const SECTIONS: { id: Section; title: string; note?: string }[] = [
   { id: 'signup', title: 'Creates an account', note: 'Everyone who signs up, invited coaches included (decision 0034). Accounts made before this journey started aren’t emailed.' },
@@ -27,6 +28,7 @@ export const SECTIONS: { id: Section; title: string; note?: string }[] = [
   { id: 'practice', title: 'Every practice', note: 'One email, no reminder. A coach who skips it is asked again when they open the next practice.' },
   { id: 'progress', title: 'Every month: team progress', note: 'Starts after the first practice of the month. The report only goes to coaches who have scored.' },
   { id: 'requests', title: 'Drill requests' },
+  { id: 'updates', title: 'Updates you send', note: 'Written and sent from Admin → Send, to all coaches or a segment. Their own opt-out: coaches can stop updates and keep practice emails.' },
   { id: 'leads', title: 'Association leads', note: 'From “Run an association?” on firstpass.coach. You reply yourself, and track them on the Leads tab.' },
   { id: 'sign-in', title: 'Signing in', note: 'Not a journey: each one is sent on its own when someone asks.' },
 ];
@@ -184,6 +186,13 @@ export const REGISTRY: Entry[] = [
     trigger: 'An admin accepts or declines the request', condition: 'Always', audience: 'person', to: 'The coach who asked', from: FIRSTPASS,
     file: 'src/lib/email/request-emails.ts', fn: 'outcomeEmail', sentBy: 'app', tag: 'drill-request-outcome',
     preview: () => outcomeEmail({ kind: 'new', accepted: true, name: 'Kara', drillName: 'Sharks and Minnows', reason: null, description: 'A tag game where the weaker skaters get a head start.', url: `${SITE}/drills/sample` }),
+  },
+
+  // Updates you send (decision 0035)
+  {
+    id: 'updates.broadcast', section: 'updates', journey: 'updates', step: 'broadcast', name: 'An update from you', when: 'When you press Send',
+    trigger: 'You send an email from Admin → Send', condition: 'Confirmed account, not an admin, hasn’t stopped update or survey emails', audience: 'person', to: 'The coaches in the segment you pick', from: BRETT,
+    file: 'src/lib/email/broadcast-email.ts', fn: 'broadcastEmail', sentBy: 'app', tag: 'broadcast', preview: () => broadcastEmail(BROADCAST_SAMPLE),
   },
 
   // Association leads

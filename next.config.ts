@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Admin → Send uploads email images (up to 2 MB, decision 0035) through a server action; the default limit is 1 MB.
+  experimental: { serverActions: { bodySizeLimit: '3mb' } },
   // Production builds start clean. Vercel restores the previous build's webpack cache, and on
   // 2026-10-18 a restored cache left the plan builder out of the server's client manifest
   // ("Could not find the module …/builder.tsx#Builder"), breaking every plan page until a

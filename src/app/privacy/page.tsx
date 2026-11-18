@@ -50,6 +50,7 @@ export default function Privacy() {
 
         <h2 className={h2}>If you coach with Firstpass</h2>
         <p className={p}>Signing in uses a cookie to keep you signed in. Your team’s plans, check-ins and the coaches on your team are visible to the coaches on that team. Parent links show a plan without signing in.</p>
+        <p className={p}>Brett may email coaches with an account about changes to Firstpass. Every one of those emails has a link to stop them, and stopping them doesn’t stop practice emails.</p>
         <p className={p}>To see how Firstpass is used, Brett counts which days coaches open the app and whether from the home screen, and adds up plans, check-ins and drills across teams. These are counts; no one else sees them.</p>
 
         <h2 className={h2}>Where it’s kept</h2>
