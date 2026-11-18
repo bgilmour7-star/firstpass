@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { BROADCAST_SAMPLE, broadcastEmail } from './broadcast-email';
+import { BROADCAST_SAMPLE, broadcastEmail, emailLinks } from './broadcast-email';
+import { EMAIL_REF } from '../broadcasts/ref';
 import type { Block } from '../broadcasts/schema';
 
 const draft = (blocks: Block[], o: Partial<typeof BROADCAST_SAMPLE.draft> = {}) => ({ ...BROADCAST_SAMPLE.draft, blocks, ...o });
@@ -57,5 +58,45 @@ describe('broadcast email', () => {
     const e = broadcastEmail(BROADCAST_SAMPLE);
     expect(e.text).not.toContain('—');
     expect(e.html.replace(/U5–U9/g, '')).not.toContain('—');
+  });
+});
+
+describe('link tags (decision 0036)', () => {
+  const blocks: Block[] = [
+    { type: 'text', text: 'See [your team](https://firstpass.coach/progress?x=1&y=2) and [Hockey Canada](https://hockeycanada.ca/drills).' },
+    { type: 'image', url: 'https://x.supabase.co/a.png', alt: 'Home', link: 'https://firstpass.coach/' },
+    { type: 'button', label: 'Plan your next practice', url: 'https://www.firstpass.coach/plans' },
+  ];
+  const tagged = broadcastEmail({ draft: draft(blocks), firstName: 'Kara', unsubscribeUrl: 'https://firstpass.coach/unsubscribe/tok/updates', ref: 'ab12cd34' });
+
+  it('numbers firstpass.coach links in reading order and leaves other sites alone', () => {
+    expect(tagged.html).toContain('href="https://firstpass.coach/progress?x=1&amp;y=2&amp;from=ab12cd34-1"');
+    expect(tagged.html).toContain('href="https://hockeycanada.ca/drills"');
+    expect(tagged.html).toContain('href="https://firstpass.coach/?from=ab12cd34-2"');
+    expect(tagged.html).toContain('href="https://www.firstpass.coach/plans?from=ab12cd34-3"');
+    expect(tagged.text).toContain('Plan your next practice: https://www.firstpass.coach/plans?from=ab12cd34-3');
+  });
+
+  it('never tags the opt-out link', () => {
+    expect(tagged.html).toContain('href="https://firstpass.coach/unsubscribe/tok/updates"');
+  });
+
+  it('lists the same links with the same numbers for Admin → Send', () => {
+    expect(emailLinks(blocks)).toEqual([
+      { n: 1, label: 'your team', url: 'https://firstpass.coach/progress?x=1&y=2' },
+      { n: 2, label: 'Image: Home', url: 'https://firstpass.coach/' },
+      { n: 3, label: 'Plan your next practice', url: 'https://www.firstpass.coach/plans' },
+    ]);
+  });
+
+  it('leaves links untagged without a ref (previews and tests)', () => {
+    expect(make(blocks).html).not.toContain('from=');
+  });
+
+  it('only matches tags it made', () => {
+    expect(EMAIL_REF.test('ab12cd34-3')).toBe(true);
+    expect(EMAIL_REF.test('ab12cd34-')).toBe(false);
+    expect(EMAIL_REF.test('AB12CD34-1')).toBe(false);
+    expect(EMAIL_REF.test('ab12cd34-100')).toBe(false);
   });
 });

@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { getDiscoveryStore } from '../discovery/store';
-import type { Age, Broadcast, Draft, Recipient, Segment, SendCounts } from './schema';
+import type { Age, Broadcast, Draft, Recipient, Segment, SendCounts, Stats } from './schema';
 import { EMPTY_DRAFT } from './schema';
 import type { BroadcastStore, Queued } from './store';
 
@@ -34,7 +34,7 @@ export class LocalBroadcastStore implements BroadcastStore {
   async create() {
     const d = await read();
     const now = new Date().toISOString();
-    const b: Broadcast = { ...EMPTY_DRAFT, id: randomUUID(), status: 'draft', recipients: 0, createdAt: now, updatedAt: now, sentAt: null };
+    const b: Broadcast = { ...EMPTY_DRAFT, id: randomUUID(), ref: randomUUID().replace(/-/g, '').slice(0, 8), status: 'draft', recipients: 0, createdAt: now, updatedAt: now, sentAt: null };
     d.broadcasts.push(b);
     await write(d);
     return b.id;
@@ -82,6 +82,12 @@ export class LocalBroadcastStore implements BroadcastStore {
   }
   async uploadImage(): Promise<string> {
     throw new Error('no-images-locally');
+  }
+  async stats(): Promise<Stats | null> {
+    return { sent: 0, clicked: 0, links: [], groups: {} };
+  }
+  async recordClick(): Promise<'ignored'> {
+    return 'ignored';
   }
   async updatesStatus(token: string) {
     return token.startsWith('local-') ? (await read()).updatesOff.includes(token.slice(6)) : null;

@@ -52,7 +52,9 @@ export async function middleware(request: NextRequest) {
     const login = request.nextUrl.clone();
     login.pathname = '/login';
     login.search = '';
-    login.searchParams.set('next', request.nextUrl.pathname);
+    // Keep an update email's link tag (decision 0036) through sign-in, so the click is counted once they're in.
+    const from = request.nextUrl.searchParams.get('from');
+    login.searchParams.set('next', from && /^[0-9a-f]{8}-\d{1,2}$/.test(from) ? `${request.nextUrl.pathname}?from=${from}` : request.nextUrl.pathname);
     return NextResponse.redirect(login);
   }
   return response;

@@ -1,3 +1,4 @@
+import { EmailClick } from '@/components/email-click';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { WebVitals } from '@/components/web-vitals';
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en-CA">
       <body className="min-h-dvh antialiased">
         <WebVitals />
+        <EmailClick />
         {children}
       </body>
     </html>
