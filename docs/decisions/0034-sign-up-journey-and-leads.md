@@ -5,7 +5,8 @@ section… waitlist tab can be removed (double check that), and email tab which 
 a create account journey. I still want to send the survey for new sign ups.") · Follows 0033; changes 0027's journeys
 
 ## Decision
-- **Everyone who creates an account gets Brett's welcome with the survey, right away**, and a nudge on day 3 if they
+- **Everyone who creates an account gets Brett's welcome with the survey, an hour after confirming their email**
+  (follow-up, 2026-11-18: right away landed before most had made a team, and next to the invite emails), and a nudge on day 3 if they
   haven't answered. That includes coaches who join through an invite link (Brett: everyone who creates an account).
   Admins and people who already answered are skipped. Only accounts made after
   `supabase/migrations/20261121000000_signup_journey.sql` first runs are emailed (`private.settings.signup_journey_from`),
@@ -29,6 +30,11 @@ a create account journey. I still want to send the survey for new sign ups.") ·
 ## Why
 - With the waitlist gone, the only survey ask left was 2 days after a first practice, so anyone who signed up and never
   ran a practice was never asked anything. Those are the people Firstpass most needs to hear from.
+
+## Follow-up (2026-11-18, after the review of PR #47)
+- Welcome an hour after confirming (`20261122000000_signup_welcome_delay.sql`); the nudge subject is "3 minutes on how
+  you plan practices?" to match its body; the funnel note no longer compares accounts with teams (invited coaches make
+  accounts but no team); local-mode email stats use the sign-up journey; unused summary values removed.
 
 ## Not done
 - The $10 Tim Hortons card is still offered in the sign-up emails and owed on every answer. Open sign-up means that

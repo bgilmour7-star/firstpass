@@ -272,10 +272,12 @@ function VisitsChart({ s }: { s: Summary }) {
 
 function Funnel({ s }: { s: Summary }) {
   const top = s.funnel[0].visitors || 1;
-  const [visited, tapped, accounts, teams, planned] = s.funnel.map((f) => f.visitors);
+  // Accounts and teams can't be linked to each other here (invited coaches make accounts but no team), so the note
+  // compares only the steps that are the same people.
+  const [visited, tapped, , teams, planned] = s.funnel.map((f) => f.visitors);
   const note =
     visited > 0
-      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${accounts ? `${Math.min(teams, accounts)} of ${accounts} new account${accounts === 1 ? '' : 's'} made a team. ` : ''}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} checked in after a practice. ` : ''}Accounts, teams and check-ins are counted in the app (test teams and invited coaches included), so they include people who came another way.`
+      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} checked in after a practice. ` : ''}Accounts, teams and check-ins are counted in the app (test teams and invited coaches included), so they include people who came another way.`
       : 'No visits yet.';
   return (
     <section aria-labelledby="funnel-title" className="flex flex-col gap-3.5">

@@ -8,7 +8,7 @@ const view = (at: string, visitor: string, extra: Partial<PageEvent> = {}): Page
 const entry = (at: string, extra: Partial<WaitlistEntry> = {}): WaitlistEntry => ({ id: at, email: `${at}@example.com`, kind: 'coach', ageGroup: 'U7', orgName: null, teamCount: null, source: null, status: 'new', createdAt: at, ...extra });
 
 describe('summarize', () => {
-  it('counts visits, uniques, sign-ups and conversion in the period, and the period before', () => {
+  it('counts visits, uniques and association leads in the period, and the period before', () => {
     const events = [view(ago(1), 'a'), view(ago(1, 1), 'a'), view(ago(2), 'b'), view(ago(10), 'c'), view(ago(8), 'old')];
     const waitlist = [entry(ago(1)), entry(ago(9))];
     const s = summarize(events, waitlist, { days: 7, now: NOW });
@@ -16,7 +16,6 @@ describe('summarize', () => {
     expect(s.uniques).toEqual({ now: 2, before: 2 });
     expect(s.signups.now).toBe(1);
     expect(s.signups.before).toBe(1);
-    expect(s.conversion.now).toBeCloseTo(0.5);
   });
 
   it('has one row per day, quiet days included, and finds the peak', () => {
@@ -64,7 +63,6 @@ describe('summarize', () => {
   it('copes with no data at all', () => {
     const s = summarize([], [], { days: 30, now: NOW });
     expect(s.peak).toBeNull();
-    expect(s.conversion.now).toBeNull();
     expect(s.sources).toEqual([]);
   });
 });
