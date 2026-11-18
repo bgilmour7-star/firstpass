@@ -11,14 +11,17 @@ having to do it manually through my gmail account… It will need to be able to 
   Firstpass", reply-to hello@.
 - **Segments from live app data** (`broadcast_recipients`): all coaches, head coaches, by age group (team's), and
   signed up but stalled (3+ days and never ran a practice, or nothing done for 14 days). Always leaves out admins,
-  unconfirmed or deleted accounts and anyone who stopped update emails.
+  unconfirmed or deleted accounts, anyone who stopped update emails, and anyone who unsubscribed from survey emails
+  (the old waitlist unsubscribe promised no more emails at all).
 - **Its own opt-out.** `research_people.updates_off_at`, from `/unsubscribe/<token>/updates` (a button, so link
   scanners can't trigger it) and a `List-Unsubscribe` header. Survey and practice emails aren't affected. The privacy
   page says so.
-- **Sending**: Brett confirms the count; if the segment changed since, nothing is sent and the new count shows. One
-  `broadcast_sends` row per person is written first, then Resend batches of 100, each with its own greeting and
+- **Sending**: Brett confirms the count. `start_broadcast` works the list out again, and in one transaction either
+  refuses (the count changed; the new count shows) or writes one `broadcast_sends` row per person and marks it sending.
+  Anyone who opts out after that is skipped, never sent. Then Resend batches of 100, each with its own greeting and
   opt-out, idempotency key per batch. A send that stops (45-second budget, rate limit, Resend down) leaves the rest
-  queued for "Carry on sending"; nobody gets it twice.
+  queued for "Carry on sending" (a 409 from Resend counts as in progress, not failed); nobody gets it twice.
+- **Image descriptions are never filled from the file name**, which could hold a child's name.
 - **Images** upload to a public Supabase Storage bucket in Canada (`email-images`, 2 MB, PNG/JPG/GIF/WebP), Brett only.
   The editor says never a photo of a child.
 

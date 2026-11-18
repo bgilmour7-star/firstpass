@@ -7,7 +7,7 @@ import type { Broadcast } from './schema';
 const b: Broadcast = { id: 'b1', subject: 'Hi', preheader: '', greeting: true, blocks: [{ type: 'text', text: 'Hello' }], segment: 'all', ageGroup: null, status: 'sending', recipients: 0, createdAt: '', updatedAt: '', sentAt: null };
 
 function fakeStore(n: number) {
-  const rows = Array.from({ length: n }, (_, i): Queued & { status: string } => ({ sendId: `s${i}`, personId: `p${i}`, email: `c${i}@x.ca`, firstName: i % 2 ? `Coach${i}` : null, unsubscribeToken: `tok${i}`, status: 'queued' }));
+  const rows = Array.from({ length: n }, (_, i): Queued & { status: string } => ({ sendId: `s${i}`, personId: `p${i}`, email: `c${i}@x.ca`, firstName: i % 2 ? `Coach${i}` : null, unsubscribeToken: `tok${i}`, optedOut: false, status: 'queued' }));
   let finished = false;
   const store: Partial<BroadcastStore> = {
     queued: async (_id, limit) => rows.filter((r) => r.status === 'queued').slice(0, limit),
@@ -33,7 +33,7 @@ describe('deliver', () => {
     }));
     const { store, done } = fakeStore(230);
     const r = await deliver(store, b);
-    expect(r).toEqual({ sent: 230, failed: 0, left: 0, error: undefined });
+    expect(r).toEqual({ sent: 230, failed: 0, skipped: 0, left: 0, error: undefined });
     expect(calls.map((c) => c.body.length)).toEqual([100, 100, 30]);
     expect(new Set(calls.map((c) => c.key)).size).toBe(3);
     const first = calls[0].body[1];
@@ -59,5 +59,36 @@ describe('deliver', () => {
     const r = await deliver(store, b);
     expect(r.failed).toBe(3);
     expect(rows.every((x) => x.status === 'failed')).toBe(true);
+  });
+});
+
+describe('deliver, people who opted out after Send', () => {
+  beforeEach(() => vi.stubEnv('RESEND_API_KEY', 'k'));
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('skips them, marks them, and sends to everyone else', async () => {
+    const sentTo: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (_u: string, init: RequestInit) => {
+      for (const e of JSON.parse(String(init.body)) as { to: string[] }[]) sentTo.push(e.to[0]);
+      return new Response('{}', { status: 200 });
+    }));
+    const { store, rows, done } = fakeStore(4);
+    rows[1].optedOut = true;
+    const r = await deliver(store, b);
+    expect(sentTo).toEqual(['c0@x.ca', 'c2@x.ca', 'c3@x.ca']);
+    expect(r).toMatchObject({ sent: 3, skipped: 1, left: 0 });
+    expect(rows[1].status).toBe('failed');
+    expect(done()).toBe(true);
+  });
+
+  it('leaves a batch Resend says is already in progress (409) queued, not failed', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('in progress', { status: 409 })));
+    const { store, rows } = fakeStore(2);
+    const r = await deliver(store, b);
+    expect(r.left).toBe(2);
+    expect(rows.every((x) => x.status === 'queued')).toBe(true);
   });
 });

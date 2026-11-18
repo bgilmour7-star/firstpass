@@ -68,32 +68,31 @@ export class SupabaseBroadcastStore implements BroadcastStore {
     }));
   }
 
-  async start(id: string, to: Recipient[]) {
-    const db = await supabaseServer();
-    const { data, error } = await db.from('broadcasts').update({ status: 'sending', recipients: to.length, sent_at: new Date().toISOString() }).eq('id', id).eq('status', 'draft').select('id');
-    if (error) fail(error);
-    if (!(data ?? []).length) return false;
-    for (let i = 0; i < to.length; i += 500) {
-      const rows = to.slice(i, i + 500).map((r) => ({ broadcast_id: id, person_id: r.personId, email: r.email, first_name: r.firstName?.slice(0, 60) ?? null }));
-      const { error: e } = await db.from('broadcast_sends').upsert(rows, { onConflict: 'broadcast_id,person_id', ignoreDuplicates: true });
-      if (e) fail(e);
+  async start(id: string, expected: number) {
+    const { data, error } = await (await supabaseServer()).rpc('start_broadcast', { b: id, expected });
+    if (error) {
+      const changed = error.message.match(/list-changed:(\d+)/);
+      if (changed) throw new Error(`list-changed:${changed[1]}`);
+      if (/list-empty/.test(error.message)) throw new Error('list-empty');
+      fail(error);
     }
-    return true;
+    return typeof data === 'number' ? data : 0;
   }
 
   async queued(id: string, limit: number): Promise<Queued[]> {
     const { data, error } = await (await supabaseServer())
       .from('broadcast_sends')
-      .select('id, person_id, email, first_name, research_people(unsubscribe_token)')
+      .select('id, person_id, email, first_name, research_people(unsubscribe_token, updates_off_at, unsubscribed_at)')
       .eq('broadcast_id', id)
       .eq('status', 'queued')
       .order('email')
       .limit(limit);
     if (error) fail(error);
-    type Q = { id: string; person_id: string; email: string; first_name: string | null; research_people: { unsubscribe_token: string } | { unsubscribe_token: string }[] | null };
+    type P = { unsubscribe_token: string; updates_off_at: string | null; unsubscribed_at: string | null };
+    type Q = { id: string; person_id: string; email: string; first_name: string | null; research_people: P | P[] | null };
     return ((data ?? []) as unknown as Q[]).map((r) => {
       const p = Array.isArray(r.research_people) ? r.research_people[0] : r.research_people;
-      return { sendId: r.id, personId: r.person_id, email: r.email, firstName: r.first_name, unsubscribeToken: p?.unsubscribe_token ?? '' };
+      return { sendId: r.id, personId: r.person_id, email: r.email, firstName: r.first_name, unsubscribeToken: p?.unsubscribe_token ?? '', optedOut: !p || Boolean(p.updates_off_at || p.unsubscribed_at) };
     });
   }
 

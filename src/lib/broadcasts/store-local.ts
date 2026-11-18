@@ -69,7 +69,7 @@ export class LocalBroadcastStore implements BroadcastStore {
       })
       .map((p) => ({ personId: p.id, email: p.email, firstName: p.firstName, teamName: usage.find((x) => x.personId === p.id)?.teams[0]?.name ?? null, unsubscribeToken: `local-${p.id}` }));
   }
-  async start(): Promise<boolean> {
+  async start(): Promise<number> {
     throw new Error('local-no-email');
   }
   async queued(): Promise<Queued[]> {

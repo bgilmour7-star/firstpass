@@ -4,7 +4,8 @@
 --
 -- Who sees it: Brett only (can_see_analytics()), like the rest of discovery, because recipient lists hold emails.
 -- Recipients are worked out by broadcast_recipients() from live app data: never admins, never unconfirmed or deleted
--- accounts, never anyone who turned update emails off. Update emails have their own opt-out
+-- accounts, never anyone who turned update emails off or unsubscribed from survey emails (the old waitlist
+-- unsubscribe promised no more emails at all). Update emails have their own opt-out
 -- (research_people.updates_off_at), separate from survey emails and practice emails.
 -- Images live in a public Supabase Storage bucket in Canada (email-images): only Brett can upload; email clients
 -- read them by URL.
@@ -43,6 +44,8 @@ create table if not exists public.broadcast_sends (
   created_at timestamptz not null default now(),
   unique (broadcast_id, person_id)
 );
+-- (For a table made by an earlier draft of this file.)
+alter table public.broadcast_sends add column if not exists first_name text check (first_name is null or char_length(first_name) <= 60);
 create index if not exists broadcast_sends_queued on public.broadcast_sends (broadcast_id) where status = 'queued';
 
 alter table public.broadcasts enable row level security;
@@ -70,7 +73,7 @@ begin
   from public.research_people r
   join auth.users u on u.id = r.user_id
   where u.email_confirmed_at is not null and u.deleted_at is null
-    and r.updates_off_at is null
+    and r.updates_off_at is null and r.unsubscribed_at is null
     and not exists (select 1 from public.admins a where a.user_id = u.id)
     and case seg
       when 'all' then true
@@ -92,7 +95,29 @@ begin
 end;
 $$;
 
--- 5. Turning update emails off, from the link in every update email (/unsubscribe/<token>/updates). Public: the
+-- 5. Starting a send, in one transaction: the list is worked out again here from the broadcast's own segment, and
+-- if it isn't the number Brett confirmed, nothing happens ('list-changed:<n>'). Otherwise one queued row per person
+-- and draft → sending. Returns the number queued, or 0 if it was already started.
+create or replace function public.start_broadcast(b uuid, expected int)
+returns int language plpgsql security definer set search_path = ''
+as $$
+declare bc public.broadcasts; n int;
+begin
+  if not public.can_see_analytics() then raise exception 'not allowed'; end if;
+  select * into bc from public.broadcasts where id = b for update;
+  if not found or bc.status <> 'draft' then return 0; end if;
+  select count(*) into n from public.broadcast_recipients(bc.segment, bc.age_group);
+  if n <> expected then raise exception 'list-changed:%', n; end if;
+  if n = 0 then raise exception 'list-empty'; end if;
+  insert into public.broadcast_sends (broadcast_id, person_id, email, first_name)
+  select b, x.person_id, x.email, left(x.first_name, 60) from public.broadcast_recipients(bc.segment, bc.age_group) x
+  on conflict (broadcast_id, person_id) do nothing;
+  update public.broadcasts set status = 'sending', recipients = n, sent_at = now() where id = b;
+  return n;
+end;
+$$;
+
+-- 6. Turning update emails off, from the link in every update email (/unsubscribe/<token>/updates). Public: the
 -- token is the permission. Returns null for an unknown token.
 create or replace function public.updates_status(t text)
 returns boolean language sql stable security definer set search_path = ''
@@ -109,12 +134,14 @@ $$;
 
 revoke all on function public.broadcast_recipients(text, text) from public, anon;
 grant execute on function public.broadcast_recipients(text, text) to authenticated;
+revoke all on function public.start_broadcast(uuid, int) from public, anon;
+grant execute on function public.start_broadcast(uuid, int) to authenticated;
 revoke all on function public.updates_status(text) from public;
 revoke all on function public.updates_off(text) from public;
 grant execute on function public.updates_status(text) to anon, authenticated;
 grant execute on function public.updates_off(text) to anon, authenticated;
 
--- 6. Images: a public bucket (read by URL from inboxes), 2 MB and common image types only. Only Brett uploads or
+-- 7. Images: a public bucket (read by URL from inboxes), 2 MB and common image types only. Only Brett uploads or
 -- removes; public buckets serve files without a select policy.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('email-images', 'email-images', true, 2097152, array['image/png', 'image/jpeg', 'image/gif', 'image/webp'])

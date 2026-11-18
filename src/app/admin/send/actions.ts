@@ -84,7 +84,7 @@ export async function sendTestEmail(input: unknown): Promise<Result> {
  * Save, then send to everyone in the segment right now. expected is the count Brett confirmed: if the segment has
  * changed since (someone signed up or opted out), stop and show the new number instead of sending.
  */
-export async function sendNow(id: string, input: unknown, expected: number): Promise<Result<{ sent: number; failed: number; left: number; warning?: string }>> {
+export async function sendNow(id: string, input: unknown, expected: number): Promise<Result<{ sent: number; failed: number; skipped: number; left: number; warning?: string }>> {
   const admin = await requireAnalytics('/admin/send');
   const d = draftSchema.safeParse(input);
   if (!ID.test(id) || !d.success) return { ok: false, error: 'Something in the email isn’t valid.' };
@@ -95,21 +95,28 @@ export async function sendNow(id: string, input: unknown, expected: number): Pro
   const store = await getBroadcastStore();
   try {
     if (!(await store.save(id, draft))) return { ok: false, error: 'This email has already been sent.' };
-    const to = await store.recipients(draft.segment, draft.ageGroup);
-    if (to.length !== expected) return { ok: false, error: `The list changed: it’s ${to.length} ${to.length === 1 ? 'coach' : 'coaches'} now. Check it and send again.` };
-    if (!to.length) return { ok: false, error: 'Nobody is in this group.' };
-    if (!(await store.start(id, to))) return { ok: false, error: 'This email has already been sent.' };
+    let queued = 0;
+    try {
+      queued = await store.start(id, Number.isInteger(expected) ? expected : -1);
+    } catch (e) {
+      const m = e instanceof Error ? e.message : '';
+      const changed = m.match(/^list-changed:(\d+)$/);
+      if (changed) return { ok: false, error: `The list changed: it’s ${changed[1]} ${changed[1] === '1' ? 'coach' : 'coaches'} now. Check it and send again.` };
+      if (m === 'list-empty') return { ok: false, error: 'Nobody is in this group.' };
+      throw e;
+    }
+    if (!queued) return { ok: false, error: 'This email has already been sent.' };
     const b = await store.get(id);
     const r = await deliver(store, b!);
     revalidatePath('/admin/send');
-    return { ok: true, sent: r.sent, failed: r.failed, left: r.left, warning: r.error };
+    return { ok: true, sent: r.sent, failed: r.failed, skipped: r.skipped, left: r.left, warning: r.error };
   } catch (e) {
     return { ok: false, error: why(e, 'Sending stopped. Open the email to see what went out and carry on.') };
   }
 }
 
 /** For a send that stopped halfway: send to whoever is still queued. */
-export async function carryOn(id: string): Promise<Result<{ sent: number; failed: number; left: number; warning?: string }>> {
+export async function carryOn(id: string): Promise<Result<{ sent: number; failed: number; skipped: number; left: number; warning?: string }>> {
   await requireAnalytics('/admin/send');
   if (!ID.test(id)) return { ok: false, error: 'That email doesn’t exist.' };
   const store = await getBroadcastStore();
@@ -118,7 +125,7 @@ export async function carryOn(id: string): Promise<Result<{ sent: number; failed
     if (!b || b.status !== 'sending') return { ok: false, error: 'Nothing left to send.' };
     const r = await deliver(store, b);
     revalidatePath(`/admin/send/${id}`);
-    return { ok: true, sent: r.sent, failed: r.failed, left: r.left, warning: r.error };
+    return { ok: true, sent: r.sent, failed: r.failed, skipped: r.skipped, left: r.left, warning: r.error };
   } catch (e) {
     return { ok: false, error: why(e, 'Sending stopped. Try again.') };
   }

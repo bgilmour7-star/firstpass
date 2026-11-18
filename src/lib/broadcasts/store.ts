@@ -6,7 +6,8 @@ import type { Age, Broadcast, Draft, Recipient, Segment, SendCounts } from './sc
 // can_see_analytics()); a JSON file in local mode (.local/broadcasts.json) so the screens can be built offline,
 // where nothing is ever sent.
 
-export type Queued = { sendId: string; personId: string; email: string; firstName: string | null; unsubscribeToken: string };
+/** optedOut: stopped update or survey emails after the send started. They're skipped, never sent. */
+export type Queued = { sendId: string; personId: string; email: string; firstName: string | null; unsubscribeToken: string; optedOut: boolean };
 
 export interface BroadcastStore {
   /** Newest first. Throws 'broadcasts-migration-missing' before the SQL has run. */
@@ -18,8 +19,11 @@ export interface BroadcastStore {
   /** Drafts only. */
   remove(id: string): Promise<boolean>;
   recipients(segment: Segment, age: Age | null): Promise<Recipient[]>;
-  /** Draft → sending, with one queued row per recipient. False if it was already started. */
-  start(id: string, to: Recipient[]): Promise<boolean>;
+  /**
+   * Draft → sending, with one queued row per recipient, in one transaction (start_broadcast). Returns how many were
+   * queued, or 0 if it was already started. Throws 'list-changed:<n>' if the segment isn't `expected` people any more.
+   */
+  start(id: string, expected: number): Promise<number>;
   queued(id: string, limit: number): Promise<Queued[]>;
   mark(sendIds: string[], outcome: { sent: true } | { sent: false; error: string }): Promise<void>;
   /** Sending → sent once nothing is queued. */

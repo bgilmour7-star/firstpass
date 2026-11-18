@@ -324,7 +324,8 @@ function BlockFields({ b, i, onChange }: { b: Block; i: number; onChange: (patch
                   form.set('file', f);
                   const r = await uploadImage(form);
                   setBusy(false);
-                  if (r.ok) onChange({ url: r.url, alt: b.alt || f.name.replace(/\.[a-z]+$/i, '').replace(/[-_]+/g, ' ') });
+                  // Never filled from the file name: a name like jake-first-goal.jpg would put a child's name in every inbox.
+                  if (r.ok) onChange({ url: r.url });
                   else setErr(r.error);
                 }}
               />

@@ -15,18 +15,28 @@ const BUDGET_MS = 45_000;
 
 export const updatesUrl = (token: string) => `${SITE}/unsubscribe/${token}/updates`;
 
-export type DeliverResult = { sent: number; failed: number; left: number; error?: string };
+export type DeliverResult = { sent: number; failed: number; skipped: number; left: number; error?: string };
+export const OPTED_OUT = 'Stopped these emails before it went out';
 
 export async function deliver(store: BroadcastStore, b: Broadcast, now = Date.now): Promise<DeliverResult> {
   const key = process.env.RESEND_API_KEY;
-  if (!key) return { sent: 0, failed: 0, left: (await store.counts(b.id)).queued, error: 'RESEND_API_KEY isn’t set in Vercel.' };
+  if (!key) return { sent: 0, failed: 0, skipped: 0, left: (await store.counts(b.id)).queued, error: 'RESEND_API_KEY isn’t set in Vercel.' };
   const started = now();
   let sent = 0;
   let failed = 0;
+  let skipped = 0;
   let error: string | undefined;
   while (now() - started < BUDGET_MS) {
-    const batch = await store.queued(b.id, BATCH);
-    if (!batch.length) break;
+    const rows = await store.queued(b.id, BATCH);
+    if (!rows.length) break;
+    // Someone who stopped update emails (or survey emails) after Send was pressed never gets it.
+    const out = rows.filter((q) => q.optedOut);
+    if (out.length) {
+      await store.mark(out.map((q) => q.sendId), { sent: false, error: OPTED_OUT });
+      skipped += out.length;
+    }
+    const batch = rows.filter((q) => !q.optedOut);
+    if (!batch.length) continue;
     const r = await sendBatch(key, b, batch);
     if (r.ok) {
       await store.mark(batch.map((q) => q.sendId), { sent: true });
@@ -42,7 +52,7 @@ export async function deliver(store: BroadcastStore, b: Broadcast, now = Date.no
     }
   }
   await store.finish(b.id);
-  return { sent, failed, left: (await store.counts(b.id)).queued, error };
+  return { sent, failed, skipped, left: (await store.counts(b.id)).queued, error };
 }
 
 async function sendBatch(key: string, b: Broadcast, batch: Queued[]): Promise<{ ok: true } | { ok: false; retry: boolean; error: string }> {
@@ -60,5 +70,7 @@ async function sendBatch(key: string, b: Broadcast, batch: Queued[]): Promise<{ 
   if (res?.ok) return { ok: true };
   const detail = res ? `${res.status} ${(await res.text().catch(() => '')).slice(0, 200)}` : 'network';
   console.error('[broadcast] batch failed: %s', detail);
-  return { ok: false, retry: !res || res.status === 429 || res.status >= 500, error: res?.status === 429 ? 'Resend is rate limiting. Try Carry on sending in a minute.' : `Resend said: ${detail}` };
+  // 409: the same batch is already in progress (a double Carry on). Leave it queued rather than call it failed.
+  const retry = !res || res.status === 409 || res.status === 429 || res.status >= 500;
+  return { ok: false, retry, error: res?.status === 429 ? 'Resend is rate limiting. Try Carry on sending in a minute.' : res?.status === 409 ? 'That batch is already being sent. Wait a minute, then Carry on sending.' : `Resend said: ${detail}` };
 }
