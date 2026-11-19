@@ -45,7 +45,7 @@ export default function FirstPractice() {
   return (
     <ContentFrame data={answerStructuredData(page, hub)}>
       <nav aria-label="Breadcrumb" className="text-sm text-ink-200">
-        <Link href="/u7" className="underline-offset-2 hover:underline">
+        <Link href="/u7" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
           U7 practice help
         </Link>
       </nav>

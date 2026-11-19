@@ -13,6 +13,7 @@
  *   npm run drills -- drafted <requestId> <drillId> "note"   after push of a new drill (In review): link it, mark the request drafted
  *   npm run drills -- propose <requestId> "note"   store content/drills/<drillId>.json as the proposed change (the live drill is untouched)
  *   npm run drills -- cant <requestId> "why"       mark a request drafted with only a note, for the reviewer to decline
+ *   npm run drills -- public                check every drill named on a public page is live (decision 0038); run before merging a public-page change
  *
  * Supabase commands use SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS. Keep it in .env.local
  * or the environment, never in the repo or the browser.
