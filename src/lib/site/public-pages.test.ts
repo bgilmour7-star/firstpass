@@ -53,12 +53,12 @@ describe('isOpenPath', () => {
 });
 
 describe('public pages opt in to search', () => {
-  const files: Record<string, string> = { '/': 'src/app/page.tsx', '/privacy': 'src/app/privacy/page.tsx' };
+  // Each page's own file, or the shared answer-page metadata (answerMetadata sets index: true).
+  const file = (path: string) => (path === '/' ? 'src/app/page.tsx' : `src/app${path}/page.tsx`);
   it('every public page sets index: true (the root layout defaults to noindex)', () => {
     for (const p of PUBLIC_PAGES) {
-      const file = files[p.path];
-      expect(file, `add ${p.path} to this test's file map`).toBeTruthy();
-      expect(readFileSync(file, 'utf8')).toMatch(/robots:\s*\{\s*index:\s*true/);
+      const src = readFileSync(file(p.path), 'utf8');
+      expect(/robots:\s*\{\s*index:\s*true/.test(src) || /export const metadata = (answer|hub)Metadata\(/.test(src), p.path).toBe(true);
     }
   });
 });
@@ -70,4 +70,39 @@ describe('landing structured data', () => {
     expect(types).toEqual(expect.arrayContaining(['Organization', 'WebSite', 'WebApplication']));
   });
   it('escapes < so it cannot close the script tag', () => expect(jsonLd({ a: '</script>' })).not.toContain('</'));
+});
+
+describe('answer pages', () => {
+  it('are in the sitemap, open without sign-in, and indexable', async () => {
+    const { ANSWER_PAGES, HUBS } = await import('@/lib/content/pages');
+    const { answerMetadata, hubMetadata } = await import('@/lib/content/meta');
+    const urls = sitemap().map((e) => e.url);
+    for (const p of ANSWER_PAGES) {
+      expect(urls).toContain(`${SITE}${p.path}`);
+      expect(isOpenPath(p.path), p.path).toBe(true);
+      expect(answerMetadata(p).robots).toMatchObject({ index: true });
+      expect(HUBS.some((h) => h.age === p.age), `${p.path} has a hub`).toBe(true);
+    }
+    for (const h of HUBS) expect(hubMetadata(h).robots).toMatchObject({ index: true });
+  });
+});
+
+describe('drills on public pages', () => {
+  it('are listed once per page and exist in the library', async () => {
+    const { existsSync } = await import('node:fs');
+    const { PUBLIC_DRILLS, allPublicDrillIds } = await import('@/lib/content/public-drills');
+    for (const id of allPublicDrillIds()) expect(existsSync(`content/drills/${id}.json`), id).toBe(true);
+    for (const page of Object.keys(PUBLIC_DRILLS)) expect(PUBLIC_PAGES.some((p) => p.path === page), page).toBe(true);
+  });
+  it('the files that name drills only name listed ones', async () => {
+    const { readdirSync } = await import('node:fs');
+    const { PUBLIC_DRILLS } = await import('@/lib/content/public-drills');
+    const files: Record<string, string> = { '/': 'src/components/landing/landing.tsx', '/u7/first-practice': 'src/app/u7/first-practice/page.tsx' };
+    const names = readdirSync('content/drills').map((f) => ({ id: f.replace(/\.json$/, ''), name: JSON.parse(readFileSync(`content/drills/${f}`, 'utf8')).funName as string }));
+    for (const [page, file] of Object.entries(files)) {
+      const src = readFileSync(file, 'utf8');
+      const named = names.filter((d) => src.includes(`'${d.name}'`) || src.includes(`/${d.id}.json`)).map((d) => d.id);
+      for (const id of named) expect(PUBLIC_DRILLS[page], `${page} names ${id}: add it to PUBLIC_DRILLS`).toContain(id);
+    }
+  });
 });

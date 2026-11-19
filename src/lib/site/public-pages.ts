@@ -2,6 +2,8 @@
 // which paths anyone can open without signing in. The sitemap is built from PUBLIC_PAGES, and the
 // middleware asks isOpenPath(), so a new public page added here can't end up behind sign-in.
 
+import { ANSWER_PAGES, HUBS } from '@/lib/content/pages';
+
 export const SITE = 'https://firstpass.coach';
 
 /** AI search and answer crawlers, named in robots.txt so the welcome is explicit. */
@@ -11,12 +13,17 @@ export type PublicPage = {
   path: string;
   changeFrequency: 'weekly' | 'monthly' | 'yearly';
   priority: number;
+  /** YYYY-MM-DD the content last changed, when we know it. */
+  updated?: string;
 };
 
-/** Public pages that belong in search. Every one sets `robots: { index: true }` in its own metadata. */
+/** Public pages that belong in search. Every one sets `robots: { index: true }` in its own metadata.
+ *  The answer pages and their hubs come from src/lib/content/pages.ts (decision 0038). */
 export const PUBLIC_PAGES: PublicPage[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+  ...HUBS.map((h) => ({ path: h.path, changeFrequency: 'weekly' as const, priority: 0.8, updated: h.updated })),
+  ...ANSWER_PAGES.map((p) => ({ path: p.path, changeFrequency: 'monthly' as const, priority: 0.7, updated: p.updated })),
 ];
 
 /** Sections for the coming answer pages (SEO and AEO plan, 2026-11-19): age hubs, ready-made practice plans,

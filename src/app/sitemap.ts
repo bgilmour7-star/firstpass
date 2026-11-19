@@ -7,5 +7,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: p.path === '/' ? SITE : `${SITE}${p.path}`,
     changeFrequency: p.changeFrequency,
     priority: p.priority,
+    ...(p.updated ? { lastModified: p.updated } : {}),
   }));
 }
