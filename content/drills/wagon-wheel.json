@@ -1,0 +1,463 @@
+{
+  "id": "wagon-wheel",
+  "funName": "Wagon Wheel",
+  "plainName": "Pass and receive with a coach in the middle",
+  "sourceTitle": "Forehand Pass and Receive",
+  "minutes": 8,
+  "gear": "1 puck per group",
+  "worksAsStation": true,
+  "description": "One small group per coach. Players spread out in a circle round their coach, like spokes on a wheel. The coach passes to each player in turn on the forehand, and each player catches it and passes it straight back. The coach gives a tip each time.",
+  "steps": [
+    "The coach passes to a player, who passes it straight back.",
+    "The next player passes it back, and so on round the wheel."
+  ],
+  "cues": [
+    "Stick on the ice, give a target.",
+    "Soft catch, then pass."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Catching and making a forehand pass, lots of times each."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Settling the puck before passing it back."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "easy",
+  "format": "groups",
+  "lessons": [
+    17,
+    18
+  ],
+  "levelName": "Forehand",
+  "levels": [
+    {
+      "name": "Backhand",
+      "adds": "Same circle, all passes caught and made on the backhand.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 34,
+            "y": 22,
+            "role": "C"
+          },
+          {
+            "x": 20,
+            "y": 15,
+            "role": "O"
+          },
+          {
+            "x": 34,
+            "y": 8,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 15,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 30,
+            "role": "O"
+          },
+          {
+            "x": 20,
+            "y": 30,
+            "role": "O"
+          },
+          {
+            "x": 34,
+            "y": 63,
+            "role": "C"
+          },
+          {
+            "x": 20,
+            "y": 56,
+            "role": "O"
+          },
+          {
+            "x": 34,
+            "y": 49,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 56,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 71,
+            "role": "O"
+          },
+          {
+            "x": 20,
+            "y": 71,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                36.5,
+                19.8
+              ],
+              [
+                45.8,
+                15.4
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "step": 1,
+            "caption": "Same wheel, every pass caught and made on the backhand."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                46.2,
+                28.2
+              ],
+              [
+                36.8,
+                23.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "step": 2,
+            "caption": "The next player passes it back, and so on round the wheel.",
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                36.5,
+                60.8
+              ],
+              [
+                45.8,
+                56.4
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                46.2,
+                69.2
+              ],
+              [
+                36.8,
+                64.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "stepWith": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "Surprise passes",
+      "adds": "Faster passes in any order, then players take turns in the middle.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 34,
+            "y": 22,
+            "role": "C"
+          },
+          {
+            "x": 20,
+            "y": 15,
+            "role": "O"
+          },
+          {
+            "x": 34,
+            "y": 8,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 15,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 30,
+            "role": "O"
+          },
+          {
+            "x": 20,
+            "y": 30,
+            "role": "O"
+          },
+          {
+            "x": 34,
+            "y": 63,
+            "role": "C"
+          },
+          {
+            "x": 20,
+            "y": 56,
+            "role": "O"
+          },
+          {
+            "x": 34,
+            "y": 49,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 56,
+            "role": "O"
+          },
+          {
+            "x": 48,
+            "y": 71,
+            "role": "O"
+          },
+          {
+            "x": 20,
+            "y": 71,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                36.5,
+                19.8
+              ],
+              [
+                45.8,
+                15.4
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "step": 1,
+            "caption": "Faster, in any order. Then a player takes the middle."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                46.2,
+                28.2
+              ],
+              [
+                36.8,
+                23.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "step": 2,
+            "caption": "The next player passes it back, and so on round the wheel.",
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                36.5,
+                60.8
+              ],
+              [
+                45.8,
+                56.4
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                46.2,
+                69.2
+              ],
+              [
+                36.8,
+                64.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepAt": 0.5,
+            "stepWith": 2
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 17–18 · 2.3.01, 2.3.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-3-e.pdf",
+    "note": "The source runs it at centre ice with groups round each coach. Lesson 18 adds the backhand and the progressions (faster, out of order, a player in the middle)."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 34,
+        "y": 22,
+        "role": "C"
+      },
+      {
+        "x": 20,
+        "y": 15,
+        "role": "O"
+      },
+      {
+        "x": 34,
+        "y": 8,
+        "role": "O"
+      },
+      {
+        "x": 48,
+        "y": 15,
+        "role": "O"
+      },
+      {
+        "x": 48,
+        "y": 30,
+        "role": "O"
+      },
+      {
+        "x": 20,
+        "y": 30,
+        "role": "O"
+      },
+      {
+        "x": 34,
+        "y": 63,
+        "role": "C"
+      },
+      {
+        "x": 20,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 34,
+        "y": 49,
+        "role": "O"
+      },
+      {
+        "x": 48,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 48,
+        "y": 71,
+        "role": "O"
+      },
+      {
+        "x": 20,
+        "y": 71,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            36.5,
+            19.8
+          ],
+          [
+            45.8,
+            15.4
+          ]
+        ],
+        "fromPlayer": false,
+        "stepAt": 0.5,
+        "step": 1,
+        "caption": "The coach passes to a player, who passes it straight back."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            46.2,
+            28.2
+          ],
+          [
+            36.8,
+            23.8
+          ]
+        ],
+        "fromPlayer": false,
+        "stepAt": 0.5,
+        "step": 2,
+        "caption": "The next player passes it back, and so on round the wheel.",
+        "stepSide": "right"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            36.5,
+            60.8
+          ],
+          [
+            45.8,
+            56.4
+          ]
+        ],
+        "fromPlayer": false,
+        "stepAt": 0.5,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            46.2,
+            69.2
+          ],
+          [
+            36.8,
+            64.8
+          ]
+        ],
+        "fromPlayer": false,
+        "stepAt": 0.5,
+        "stepWith": 2
+      }
+    ]
+  },
+  "ageGroups": [
+    "U7"
+  ],
+  "status": "in_review"
+}

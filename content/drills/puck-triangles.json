@@ -1,0 +1,551 @@
+{
+  "id": "puck-triangles",
+  "funName": "Puck Triangles",
+  "plainName": "Pass round a triangle, then switch direction",
+  "sourceTitle": "Forehand and Backhand Pass and Receive (Triangles or Squares)",
+  "minutes": 8,
+  "gear": "1 puck per group",
+  "worksAsStation": true,
+  "description": "Groups of three stand in a triangle, about four metres apart (groups of four make a square). Pass the puck round the triangle on the forehand. On the whistle, send it the other way. Every group goes at once.",
+  "steps": [
+    "Pass round the triangle on the forehand.",
+    "On the whistle, send it the other way."
+  ],
+  "cues": [
+    "Look, then pass.",
+    "Stick down, ready to catch."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Forehand passing and receiving, lots of touches."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Settling the puck, then turning to pass."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "easy",
+  "format": "groups",
+  "lessons": [
+    19
+  ],
+  "levelName": "Forehand, both ways",
+  "levels": [
+    {
+      "name": "Backhand",
+      "adds": "Same triangles, passing and catching on the backhand, both ways round.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 20,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 36,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 28,
+            "y": 28,
+            "role": "O"
+          },
+          {
+            "x": 52,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 68,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 28,
+            "role": "O"
+          },
+          {
+            "x": 20,
+            "y": 52,
+            "role": "O"
+          },
+          {
+            "x": 36,
+            "y": 52,
+            "role": "O"
+          },
+          {
+            "x": 28,
+            "y": 66,
+            "role": "O"
+          },
+          {
+            "x": 52,
+            "y": 52,
+            "role": "O"
+          },
+          {
+            "x": 68,
+            "y": 52,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 66,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                21.2,
+                16.2
+              ],
+              [
+                26.8,
+                25.8
+              ]
+            ],
+            "fromPlayer": false,
+            "step": 1,
+            "caption": "Now on the backhand. Then the other way round."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                29.2,
+                25.8
+              ],
+              [
+                34.8,
+                16.2
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                33.5,
+                14.0
+              ],
+              [
+                22.5,
+                14.0
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                53.2,
+                16.2
+              ],
+              [
+                58.8,
+                25.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                61.2,
+                25.8
+              ],
+              [
+                66.8,
+                16.2
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                65.5,
+                14.0
+              ],
+              [
+                54.5,
+                14.0
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                21.2,
+                54.2
+              ],
+              [
+                26.8,
+                63.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                29.2,
+                63.8
+              ],
+              [
+                34.8,
+                54.2
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                33.5,
+                52.0
+              ],
+              [
+                22.5,
+                52.0
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                53.2,
+                54.2
+              ],
+              [
+                58.8,
+                63.8
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                61.2,
+                63.8
+              ],
+              [
+                66.8,
+                54.2
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                65.5,
+                52.0
+              ],
+              [
+                54.5,
+                52.0
+              ]
+            ],
+            "fromPlayer": false,
+            "stepWith": 1
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lesson 19 · 2.3.01, 2.3.02",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-3-e.pdf",
+    "note": "The source says triangles or squares, about 4 metres apart. We drew triangles."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 20,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 36,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 28,
+        "y": 28,
+        "role": "O"
+      },
+      {
+        "x": 52,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 68,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 60,
+        "y": 28,
+        "role": "O"
+      },
+      {
+        "x": 20,
+        "y": 52,
+        "role": "O"
+      },
+      {
+        "x": 36,
+        "y": 52,
+        "role": "O"
+      },
+      {
+        "x": 28,
+        "y": 66,
+        "role": "O"
+      },
+      {
+        "x": 52,
+        "y": 52,
+        "role": "O"
+      },
+      {
+        "x": 68,
+        "y": 52,
+        "role": "O"
+      },
+      {
+        "x": 60,
+        "y": 66,
+        "role": "O"
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            22.5,
+            14.0
+          ],
+          [
+            33.5,
+            14.0
+          ]
+        ],
+        "fromPlayer": false,
+        "step": 1,
+        "caption": "Pass round the triangle on the forehand."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            34.8,
+            16.2
+          ],
+          [
+            29.2,
+            25.8
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            26.8,
+            25.8
+          ],
+          [
+            21.2,
+            16.2
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            54.5,
+            14.0
+          ],
+          [
+            65.5,
+            14.0
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            66.8,
+            16.2
+          ],
+          [
+            61.2,
+            25.8
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            58.8,
+            25.8
+          ],
+          [
+            53.2,
+            16.2
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            22.5,
+            52.0
+          ],
+          [
+            33.5,
+            52.0
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            34.8,
+            54.2
+          ],
+          [
+            29.2,
+            63.8
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            26.8,
+            63.8
+          ],
+          [
+            21.2,
+            54.2
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            54.5,
+            52.0
+          ],
+          [
+            65.5,
+            52.0
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            66.8,
+            54.2
+          ],
+          [
+            61.2,
+            63.8
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            58.8,
+            63.8
+          ],
+          [
+            53.2,
+            54.2
+          ]
+        ],
+        "fromPlayer": false,
+        "stepWith": 1
+      }
+    ]
+  },
+  "ageGroups": [
+    "U7"
+  ],
+  "status": "in_review"
+}

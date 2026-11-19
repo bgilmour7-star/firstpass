@@ -1,0 +1,404 @@
+{
+  "id": "warmup-merry-go-round",
+  "funName": "Merry-Go-Round",
+  "plainName": "Warm-up laps with a skill on the long side",
+  "sourceTitle": "Warm-up (skating laps)",
+  "minutes": 8,
+  "gear": "None (pucks optional)",
+  "worksAsStation": false,
+  "description": "Everyone skates laps of the zone in the same direction. On the long side, they do the skill the coach calls, then skate easy round the end and go again. Each lap gets a little faster.",
+  "steps": [
+    "Skate laps of the zone, a little faster each time.",
+    "On the long side, do the skill the coach calls.",
+    "Back to easy skating round the end, then go again."
+  ],
+  "cues": [
+    "Same way round, heads up!",
+    "Show me the skill on the long side."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Glides, edges, stops and starts, a little faster every lap."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Everyone moving from the first whistle."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "everyone",
+  "lessons": [
+    18,
+    19,
+    20
+  ],
+  "levelName": "Glides, hops and stops",
+  "levels": [
+    {
+      "name": "Backwards on the long side",
+      "adds": "On the long side: backward C-cuts, then glide backwards on one skate.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 73,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 21,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 58,
+            "y": 70,
+            "role": "O"
+          },
+          {
+            "x": 56,
+            "y": 42,
+            "role": "C"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                70,
+                14
+              ],
+              [
+                44,
+                12
+              ],
+              [
+                30,
+                15
+              ],
+              [
+                24,
+                26
+              ],
+              [
+                23,
+                42
+              ],
+              [
+                24,
+                58
+              ],
+              [
+                30,
+                70
+              ],
+              [
+                42,
+                74
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate laps of the zone, a little faster each time."
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                44,
+                74
+              ],
+              [
+                72,
+                74
+              ]
+            ],
+            "step": 2,
+            "caption": "On the long side: backward C-cuts, then a backward glide on one skate."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                76,
+                72
+              ],
+              [
+                88,
+                58
+              ],
+              [
+                88,
+                30
+              ],
+              [
+                80,
+                16
+              ]
+            ],
+            "step": 3,
+            "caption": "Back to easy skating round the end, then go again.",
+            "stepSide": "right"
+          }
+        ],
+        "labels": [
+          {
+            "x": 58,
+            "y": 80,
+            "text": "skill side",
+            "size": 2.6
+          }
+        ]
+      }
+    },
+    {
+      "name": "Crossovers and spins",
+      "adds": "On the long side: three quick crossovers, a 360, then a one-foot stop at the line.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "x": 73,
+            "y": 14,
+            "role": "O"
+          },
+          {
+            "x": 21,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 58,
+            "y": 70,
+            "role": "O"
+          },
+          {
+            "x": 56,
+            "y": 42,
+            "role": "C"
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                70,
+                14
+              ],
+              [
+                44,
+                12
+              ],
+              [
+                30,
+                15
+              ],
+              [
+                24,
+                26
+              ],
+              [
+                23,
+                42
+              ],
+              [
+                24,
+                58
+              ],
+              [
+                30,
+                70
+              ],
+              [
+                42,
+                74
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate laps of the zone, a little faster each time."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                44,
+                74
+              ],
+              [
+                72,
+                74
+              ]
+            ],
+            "step": 2,
+            "caption": "On the long side: three quick crossovers, a 360, then stop on one foot.",
+            "end": "stop"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                76,
+                72
+              ],
+              [
+                88,
+                58
+              ],
+              [
+                88,
+                30
+              ],
+              [
+                80,
+                16
+              ]
+            ],
+            "step": 3,
+            "caption": "Back to easy skating round the end, then go again.",
+            "stepSide": "right"
+          }
+        ],
+        "labels": [
+          {
+            "x": 58,
+            "y": 80,
+            "text": "skill side",
+            "size": 2.6
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Phase 2 warm-ups; Phase 3 Lessons 18–20 · 1.1.04, 1.1.07, 1.5.02, 1.6.04, 1.6.12",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-3-e.pdf",
+    "note": "The source skates laps of the full ice and does the skills between the blue lines. We drew it on half ice with the skills on the long side. Level 1 is the Phase 2 version (one-foot glides, hops over the lines, C-cuts, stop and go)."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "x": 73,
+        "y": 14,
+        "role": "O"
+      },
+      {
+        "x": 21,
+        "y": 34,
+        "role": "O"
+      },
+      {
+        "x": 58,
+        "y": 70,
+        "role": "O"
+      },
+      {
+        "x": 56,
+        "y": 42,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            70,
+            14
+          ],
+          [
+            44,
+            12
+          ],
+          [
+            30,
+            15
+          ],
+          [
+            24,
+            26
+          ],
+          [
+            23,
+            42
+          ],
+          [
+            24,
+            58
+          ],
+          [
+            30,
+            70
+          ],
+          [
+            42,
+            74
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate laps of the zone, a little faster each time."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            44,
+            74
+          ],
+          [
+            72,
+            74
+          ]
+        ],
+        "step": 2,
+        "caption": "On the long side: glide on one foot, hop the line, C-cuts, then stop and go.",
+        "end": "stop"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            76,
+            72
+          ],
+          [
+            88,
+            58
+          ],
+          [
+            88,
+            30
+          ],
+          [
+            80,
+            16
+          ]
+        ],
+        "step": 3,
+        "caption": "Back to easy skating round the end, then go again.",
+        "stepSide": "right"
+      }
+    ],
+    "labels": [
+      {
+        "x": 58,
+        "y": 80,
+        "text": "skill side",
+        "size": 2.6
+      }
+    ]
+  },
+  "ageGroups": [
+    "U7"
+  ],
+  "status": "in_review"
+}
