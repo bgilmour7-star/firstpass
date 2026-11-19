@@ -1,0 +1,583 @@
+{
+  "id": "warmup-puck-explorers",
+  "funName": "Puck Explorers",
+  "plainName": "Stickhandle anywhere, kick it up at the lines",
+  "sourceTitle": "Warm-up (puckhandling)",
+  "minutes": 8,
+  "gear": "1 puck each, 5 pylons",
+  "worksAsStation": false,
+  "description": "Everyone has a puck and skates anywhere in the zone, stickhandling narrow, wide and both together, and steering round the pylons. Every time you cross a line, drop the puck to your skates and kick it back up to your stick.",
+  "steps": [
+    "Skate anywhere with your puck, round the pylons, heads up.",
+    "Cross a line? Drop the puck to your skates and kick it back to your stick."
+  ],
+  "cues": [
+    "Soft hands, eyes up.",
+    "Kick it up to your stick!"
+  ],
+  "focus": [
+    {
+      "attribute": "Puck control",
+      "level": 2,
+      "why": "Narrow, wide and combination stickhandling on the move."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Changing speed and direction with the puck."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "everyone",
+  "lessons": [
+    22,
+    23,
+    24
+  ],
+  "levelName": "Narrow, wide, kick it up",
+  "levels": [
+    {
+      "name": "Boards and toe drags",
+      "adds": "Bounce the puck off the boards to yourself, and try side-front-side and a toe drag.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "cones": [
+          {
+            "x": 32,
+            "y": 30
+          },
+          {
+            "x": 52,
+            "y": 16
+          },
+          {
+            "x": 48,
+            "y": 58
+          },
+          {
+            "x": 26,
+            "y": 66
+          },
+          {
+            "x": 62,
+            "y": 40
+          }
+        ],
+        "players": [
+          {
+            "x": 20,
+            "y": 18,
+            "role": "O"
+          },
+          {
+            "x": 66,
+            "y": 68,
+            "role": "O"
+          },
+          {
+            "x": 38,
+            "y": 44,
+            "role": "O"
+          },
+          {
+            "x": 88,
+            "y": 30,
+            "role": "O"
+          },
+          {
+            "x": 88,
+            "y": 72,
+            "role": "C"
+          },
+          {
+            "x": 16,
+            "y": 70,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                22.5,
+                19.5
+              ],
+              [
+                30,
+                24
+              ],
+              [
+                38,
+                26
+              ],
+              [
+                46,
+                22
+              ],
+              [
+                56,
+                24
+              ],
+              [
+                60,
+                32
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate anywhere with your puck, round the pylons, heads up."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                63.5,
+                68.5
+              ],
+              [
+                56,
+                66
+              ],
+              [
+                46,
+                64
+              ],
+              [
+                36,
+                68
+              ],
+              [
+                30,
+                76
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                40.5,
+                45.5
+              ],
+              [
+                48,
+                50
+              ],
+              [
+                56,
+                47
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                85.5,
+                32
+              ],
+              [
+                79,
+                40
+              ],
+              [
+                71,
+                50
+              ]
+            ],
+            "step": 2,
+            "caption": "Cross a line? Drop the puck to your skates and kick it back up.",
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                18,
+                72
+              ],
+              [
+                12,
+                80
+              ],
+              [
+                22,
+                82
+              ]
+            ],
+            "step": 3,
+            "caption": "Bounce the puck off the boards to yourself.",
+            "fromPlayer": false
+          }
+        ],
+        "labels": [
+          {
+            "x": 75,
+            "y": 81,
+            "text": "blue line",
+            "size": 2.6
+          }
+        ]
+      }
+    },
+    {
+      "name": "Through the legs",
+      "adds": "Add stickhandling the puck through your legs.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "cones": [
+          {
+            "x": 32,
+            "y": 30
+          },
+          {
+            "x": 52,
+            "y": 16
+          },
+          {
+            "x": 48,
+            "y": 58
+          },
+          {
+            "x": 26,
+            "y": 66
+          },
+          {
+            "x": 62,
+            "y": 40
+          }
+        ],
+        "players": [
+          {
+            "x": 20,
+            "y": 18,
+            "role": "O"
+          },
+          {
+            "x": 66,
+            "y": 68,
+            "role": "O"
+          },
+          {
+            "x": 38,
+            "y": 44,
+            "role": "O"
+          },
+          {
+            "x": 88,
+            "y": 30,
+            "role": "O"
+          },
+          {
+            "x": 88,
+            "y": 72,
+            "role": "C"
+          },
+          {
+            "x": 16,
+            "y": 70,
+            "role": "O"
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                22.5,
+                19.5
+              ],
+              [
+                30,
+                24
+              ],
+              [
+                38,
+                26
+              ],
+              [
+                46,
+                22
+              ],
+              [
+                56,
+                24
+              ],
+              [
+                60,
+                32
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate anywhere with your puck, round the pylons, heads up."
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                63.5,
+                68.5
+              ],
+              [
+                56,
+                66
+              ],
+              [
+                46,
+                64
+              ],
+              [
+                36,
+                68
+              ],
+              [
+                30,
+                76
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                40.5,
+                45.5
+              ],
+              [
+                48,
+                50
+              ],
+              [
+                56,
+                47
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                85.5,
+                32
+              ],
+              [
+                79,
+                40
+              ],
+              [
+                71,
+                50
+              ]
+            ],
+            "step": 2,
+            "caption": "Cross a line? Drop the puck to your skates and kick it back up.",
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                18,
+                72
+              ],
+              [
+                12,
+                80
+              ],
+              [
+                22,
+                82
+              ]
+            ],
+            "step": 3,
+            "caption": "Bounce it off the boards, then try it through your legs.",
+            "fromPlayer": false
+          }
+        ],
+        "labels": [
+          {
+            "x": 75,
+            "y": 81,
+            "text": "blue line",
+            "size": 2.6
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U7 Lessons 22–24 · 2.2.01–2.2.04, 2.2.08, 2.2.20, 2.2.23",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-3-e.pdf",
+    "note": "The source's warm-up for Lessons 22–24. Lesson 24 adds the puck through the legs (Level 3 here)."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "cones": [
+      {
+        "x": 32,
+        "y": 30
+      },
+      {
+        "x": 52,
+        "y": 16
+      },
+      {
+        "x": 48,
+        "y": 58
+      },
+      {
+        "x": 26,
+        "y": 66
+      },
+      {
+        "x": 62,
+        "y": 40
+      }
+    ],
+    "players": [
+      {
+        "x": 20,
+        "y": 18,
+        "role": "O"
+      },
+      {
+        "x": 66,
+        "y": 68,
+        "role": "O"
+      },
+      {
+        "x": 38,
+        "y": 44,
+        "role": "O"
+      },
+      {
+        "x": 88,
+        "y": 30,
+        "role": "O"
+      },
+      {
+        "x": 88,
+        "y": 72,
+        "role": "C"
+      }
+    ],
+    "paths": [
+      {
+        "type": "puck",
+        "points": [
+          [
+            22.5,
+            19.5
+          ],
+          [
+            30,
+            24
+          ],
+          [
+            38,
+            26
+          ],
+          [
+            46,
+            22
+          ],
+          [
+            56,
+            24
+          ],
+          [
+            60,
+            32
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate anywhere with your puck, round the pylons, heads up."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            63.5,
+            68.5
+          ],
+          [
+            56,
+            66
+          ],
+          [
+            46,
+            64
+          ],
+          [
+            36,
+            68
+          ],
+          [
+            30,
+            76
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            40.5,
+            45.5
+          ],
+          [
+            48,
+            50
+          ],
+          [
+            56,
+            47
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            85.5,
+            32
+          ],
+          [
+            79,
+            40
+          ],
+          [
+            71,
+            50
+          ]
+        ],
+        "step": 2,
+        "caption": "Cross a line? Drop the puck to your skates and kick it back up.",
+        "stepSide": "right"
+      }
+    ],
+    "labels": [
+      {
+        "x": 75,
+        "y": 81,
+        "text": "blue line",
+        "size": 2.6
+      }
+    ]
+  },
+  "ageGroups": [
+    "U7"
+  ],
+  "status": "in_review"
+}

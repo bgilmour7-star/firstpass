@@ -67,7 +67,7 @@ describe('the first plan', () => {
     it('picks drills that work each focus when the library has one', () => {
       for (const a of attrs) {
         const blocks = firstPlan(60, library, 3, 'U7', [a]);
-        const libHas = library.some((d) => d.focus.some((f) => f.attribute === a && f.level === 2) && (d.groupModel === 'rotation' || (d.groupModel === 'basic' && d.format === 'everyone' && d.minutes <= 10 && (d.part === 'game' || (d.part === 'skill' && d.effort !== 'hard')))));
+        const libHas = library.some((d) => d.focus.some((f) => f.attribute === a && f.level === 2) && (d.groupModel === 'rotation' || (d.groupModel === 'basic' && d.minutes <= 10 && ((d.part === 'game' && d.format === 'everyone') || (d.part === 'skill' && d.format !== 'line' && d.effort !== 'hard')))));
         if (libHas) expect(blocks.filter((b) => works(b, a)).length, a).toBeGreaterThan(0);
       }
     });
@@ -91,5 +91,14 @@ describe('the first plan', () => {
       const game = blocks.find((b) => drillOf(b)?.part === 'game');
       expect(game).toBeDefined();
     });
+  });
+
+  it('never picks a one-at-a-time skill drill', () => {
+    const byId = new Map(library.map((d) => [d.id, d]));
+    for (const f of [[], ['Passing'], ['Skating'], ['Puck control']])
+      for (const b of firstPlan(60, library, 3, 'U7', f)) {
+        const d = b.kind === 'drill' ? byId.get(b.drillId) : undefined;
+        if (d?.part === 'skill') expect(d.format, d.id).not.toBe('line');
+      }
   });
 });

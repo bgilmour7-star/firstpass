@@ -18,7 +18,7 @@ would need to meet their goals." Then "Yes" to the proposal below.)
   block was tried first, but drill and rotation blocks have no note field.)
 - Live drills only, as before (`libraryDrills()`).
 
-## Limits found (2026-11-19, live U7 library)
+## Limits found (2026-11-19, live U7 library), since addressed by decision 0040
 - **Passing:** no live U7 drill the first plan can use, so a Passing pick doesn't change the plan yet.
 - **Game sense:** only the game (Ice Soccer) can lean that way.
 - No live U7 warm-up qualifies (the only one, Skill Doctor Tag, is Hard), so first plans have no warm-up drill, and

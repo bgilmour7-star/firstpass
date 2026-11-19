@@ -29,11 +29,12 @@ export function firstPlan(minutes: number, library: Drill[], groupCount = 3, age
   const warmup = first(basic.filter((d) => d.part === 'warmup' && d.effort !== 'hard'), (d) => effort(d) * 10 + lesson(d));
   const rotation = first(library.filter((d) => d.groupModel === 'rotation' && (d.zones?.length ?? 0) >= 2), (d) => fit(d) * 10000 + effort(d) * 100 + lesson(d));
   // The skill drill works a different skill from the warm-up and the rotation, so the plan passes its own variety check.
+  // Everyone moving or small groups, never a line (decision 0040: passing drills are pairs and small groups).
   // With two picks, it prefers the one the rotation didn't cover.
   const taken = new Set([warmup && mainSkill(warmup), rotation && mainSkill(rotation)]);
   const covered = rotation ? fitOf(rotation, focus) : undefined;
   const rest = focus.filter((a) => a !== covered);
-  const skill = first(basic.filter((d) => d.part === 'skill' && d.format === 'everyone' && d.effort !== 'hard'), (d) => (taken.has(mainSkill(d)) ? 100000 : 0) + fit(d, rest) * 10000 + fit(d) * 1000 + lesson(d) * 10 + effort(d));
+  const skill = first(basic.filter((d) => d.part === 'skill' && d.format !== 'line' && d.effort !== 'hard'), (d) => (taken.has(mainSkill(d)) ? 100000 : 0) + fit(d, rest) * 10000 + fit(d) * 1000 + lesson(d) * 10 + effort(d));
   // The game leans toward the focus only when it doesn't make a third drill in a row on one skill.
   const before = new Set([skill && mainSkill(skill), rotation && mainSkill(rotation)]);
   const game = first(basic.filter((d) => d.part === 'game' && d.format === 'everyone'), (d) => (focus.length && before.has(mainSkill(d)) ? 100000 : 0) + fit(d) * 1000 + lesson(d) * 10 + effort(d));
