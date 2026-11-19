@@ -4,6 +4,9 @@ import './globals.css';
 import { WebVitals } from '@/components/web-vitals';
 
 export const metadata: Metadata = {
+  // Absolute URLs for canonicals and share cards (decision 0037). App pages stay out of search by
+  // default; each public page opts in with its own robots.
+  metadataBase: new URL('https://firstpass.coach'),
   title: 'Firstpass',
   description: 'Practice plans for U5–U9 hockey coaches.',
   robots: { index: false, follow: false },

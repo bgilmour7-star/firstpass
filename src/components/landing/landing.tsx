@@ -4,6 +4,7 @@ import type { RinkDiagramApi, RinkDiagramProps } from '../../../design-system/in
 import puckParty from '../../../content/drills/rotation-puck-party.json';
 import skiRacer from '../../../content/drills/ski-racer.json';
 import { VisitTracker } from './visit-tracker';
+import { jsonLd, landingStructuredData } from '@/lib/site/structured-data';
 import { AssociationForm } from './association-form';
 import { StartLink } from './start-link';
 import { ProgressChart } from '@/components/progress-chart';
@@ -202,6 +203,8 @@ export function Landing() {
   return (
     <div className="min-h-dvh bg-surface-100 text-ink-100">
       <VisitTracker />
+      {/* Structured data for search engines and AI assistants (decision 0037). */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(landingStructuredData()) }} />
       <StickyHeader />
 
       <main className="mx-auto max-w-[1200px] px-5 sm:px-[clamp(16px,4vw,48px)]">
@@ -508,7 +511,7 @@ export function Landing() {
           <span className="inline-flex items-center gap-2 text-ink-100">
             <Mark className="size-5" />
             <span className="font-display text-[17px] font-extrabold">Firstpass</span>
-            <span className="ml-2 text-sm text-ink-200">Built in Nanaimo, BC</span>
+            <span className="ml-2 text-sm text-ink-200">Hockey practice planner, built in Nanaimo, BC</span>
           </span>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1">
             <Link href="/login" className="py-2.5 underline-offset-2 hover:underline">

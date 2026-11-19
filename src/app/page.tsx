@@ -6,19 +6,20 @@ import { currentTeam, optionalUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { isPhone, landingPath } from '@/lib/landing';
 import { Landing } from '@/components/landing/landing';
+import { LANDING_DESCRIPTION } from '@/lib/site/structured-data';
 
 // firstpass.coach: the public landing page for visitors (decision 0019). Signed-in coaches go
 // straight to their team (decision 0026), or to Today on a phone on practice day.
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Firstpass · Practice plans for U5–U9 hockey',
-  description: 'Set up your team once and every practice arrives planned: timed to your ice, split for your skill groups, and ready on your phone at the rink.',
+  title: 'Firstpass · Hockey practice planner for U5–U9 coaches',
+  description: LANDING_DESCRIPTION,
   robots: { index: true, follow: true },
   alternates: { canonical: 'https://firstpass.coach' },
   openGraph: {
-    title: 'Show up ready. Firstpass practice plans for U5–U9 hockey',
-    description: 'Set up your team once and every practice arrives planned: timed to your ice, split for your skill groups, and ready on your phone at the rink.',
+    title: 'Show up ready. Firstpass, the hockey practice planner for U5–U9 coaches',
+    description: LANDING_DESCRIPTION,
     url: 'https://firstpass.coach',
     siteName: 'Firstpass',
     type: 'website',
