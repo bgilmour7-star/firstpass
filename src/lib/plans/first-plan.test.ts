@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { drillSchema, type Drill } from '../drills/schema';
-import { firstPlan, focusNote } from './first-plan';
+import { firstPlan } from './first-plan';
 import { totalMinutes, type Block } from './schema';
 import { varietyWarnings } from './variety';
 
@@ -64,15 +64,11 @@ describe('the first plan', () => {
       expect(strip(firstPlan(60, library, 3, 'U7', []))).toEqual(strip(firstPlan(60, library, 3, 'U7')));
     });
 
-    it('picks drills that work each focus when the library has one, and says so', () => {
+    it('picks drills that work each focus when the library has one', () => {
       for (const a of attrs) {
         const blocks = firstPlan(60, library, 3, 'U7', [a]);
         const libHas = library.some((d) => d.focus.some((f) => f.attribute === a && f.level === 2) && (d.groupModel === 'rotation' || (d.groupModel === 'basic' && d.format === 'everyone' && d.minutes <= 10 && (d.part === 'game' || (d.part === 'skill' && d.effort !== 'hard')))));
-        const leaning = blocks.filter((b) => works(b, a));
-        if (libHas) expect(leaning.length, a).toBeGreaterThan(0);
-        for (const b of leaning) expect(b.note, a).toBe(focusNote(a));
-        // Only blocks that work a picked skill get the note.
-        for (const b of blocks) if (b.note === focusNote(a)) expect(works(b, a), a).toBe(true);
+        if (libHas) expect(blocks.filter((b) => works(b, a)).length, a).toBeGreaterThan(0);
       }
     });
 

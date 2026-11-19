@@ -12,8 +12,10 @@ would need to meet their goals." Then "Yes" to the proposal below.)
     variety check, decision 0008).
   - Free skate, the warm-up, water and the huddle don't change. With no focus, or nothing in the library for a pick,
     the plan is exactly what it was.
-- A block picked for the focus says so in its note: "Works on Passing, your team's focus." The coach sees their
-  answer was used and can delete the note like any other.
+- The plan's **Focus panel** (builder) marks the team's picks, "· Your focus", on every plan, not just the first,
+  and flags a pick the plan doesn't work at all: "· Your focus, not in this plan". Shown when the plan is shown, not
+  stored in the plan, so it stays true when the coach edits the plan or changes the team's focus. (A note on the
+  block was tried first, but drill and rotation blocks have no note field.)
 - Live drills only, as before (`libraryDrills()`).
 
 ## Limits found (2026-11-19, live U7 library)

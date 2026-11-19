@@ -9,7 +9,8 @@ import { mainSkill } from './variety';
 // becomes small games; if the ice is short, the optional parts drop out first.
 //
 // It leans toward the team's focus from Create a team (decision 0039): the rotation, the skill drill
-// and the game prefer drills whose main focus is one of the picked skills, and say so in their note.
+// and the game prefer drills whose main focus is one of the picked skills. The plan's Focus panel marks
+// the team's picks (builder), so the coach sees their answer was used.
 // The warm-up, water and huddle don't change, and with nothing in the library for a pick, the plan is
 // the same as without a focus. A tilt, not a rebuild: two picks never fill the whole practice.
 
@@ -18,17 +19,12 @@ const lesson = (d: Drill) => (d.lessons?.length ? Math.min(...d.lessons) : 99);
 const first = (ds: Drill[], score: (d: Drill) => number) => [...ds].sort((a, b) => score(a) - score(b) || a.minutes - b.minutes || a.funName.localeCompare(b.funName))[0];
 /** The team focus this drill works as a main focus, if any. */
 const fitOf = (d: Drill, focus: readonly string[]) => focus.find((a) => d.focus.some((f) => f.attribute === a && f.level === 2));
-export const focusNote = (attribute: string) => `Works on ${attribute}, your team's focus.`;
 
 /** `library` is the team's drills (drillsForAge); `ageGroup` sets where each Drill block starts (decision 0025);
  *  `focus` is the team's focus from Create a team (decision 0039). */
 export function firstPlan(minutes: number, library: Drill[], groupCount = 3, ageGroup?: string, focus: readonly string[] = []): Block[] {
   const fit = (d: Drill, want: readonly string[] = focus) => (fitOf(d, want) ? 0 : 1);
-  const blockForDrill = (d: Drill) => {
-    const b = blockFor(d, d.minutes, startLevelFor(d, ageGroup));
-    const a = fitOf(d, focus);
-    return a ? ({ ...b, note: focusNote(a) } as Block) : b;
-  };
+  const blockForDrill = (d: Drill) => blockFor(d, d.minutes, startLevelFor(d, ageGroup));
   const basic = library.filter((d) => d.groupModel === 'basic' && d.minutes <= 10);
   const warmup = first(basic.filter((d) => d.part === 'warmup' && d.effort !== 'hard'), (d) => effort(d) * 10 + lesson(d));
   const rotation = first(library.filter((d) => d.groupModel === 'rotation' && (d.zones?.length ?? 0) >= 2), (d) => fit(d) * 10000 + effort(d) * 100 + lesson(d));
