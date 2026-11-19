@@ -807,12 +807,15 @@ export function Builder({
             <ul className="flex flex-col gap-1">
               {FOCUS_ATTRIBUTES.map((a) => {
                 const f = focus.find((x) => x.attribute === a)!;
+                // The team's focus from Create a team (decision 0039): marked, and flagged when this plan doesn't work it.
+                const picked = team.focus.includes(a);
                 return (
                   <li key={a} className="grid grid-cols-[22px_minmax(0,1fr)] items-center gap-2 text-[13px]">
                     <Pips level={f.level} />
                     <span className={f.level === 2 ? 'font-semibold' : f.level === 1 ? '' : 'text-ink-200'}>
                       {a}
                       {f.level === 2 && <span className="font-normal text-ink-200"> · Main</span>}
+                      {picked && <span className={`font-normal ${f.level ? 'text-rink-100' : 'text-whistle-100'}`}>{f.level ? ' · Your focus' : ' · Your focus, not in this plan'}</span>}
                     </span>
                   </li>
                 );
