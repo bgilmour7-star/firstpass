@@ -58,7 +58,7 @@ describe('public pages opt in to search', () => {
   it('every public page sets index: true (the root layout defaults to noindex)', () => {
     for (const p of PUBLIC_PAGES) {
       const src = readFileSync(file(p.path), 'utf8');
-      expect(/robots:\s*\{\s*index:\s*true/.test(src) || /answerMetadata\(|hubMetadata\(/.test(src), p.path).toBe(true);
+      expect(/robots:\s*\{\s*index:\s*true/.test(src) || /export const metadata = (answer|hub)Metadata\(/.test(src), p.path).toBe(true);
     }
   });
 });

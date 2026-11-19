@@ -104,7 +104,7 @@ export default function FirstPractice() {
         Be patient, and don&apos;t expect them to be fully engaged. Bring your energy up so they keep theirs up. Show, don&apos;t tell, when you explain an exercise. And keep it simple. Less is more.
       </p>
 
-      <section aria-labelledby="cta-title" className="mt-12 rounded-2xl bg-rink-200 p-[clamp(20px,4vw,32px)] text-surface-100">
+      <section aria-labelledby="cta-title" className="band-teal mt-12 rounded-2xl p-[clamp(20px,4vw,32px)] text-white">
         <h2 id="cta-title" className="font-display text-[clamp(24px,3vw,30px)] font-bold leading-tight">Get this plan timed to your ice</h2>
         <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass builds each practice for your ice time and your skill groups, ready on your phone at the rink. Your first team is free.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
