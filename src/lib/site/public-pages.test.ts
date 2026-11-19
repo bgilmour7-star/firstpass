@@ -41,14 +41,14 @@ describe('isOpenPath', () => {
   });
   it('matches whole segments only', () => {
     expect(isOpenPath('/u7anything')).toBe(false);
-    expect(isOpenPath('/plansecret')).toBe(false);
+    expect(isOpenPath('/practice-plansecret')).toBe(false);
   });
   it('keeps what was open before', () => {
     for (const p of ['/login', '/signup', '/auth/callback', '/p/abc', '/join/abc', '/s/abc', '/unsubscribe/abc', '/og/x.png', '/icons/icon-192.png', '/manifest.webmanifest', '/sw.js', '/api/cron/x', '/api/vitals'])
       expect(isOpenPath(p), p).toBe(true);
   });
   it('keeps the app behind sign-in', () => {
-    for (const p of ['/team', '/admin', '/admin/analytics', '/account', '/api/other']) expect(isOpenPath(p), p).toBe(false);
+    for (const p of ['/team', '/plans', '/plans/x', '/plans/x/check-in', '/admin', '/admin/analytics', '/account', '/api/other']) expect(isOpenPath(p), p).toBe(false);
   });
 });
 

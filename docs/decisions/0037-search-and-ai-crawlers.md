@@ -12,7 +12,8 @@ start working through the tasks"). Task 1 of the "Firstpass SEO and AEO plan" pr
   a page to see its noindex tag.
 - **One map of the public site**: `src/lib/site/public-pages.ts`. `PUBLIC_PAGES` builds the sitemap, and the
   middleware's `isOpenPath()` reads the same list, so a public page can't end up behind sign-in. The coming
-  answer-page sections (`/u5`, `/u7`, `/u9`, `/plans`, `/associations`) are open already, matched by whole segment.
+  answer-page sections (`/u5`, `/u7`, `/u9`, `/practice-plans`, `/associations`) are open already, matched by whole segment.
+  Not `/plans`: that is the coaches' own Plans area and stays behind sign-in (a test checks it).
 - **App pages stay out of search.** The root layout keeps `robots: noindex`; each public page opts in. A test
   fails if a page in `PUBLIC_PAGES` doesn't set `index: true`.
 - **Landing title** is "Firstpass · Hockey practice planner for U5–U9 coaches", and the footer says "Hockey

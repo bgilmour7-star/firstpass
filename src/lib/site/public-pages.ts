@@ -19,8 +19,9 @@ export const PUBLIC_PAGES: PublicPage[] = [
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
 ];
 
-/** Sections for the coming answer pages (SEO and AEO plan, 2026-11-19): age hubs, plans, associations. */
-export const CONTENT_SECTIONS = ['/u5', '/u7', '/u9', '/plans', '/associations'];
+/** Sections for the coming answer pages (SEO and AEO plan, 2026-11-19): age hubs, ready-made practice plans,
+ *  associations. Not /plans: that's the coaches' own Plans area, behind sign-in. */
+export const CONTENT_SECTIONS = ['/u5', '/u7', '/u9', '/practice-plans', '/associations'];
 
 // The installable app's files (decision 0021) load before anyone signs in: the manifest, icons, the
 // service worker and the offline page.
