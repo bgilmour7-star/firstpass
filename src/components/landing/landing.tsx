@@ -517,6 +517,9 @@ export function Landing() {
             <Link href="/login" className="py-2.5 underline-offset-2 hover:underline">
               Sign in
             </Link>
+            <Link href="/u7" className="py-2.5 underline-offset-2 hover:underline">
+              U7 practice help
+            </Link>
             <a href="mailto:hello@firstpass.coach" className="py-2.5 underline-offset-2 hover:underline">
               hello@firstpass.coach
             </a>
