@@ -33,12 +33,12 @@ const diagram = RD.render({
 const PLAN: { at: string; what: string; who: string }[] = [
   { at: '0:00', what: 'Free skate. Every coach says hi to every kid.', who: 'Everyone' },
   { at: '0:05', what: `${skillDoctor.funName}, a tag game to warm up`, who: 'Everyone' },
-  { at: '0:12', what: 'Split into 3 groups and go to your first station', who: 'Groups' },
-  { at: '0:15', what: `${puckParty.funName}: 3 stations, whistle every 7 minutes`, who: 'One coach per station' },
-  { at: '0:36', what: 'Water', who: 'Everyone' },
-  { at: '0:39', what: treasure.funName, who: 'Everyone' },
-  { at: '0:52', what: `${copsAndRobbers.funName} (or whatever game they love)`, who: 'Everyone' },
-  { at: '0:58', what: 'Huddle and high fives', who: 'Everyone' },
+  { at: '0:13', what: 'Split into 3 groups and go to your first station', who: 'Groups' },
+  { at: '0:15', what: `${puckParty.funName}: 3 stations, groups move on the whistle`, who: 'One coach per station' },
+  { at: '0:33', what: 'Water', who: 'Everyone' },
+  { at: '0:36', what: treasure.funName, who: 'Everyone' },
+  { at: '0:46', what: `${copsAndRobbers.funName} (or whatever game they love)`, who: 'Everyone' },
+  { at: '0:56', what: 'Huddle and high fives', who: 'Everyone' },
 ];
 
 export default function FirstPractice() {
@@ -53,7 +53,7 @@ export default function FirstPractice() {
       <h1 className="mt-3 font-display text-[clamp(36px,5.5vw,52px)] font-extrabold leading-[1.04] tracking-[-0.03em]">{page.question}</h1>
 
       <p className="mt-6 text-[19px] leading-[1.6]">
-        Keep it simple. Start with a game, then 3 short stations with one coach at each, and finish with a game. With 10 to 14 kids and 3 coaches on half ice, split them into 3 groups of 3 to 5 and rotate on the whistle every 7 minutes. Explain each activity in under 30 seconds, show it, and switch to a game when their energy drops.
+        Keep it simple. Start with a game, then 3 short stations with one coach at each, and finish with a game. With 10 to 14 kids and 3 coaches on half ice, split them into 3 groups of 3 to 5 and move each group to the next station on the whistle. Explain each activity in under 30 seconds, show it, and switch to a game when their energy drops.
       </p>
 
       <h2 className={prose.h2}>The plan</h2>
