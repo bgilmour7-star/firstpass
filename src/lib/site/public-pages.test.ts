@@ -86,3 +86,23 @@ describe('answer pages', () => {
     for (const h of HUBS) expect(hubMetadata(h).robots).toMatchObject({ index: true });
   });
 });
+
+describe('drills on public pages', () => {
+  it('are listed once per page and exist in the library', async () => {
+    const { existsSync } = await import('node:fs');
+    const { PUBLIC_DRILLS, allPublicDrillIds } = await import('@/lib/content/public-drills');
+    for (const id of allPublicDrillIds()) expect(existsSync(`content/drills/${id}.json`), id).toBe(true);
+    for (const page of Object.keys(PUBLIC_DRILLS)) expect(PUBLIC_PAGES.some((p) => p.path === page), page).toBe(true);
+  });
+  it('the files that name drills only name listed ones', async () => {
+    const { readdirSync } = await import('node:fs');
+    const { PUBLIC_DRILLS } = await import('@/lib/content/public-drills');
+    const files: Record<string, string> = { '/': 'src/components/landing/landing.tsx', '/u7/first-practice': 'src/app/u7/first-practice/page.tsx' };
+    const names = readdirSync('content/drills').map((f) => ({ id: f.replace(/\.json$/, ''), name: JSON.parse(readFileSync(`content/drills/${f}`, 'utf8')).funName as string }));
+    for (const [page, file] of Object.entries(files)) {
+      const src = readFileSync(file, 'utf8');
+      const named = names.filter((d) => src.includes(`'${d.name}'`) || src.includes(`/${d.id}.json`)).map((d) => d.id);
+      for (const id of named) expect(PUBLIC_DRILLS[page], `${page} names ${id}: add it to PUBLIC_DRILLS`).toContain(id);
+    }
+  });
+});

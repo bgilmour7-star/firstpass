@@ -26,6 +26,7 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 
 import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { drillSchema, type Drill } from '../src/lib/drills/schema';
+import { PUBLIC_DRILLS, allPublicDrillIds } from '../src/lib/content/public-drills';
 import { firstpass } from '../src/lib/ds/bundle.mjs';
 
 const ROOT = join(__dirname, '..');
@@ -65,6 +66,24 @@ function toRow(d: Drill) {
 }
 
 const commands: Record<string, (args: string[]) => Promise<void> | void> = {
+  /** Public pages use live drills only (decision 0038). Fails if any drill they name isn't live. */
+  async public() {
+    const ids = allPublicDrillIds();
+    const { data, error } = await admin().from('drills').select('id, status').in('id', ids);
+    if (error) throw error;
+    const status = new Map((data ?? []).map((r) => [r.id as string, r.status as string]));
+    let bad = 0;
+    for (const id of ids) {
+      const s = status.get(id) ?? 'missing';
+      const pages = Object.entries(PUBLIC_DRILLS).filter(([, v]) => v.includes(id)).map(([k]) => k).join(', ');
+      if (s === 'live') console.log(`ok    ${id}`);
+      else {
+        bad++;
+        console.log(`FAIL  ${id} is ${s} (on ${pages})`);
+      }
+    }
+    if (bad) process.exit(1);
+  },
   validate() {
     let bad = 0;
     for (const id of localIds()) {

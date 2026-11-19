@@ -106,13 +106,14 @@ function PhoneCard() {
   );
 }
 
+// Live library drills only (decision 0038): keep src/lib/content/public-drills.ts in step.
 const PLAN: { at: string; name: string; strong?: boolean; sub?: string }[] = [
-  { at: '9:45', name: 'Free Skate Challenges' },
+  { at: '9:45', name: 'Free skate' },
   { at: '9:50', name: 'Ski Racer', strong: true },
   { at: '9:58', name: 'Puck Party', strong: true, sub: '3 zones · 4 min' },
   { at: '10:10', name: 'Water' },
   { at: '10:12', name: 'Snake in the Forest', strong: true },
-  { at: '10:22', name: 'Toilet Bowl Tag', strong: true },
+  { at: '10:22', name: 'Cops and Robbers', strong: true },
   { at: '10:32', name: 'Huddle' },
 ];
 
@@ -148,7 +149,7 @@ const BLOCKS: { name: string; min: number; tone: 'a' | 'b' | 'gap' }[] = [
   { name: 'Puck Party', min: 12, tone: 'b' },
   { name: 'Water', min: 2, tone: 'gap' },
   { name: 'Snake in the Forest', min: 10, tone: 'a' },
-  { name: 'Toilet Bowl Tag', min: 10, tone: 'b' },
+  { name: 'Cops and Robbers', min: 10, tone: 'b' },
   { name: 'Huddle', min: 3, tone: 'gap' },
 ];
 const GROUPS: { name: string; n: number; dot: string }[] = [

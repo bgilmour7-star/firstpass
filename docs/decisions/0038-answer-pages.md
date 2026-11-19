@@ -16,7 +16,16 @@ approach"). Task 2 of the "Firstpass SEO and AEO plan" project doc.
   `src/lib/content/meta.ts`.
 - **Publish test** (from the plan): a page ships only with a real plan, real numbers and an on-ice lesson. The
   words are Brett's (`my-writing-style`), and he reviews each page before merge.
-- **No affiliations named** (decision 0019 still holds). Plans use library drills, described in our own words.
+- **No affiliations named** (decision 0019 still holds; Brett 2026-11-19: "let's not mention hockey canada for now").
+  Plans use library drills, described in our own words.
+- **Live drills only, on public pages as in the app** (Brett: "We should only used active drills from the drills
+  library when creating these for the public site or in the app"). Every drill a public page names or draws is
+  listed in `src/lib/content/public-drills.ts`, and its name comes from the drill file. Live status lives in the
+  database, so `npm run drills -- public` checks the list against Supabase and fails on anything not live. Run it
+  before merging a public-page change and after archiving a drill. A test checks that every drill the landing page
+  and answer pages name is on the list. The app already reads only live drills (`libraryDrills()`).
+- This fixed two drills that weren't live: Toilet Bowl Tag (archived) on the landing example and the pilot, now
+  Cops and Robbers, and Free Skate Challenges (not live) on the landing example, now a plain free skate.
 - The one call to action is still "Plan your first practice" (decision 0033), counted as `form_start` with the
   page's path. The landing footer links to `/u7`.
 

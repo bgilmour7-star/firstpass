@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { firstpass } from '@/lib/ds/bundle.mjs';
 import type { RinkDiagramApi, RinkDiagramProps } from '../../../../design-system/index';
 import puckParty from '../../../../content/drills/rotation-puck-party.json';
+import skillDoctor from '../../../../content/drills/warmup-skill-doctor-tag.json';
+import treasure from '../../../../content/drills/game-steal-the-treasure.json';
+import copsAndRobbers from '../../../../content/drills/cops-and-robbers.json';
 import { ContentFrame, ctaOnTeal, prose } from '@/components/content/content-frame';
 import { StartLink } from '@/components/landing/start-link';
 import { ANSWER_PAGES, hubFor } from '@/lib/content/pages';
@@ -26,14 +29,15 @@ const diagram = RD.render({
   detail: 'full',
 });
 
+// Live library drills only (src/lib/content/public-drills.ts); names come from the drill files.
 const PLAN: { at: string; what: string; who: string }[] = [
   { at: '0:00', what: 'Free skate. Every coach says hi to every kid.', who: 'Everyone' },
-  { at: '0:05', what: 'Skill Doctor Tag, a tag game to warm up', who: 'Everyone' },
+  { at: '0:05', what: `${skillDoctor.funName}, a tag game to warm up`, who: 'Everyone' },
   { at: '0:12', what: 'Split into 3 groups and go to your first station', who: 'Groups' },
-  { at: '0:15', what: 'Puck Party: 3 stations, whistle every 7 minutes', who: 'One coach per station' },
+  { at: '0:15', what: `${puckParty.funName}: 3 stations, whistle every 7 minutes`, who: 'One coach per station' },
   { at: '0:36', what: 'Water', who: 'Everyone' },
-  { at: '0:39', what: 'Steal the Treasure', who: 'Everyone' },
-  { at: '0:52', what: 'Toilet Bowl Tag (or whatever game they love)', who: 'Everyone' },
+  { at: '0:39', what: treasure.funName, who: 'Everyone' },
+  { at: '0:52', what: `${copsAndRobbers.funName} (or whatever game they love)`, who: 'Everyone' },
   { at: '0:58', what: 'Huddle and high fives', who: 'Everyone' },
 ];
 
@@ -68,7 +72,7 @@ export default function FirstPractice() {
       <figure className="mt-8">
         <div className="rink-frame overflow-hidden rounded-2xl border border-border-100 bg-surface-200 p-3" dangerouslySetInnerHTML={{ __html: diagram }} />
         <figcaption className="mt-3 text-[15px] leading-[1.5] text-ink-200">
-          Puck Party on half ice. A: move the puck side to side and call out how many fingers the coach holds up. B: push the puck ahead and chase it. C: glide on one foot with a deep knee bend. Groups move to the next letter on the whistle.
+          {puckParty.funName} on half ice. A: move the puck side to side and call out how many fingers the coach holds up. B: push the puck ahead and chase it. C: glide on one foot with a deep knee bend. Groups move to the next letter on the whistle.
         </figcaption>
       </figure>
 
@@ -88,7 +92,7 @@ export default function FirstPractice() {
       <h2 className={prose.h2}>What made the good practices work</h2>
       <ul className={prose.ul}>
         <li>Drills they already knew and could jump right into. We keep most of the practice the same each week and add only 1 or 2 new things.</li>
-        <li>Names that spark their imagination. Kids will play Steal the Treasure all day. They won&apos;t do &quot;edge work&quot; for long.</li>
+        <li>Names that spark their imagination. Kids will play {treasure.funName} all day. They won&apos;t do &quot;edge work&quot; for long.</li>
         <li>A coach at each station or line, keeping kids on task and cheering them on.</li>
         <li>Watching their energy, so we knew when to switch things up. Our plan B swapped anything technical for something fun.</li>
       </ul>
