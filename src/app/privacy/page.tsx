@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Privacy · Firstpass',
   description: 'What Firstpass collects, why, and how to have it removed.',
   robots: { index: true, follow: true },
+  alternates: { canonical: 'https://firstpass.coach/privacy' },
 };
 
 // Plain words, short (decision 0019). Update the date when anything here changes.

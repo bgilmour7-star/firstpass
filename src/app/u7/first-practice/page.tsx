@@ -5,7 +5,7 @@ import puckParty from '../../../../content/drills/rotation-puck-party.json';
 import skillDoctor from '../../../../content/drills/warmup-skill-doctor-tag.json';
 import treasure from '../../../../content/drills/game-steal-the-treasure.json';
 import copsAndRobbers from '../../../../content/drills/cops-and-robbers.json';
-import { ContentFrame, ctaOnTeal, prose } from '@/components/content/content-frame';
+import { ContentFrame, MoreAnswers, ctaOnTeal, prose } from '@/components/content/content-frame';
 import { StartLink } from '@/components/landing/start-link';
 import { PlanTable, totalOf, type PlanRow } from '@/components/content/plan-table';
 import { ANSWER_PAGES, hubFor } from '@/lib/content/pages';
@@ -109,6 +109,8 @@ export default function FirstPractice() {
         <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass builds each practice for your ice time and your skill groups, ready on your phone at the rink. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
+
+      <MoreAnswers path="/u7/first-practice" />
 
       <p className="mt-10 border-t border-border-100 pt-5 text-[15px] leading-[1.5] text-ink-200">
         Written by Brett, a U7 coach in Nanaimo, BC. Last checked against our practices on November 19, 2026.{' '}
