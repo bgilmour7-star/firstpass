@@ -1,4 +1,6 @@
 import type { PageEvent, WaitlistEntry } from './schema';
+import { ANSWER_PAGES, HUBS } from '@/lib/content/pages';
+import { EMAIL_REF } from '@/lib/broadcasts/ref';
 
 // The numbers on Admin → Analytics, worked out from the raw rows (pilot volumes: hundreds of
 // events, not millions). Days are Vancouver days, like the rest of the app.
@@ -27,8 +29,34 @@ export type Summary = {
   sources: { source: string; visitors: number; signups: number }[];
   devices: { label: string; share: number }[];
   regions: { label: string; share: number }[];
+  /** Visitors by kind of source (decision 0041): is search or an AI assistant bringing anyone in? */
+  channels: { channel: Channel; visitors: number }[];
+  /** Each public page: its visitors, and how many tapped Plan your first practice there (decision 0041). */
+  pages: { path: string; label: string; visitors: number; taps: number }[];
 };
 type Metric = { now: number; before: number };
+
+export const CHANNELS = ['Search', 'AI assistants', 'Social', 'Email', 'Shared links', 'Other sites', 'Direct'] as const;
+export type Channel = (typeof CHANNELS)[number];
+const AI = /(^|\.)(chatgpt\.com|openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|copilot\.microsoft\.com|you\.com|phind\.com|meta\.ai)$/;
+const SEARCH = /(^|\.)(google\.[a-z.]+|bing\.com|duckduckgo\.com|search\.yahoo\.com|yahoo\.com|ecosia\.org|search\.brave\.com|startpage\.com)$/;
+const SOCIAL = /(^|\.)(facebook\.com|instagram\.com|reddit\.com|x\.com|t\.co|twitter\.com|linkedin\.com|lnkd\.in|threads\.net|tiktok\.com|youtube\.com)$/;
+const TAGS = new Set(['share', 'shared-ice', 'invite']);
+
+/** The kind of place a visit came from, from its cleaned source (a ?from= tag or a referring site). */
+export function channelOf(source: string | null): Channel {
+  if (!source) return 'Direct';
+  if (EMAIL_REF.test(source) || source.startsWith('email')) return 'Email';
+  if (TAGS.has(source)) return 'Shared links';
+  if (AI.test(source)) return 'AI assistants';
+  if (SEARCH.test(source)) return 'Search';
+  if (SOCIAL.test(source)) return 'Social';
+  return 'Other sites';
+}
+
+const PAGE_LABEL = new Map<string, string>([['/', 'Home'], ['/privacy', 'Privacy'], ...HUBS.map((h) => [h.path, h.title] as [string, string]), ...ANSWER_PAGES.map((p) => [p.path, p.question] as [string, string])]);
+/** A page's path without its query or trailing slash; older events with no path are the landing page. */
+const pageOf = (path: string | null | undefined) => (path ? path.split(/[?#]/)[0].replace(/(.)\/$/, '$1') || '/' : '/');
 
 /** New teams and their plans, from the app (Admin → Analytics → In the app's rows), for the funnel's last steps. */
 export type FunnelApp = { teams: { id: string; createdAt: string }[]; practices: { teamId: string; createdAt: string; checkedIn: boolean }[]; accounts?: string[] };
@@ -116,6 +144,29 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
   };
   const DEVICE_LABEL: Record<string, string> = { phone: 'Phone', tablet: 'Tablet', desktop: 'Desktop' };
 
+  const byChannel = new Map<Channel, Set<string>>();
+  for (const e of views) {
+    const c = channelOf(e.source);
+    if (!byChannel.has(c)) byChannel.set(c, new Set());
+    byChannel.get(c)!.add(e.visitor);
+  }
+  const channels = CHANNELS.filter((c) => byChannel.has(c))
+    .map((channel) => ({ channel, visitors: byChannel.get(channel)!.size }))
+    .sort((a, b) => b.visitors - a.visitors);
+
+  const byPage = new Map<string, { visitors: Set<string>; taps: Set<string> }>();
+  const pageSlot = (p: string) => {
+    if (!byPage.has(p)) byPage.set(p, { visitors: new Set(), taps: new Set() });
+    return byPage.get(p)!;
+  };
+  for (const e of views) pageSlot(pageOf(e.path)).visitors.add(e.visitor);
+  for (const e of cur) if (e.name === 'form_start') pageSlot(pageOf(e.path)).taps.add(e.visitor);
+  // Public pages only: anything else (a mistyped address) is left out rather than listed.
+  const pages = [...byPage.entries()]
+    .filter(([p]) => PAGE_LABEL.has(p))
+    .map(([path, v]) => ({ path, label: PAGE_LABEL.get(path)!, visitors: v.visitors.size, taps: v.taps.size }))
+    .sort((a, b) => b.visitors - a.visitors || b.taps - a.taps);
+
   return {
     days: opts.days,
     from: vanDay(new Date(start + DAY)),
@@ -130,6 +181,8 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     sources,
     devices: share((e) => (e.device ? DEVICE_LABEL[e.device] : null), 3, 'Other'),
     regions: share((e) => e.region, 4, 'Elsewhere'),
+    channels,
+    pages,
   };
 }
 

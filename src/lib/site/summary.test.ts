@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { change, summarize, summarizeGrowth } from './summary';
+import { change, channelOf, summarize, summarizeGrowth } from './summary';
 import type { PageEvent, WaitlistEntry } from './schema';
 
 const NOW = new Date('2026-10-20T19:00:00Z'); // noon in Vancouver
@@ -95,3 +95,44 @@ describe('summarizeGrowth', () => {
     expect(s.daily.every((d) => d.teams === 0 && d.coaches === 0)).toBe(true);
   });
 });
+
+describe('channels and pages (decision 0041)', () => {
+  it('sorts sources into channels', () => {
+    expect(channelOf(null)).toBe('Direct');
+    expect(channelOf('google.com')).toBe('Search');
+    expect(channelOf('google.ca')).toBe('Search');
+    expect(channelOf('bing.com')).toBe('Search');
+    expect(channelOf('chatgpt.com')).toBe('AI assistants');
+    expect(channelOf('perplexity.ai')).toBe('AI assistants');
+    expect(channelOf('gemini.google.com')).toBe('AI assistants');
+    expect(channelOf('l.facebook.com')).toBe('Social');
+    expect(channelOf('reddit.com')).toBe('Social');
+    expect(channelOf('1a2b3c4d-2')).toBe('Email');
+    expect(channelOf('share')).toBe('Shared links');
+    expect(channelOf('nanaimominorhockey.com')).toBe('Other sites');
+  });
+
+  it('counts visitors per channel', () => {
+    const s = summarize([view(ago(1), 'a', { source: 'google.com' }), view(ago(1), 'a', { source: 'google.com' }), view(ago(1), 'b', { source: 'chatgpt.com' }), view(ago(1), 'c')], [], { days: 7, now: NOW });
+    expect(s.channels).toEqual([
+      { channel: 'Search', visitors: 1 },
+      { channel: 'AI assistants', visitors: 1 },
+      { channel: 'Direct', visitors: 1 },
+    ]);
+  });
+
+  it('counts visitors and taps per public page, with old events as the landing page', () => {
+    const tap = (at: string, visitor: string, path: string): PageEvent => ({ ...view(at, visitor, { path }), name: 'form_start' });
+    const s = summarize(
+      [view(ago(1), 'a'), view(ago(1), 'b', { path: '/' }), view(ago(1), 'c', { path: '/u7/first-practice' }), view(ago(1), 'd', { path: '/u7/first-practice/' }), tap(ago(1), 'c', '/u7/first-practice'), view(ago(1), 'e', { path: '/nope' }), view(ago(1), 'f', { path: '/u7?x=1' })],
+      [],
+      { days: 7, now: NOW },
+    );
+    expect(s.pages).toEqual([
+      { path: '/u7/first-practice', label: 'How do I run my first U7 hockey practice?', visitors: 2, taps: 1 },
+      { path: '/', label: 'Home', visitors: 2, taps: 0 },
+      { path: '/u7', label: 'U7 hockey practice help for volunteer coaches', visitors: 1, taps: 0 },
+    ]);
+  });
+});
+

@@ -124,7 +124,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       )}
 
       <div id="site" className="-mb-3 scroll-mt-6">
-        <SectionTitle id="site-title" first title="Landing page" sub="Visits to firstpass.coach and taps on Plan your first practice, counted without cookies. New accounts are counted in the app, so they include coaches who came another way." />
+        <SectionTitle id="site-title" first title="Public site" sub="Visits to firstpass.coach (the landing page and the answer pages) and taps on Plan your first practice, counted without cookies. New accounts are counted in the app, so they include coaches who came another way." />
       </div>
       <Headline s={s} />
       <VisitsChart s={s} />
@@ -132,6 +132,11 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-14 gap-y-10">
         <Funnel s={s} />
         <Sources s={s} />
+      </div>
+
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-14 gap-y-10">
+        <Pages s={s} />
+        <Channels s={s} />
       </div>
 
       <Who s={s} />
@@ -294,6 +299,80 @@ function Funnel({ s }: { s: Summary }) {
         ))}
       </div>
       <p className="text-sm text-ink-200">{note}</p>
+    </section>
+  );
+}
+
+/** Each public page's visitors and taps on Plan your first practice (decision 0041): which answer pages bring coaches in. */
+function Pages({ s }: { s: Summary }) {
+  const th = 'border-b border-border-100 pb-2 font-medium';
+  const td = 'border-b border-border-100 py-2.5';
+  return (
+    <section aria-labelledby="pages-title" className="flex flex-col gap-3.5">
+      <h2 id="pages-title" className="text-lg font-semibold">
+        Pages
+      </h2>
+      {s.pages.length === 0 ? (
+        <p className="text-sm text-ink-200">No visits in this period yet.</p>
+      ) : (
+        <table className="w-full border-collapse text-sm tabular-nums">
+          <thead>
+            <tr className="text-left text-ink-200">
+              <th scope="col" className={th}>
+                Page
+              </th>
+              <th scope="col" className={`${th} text-right`}>
+                Visitors
+              </th>
+              <th scope="col" className={`${th} text-right`}>
+                Tapped Plan your first practice
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.pages.map((r) => (
+              <tr key={r.path}>
+                <td className={td}>
+                  <a href={r.path} className="underline-offset-2 hover:underline">
+                    {r.label}
+                  </a>{' '}
+                  <span className="font-mono text-xs text-ink-200">{r.path}</span>
+                </td>
+                <td className={`${td} text-right font-mono`}>{r.visitors}</td>
+                <td className={`${td} text-right font-mono`}>{r.taps}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+/** Visitors by kind of source (decision 0041). AI assistants is the AEO check: ChatGPT, Perplexity, Gemini and others. */
+function Channels({ s }: { s: Summary }) {
+  const total = s.channels.reduce((n, c) => n + c.visitors, 0);
+  return (
+    <section aria-labelledby="channels-title" className="flex flex-col gap-3.5">
+      <h2 id="channels-title" className="text-lg font-semibold">
+        How they found us
+      </h2>
+      {s.channels.length === 0 ? (
+        <p className="text-sm text-ink-200">No visits in this period yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-2.5">
+          {s.channels.map((c) => (
+            <li key={c.channel} className="grid grid-cols-[140px_1fr_44px] items-center gap-3 text-sm">
+              <span>{c.channel}</span>
+              <span className="h-2.5 overflow-hidden rounded-full bg-surface-200" aria-hidden="true">
+                <span className="block h-full rounded-full bg-rink-100" style={{ width: `${Math.max(4, (c.visitors / (total || 1)) * 100)}%` }} />
+              </span>
+              <span className="text-right font-mono tabular-nums">{c.visitors}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs text-ink-200">Visitors by where they came from. AI assistants are ChatGPT, Perplexity, Claude, Gemini and Copilot. Search engines often hide the search words, so check Search Console for those.</p>
     </section>
   );
 }
