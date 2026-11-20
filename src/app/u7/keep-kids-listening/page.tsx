@@ -101,7 +101,7 @@ export default function KeepKidsListening() {
         <h2 id="cta-title" className="font-display text-[clamp(24px,3vw,30px)] font-bold leading-tight">
           Plans that keep most of the practice familiar
         </h2>
-        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass plans each practice for your ice time and your skill groups, ready on your phone at the rink. Your first team is free.</p>
+        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass plans each practice for your ice time and your skill groups, ready on your phone at the rink. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
 

@@ -224,7 +224,7 @@ export function Landing() {
               </p>
               <div className="flex flex-col items-start gap-3 pt-2">
                 <StartLink id="hero-cta" className="inline-flex min-h-[52px] items-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200" />
-                <p className="text-[15px] text-ink-200">Your first team is free. Sign up with Google or your email.</p>
+                <p className="text-[15px] text-ink-200">Free for every team this season. Sign up with Google or your email.</p>
               </div>
             </div>
             <div className="relative min-w-0 flex-[1_1_440px] sm:pb-[max(200px,14vw)]">
@@ -499,7 +499,7 @@ export function Landing() {
                 <h3 className="font-display text-[28px] font-bold leading-tight tracking-[-0.01em]">Your first practice, ready in minutes.</h3>
                 <p className="text-[15px] leading-[22px] text-ink-200">Tell us your age group, ice times and skill groups. Firstpass builds the first plan, and you change what you like.</p>
                 <StartLink className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-rink-100 px-[30px] text-[17px] font-medium text-surface-100 hover:bg-rink-200" />
-                <p className="text-center text-sm text-ink-200">Your first team is free. Sign up with Google or your email.</p>
+                <p className="text-center text-sm text-ink-200">Free for every team this season. Sign up with Google or your email.</p>
               </div>
               <AssociationForm />
             </div>

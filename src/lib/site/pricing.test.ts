@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ASSOCIATION_TIERS, LOWEST_ASSOCIATION_PRICE, TEAM_PRICE, rateFor, savingPct } from './pricing';
+import { ASSOCIATION_TIERS, LOWEST_ASSOCIATION_PRICE, TEAM_PRICE, perPlayer, rateFor, savingPct } from './pricing';
 
 describe('association pricing', () => {
   it('tiers run in order with no gaps', () => {
@@ -17,4 +17,11 @@ describe('association pricing', () => {
     expect(rateFor(30)).toBeNull();
   });
   it('rounds savings to whole percent', () => expect(savingPct(35)).toBe(29));
+});
+
+describe('price per player', () => {
+  it('reads plainly for each association rate', () => {
+    expect(perPlayer(42)).toBe('About $3.50 a player');
+    expect(perPlayer(35)).toBe('Under $3 a player');
+  });
 });
