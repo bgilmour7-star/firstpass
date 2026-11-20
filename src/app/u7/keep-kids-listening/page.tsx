@@ -55,7 +55,7 @@ export default function KeepKidsListening() {
       <h1 className="mt-3 font-display text-[clamp(36px,5.5vw,52px)] font-extrabold leading-[1.04] tracking-[-0.03em]">{page.question}</h1>
 
       <p className="mt-6 text-[19px] leading-[1.6]">
-        Talk for 10 to 20 seconds, then show it. A coach demos, then send out a kid who understands, or at least says they do. Give them a signal they know: a raised stick shows where to go, and three short whistles and a long one means stop and look. And keep new drills to a minimum, so most of the practice is stuff they already know.
+        Keep the talking to 20 to 30 seconds, then show it. A coach demos, then send out a kid who understands, or at least says they do. Give them a signal they know: a raised stick shows where to go, and three short whistles and a long one means stop and look. And keep new drills to a minimum, so most of the practice is stuff they already know.
       </p>
 
       <h2 className={prose.h2}>Get their attention</h2>
@@ -63,13 +63,12 @@ export default function KeepKidsListening() {
         Raise your stick like a flag. It shows them where to go without yelling over the noise. When you need a bit more impact, use the whistle. Three short blasts and a long one will get anyone&apos;s attention.
       </p>
 
-      <h2 className={prose.h2}>Explain it in 20 seconds</h2>
+      <h2 className={prose.h2}>Explain it in 30 seconds or less</h2>
       <ol className="mt-4 flex list-decimal flex-col gap-2 pl-6 text-[17px] leading-[1.6]">
-        <li>Say what to do in 10 to 20 seconds.</li>
+        <li>Say what to do. Keep it to 20 to 30 seconds, the window that works for our kids.</li>
         <li>Demo it, or have another coach demo it.</li>
         <li>Send a kid who understands first. The rest follow.</li>
       </ol>
-      <p className={prose.p}>20 to 30 seconds seems to be the window that works for our kids. Past that, you&apos;ve lost them.</p>
 
       <h2 className={prose.h2}>The plan: one new thing, the rest they know</h2>
       <p className={prose.p}>
