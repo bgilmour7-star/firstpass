@@ -11,7 +11,7 @@ import { SITE } from '@/lib/site/public-pages';
 const PATH = '/firstpass-vs-pdf-practice-plans';
 const TITLE = 'Firstpass vs. a PDF practice plan and a clipboard';
 const DESCRIPTION =
-  'A downloaded PDF gives you one practice someone else planned. Firstpass plans practices for your ice time and your skill groups, learns from each one, and you can still print it for the glass.';
+  'A downloaded PDF gives you one practice someone else planned. Firstpass plans every practice for your ice time, your skill groups and the coaches you have, and you can still print it for the glass.';
 const PUBLISHED = '2026-11-20';
 
 export const metadata: Metadata = {
@@ -66,8 +66,8 @@ const ROWS: [string, string, string][] = [
   ['Finding a plan', 'Search, download, and pick from too many', 'Your first practice is planned when you set up your team'],
   ['Your ice time', 'Written for someone else’s practice', 'Timed to your ice, minute by minute'],
   ['Skill groups', 'One version for everyone', 'Skill groups built in, and many drills have an easier and a harder version'],
-  ['Stations', 'You work out the rotation yourself', 'Station rotations planned and timed for half ice'],
-  ['Next week', 'Start over, or run the same one again', 'Starts from your last practice, with suggestions from your 20-second check-in'],
+  ['Stations', 'You work out the rotation yourself', 'Stations for the coaches you have, planned and timed for half ice'],
+  ['Next week', 'Start over, or run the same one again', 'Arrives planned, built on your last practice and your 20-second check-in'],
   ['Co-coaches', 'Drills in the group chat, forgotten by puck drop', 'Every coach has the plan and the next drill on their phone'],
   ['Parents', 'Nothing', 'One link to the plan. No app, no sign-in.'],
   ['On the glass', 'Print it and tape it up', 'Print it and tape it up'],
@@ -80,7 +80,7 @@ export default function ComparePdfPage() {
       <p className="text-[15px] font-medium text-rink-100">Compare</p>
       <h1 className="mt-2 font-display text-[clamp(32px,5vw,46px)] font-extrabold leading-[1.06] tracking-[-0.03em]">{TITLE}</h1>
       <p className="mt-5 text-[19px] leading-[1.6]">
-        A downloaded PDF gives you one practice that someone else planned. Firstpass plans practices for your ice time and your skill groups, then suggests changes for next week from how this one went. You can still print it for the glass.
+        A downloaded PDF gives you one practice that someone else planned. Firstpass plans every practice for your ice time, your skill groups and the coaches you have. Each one builds on how the last one went. You can still print it for the glass.
       </p>
 
       <h2 className={prose.h2}>What I used before</h2>
@@ -170,7 +170,7 @@ export default function ComparePdfPage() {
         <h2 id="cta-title" className="font-display text-[clamp(24px,3vw,30px)] font-bold leading-tight">
           A plan for your team, not someone else’s
         </h2>
-        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Set up your ice time and skill groups once. Your first practice is planned for you, and each one after starts from the last, with suggestions from how it went. On your phone and ready to print. Free for every team this season.</p>
+        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Set up your ice time and skill groups once. Every practice arrives planned, built on the last one and how it went. On your phone and ready to print. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
 

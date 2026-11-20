@@ -159,8 +159,8 @@ const GETS: { icon: keyof typeof ICONS; title: string; body: string }[] = [
 ];
 
 const COACHES = [
-  'A plan for every practice, timed to your ice and split for your skill groups',
-  'Station rotations planned and timed for half ice',
+  'Every practice arrives planned, timed to your ice and split for your skill groups',
+  'Stations for the coaches you have, planned and timed for half ice',
   'Drills from a reviewed library, each one showing where it came from',
   'A link to share the plan with parents, free for every family',
 ];
