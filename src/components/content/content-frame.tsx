@@ -48,6 +48,9 @@ export function ContentFrame({ data, children }: { data: unknown; children: Reac
             <Link href="/u7" className="py-2.5 underline-offset-2 hover:underline">
               U7 practice help
             </Link>
+            <Link href="/associations" className="py-2.5 underline-offset-2 hover:underline">
+              Associations
+            </Link>
             <a href="mailto:hello@firstpass.coach" className="py-2.5 underline-offset-2 hover:underline">
               hello@firstpass.coach
             </a>

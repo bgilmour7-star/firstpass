@@ -22,6 +22,7 @@ export type PublicPage = {
 export const PUBLIC_PAGES: PublicPage[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/associations', changeFrequency: 'monthly', priority: 0.8, updated: '2026-11-20' },
   ...HUBS.map((h) => ({ path: h.path, changeFrequency: 'weekly' as const, priority: 0.8, updated: h.updated })),
   ...ANSWER_PAGES.map((p) => ({ path: p.path, changeFrequency: 'monthly' as const, priority: 0.7, updated: p.updated })),
 ];
