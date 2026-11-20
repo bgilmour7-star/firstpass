@@ -106,7 +106,7 @@ export default function FirstPractice() {
 
       <section aria-labelledby="cta-title" className="band-teal mt-12 rounded-2xl p-[clamp(20px,4vw,32px)] text-white">
         <h2 id="cta-title" className="font-display text-[clamp(24px,3vw,30px)] font-bold leading-tight">Get this plan timed to your ice</h2>
-        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass builds each practice for your ice time and your skill groups, ready on your phone at the rink. Your first team is free.</p>
+        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass builds each practice for your ice time and your skill groups, ready on your phone at the rink. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
 

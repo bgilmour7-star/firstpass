@@ -26,7 +26,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
         intro={
           <div className="mt-16 flex flex-col gap-3 lg:mt-[120px]">
             <h1 className="font-display text-[36px] font-extrabold leading-[40px] tracking-[-0.025em] text-balance lg:text-[44px] lg:leading-[48px]">Create your free account</h1>
-            <p className="text-[17px] leading-[26px] text-ink-200">Your first team is free. Set up your team, then plan your first practice.</p>
+            <p className="text-[17px] leading-[26px] text-ink-200">Free for every team this season. Set up your team, then plan your first practice.</p>
           </div>
         }
       />

@@ -31,7 +31,7 @@ export function landingStructuredData() {
         operatingSystem: 'Web, iOS, Android',
         description: LANDING_DESCRIPTION,
         audience: { '@type': 'Audience', audienceType: 'Volunteer U5–U9 hockey coaches' },
-        offers: { '@type': 'Offer', price: 0, priceCurrency: 'CAD', description: 'Your first team is free' },
+        offers: { '@type': 'Offer', price: 0, priceCurrency: 'CAD', description: 'Free for every team in the 2026–27 season', priceValidUntil: '2027-08-31' },
         publisher: { '@id': org },
       },
     ],

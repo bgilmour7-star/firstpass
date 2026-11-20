@@ -31,7 +31,7 @@ export default function U7Hub() {
 
       <section aria-labelledby="cta-title" className="mt-12 rounded-2xl bg-surface-200 p-[clamp(20px,4vw,32px)]">
         <h2 id="cta-title" className="font-display text-[clamp(22px,3vw,28px)] font-bold leading-tight">Every practice, planned for your team</h2>
-        <p className="mt-3 text-[17px] leading-[1.6]">Firstpass builds each practice for your ice time and skill groups. Your first team is free.</p>
+        <p className="mt-3 text-[17px] leading-[1.6]">Firstpass builds each practice for your ice time and skill groups. Free for every team this season.</p>
         <StartLink className={`${cta} mt-5`} />
       </section>
     </ContentFrame>
