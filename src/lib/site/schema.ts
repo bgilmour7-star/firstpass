@@ -63,7 +63,8 @@ export type WaitlistEntry = {
   createdAt: string;
 };
 
-export type PageEvent = { occurredAt: string; name: EventName; visitor: string; source: string | null; device: Device | null; region: string | null };
+/** `path` is the page the event happened on (decision 0041); older rows and the local store may not have it. */
+export type PageEvent = { occurredAt: string; name: EventName; visitor: string; source: string | null; device: Device | null; region: string | null; path?: string | null };
 
 /** A link tag (?from=shared-ice) or a referring site, lower-case and short. Our own site doesn't count. */
 export function cleanSource(raw: string | null | undefined): string | null {

@@ -7,7 +7,7 @@ import type { MetricName, PageGroup, Vital } from './vitals';
 import type { Growth, NewEvent, SiteStore } from './store';
 
 type WaitlistRow = { id: string; email: string; kind: WaitlistEntry['kind']; age_group: string | null; org_name: string | null; team_count: number | null; source: string | null; status: WaitlistStatus; created_at: string };
-type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null };
+type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null; path: string | null };
 
 const missing = (e: { code?: string; message: string }) => e.code === 'PGRST202' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the function/i.test(e.message);
 
@@ -53,7 +53,7 @@ export class SupabaseSiteStore implements SiteStore {
       // Automated visits are marked, not deleted (20261031000000_automated_visits.sql). Before that
       // SQL has run the column doesn't exist, so read without the filter rather than fail.
       const page = (skipAutomated: boolean) => {
-        let q = db.from('page_events').select('occurred_at, name, visitor, source, device, region').gte('occurred_at', sinceIso);
+        let q = db.from('page_events').select('occurred_at, name, visitor, source, device, region, path').gte('occurred_at', sinceIso);
         if (skipAutomated) q = q.eq('automated', false);
         return q.order('occurred_at').range(from, from + 999);
       };
@@ -64,7 +64,7 @@ export class SupabaseSiteStore implements SiteStore {
       }
       if (error) throw new Error(missing(error) ? 'waitlist-migration-missing' : error.message);
       const rows = (data ?? []) as EventRow[];
-      out.push(...rows.map((r) => ({ occurredAt: r.occurred_at, name: r.name, visitor: r.visitor, source: r.source, device: r.device, region: r.region })));
+      out.push(...rows.map((r) => ({ occurredAt: r.occurred_at, name: r.name, visitor: r.visitor, source: r.source, device: r.device, region: r.region, path: r.path })));
       if (rows.length < 1000 || out.length >= 50_000) break;
     }
     return out;
