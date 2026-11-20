@@ -11,7 +11,7 @@ import { SITE } from '@/lib/site/public-pages';
 const PATH = '/firstpass-vs-pdf-practice-plans';
 const TITLE = 'Firstpass vs. a PDF practice plan and a clipboard';
 const DESCRIPTION =
-  'A downloaded PDF gives you one practice someone else planned. Firstpass plans every practice for your ice time, your skill groups and the coaches you have, and you can still print it for the glass.';
+  'A PDF is one practice someone else planned. Firstpass plans every practice for your ice, your skill groups and your coaches, and you can still print it.';
 const PUBLISHED = '2026-11-20';
 
 export const metadata: Metadata = {

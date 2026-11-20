@@ -5,7 +5,7 @@ import merryGoRound from '../../../../content/drills/warmup-merry-go-round.json'
 import edgesAndPucks from '../../../../content/drills/rotation-edges-and-pucks.json';
 import keepAway from '../../../../content/drills/keep-away-circle.json';
 import copsAndRobbers from '../../../../content/drills/cops-and-robbers.json';
-import { ContentFrame, ctaOnTeal, prose } from '@/components/content/content-frame';
+import { ContentFrame, MoreAnswers, ctaOnTeal, prose } from '@/components/content/content-frame';
 import { PlanTable, totalOf, type PlanRow } from '@/components/content/plan-table';
 import { StartLink } from '@/components/landing/start-link';
 import { ANSWER_PAGES, hubFor } from '@/lib/content/pages';
@@ -130,6 +130,8 @@ export default function StationsHalfIce() {
         <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass plans station rotations for half ice, timed to your ice, with your skill groups built in. Tell it who&apos;s coaching today and it plans one station per coach. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
+
+      <MoreAnswers path="/u7/stations-half-ice" />
 
       <p className="mt-10 border-t border-border-100 pt-5 text-[15px] leading-[1.5] text-ink-200">
         Written by Brett, a U7 coach in Nanaimo, BC. Last checked against our practices on November 20, 2026.{' '}

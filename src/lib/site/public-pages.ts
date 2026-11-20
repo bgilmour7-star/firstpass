@@ -3,11 +3,11 @@
 // middleware asks isOpenPath(), so a new public page added here can't end up behind sign-in.
 
 import { ANSWER_PAGES, HUBS } from '@/lib/content/pages';
+import { AI_BOTS } from './bots';
 
 export const SITE = 'https://firstpass.coach';
 
-/** AI search and answer crawlers, named in robots.txt so the welcome is explicit. */
-export const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot', 'Google-Extended', 'Applebot-Extended'];
+export { AI_BOTS };
 
 export type PublicPage = {
   path: string;

@@ -23,8 +23,8 @@ import {
 // built yet, so the page says so plainly. Team progress reports never go to associations (decision 0030).
 
 const PATH = '/associations';
-const TITLE = 'Firstpass for minor hockey associations';
-const DESCRIPTION = `Every U5–U9 team planning the same way, from $${LOWEST_ASSOCIATION_PRICE} per team a season. Free for every team this season. See all your teams, set up coaches, and pay as one association or team by team.`;
+const TITLE = 'Practice planning for minor hockey associations';
+const DESCRIPTION = `Every U5–U9 team planning the same way, from $${LOWEST_ASSOCIATION_PRICE} a team a season. Free this season. See all your teams and pay as one, or team by team.`;
 const UPDATED = '2026-11-20';
 
 const HIGHEST_ASSOCIATION_PRICE = Math.max(...ASSOCIATION_TIERS.flatMap((t) => (t.price === null ? [] : [t.price])));

@@ -3,6 +3,7 @@ import { Mark } from '@/components/landing/mark';
 import { StartLink } from '@/components/landing/start-link';
 import { VisitTracker } from '@/components/landing/visit-tracker';
 import { jsonLd } from '@/lib/site/structured-data';
+import { ANSWER_PAGES } from '@/lib/content/pages';
 
 // The frame for the answer pages and hubs (decision 0038): the logo, one reading column, a footer
 // that links back to the hub. Phone first. Visits count the same way as the landing page (no
@@ -64,5 +65,26 @@ export function ContentFrame({ data, children }: { data: unknown; children: Reac
         </div>
       </footer>
     </div>
+  );
+}
+
+/** The other answers for the same age group, so each page links to its neighbours (decision 0047). */
+export function MoreAnswers({ path }: { path: string }) {
+  const page = ANSWER_PAGES.find((p) => p.path === path);
+  const others = ANSWER_PAGES.filter((p) => page && p.age === page.age && p.path !== path);
+  if (!others.length) return null;
+  return (
+    <nav aria-labelledby="more-answers" className="mt-12">
+      <h2 id="more-answers" className="font-display text-[20px] font-bold leading-tight">More {page!.age} answers</h2>
+      <ul className="mt-2 flex flex-col">
+        {others.map((p) => (
+          <li key={p.path}>
+            <Link href={p.path} className="inline-flex min-h-11 items-center text-[17px] text-rink-100 underline underline-offset-2">
+              {p.question}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
