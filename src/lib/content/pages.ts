@@ -30,7 +30,7 @@ export const ANSWER_PAGES: AnswerPage[] = [
     path: '/u7/keep-kids-listening',
     age: 'U7',
     question: 'How do I keep 6-year-olds listening on the ice?',
-    summary: 'Short explanations, a signal they know, and only one new drill a practice. What works with our U7 team in Nanaimo.',
+    summary: 'Short explanations, a signal they know, and as few new drills as possible. What works with our U7 team in Nanaimo.',
     published: '2026-11-19',
     updated: '2026-11-19',
   },

@@ -74,15 +74,22 @@ const commands: Record<string, (args: string[]) => Promise<void> | void> = {
     if (error) throw error;
     const rows = new Map((data ?? []).map((r) => [r.id as string, r as { status: string; content: Record<string, unknown> }]));
     // Key order doesn't matter, and the repo file's status isn't part of the drill.
-    const canon = (v: unknown): unknown => (Array.isArray(v) ? v.map(canon) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().filter((k) => k !== 'status').map((k) => [k, canon((v as Record<string, unknown>)[k])])) : v);
+    const canon = (v: unknown): unknown => (Array.isArray(v) ? v.map(canon) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon((v as Record<string, unknown>)[k])])) : v);
+    const withoutStatus = (d: Record<string, unknown>) => Object.fromEntries(Object.entries(d).filter(([k]) => k !== 'status'));
     let bad = 0;
     for (const id of ids) {
       const row = rows.get(id);
       const s = row?.status ?? 'missing';
       const pages = Object.entries(PUBLIC_DRILLS).filter(([, v]) => v.includes(id)).map(([k]) => k).join(', ');
       // Public pages are built from content/drills, so the file has to match the live drill (times, names, diagram).
-      const file = JSON.parse(readFileSync(join(CONTENT, `${id}.json`), 'utf8'));
-      const same = row && JSON.stringify(canon(file)) === JSON.stringify(canon(row.content));
+      const path = join(CONTENT, `${id}.json`);
+      if (!existsSync(path)) {
+        bad++;
+        console.log(`FAIL  ${id}: no content/drills/${id}.json (on ${pages}). Pull it: npm run drills -- pull ${id}`);
+        continue;
+      }
+      const file = withoutStatus(JSON.parse(readFileSync(path, 'utf8')));
+      const same = row && JSON.stringify(canon(file)) === JSON.stringify(canon(withoutStatus(row.content)));
       if (s === 'live' && same) console.log(`ok    ${id}`);
       else {
         bad++;
