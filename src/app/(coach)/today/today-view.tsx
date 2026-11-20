@@ -7,7 +7,7 @@ import type { Favorite } from '@/lib/app/store';
 import { Rink, RinkLegend } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { addMinutes, blockLevels, blockMinutes, clock, groupLabels, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import { addMinutes, blockLevels, blockMinutes, clock, coachesToday, groupLabels, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import { currentIndex, practicePhase, upNextIndex, whenLabel, type Phase } from '@/lib/today/phase';
 import { Icon, ShareControl } from '../plans/[id]/parts';
 import type { RinkDiagramProps } from '../../../../design-system/index';
@@ -98,7 +98,7 @@ export function TodayView({
     `${fmt(start)}–${fmt(end)}`,
     practice.ice === 'half' ? 'Half ice' : 'Full ice',
     `${skaters} skaters in ${gc} group${gc === 1 ? '' : 's'}`,
-    `${team.coachesOnIce} coach${team.coachesOnIce === 1 ? '' : 'es'} on the ice`,
+    `${coachesToday(team, practice.attendance)} coach${coachesToday(team, practice.attendance) === 1 ? '' : 'es'} on the ice`,
     ...(isToday && offset !== 0 ? [`started ${offset} min late`] : []),
   ].join(' · ');
 

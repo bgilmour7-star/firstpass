@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Rink } from '@/components/ds';
 import { FORMAT_NAME, FormatLabel, formatWhat } from './format';
 import { FOCUS_ATTRIBUTES, startLevelFor, type Drill, type Group } from '@/lib/drills/schema';
-import { activeGroups, groupLabel, usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
+import { activeGroups, groupLabel, todayUnits, usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
 import type { Favorite } from '@/lib/app/store';
 import { StarIcon, starredBy } from '@/components/favorite-button';
@@ -554,7 +554,11 @@ export function ShareControl({ practiceId, initial, compact, labelled }: { pract
   );
 }
 
-/** "Who's here today": counts per group and merges, for this practice only. */
+/**
+ * "Who's here today": skaters per group, coaches, and how many groups skate (decision 0046), for this practice
+ * only. Fewer coaches suggests fewer groups; the coaches rebalance the kids. The buttons say what happens: a team
+ * that asks first chooses between updating the plan and keeping it.
+ */
 export function AttendanceDialog({
   team,
   value,
@@ -565,18 +569,23 @@ export function AttendanceDialog({
   team: Team;
   value: Attendance | null;
   preview: (a: Attendance) => string[];
-  onApply: (a: Attendance | null) => void;
+  onApply: (a: Attendance | null, how: 'update' | 'keep') => void;
   onClose: () => void;
 }) {
   const usual = usualCounts(team);
-  const [a, setA] = useState<Attendance>(value ?? { counts: usual, merges: [] });
-  const merged = (x: Group, y: Group) => a.merges.some(([p, q]) => (p === x && q === y) || (p === y && q === x));
-  const toggle = (x: Group, y: Group) => setA((s) => ({ ...s, merges: merged(x, y) ? s.merges.filter(([p, q]) => !((p === x && q === y) || (p === y && q === x))) : [...s.merges, [x, y]] }));
-  const changes = preview(a);
-  // Only the groups the team uses (decision 0026), by the team's names; merges pair neighbours.
   const on = activeGroups(team);
-  const pairs = on.slice(1).map((g, i) => [on[i], g] as const);
   const name = (g: Group) => groupLabel(team, g);
+  const start = value ?? { counts: usual, merges: [] };
+  const [a, setA] = useState<Attendance>({ ...start, coaches: start.coaches ?? team.coachesOnIce, groups: start.groups ?? todayUnits(team, value).length });
+  const present = Math.max(1, on.filter((g) => a.counts[g] > 0).length);
+  const groups = Math.min(a.groups ?? present, present);
+  const coaches = a.coaches ?? team.coachesOnIce;
+  const kids = on.reduce((n, g) => n + a.counts[g], 0);
+  // Saved with only what differs from the team's usual, so "Back to usual" really is.
+  const clean = (x: Attendance): Attendance => ({ ...x, coaches: x.coaches === team.coachesOnIce ? undefined : x.coaches, groups: (x.groups ?? present) >= present ? undefined : x.groups, keepZones: undefined });
+  const setCoaches = (n: number) => setA((s) => ({ ...s, coaches: n, groups: Math.min(n, present), merges: [] }));
+  const changes = preview(clean({ ...a, groups }));
+  const ask = team.planning === 'ask';
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', esc);
@@ -585,12 +594,12 @@ export function AttendanceDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-labelledby="att-title">
       <button type="button" aria-label="Close" className="absolute inset-0 bg-ink-100/40" onClick={onClose} />
-      <div className="relative flex w-full max-w-[440px] flex-col gap-4 rounded-t-[18px] bg-surface-100 p-4 shadow-xl sm:rounded-[14px]">
+      <div className="relative flex max-h-[92dvh] w-full max-w-[440px] flex-col gap-4 overflow-y-auto rounded-t-[18px] bg-surface-100 p-4 shadow-xl sm:rounded-[14px]">
         <div className="flex flex-col gap-0.5">
           <h2 id="att-title" className="text-[17px] font-extrabold">
             Who&apos;s here today
           </h2>
-          <p className="text-sm text-ink-200">Only this practice. Your team&apos;s usual groups don&apos;t change.</p>
+          <p className="text-sm text-ink-200">Only this practice. Your team&apos;s usual numbers don&apos;t change.</p>
         </div>
         <div className="flex flex-col gap-2">
           {on.map((g) => (
@@ -600,40 +609,68 @@ export function AttendanceDialog({
               <Stepper value={a.counts[g]} min={0} max={20} label="" onChange={(n) => setA((s) => ({ ...s, counts: { ...s.counts, [g]: n } }))} />
             </div>
           ))}
+          <div className="mt-1 grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-2 border-t border-border-100 pt-3 text-sm">
+            <b>Coaches</b>
+            <span className="text-xs text-ink-200">usually {team.coachesOnIce}</span>
+            <Stepper value={coaches} min={1} max={10} label="" onChange={setCoaches} />
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          {pairs.map(([x, y]) => (
-            <label key={x + y} className="flex cursor-pointer items-center gap-3 rounded-md bg-surface-200 px-3 py-2.5 text-sm">
-              <input type="checkbox" role="switch" checked={merged(x, y)} onChange={() => toggle(x, y)} className="h-5 w-5 accent-[var(--rink-100)]" />
-              <span>
-                <b>
-                  Merge {name(x)} and {name(y)} today
-                </b>
-                <br />
-                <span className="text-xs text-ink-200">One group of {a.counts[x] + a.counts[y]}, at the easier group&apos;s level.</span>
-              </span>
-            </label>
-          ))}
-        </div>
+        {present > 1 && (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-sm font-semibold">Groups today</legend>
+            <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${present}, minmax(0, 1fr))` }}>
+              {Array.from({ length: present }, (_, i) => present - i).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  aria-pressed={groups === n}
+                  onClick={() => setA((s) => ({ ...s, groups: n, merges: [] }))}
+                  className={`min-h-11 rounded-[10px] text-[15px] ${groups === n ? 'border-2 border-rink-100 bg-surface-200 font-semibold text-rink-200' : 'border border-border-100 hover:bg-surface-200'}`}
+                >
+                  {n} group{n === 1 ? '' : 's'}
+                </button>
+              ))}
+            </div>
+            <span className="text-[13px] leading-normal text-ink-200">
+              {coaches < groups ? `${coaches} coach${coaches === 1 ? '' : 'es'} for ${groups} groups: ${groups - coaches === 1 ? 'one zone has' : `${groups - coaches} zones have`} no coach. ` : ''}
+              {groups === 1 ? 'Everyone skates as one group.' : groups < present ? `Split the ${kids} kids into ${groups} even groups.` : 'Every skill group skates on its own.'}
+            </span>
+          </fieldset>
+        )}
         {changes.length > 0 && (
-          <div className="text-[13px] leading-5">
-            <b>What changes: </b>
+          <div className="rounded-[10px] bg-surface-200 px-3 py-2.5 text-[13px] leading-5">
+            <b>{ask ? 'If you update the plan: ' : 'What changes: '}</b>
             {changes.join(' ')}
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {value && (
-            <button type="button" onClick={() => onApply(null)} className="mr-auto min-h-10 rounded-full px-3 text-sm text-ink-200 hover:bg-surface-200">
-              Back to usual
+        <div className="flex flex-col gap-2">
+          <button type="button" onClick={() => onApply(clean({ ...a, groups }), 'update')} className="min-h-12 rounded-full bg-rink-100 px-4 text-base font-medium text-surface-100">
+            Update the plan
+          </button>
+          {ask && (
+            <button type="button" onClick={() => onApply(clean({ ...a, groups: value?.groups }), 'keep')} className="min-h-12 rounded-full border border-border-100 px-4 text-base hover:bg-surface-200">
+              Save, keep the plan
             </button>
           )}
-          <button type="button" onClick={onClose} className="min-h-10 rounded-full border border-border-100 px-4 text-sm hover:bg-surface-200">
-            Cancel
-          </button>
-          <button type="button" onClick={() => onApply(a)} className="min-h-10 rounded-full bg-rink-100 px-4 text-sm font-medium text-surface-100">
-            Apply to today
-          </button>
+          <div className="flex items-center justify-between gap-2">
+            {value ? (
+              <button type="button" onClick={() => onApply(null, 'update')} className="min-h-11 rounded-full px-3 text-sm text-ink-200 hover:bg-surface-200">
+                Back to usual
+              </button>
+            ) : (
+              <span />
+            )}
+            <button type="button" onClick={onClose} className="min-h-11 rounded-full px-4 text-sm text-ink-200 hover:bg-surface-200">
+              Cancel
+            </button>
+          </div>
         </div>
+        <span className="text-center text-xs text-ink-200">
+          {ask ? 'Your team asks first.' : 'Your team lets Firstpass update the plan.'}{' '}
+          <a href="/team/settings" className="text-rink-100 underline underline-offset-2">
+            Change in Team settings
+          </a>
+        </span>
       </div>
     </div>
   );

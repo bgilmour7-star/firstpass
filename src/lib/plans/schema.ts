@@ -102,6 +102,12 @@ export const attendanceSchema = z.object({
   counts: z.object({ Sharks: z.number().int().min(0).max(20), Bears: z.number().int().min(0).max(20), Eagles: z.number().int().min(0).max(20) }),
   /** Groups skating together today, e.g. [["Sharks", "Bears"]]. */
   merges: z.array(z.tuple([z.enum(GROUPS), z.enum(GROUPS)])).max(2).default([]),
+  /** Coaches on the ice today, when it's not the team's usual number (decision 0046). */
+  coaches: z.number().int().min(1).max(10).optional(),
+  /** "Groups today": reduce to this many groups; coaches rebalance the kids (decision 0046). Sets the stations. */
+  groups: z.number().int().min(1).max(3).optional(),
+  /** "Keep 3": the coach chose to keep more zones than coaches today, so the warning stays quiet. */
+  keepZones: z.boolean().optional(),
 });
 
 export const practiceSchema = z.object({
@@ -157,6 +163,8 @@ export const teamSchema = z.object({
   gear: gearSchema.default({}),
   /** What the team works on to start (up to two), shown on the Team page. */
   focus: z.array(z.enum(FOCUS_ATTRIBUTES)).max(2).default([]),
+  /** When something changes (who's here, a check-in): update the plan for us, or ask first (decision 0046). */
+  planning: z.enum(['auto', 'ask']).default('auto'),
 });
 
 export type Block = z.infer<typeof blockSchema>;
@@ -173,7 +181,7 @@ export type Team = z.infer<typeof teamSchema>;
 /** A group as it skates today: one skill group, or several merged. Ordered easiest first. `names` are the team's names for `groups`. */
 export type Unit = { key: string; label: string; groups: Group[]; names: string[]; skaters: number };
 
-type TeamGroups = { groups: readonly { group: Group; skaters: number; name?: string; off?: boolean }[] };
+type TeamGroups = { groups: readonly { group: Group; skaters: number; name?: string; off?: boolean }[]; coachesOnIce?: number; planning?: 'auto' | 'ask' };
 
 /**
  * What the team calls a group slot (decision 0026). Every screen that shows a group name reads it
@@ -215,10 +223,57 @@ export function todayUnits(team: TeamGroups, attendance: Attendance | null): Uni
   }
   const units = new Map<Group, Group[]>();
   present.forEach((g) => units.set(find(g), [...(units.get(find(g)) ?? []), g]));
-  return [...units.values()].map((gs) => {
+  const out = [...units.values()].map((gs) => {
     const names = gs.map((g) => groupLabel(team, g));
     return { key: gs.join('+'), label: names.join(' + '), groups: gs, names, skaters: gs.reduce((n, g) => n + counts[g], 0) };
   });
+  return reduceUnits(out, groupsTarget(team, attendance, out.length));
+}
+
+/** How many groups skate today: the practice's own "Groups today", else every group (decision 0046). */
+function groupsTarget(_team: TeamGroups, attendance: Attendance | null, n: number): number {
+  void _team;
+  return attendance?.groups ?? n;
+}
+
+/**
+ * Who's here for a new plan (decision 0046): a team that lets Firstpass update the plan and has fewer coaches
+ * than groups starts with one group per coach, saved on the plan so it shows as changed for today and can be
+ * undone. Existing plans never change on their own.
+ */
+export function startingAttendance(team: TeamGroups & { coachesOnIce: number }): Attendance | null {
+  const n = todayUnits(team, null).length;
+  if (team.planning === 'ask' || team.coachesOnIce >= n) return null;
+  return { counts: usualCounts(team), merges: [], groups: team.coachesOnIce };
+}
+
+/** Coaches on the ice today: the practice's own number, else the team's (decision 0046). */
+export function coachesToday(team: { coachesOnIce?: number }, attendance: Attendance | null): number {
+  return Math.max(1, attendance?.coaches ?? team.coachesOnIce ?? 3);
+}
+
+/**
+ * Fewer groups today (decision 0046): the two neighbouring groups (by level) with the fewest skaters join,
+ * again until there are `target`. Coaches rebalance the kids into even groups on the ice; drills with levels
+ * start a joined group at the easier level, like a merge.
+ */
+export function reduceUnits(units: Unit[], target: number): Unit[] {
+  let out = [...units];
+  const max = Math.max(1, target);
+  while (out.length > max) {
+    let best = 0;
+    for (let i = 1; i < out.length - 1; i++) if (out[i].skaters + out[i + 1].skaters < out[best].skaters + out[best + 1].skaters) best = i;
+    const [a, b] = [out[best], out[best + 1]];
+    const joined: Unit = { key: `${a.key}+${b.key}`, label: `${a.label} + ${b.label}`, groups: [...a.groups, ...b.groups], names: [...a.names, ...b.names], skaters: a.skaters + b.skaters };
+    out = [...out.slice(0, best), joined, ...out.slice(best + 2)];
+  }
+  return out;
+}
+
+/** More groups (so more zones) than coaches today, and the coach hasn't chosen to keep them (decision 0046). */
+export function zonesWithoutCoach(team: TeamGroups, attendance: Attendance | null, units: Unit[]): number {
+  if (attendance?.keepZones) return 0;
+  return Math.max(0, units.length - coachesToday(team, attendance));
 }
 
 export function attendanceLabel(units: Unit[]): string {
@@ -230,7 +285,7 @@ export function attendanceLabel(units: Unit[]): string {
 export function isAdapted(team: TeamGroups, attendance: Attendance | null): boolean {
   if (!attendance) return false;
   const u = usualCounts(team);
-  return attendance.merges.length > 0 || activeGroups(team).some((g) => attendance.counts[g] !== u[g]);
+  return attendance.merges.length > 0 || attendance.coaches !== undefined || attendance.groups !== undefined || activeGroups(team).some((g) => attendance.counts[g] !== u[g]);
 }
 
 // ---------------------------------------------------------------- how blocks adapt

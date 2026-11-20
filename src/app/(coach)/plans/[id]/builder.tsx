@@ -14,6 +14,7 @@ import {
   drillIds,
   isOldRotation,
   isAdapted,
+  usualCounts,
   blockLevels,
   newActivity,
   newId,
@@ -24,6 +25,8 @@ import {
   groupLabels,
   totalMinutes,
   unusedZones,
+  zonesWithoutCoach,
+  coachesToday,
   ZONES,
   type Attendance,
   type Block,
@@ -478,10 +481,24 @@ export function Builder({
     setPicker(null);
   }
 
-  const setAttendance = (a: Attendance | null) => {
-    setPlan((p) => ({ ...p, attendance: a && isAdapted(team, a) ? a : null }));
+  // Decision 0046: say what changed when the plan updates, with Undo.
+  const [changed, setChanged] = useState<{ text: string; free: number; prev: Attendance | null } | null>(null);
+  const setAttendance = (a: Attendance | null, how: 'update' | 'keep' = 'update') => {
+    const prev = plan.attendance;
+    const next = a && isAdapted(team, a) ? a : null;
+    if (how === 'update' && next) {
+      const u2 = todayUnits(team, next);
+      const c = coachesToday(team, next);
+      const free = used - totalMinutes(blocks, u2.length);
+      const lines = preview(next);
+      setChanged({ text: `Plan updated for ${c} coach${c === 1 ? '' : 'es'} and ${u2.length} group${u2.length === 1 ? '' : 's'}.${lines.length ? ' ' + lines.join(' ') : ''}`, free: Math.max(0, free), prev });
+    } else setChanged(null);
+    setPlan((p) => ({ ...p, attendance: next }));
     setAttOpen(false);
   };
+  const zonesOff = zonesWithoutCoach(team, plan.attendance, units);
+  const runZones = () => setAttendance({ ...(plan.attendance ?? { counts: usualCounts(team), merges: [] }), groups: coachesToday(team, plan.attendance) });
+  const keepZones = () => setPlan((p) => ({ ...p, attendance: { ...(p.attendance ?? { counts: usualCounts(team), merges: [] }), keepZones: true } }));
 
   // "What changes" in the attendance dialog, before the coach applies it.
   const preview = useCallback(
@@ -660,6 +677,28 @@ export function Builder({
       {/* The plan leads on the white page; practice-wide info sits in a grey margin column beside it (design system: Panel). */}
       <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-stretch">
         <ol className="flex min-w-0 flex-col pb-6 lg:pr-14 lg:pt-5">
+          {changed && (
+            <li role="status" className="mb-2 mt-3 flex flex-col gap-2 rounded-xl border border-rink-100 px-3.5 py-3 lg:mt-0">
+              <span className="text-sm leading-normal">{changed.text}</span>
+              <span className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => { setPlan((p) => ({ ...p, attendance: changed.prev })); setChanged(null); }} className="min-h-10 rounded-full border border-border-100 px-3.5 text-sm hover:bg-surface-200">
+                  Undo
+                </button>
+                {changed.free > 0 && (
+                  <button type="button" onClick={() => { setChanged(null); document.getElementById('time-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }} className="min-h-10 rounded-full border border-border-100 px-3.5 text-sm hover:bg-surface-200">
+                    Use the {changed.free} minutes
+                  </button>
+                )}
+                <button type="button" onClick={() => setChanged(null)} className="min-h-10 px-2 text-sm text-ink-200 hover:text-ink-100">
+                  Got it
+                </button>
+              </span>
+              <span className="text-xs text-ink-200">
+                {team.planning === 'ask' ? 'You chose to update the plan.' : 'Your team lets Firstpass update the plan.'}{' '}
+                <Link href="/team/settings" className="text-rink-100 underline underline-offset-2">Change in Team settings</Link>
+              </span>
+            </li>
+          )}
           {blocks.map((b, i) => (
             <li
               key={b.id}
@@ -735,6 +774,7 @@ export function Builder({
                     ) : null
                   }
                   appliedNotes={suggest ? applied.filter((a) => a.blockId === b.id).map((a) => <AppliedNote key={a.key} a={a} onUndo={() => undo(a)} />) : null}
+                  zoneWarn={b.kind === 'rotation' && zonesOff > 0 ? { zones: units.length, coaches: coachesToday(team, plan.attendance), onRun: runZones, onKeep: keepZones } : undefined}
                   onSwap={() => swapFor(b)}
                   onBreak={(rule) =>
                     rule === 'hard'
@@ -771,6 +811,7 @@ export function Builder({
         <aside aria-label="This practice" className="flex flex-col gap-[18px] lg:sticky lg:top-[96px]">
           <p className="hidden text-xs font-semibold tracking-[0.02em] text-ink-200 lg:block">This practice</p>
           <div className="flex flex-col">
+          <div id="time-card" />
           <TimeCard
             used={used}
             total={plan.minutes}
@@ -788,9 +829,9 @@ export function Builder({
               return last?.kind === 'activity' && last.activity === 'huddle' ? times[blocks.length - 1] : endTime;
             })()}
           />
-          {suggest?.goals && <GoalsPanel goals={suggest.goals} shares={planShares(blocks, byId)} />}
+          {suggest?.goals && <GoalsPanel goals={suggest.goals} shares={planShares(blocks, byId, gc)} />}
           {suggest && <CheckinPanel day={suggest.day} open={[...openSug].sort((x, y) => blocks.findIndex((b) => b.id === x.blockId) - blocks.findIndex((b) => b.id === y.blockId))} applied={applied} kept={keptSug} stays={sug.stays} />}
-          <PanelSec title="Who's here today" right={`${units.reduce((n, u) => n + u.skaters, 0)} skaters`}>
+          <PanelSec title="Who's here today" right={`${units.reduce((n, u) => n + u.skaters, 0)} skaters · ${coachesToday(team, plan.attendance)} coach${coachesToday(team, plan.attendance) === 1 ? '' : 'es'}`}>
             <ul className="grid grid-cols-3 gap-2">
               {units.map((u) => (
                 <li key={u.key} className="flex min-w-0 flex-col">
@@ -971,7 +1012,9 @@ function BlockBody({
   selected,
   onOpen,
   actions,
+  zoneWarn,
 }: {
+  zoneWarn?: { zones: number; coaches: number; onRun: () => void; onKeep: () => void };
   block: Block;
   index: number;
   count: number;
@@ -1000,6 +1043,24 @@ function BlockBody({
   const empty = !act && !d && !(b.kind === 'rotation' && isOldRotation(b));
   // One message per drill: a suggestion first, then the variety check, then the new-drill limit, then what coaches said.
   const box =
+    (zoneWarn ? (
+      <div role="note" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-[1.5px] border-dashed border-whistle-100 px-3.5 py-2.5">
+        <p className="min-w-0 flex-[1_1_260px] text-sm">
+          <b className="font-semibold text-warn-text">
+            {zoneWarn.zones} zones, {zoneWarn.coaches} coach{zoneWarn.coaches === 1 ? '' : 'es'} today.
+          </b>{' '}
+          <span className="text-ink-200">{zoneWarn.zones - zoneWarn.coaches === 1 ? 'One zone has' : `${zoneWarn.zones - zoneWarn.coaches} zones have`} no coach.</span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={zoneWarn.onRun} className="min-h-10 rounded-full bg-ink-100 px-4 text-sm font-semibold text-surface-100 hover:opacity-90">
+            Run {zoneWarn.coaches} zone{zoneWarn.coaches === 1 ? '' : 's'}
+          </button>
+          <button type="button" onClick={zoneWarn.onKeep} className="min-h-10 px-2 text-sm text-ink-200 hover:text-ink-100">
+            Keep {zoneWarn.zones}
+          </button>
+        </div>
+      </div>
+    ) : null) ??
     suggestion ??
     (variety[0] ? (
       <VarietyBox w={variety[0]} also={varietyAlso} onSwap={onSwap} onBreak={() => onBreak(variety[0].rule)} onKeep={() => onKeep(variety[0].rule)} />
@@ -1078,7 +1139,7 @@ function blockTag(b: Block, d: Drill | undefined, gc: number): React.ReactNode {
     return (
       <>
         <FormatIcon model="rotation" />
-        {FORMAT_NAME.rotation} · {b.minutes} min a zone{off.length ? ` · ${active.length} zones today` : ''}
+        {FORMAT_NAME.rotation} · {b.minutes} min a zone{off.length ? ` · ${active.length} zone${active.length === 1 ? '' : 's'} today` : ''}
       </>
     );
   }
@@ -1246,7 +1307,7 @@ function BlockPanel({
           {d && (
             <p className="flex items-start gap-1.5 text-[13px] text-ink-200">
               <FormatIcon model="rotation" className="mt-0.5 text-rink-100" />
-              {formatWhat('rotation', d.zones?.length ?? 3)}. Whistle every {b.minutes} min.
+              {formatWhat('rotation', rotationToday(b, gc).active.length)}. Whistle every {b.minutes} min.
             </p>
           )}
           <RotationCard block={b} drill={d} byId={byId} known={known} groupCount={gc} onChoose={onSwap} onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))} />

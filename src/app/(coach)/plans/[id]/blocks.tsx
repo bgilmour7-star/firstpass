@@ -81,6 +81,7 @@ export function RotationCard({
   byId,
   known,
   groupCount,
+  note,
   onChoose,
   onUseInstead,
 }: {
@@ -89,6 +90,8 @@ export function RotationCard({
   byId: Map<string, Drill>;
   known: Set<string>;
   groupCount: number;
+  /** Fewer coaches than groups: who shares a zone today (decision 0046). On the block, never applied. */
+  note?: string;
   onChoose: () => void;
   onUseInstead: (z: Zone) => void;
 }) {
@@ -107,7 +110,9 @@ export function RotationCard({
     ? ({ ...drill.diagram, unused: ZONES.filter((z) => !letters.includes(z) || off.includes(z)) } as RinkDiagramProps)
     : { scope: 'half', side: 'left', stations: { layout: 'halfice', labels: ZONES.map((z) => (letters.includes(z) ? zoneName(z) : '')) }, unused: ZONES.filter((z) => !letters.includes(z) || off.includes(z)) };
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 sm:grid-cols-[220px_minmax(0,1fr)]">
+    // Stacks when its own space is narrow (the side panel), side by side when wide (decision 0046 fix).
+    <div className="@container">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 @lg:grid-cols-[220px_minmax(0,1fr)]">
       <Rink spec={spec} title={`${drill?.funName ?? 'Rotation'}: ${active.map((s) => `${zoneName(s.station)} at ${s.station}`).join(', ')}`} detail="thumb" className="max-w-[260px] rounded-sm border border-border-100" />
       <div className="flex min-w-0 flex-col">
         {block.stations.map((s) => {
@@ -122,7 +127,7 @@ export function RotationCard({
                   <b className={isOff ? 'line-through' : ''}>{zoneName(s.station)}</b>
                   {single && !known.has(single.id) && <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>}
                 </span>
-                <span className="text-xs text-ink-200">{isOff ? `Not used today (${groupCount} group${groupCount === 1 ? '' : 's'})` : (z?.how ?? single?.plainName ?? '')}</span>
+                <span className="text-xs text-ink-200">{isOff ? 'Not used today' : (z?.how ?? single?.plainName ?? '')}</span>
               </span>
               {isOff && lastActive && (
                 <button type="button" onClick={() => onUseInstead(lastActive)} className="min-h-9 rounded-full px-2.5 text-[13px] text-rink-100 hover:bg-surface-200">
@@ -133,6 +138,7 @@ export function RotationCard({
           );
         })}
         <p className="border-t border-border-100 pt-2 text-xs text-ink-200">Everyone does every zone. Whistle every {block.minutes} min; you pick who starts where.</p>
+        {note && <p className="mt-2 rounded-md border border-dashed border-whistle-100 px-3 py-2 text-xs text-warn-text">{note}</p>}
         {old && (
           <p className="mt-2 flex flex-wrap items-center gap-x-2 rounded-md bg-surface-200 px-3 py-2 text-xs">
             Built from single drills, before rotation drills.
@@ -142,6 +148,7 @@ export function RotationCard({
           </p>
         )}
       </div>
+    </div>
     </div>
   );
 }

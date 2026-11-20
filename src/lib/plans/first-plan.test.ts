@@ -102,3 +102,18 @@ describe('the first plan', () => {
       }
   });
 });
+
+describe('coaches on the ice (decision 0046)', () => {
+  it('one coach: no rotation, a second game instead, and the minutes still add up', () => {
+    for (const m of [45, 60, 75]) {
+      const blocks = firstPlan(m, library, 1, 'U7', [], 1);
+      expect(blocks.some((b) => b.kind === 'rotation')).toBe(false);
+      expect(totalMinutes(blocks, 1)).toBe(m);
+    }
+  });
+  it('two coaches: the rotation runs 2 stations and the minutes still add up', () => {
+    const blocks = firstPlan(60, library, 2, 'U7', [], 2);
+    expect(blocks.some((b) => b.kind === 'rotation')).toBe(true);
+    expect(totalMinutes(blocks, 2)).toBe(60);
+  });
+});

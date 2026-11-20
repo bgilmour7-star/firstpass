@@ -94,8 +94,12 @@ function RotationView({ block, drills, gc, mode }: { block: Extract<Block, { kin
   const rot = block.drillId ? drills.get(block.drillId) : undefined;
   const intro =
     mode === 'parent'
-      ? `Kids rotate through ${active.length} zones in their groups, ${block.minutes} minutes each.`
-      : `${active.length} zones, ${block.minutes} min each. Everyone does every zone; whistle every ${block.minutes} min.`;
+      ? active.length === 1
+        ? `Everyone together in one zone, ${block.minutes} minutes.`
+        : `Kids rotate through ${active.length} zones in their groups, ${block.minutes} minutes each.`
+      : active.length === 1
+        ? `One zone, ${block.minutes} min. Everyone together.`
+        : `${active.length} zones, ${block.minutes} min each. Everyone does every zone; whistle every ${block.minutes} min.`;
   if (rot) {
     const used = rot.zones?.filter((z) => !off.includes(z.station)) ?? [];
     return (

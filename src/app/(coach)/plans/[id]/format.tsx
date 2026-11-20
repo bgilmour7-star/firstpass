@@ -11,7 +11,7 @@ type Model = Drill['groupModel'];
 export const FORMAT_NAME: Record<Model, string> = { rotation: 'Everyone rotates', stations: 'Split by skill', basic: 'Whole group' };
 
 export function formatWhat(model: Model, zones = 3): string {
-  if (model === 'rotation') return `Every group does all ${zones} zones, one after another`;
+  if (model === 'rotation') return zones === 1 ? 'Everyone does one zone together' : `Every group does all ${zones} zones, one after another`;
   if (model === 'stations') return 'Each skill group plays its own version, at the same time';
   return 'Everyone does it together';
 }

@@ -9,11 +9,11 @@ import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type MyTea
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
-type TeamRow = { id: string; name: string; age_group: string; groups: Team['groups']; coaches_on_ice: number; practice_minutes: number; ice: Team['ice']; new_drills_per_week: number; gear?: Team['gear'] | null; focus?: string[] | null };
+type TeamRow = { id: string; name: string; age_group: string; groups: Team['groups']; coaches_on_ice: number; practice_minutes: number; ice: Team['ice']; new_drills_per_week: number; gear?: Team['gear'] | null; focus?: string[] | null; planning?: Team['planning'] | null };
 type PracticeRow = { id: string; team_id: string; date: string; start_time: string; minutes: number; ice: Practice['ice']; status: Practice['status']; blocks: Practice['blocks']; attendance?: Practice['attendance'] };
 
 const toTeam = (r: TeamRow): Team =>
-  teamSchema.parse({ id: r.id, name: r.name, ageGroup: r.age_group, groups: r.groups, coachesOnIce: r.coaches_on_ice, practiceMinutes: r.practice_minutes, ice: r.ice, newDrillsPerWeek: r.new_drills_per_week, gear: r.gear ?? {}, focus: r.focus ?? [] });
+  teamSchema.parse({ id: r.id, name: r.name, ageGroup: r.age_group, groups: r.groups, coachesOnIce: r.coaches_on_ice, practiceMinutes: r.practice_minutes, ice: r.ice, newDrillsPerWeek: r.new_drills_per_week, gear: r.gear ?? {}, focus: r.focus ?? [], planning: r.planning ?? 'auto' });
 
 /** The team row to save. gear and focus arrive with the 20261028 migration: callers retry without them before it has run. */
 const teamRow = (t: TeamSetup & { name?: string }) => ({
@@ -26,8 +26,9 @@ const teamRow = (t: TeamSetup & { name?: string }) => ({
   ...(t.newDrillsPerWeek !== undefined ? { new_drills_per_week: t.newDrillsPerWeek } : {}),
   ...(t.gear !== undefined ? { gear: t.gear } : {}),
   ...(t.focus !== undefined ? { focus: t.focus } : {}),
+  ...(t.planning !== undefined ? { planning: t.planning } : {}),
 });
-const missingColumn = (m: string) => /\b(gear|focus)\b|schema cache/i.test(m);
+const missingColumn = (m: string) => /\b(gear|focus|planning)\b|schema cache/i.test(m);
 const toPractice = (r: PracticeRow): Practice =>
   practiceSchema.parse({ id: r.id, teamId: r.team_id, date: r.date, startTime: r.start_time.slice(0, 5), minutes: r.minutes, ice: r.ice, status: r.status, blocks: r.blocks, attendance: r.attendance ?? null });
 
@@ -56,9 +57,10 @@ export class SupabaseAppStore implements AppStore {
     if (Object.keys(row).length) {
       const { error: e1 } = await db.from('teams').update(row).eq('id', id);
       if (e1 && missingColumn(e1.message)) {
-        const { gear: _g, focus: _f, ...rest } = row as Record<string, unknown>;
+        const { gear: _g, focus: _f, planning: _p, ...rest } = row as Record<string, unknown>;
         void _g;
         void _f;
+        void _p;
         await db.from('teams').update(rest).eq('id', id);
       } else if (e1) throw e1;
     }
@@ -71,9 +73,10 @@ export class SupabaseAppStore implements AppStore {
     const row = teamRow(t);
     let { error } = await db.from('teams').update(row).eq('id', t.id);
     if (error && missingColumn(error.message)) {
-      const { gear: _g, focus: _f, ...rest } = row as Record<string, unknown>;
+      const { gear: _g, focus: _f, planning: _p, ...rest } = row as Record<string, unknown>;
       void _g;
       void _f;
+      void _p;
       ({ error } = await db.from('teams').update(rest).eq('id', t.id));
     }
     if (error) throw error;
