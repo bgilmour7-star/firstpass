@@ -61,7 +61,7 @@ export default function StationsHalfIce() {
       <h1 className="mt-3 font-display text-[clamp(36px,5.5vw,52px)] font-extrabold leading-[1.04] tracking-[-0.03em]">{page.question}</h1>
 
       <p className="mt-6 text-[19px] leading-[1.6]">
-        Split the half ice into 2 or 3 zones, put one coach in each, and rotate the groups clockwise on the whistle. 2 or 3 stations splits a team of 12 to 16 into groups of 4 to 6, where kids don&apos;t get lost in the crowd. Group kids with others at a similar level when a drill builds step by step, and never run more stations than you have coaches, especially at U7.
+        Split the half ice into 2 or 3 zones, put one coach in each, and rotate the groups clockwise on the whistle. That splits a team of 12 to 16 into groups of 4 to 8, where kids don&apos;t get lost in the crowd. Group kids with others at a similar level when a drill builds step by step, and never run more stations than you have coaches, especially at U7.
       </p>
 
       <h2 className={prose.h2}>Why stations work</h2>
