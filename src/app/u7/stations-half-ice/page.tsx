@@ -125,9 +125,9 @@ export default function StationsHalfIce() {
 
       <section aria-labelledby="cta-title" className="band-teal mt-12 rounded-2xl p-[clamp(20px,4vw,32px)] text-white">
         <h2 id="cta-title" className="font-display text-[clamp(24px,3vw,30px)] font-bold leading-tight">
-          Stations planned for your ice and your skill groups
+          Stations for the coaches you have
         </h2>
-        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass plans station rotations for half ice, timed to your ice, with your skill groups built in. Free for every team this season.</p>
+        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass plans station rotations for half ice, timed to your ice, with your skill groups built in. Tell it who&apos;s coaching today and it plans one station per coach. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
 
