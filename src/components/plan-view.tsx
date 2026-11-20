@@ -1,15 +1,16 @@
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { blockLevels, blockMinutes, clock, levelMinutes, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
+import { blockLevels, blockMinutes, clock, levelMinutes, rotationToday, startTimes, stationsToday, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../design-system/index';
 
 // Read-only plan in time order, for the printout and the parent link, adapted to today's groups.
 
 type Mode = 'print' | 'parent';
 
-export function PlanView({ blocks, startTime, units, drills, mode }: { blocks: Block[]; startTime: string; units: Unit[]; drills: Map<string, Drill>; mode: Mode }) {
-  const gc = units.length;
+export function PlanView({ blocks, startTime, units, drills, mode, coaches }: { blocks: Block[]; startTime: string; units: Unit[]; drills: Map<string, Drill>; mode: Mode; coaches?: number }) {
+  // Rotations run no more stations than coaches (decision 0046). The parent link has no coach count yet.
+  const gc = coaches ? stationsToday(units, coaches) : units.length;
   const times = startTimes(startTime, blocks, gc);
   return (
     <ol className="flex flex-col">

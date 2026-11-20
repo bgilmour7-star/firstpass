@@ -252,5 +252,13 @@ Acceptance: a new coach taps Continue with Google on a join link and lands on "Y
 - [x] Brett: run `supabase/migrations/20261124000000_email_attribution.sql`.
 - [ ] Brett: run `supabase/migrations/20261125000000_email_attribution_fixes.sql`.
 
+## Milestone 13 — Every practice planned, stations for the coaches you have (decision 0046, 2026-11-20)
+Spec `docs/specs/every-practice-planned.md`. Before association views.
+- [x] PR A: rotations run no more stations than coaches; groups double up; coaches today in Who's here; first plan
+      with 1 coach has no rotation.
+- [ ] PR B: the next practice plans itself after a check-in, or within 36 hours when anyone opens the app.
+- [ ] Library: Level 2 and 3 for the 18 live basic drills without levels (drill review).
+- [ ] Then restore the stronger claims on `/associations`, the stations page and the comparison page.
+
 ## Later
 Stripe billing (second team), parent feedback, association admin, progression chains across weeks, TeamSnap/SportNinja APIs.

@@ -102,6 +102,8 @@ export const attendanceSchema = z.object({
   counts: z.object({ Sharks: z.number().int().min(0).max(20), Bears: z.number().int().min(0).max(20), Eagles: z.number().int().min(0).max(20) }),
   /** Groups skating together today, e.g. [["Sharks", "Bears"]]. */
   merges: z.array(z.tuple([z.enum(GROUPS), z.enum(GROUPS)])).max(2).default([]),
+  /** Coaches on the ice today, when it's not the team's usual number (decision 0046). */
+  coaches: z.number().int().min(1).max(10).optional(),
 });
 
 export const practiceSchema = z.object({
@@ -221,6 +223,34 @@ export function todayUnits(team: TeamGroups, attendance: Attendance | null): Uni
   });
 }
 
+/** Coaches on the ice today: the practice's own number, else the team's (decision 0046). */
+export function coachesToday(team: { coachesOnIce?: number }, attendance: Attendance | null): number {
+  return Math.max(1, attendance?.coaches ?? team.coachesOnIce ?? 3);
+}
+
+/**
+ * The groups a rotation moves in (decision 0046): never more than there are coaches. With fewer coaches than
+ * groups, groups double up: the two neighbouring groups (by level) with the fewest skaters together share a
+ * station, again until there are as many as coaches.
+ */
+export function rotationUnits(units: Unit[], coaches: number): Unit[] {
+  let out = [...units];
+  const max = Math.max(1, coaches);
+  while (out.length > max) {
+    let best = 0;
+    for (let i = 1; i < out.length - 1; i++) if (out[i].skaters + out[i + 1].skaters < out[best].skaters + out[best + 1].skaters) best = i;
+    const [a, b] = [out[best], out[best + 1]];
+    const joined: Unit = { key: `${a.key}+${b.key}`, label: `${a.label} + ${b.label}`, groups: [...a.groups, ...b.groups], names: [...a.names, ...b.names], skaters: a.skaters + b.skaters };
+    out = [...out.slice(0, best), joined, ...out.slice(best + 2)];
+  }
+  return out;
+}
+
+/** How many stations a rotation runs today: one per group, never more than the coaches (decision 0046). */
+export function stationsToday(units: Unit[], coaches: number): number {
+  return rotationUnits(units, coaches).length;
+}
+
 export function attendanceLabel(units: Unit[]): string {
   const n = units.reduce((t, u) => t + u.skaters, 0);
   return `${n} skater${n === 1 ? '' : 's'} · ${units.length} group${units.length === 1 ? '' : 's'}`;
@@ -230,7 +260,7 @@ export function attendanceLabel(units: Unit[]): string {
 export function isAdapted(team: TeamGroups, attendance: Attendance | null): boolean {
   if (!attendance) return false;
   const u = usualCounts(team);
-  return attendance.merges.length > 0 || activeGroups(team).some((g) => attendance.counts[g] !== u[g]);
+  return attendance.merges.length > 0 || attendance.coaches !== undefined || activeGroups(team).some((g) => attendance.counts[g] !== u[g]);
 }
 
 // ---------------------------------------------------------------- how blocks adapt

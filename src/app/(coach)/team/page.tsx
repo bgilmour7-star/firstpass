@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { blockMinutes, clock, drillIds, todayUnits } from '@/lib/plans/schema';
+import { blockMinutes, clock, coachesToday, drillIds, stationsToday, todayUnits } from '@/lib/plans/schema';
 import { practiceOver } from '@/lib/plans/checkin';
 import { seasonSoFar } from '@/lib/plans/team-summary';
 import { todayLocal } from '@/lib/calendar/sync';
@@ -83,7 +83,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
     // Drills the kids have done before this practice; a drill they haven't is "New today".
     const known = new Set(practices.filter((p) => p.date < n.date).flatMap((p) => p.blocks.flatMap(drillIds)));
     // Times and rotation minutes as the plan page counts them: the groups there that day.
-    const strip = practiceStrip(n, byId, todayUnits(team, n.attendance).length, known);
+    const strip = practiceStrip(n, byId, stationsToday(todayUnits(team, n.attendance), coachesToday(team, n.attendance)), known);
     const fresh = strip.filter((s) => s.isNew).length;
     next = { kind: 'plan', id: n.id, date: n.date, startTime: n.startTime, line: [n.ice === 'half' ? 'Half ice' : 'Full ice', `${n.minutes} min`, `${strip.length} drill${strip.length === 1 ? '' : 's'}${fresh ? `, ${fresh} new` : ''}`].join(' · '), strip };
   } else {
@@ -100,7 +100,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
     const prev = seen ? ready.rounds[ready.rounds.indexOf(seen) + 1] : undefined;
     const bySkill: Record<string, number> = {};
     if (n) {
-      const gc = todayUnits(team, n.attendance).length;
+      const gc = stationsToday(todayUnits(team, n.attendance), coachesToday(team, n.attendance));
       for (const b of n.blocks) {
         const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
         for (const f of d?.focus ?? []) if (f.level === 2) bySkill[f.attribute] = (bySkill[f.attribute] ?? 0) + blockMinutes(b, gc);

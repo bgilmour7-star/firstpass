@@ -21,13 +21,15 @@ const first = (ds: Drill[], score: (d: Drill) => number) => [...ds].sort((a, b) 
 const fitOf = (d: Drill, focus: readonly string[]) => focus.find((a) => d.focus.some((f) => f.attribute === a && f.level === 2));
 
 /** `library` is the team's drills (drillsForAge); `ageGroup` sets where each Drill block starts (decision 0025);
- *  `focus` is the team's focus from Create a team (decision 0039). */
-export function firstPlan(minutes: number, library: Drill[], groupCount = 3, ageGroup?: string, focus: readonly string[] = []): Block[] {
+ *  `focus` is the team's focus from Create a team (decision 0039). `groupCount` is how many stations a rotation
+ *  runs (groups, never more than coaches); with 1 coach there's no rotation and a second game takes its place
+ *  (decision 0046). */
+export function firstPlan(minutes: number, library: Drill[], groupCount = 3, ageGroup?: string, focus: readonly string[] = [], coaches = 3): Block[] {
   const fit = (d: Drill, want: readonly string[] = focus) => (fitOf(d, want) ? 0 : 1);
   const blockForDrill = (d: Drill) => blockFor(d, d.minutes, startLevelFor(d, ageGroup));
   const basic = library.filter((d) => d.groupModel === 'basic' && d.minutes <= 10);
   const warmup = first(basic.filter((d) => d.part === 'warmup' && d.effort !== 'hard'), (d) => effort(d) * 10 + lesson(d));
-  const rotation = first(library.filter((d) => d.groupModel === 'rotation' && (d.zones?.length ?? 0) >= 2), (d) => fit(d) * 10000 + effort(d) * 100 + lesson(d));
+  const rotation = coaches < 2 ? undefined : first(library.filter((d) => d.groupModel === 'rotation' && (d.zones?.length ?? 0) >= 2), (d) => fit(d) * 10000 + effort(d) * 100 + lesson(d));
   // The skill drill works a different skill from the warm-up and the rotation, so the plan passes its own variety check.
   // Everyone moving or small groups, never a line (decision 0040: passing drills are pairs and small groups).
   // With two picks, it prefers the one the rotation didn't cover.
@@ -38,8 +40,11 @@ export function firstPlan(minutes: number, library: Drill[], groupCount = 3, age
   // The game leans toward the focus only when it doesn't make a third drill in a row on one skill.
   const before = new Set([skill && mainSkill(skill), rotation && mainSkill(rotation)]);
   const game = first(basic.filter((d) => d.part === 'game' && d.format === 'everyone'), (d) => (focus.length && before.has(mainSkill(d)) ? 100000 : 0) + fit(d) * 1000 + lesson(d) * 10 + effort(d));
-  // Without a rotation and a game it isn't a practice yet: fall back to the plain template.
-  if (!rotation || !game) return starterBlocks(minutes);
+  // One coach: a second game everyone plays, instead of the rotation.
+  const second = coaches < 2 && game ? first(basic.filter((d) => d.part === 'game' && d.format === 'everyone' && d.id !== game.id), (d) => fit(d) * 1000 + lesson(d) * 10 + effort(d)) : undefined;
+  const middle = rotation ?? second;
+  // Without a rotation (or its stand-in) and a game it isn't a practice yet: fall back to the plain template.
+  if (!middle || !game) return starterBlocks(minutes);
 
   const free = { ...newActivity('free_skate', 4), note: 'Greet every kid by name.' } as Block;
   const water = newActivity('water', 2);
@@ -48,7 +53,7 @@ export function firstPlan(minutes: number, library: Drill[], groupCount = 3, age
     { block: free, optional: 0 },
     ...(warmup ? [{ block: blockForDrill(warmup), optional: 2 }] : []),
     ...(skill ? [{ block: blockForDrill(skill), optional: 1 }] : []),
-    { block: blockForDrill(rotation), optional: 0 },
+    { block: blockForDrill(middle), optional: 0 },
     { block: water, optional: 3 },
     { block: blockForDrill(game), optional: 0 },
     { block: huddle, optional: 0 },

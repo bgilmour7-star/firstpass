@@ -7,7 +7,7 @@ import type { Favorite } from '@/lib/app/store';
 import { Rink, RinkLegend } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { addMinutes, blockLevels, blockMinutes, clock, groupLabels, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
+import { addMinutes, blockLevels, blockMinutes, clock, coachesToday, groupLabels, levelMinutes, rotationToday, stationsToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import { currentIndex, practicePhase, upNextIndex, whenLabel, type Phase } from '@/lib/today/phase';
 import { Icon, ShareControl } from '../plans/[id]/parts';
 import type { RinkDiagramProps } from '../../../../design-system/index';
@@ -69,7 +69,8 @@ export function TodayView({
   };
 
   const units = todayUnits(team, practice.attendance);
-  const gc = units.length;
+  // Times and rotations count stations: no more than the coaches on the ice (decision 0046).
+  const gc = stationsToday(units, coachesToday(team, practice.attendance));
   const skaters = units.reduce((n, u) => n + u.skaters, 0);
   const start = toMin(practice.startTime) + (isToday ? offset : 0);
   let acc = 0;
@@ -97,8 +98,8 @@ export function TodayView({
   const who = [
     `${fmt(start)}–${fmt(end)}`,
     practice.ice === 'half' ? 'Half ice' : 'Full ice',
-    `${skaters} skaters in ${gc} group${gc === 1 ? '' : 's'}`,
-    `${team.coachesOnIce} coach${team.coachesOnIce === 1 ? '' : 'es'} on the ice`,
+    `${skaters} skaters in ${units.length} group${units.length === 1 ? '' : 's'}`,
+    `${coachesToday(team, practice.attendance)} coach${coachesToday(team, practice.attendance) === 1 ? '' : 'es'} on the ice`,
     ...(isToday && offset !== 0 ? [`started ${offset} min late`] : []),
   ].join(' · ');
 
@@ -179,7 +180,7 @@ export function TodayView({
                 {fmt(sel.s)} · {blockMinutes(sel.b, gc)} min
               </p>
             </div>
-            <Detail block={sel.b} byId={byId} units={units} startMin={sel.s} nowMin={sel.s} fmt={fmt} prepare />
+            <Detail block={sel.b} byId={byId} units={units} stations={gc} startMin={sel.s} nowMin={sel.s} fmt={fmt} prepare />
             {drillOf(sel.b) && byId.get(drillOf(sel.b)!) && (
               <button type="button" onClick={() => setViewing(drillOf(sel.b)!)} className="w-fit text-sm font-medium text-rink-100 hover:underline">
                 All the details
@@ -220,7 +221,7 @@ export function TodayView({
             {started && x.b.kind === 'rotation' && nowMin < x.e - x.b.minutes && (
               <p className="w-fit rounded-full bg-ink-100 px-3 py-1 font-mono text-sm text-surface-100">Whistle in {left(x.s + x.b.minutes * (Math.floor((nowMin - x.s) / x.b.minutes) + 1))}</p>
             )}
-            <Detail block={x.b} byId={byId} units={units} startMin={x.s} nowMin={Math.max(nowMin, x.s)} fmt={fmt} />
+            <Detail block={x.b} byId={byId} units={units} stations={gc} startMin={x.s} nowMin={Math.max(nowMin, x.s)} fmt={fmt} />
           </section>
         )}
         {nx && (
@@ -396,7 +397,7 @@ function title(b: Block, byId: Map<string, Drill>) {
 }
 
 /** A block's diagram, groups and cues. `prepare` (Before) adds the diagram's key and the set-up. */
-function Detail({ block, byId, units, startMin, nowMin, fmt, prepare }: { block: Block; byId: Map<string, Drill>; units: Unit[]; startMin: number; nowMin: number; fmt: (m: number) => string; prepare?: boolean }) {
+function Detail({ block, byId, units, stations, startMin, nowMin, fmt, prepare }: { block: Block; byId: Map<string, Drill>; units: Unit[]; stations: number; startMin: number; nowMin: number; fmt: (m: number) => string; prepare?: boolean }) {
   if (block.kind === 'activity') return block.note ? <p className="pt-2 text-[15px]">{block.note}</p> : null;
   if (block.kind === 'drill' || block.kind === 'stations') {
     const d = byId.get(block.drillId);
@@ -458,7 +459,7 @@ function Detail({ block, byId, units, startMin, nowMin, fmt, prepare }: { block:
       </div>
     );
   }
-  const { active, off } = rotationToday(block, units.length);
+  const { active, off } = rotationToday(block, stations);
   const r = Math.min(active.length - 1, Math.max(0, Math.floor((nowMin - startMin) / block.minutes)));
   const rot = block.drillId ? byId.get(block.drillId) : undefined;
   if (rot)

@@ -601,6 +601,11 @@ export function AttendanceDialog({
             </div>
           ))}
         </div>
+        <div className="grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-2 border-t border-border-100 pt-3 text-sm">
+          <b>Coaches</b>
+          <span className="text-xs text-ink-200">usually {team.coachesOnIce} · sets the stations</span>
+          <Stepper value={a.coaches ?? team.coachesOnIce} min={1} max={10} label="" onChange={(n) => setA((s) => ({ ...s, coaches: n === team.coachesOnIce ? undefined : n }))} />
+        </div>
         <div className="flex flex-col gap-2">
           {pairs.map(([x, y]) => (
             <label key={x + y} className="flex cursor-pointer items-center gap-3 rounded-md bg-surface-200 px-3 py-2.5 text-sm">

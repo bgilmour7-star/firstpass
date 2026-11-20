@@ -1,6 +1,6 @@
 import 'server-only';
 import type { AppStore } from '../app/store';
-import { copyBlocks, type Practice, type Team } from './schema';
+import { copyBlocks, stationsToday, todayUnits, type Practice, type Team } from './schema';
 import { firstPlan } from './first-plan';
 import { drillsForAge } from '../drills/age';
 
@@ -10,8 +10,9 @@ import { drillsForAge } from '../drills/age';
  */
 export async function startPlan(store: AppStore, team: Team, coachId: string, at: { date: string; startTime: string; minutes?: number; ice?: Practice['ice'] }) {
   const last = (await store.listPractices(team.id)).filter((p) => p.date <= at.date)[0];
-  const groups = team.groups.filter((g) => !g.off && g.skaters > 0).length || 3;
-  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, drillsForAge(await store.libraryDrills(), team.ageGroup).drills, groups, team.ageGroup, team.focus);
+  // A rotation runs one station per group, never more than the coaches (decision 0046).
+  const stations = stationsToday(todayUnits(team, null), team.coachesOnIce);
+  const blocks = last ? copyBlocks(last.blocks) : firstPlan(at.minutes ?? team.practiceMinutes, drillsForAge(await store.libraryDrills(), team.ageGroup).drills, stations, team.ageGroup, team.focus, team.coachesOnIce);
   const p = await store.createPractice(
     {
       teamId: team.id,
