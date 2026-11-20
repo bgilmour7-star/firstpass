@@ -9,16 +9,20 @@ import { CheckinForm } from './form';
 import { ProgressNudge } from '../../../progress/nudge';
 import type { Group } from '@/lib/drills/schema';
 import { teamPractices } from '@/lib/app/read';
+import { nextTarget } from '@/lib/plans/plan-next';
+import { notYet, planNextNow, undoPlanned } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
 const weekday = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' });
+// Times with am/pm in sentences: an 18:15 practice reads "6:15 pm", not "6:15".
+const at = (hhmm: string) => `${clock(hhmm)} ${Number(hhmm.slice(0, 2)) >= 12 ? 'pm' : 'am'}`;
 const short = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
 
-export default async function CheckinPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; edit?: string }> }) {
+export default async function CheckinPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; edit?: string; planned?: string; undone?: string; guessed?: string; kept?: string }> }) {
   const { coach, team } = await requireTeam('/plans');
   const { id } = await params;
-  const { saved, edit } = await searchParams;
+  const { saved, edit, planned, undone, guessed, kept } = await searchParams;
   const store = await getAppStore();
   const found = await store.getPractice(id);
   if (!found || found.teamId !== team.id) notFound();
@@ -45,6 +49,12 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
     const earlier = all.filter((c) => (dates.get(c.practiceId) ?? '') < p.date);
     const s = summarize(here, units, earlier);
     const next = [...plans].reverse().find((x) => x.date > p.date);
+    // What happens next (decision 0046): the plan Firstpass just made, or the practice it would plan.
+    const justPlanned = !!planned && next?.id === planned;
+    const target = next ? null : await nextTarget(store, team);
+    const ideas = s.flops.length + (s.lostSteam && !s.flops.some((u) => s.lostSteam!.unit.key === u.key) ? 1 : 0) + (s.ready.length ? 1 : 0) + s.split.length;
+    const ideasLine = ideas ? `, with ${ideas} suggestion${ideas === 1 ? '' : 's'} to look at` : '';
+    const ask = team.planning === 'ask';
     const othersNamed = s.coaches.filter((c) => c.userId !== coach.id).map((c) => c.editor);
     const left = Math.max(0, coaches - here.length);
     const flopFor = (key: string) => s.lostSteam && s.lostSteam.unit.key === key;
@@ -122,11 +132,69 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
           <ProgressNudge team={team} userId={coach.id} after />
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-border-100 pt-4">
-          {next && (s.flops.length > 0 || s.lostSteam || s.ready.length > 0) && <p className="text-center text-[13px] text-ink-200">These show up as suggestions on {weekday(next.date)}’s plan, on the drills they’re about.</p>}
-          <Link href={next ? `/plans/${next.id}` : '/plans'} className="grid min-h-12 place-items-center rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200">
-            {next ? `Open ${weekday(next.date)}’s plan` : 'Back to plans'}
-          </Link>
+        <section aria-labelledby="next-title" className="flex flex-col gap-3 border-t border-border-100 pt-4">
+          <h2 id="next-title" className="font-display text-lg font-bold">
+            {justPlanned && next ? `${weekday(next.date)}’s plan is ready` : 'What happens next'}
+          </h2>
+          {justPlanned && next ? (
+            <p className="text-[15px] leading-normal">
+              {short(next.date)} at {at(next.startTime)} starts from this practice’s plan{ideasLine}. Nothing changes until you tap a suggestion.
+              {guessed ? ' The date is a week on from this one; change it if it’s wrong.' : ''}
+            </p>
+          ) : next ? (
+            <p className="text-[15px] leading-normal">
+              {weekday(next.date)} is already planned.{ideas ? ' These show up as suggestions on its plan, on the drills they’re about.' : ''}
+            </p>
+          ) : target ? (
+            <p className="text-[15px] leading-normal">
+              {short(target.date)} at {at(target.startTime)} starts from this practice’s plan{ideasLine}. Suggestions are never applied without a tap.
+              {target.guessed ? ' The date is a week on from this one; change it if it’s wrong.' : ''}
+            </p>
+          ) : (
+            <p className="text-[15px] leading-normal">Add your next practice from Plans, and it starts from this practice’s plan.</p>
+          )}
+          {undone && <p className="text-[13px] text-ink-200">Removed. Plan it from Plans when you’re ready.</p>}
+          {kept && <p className="text-[13px] text-ink-200">That plan has been changed since Firstpass made it, so it stays.</p>}
+          {next ? (
+            <Link href={`/plans/${next.id}`} className="grid min-h-12 place-items-center rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200">
+              Open {weekday(next.date)}’s plan
+            </Link>
+          ) : target ? (
+            <form action={planNextNow.bind(null, p.id)}>
+              <button type="submit" className="min-h-12 w-full rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200">
+                Plan {weekday(target.date)} now
+              </button>
+            </form>
+          ) : null}
+          {justPlanned && next ? (
+            <form action={undoPlanned.bind(null, next.id, p.id)}>
+              <button type="submit" className="min-h-12 w-full rounded-full border border-border-100 px-5 text-base hover:bg-surface-200">
+                Undo, I’ll plan it
+              </button>
+            </form>
+          ) : !next ? (
+            target ? (
+              <form action={notYet.bind(null, target.date)}>
+                <button type="submit" className="min-h-12 w-full rounded-full border border-border-100 px-5 text-base hover:bg-surface-200">
+                  Not yet
+                </button>
+              </form>
+            ) : (
+              <Link href="/plans" className="grid min-h-12 place-items-center rounded-full border border-border-100 px-5 text-base hover:bg-surface-200">
+                Back to plans
+              </Link>
+            )
+          ) : null}
+          <p className="text-center text-xs text-ink-200">
+            {ask
+              ? `Your team asks first.${target && !target.guessed ? ' If you don’t plan it, Firstpass plans it the day before.' : ''}`
+              : 'Your team lets Firstpass plan the next practice.'}{' '}
+            <Link href="/team/settings" className="text-rink-100 underline underline-offset-2">
+              Change in Team settings
+            </Link>
+          </p>
+        </section>
+        <div className="flex flex-col gap-2 pt-2">
           <Link href={`/plans/${p.id}/check-in?edit=1`} className="mx-auto min-h-9 px-3 py-2 text-sm font-medium text-rink-100">
             Change my answers
           </Link>

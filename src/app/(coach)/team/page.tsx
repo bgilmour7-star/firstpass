@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
+import { planIfDue } from '@/lib/plans/plan-next';
 import { getAppStore } from '@/lib/app/store';
 import { blockMinutes, clock, drillIds, todayUnits } from '@/lib/plans/schema';
 import { practiceOver } from '@/lib/plans/checkin';
@@ -31,6 +32,8 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   // Old links into a section's drawer (emails, bookmarks) open it in Team settings.
   if (edit) redirect(`/team/settings?edit=${encodeURIComponent(edit)}`);
   const store = await getAppStore();
+  // Every practice arrives planned: the day before an ice time, whoever opens the app first plans it (decision 0046).
+  await planIfDue(store, team, coach);
   const today = todayLocal();
   const now = new Date();
   const [coaches, joinCode, practices, ice, checkins, drills, progress] = await Promise.all([
