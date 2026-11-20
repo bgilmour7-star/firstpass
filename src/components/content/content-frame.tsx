@@ -51,6 +51,9 @@ export function ContentFrame({ data, children }: { data: unknown; children: Reac
             <Link href="/associations" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               Associations
             </Link>
+            <Link href="/firstpass-vs-pdf-practice-plans" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
+              Firstpass vs. a PDF
+            </Link>
             <a href="mailto:hello@firstpass.coach" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               hello@firstpass.coach
             </a>
