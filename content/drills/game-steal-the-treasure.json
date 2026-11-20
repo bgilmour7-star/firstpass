@@ -1,47 +1,88 @@
 {
   "id": "game-steal-the-treasure",
-  "funName": "Steal the Treasure",
-  "plainName": "Carry pucks past the pirates",
-  "sourceTitle": "Steal the Treasure",
-  "minutes": 10,
-  "gear": "1 crate, all the pucks",
-  "worksAsStation": false,
-  "description": "All the pucks (treasure) sit at one end and a crate (the treasure chest) at the other. Skaters carry one puck at a time to the crate. Coaches are pirates: if they tag you, drop the puck and go get another. Gloves stay on. The game ends when the pile is empty.",
-  "steps": [
-    "Pick up one puck and carry it to the crate.",
-    "Tagged by a pirate? Drop the puck and get another."
-  ],
   "cues": [
     "One puck at a time!",
     "Find the open ice."
   ],
+  "gear": "1 crate, all the pucks",
+  "part": "game",
   "focus": [
     {
-      "attribute": "Effort & fun",
+      "why": "Everyone races, dodges and scores.",
       "level": 2,
-      "why": "Everyone races, dodges and scores."
+      "attribute": "Effort & fun"
     },
     {
-      "attribute": "Skating",
+      "why": "Starts, stops and dodging.",
       "level": 1,
-      "why": "Starts, stops and dodging."
+      "attribute": "Skating"
     }
   ],
-  "groupModel": "basic",
-  "part": "game",
+  "steps": [
+    "Pick up one puck and carry it to the crate.",
+    "Tagged by a pirate? Drop the puck and get another."
+  ],
   "effort": "hard",
   "format": "everyone",
-  "lessons": [
-    5
-  ],
-  "levelName": "",
-  "levels": [],
   "source": {
-    "label": "Hockey Canada U7 Lesson 5 · fun game",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
-    "note": "The source doesn’t say how it ends; we end it when the pile is empty. The crate is drawn as a pylon."
+    "note": "The source doesn’t say how it ends; we end it when the pile is empty. The crate is drawn as a pylon.",
+    "label": "Hockey Canada U7 Lesson 5 · fun game"
   },
   "diagram": {
+    "nets": [],
+    "cones": [
+      {
+        "x": 170,
+        "y": 42
+      }
+    ],
+    "paths": [
+      {
+        "step": 1,
+        "type": "skate",
+        "points": [
+          [
+            32,
+            30
+          ],
+          [
+            80,
+            26
+          ],
+          [
+            140,
+            34
+          ],
+          [
+            168,
+            41
+          ]
+        ],
+        "caption": "Pick up one puck and carry it to the crate."
+      },
+      {
+        "step": 2,
+        "type": "skate",
+        "points": [
+          [
+            100,
+            25
+          ],
+          [
+            112,
+            30
+          ]
+        ],
+        "caption": "Tagged by a pirate? Drop the puck and get another."
+      }
+    ],
+    "piles": [
+      {
+        "x": 16,
+        "y": 42
+      }
+    ],
     "scope": "full",
     "players": [
       {
@@ -69,60 +110,17 @@
         "y": 60,
         "role": "C"
       }
-    ],
-    "paths": [
-      {
-        "type": "skate",
-        "points": [
-          [
-            32,
-            30
-          ],
-          [
-            80,
-            26
-          ],
-          [
-            140,
-            34
-          ],
-          [
-            168,
-            41
-          ]
-        ],
-        "step": 1,
-        "caption": "Pick up one puck and carry it to the crate."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            100,
-            25
-          ],
-          [
-            112,
-            30
-          ]
-        ],
-        "step": 2,
-        "caption": "Tagged by a pirate? Drop the puck and get another."
-      }
-    ],
-    "cones": [
-      {
-        "x": 170,
-        "y": 42
-      }
-    ],
-    "piles": [
-      {
-        "x": 16,
-        "y": 42
-      }
-    ],
-    "nets": []
+    ]
   },
-  "status": "in_review"
+  "funName": "Steal the Treasure",
+  "lessons": [
+    5
+  ],
+  "minutes": 10,
+  "plainName": "Carry pucks past the pirates",
+  "groupModel": "together",
+  "description": "All the pucks (treasure) sit at one end and a crate (the treasure chest) at the other. Skaters carry one puck at a time to the crate. Coaches are pirates: if they tag you, drop the puck and go get another. Gloves stay on. The game ends when the pile is empty.",
+  "sourceTitle": "Steal the Treasure",
+  "worksAsStation": false,
+  "status": "live"
 }

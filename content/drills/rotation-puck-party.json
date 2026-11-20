@@ -1,71 +1,185 @@
 {
   "id": "rotation-puck-party",
-  "funName": "Puck Party",
-  "plainName": "Puck control and gliding, three zones",
-  "sourceTitle": "Phase II Lesson 9 skill stations",
-  "minutes": 6,
-  "gear": "1 puck each",
-  "worksAsStation": false,
-  "description": "Two puck stations and one skating station. Groups move to the next zone on the whistle: puck handling with eyes up, pushing the puck ahead while skating, and deep knee-bend glides.",
-  "steps": [
-    "A: move the puck side to side and call out the coach’s fingers.",
-    "B: push the puck ahead and chase it across the zone.",
-    "C: glide on one foot, bend low, hold it, stand tall."
-  ],
   "cues": [
     "Eyes up, soft hands.",
     "Push it, chase it.",
     "Sit low, hold it, stand tall."
   ],
+  "gear": "1 puck each",
+  "part": "skill",
   "focus": [
     {
-      "attribute": "Puck control",
+      "why": "Stickhandling with eyes up and skating with the puck.",
       "level": 2,
-      "why": "Stickhandling with eyes up and skating with the puck."
+      "attribute": "Puck control"
     },
     {
-      "attribute": "Skating",
+      "why": "One-foot glide with a deep knee bend.",
       "level": 1,
-      "why": "One-foot glide with a deep knee bend."
+      "attribute": "Skating"
     }
   ],
-  "groupModel": "rotation",
-  "part": "skill",
-  "effort": "easy",
-  "format": "groups",
-  "lessons": [
-    9
+  "steps": [
+    "Finger count: Stand spread out with a puck.",
+    "Push and chase: Start at the boards.",
+    "Knee-bend glides: A few strides, then glide on one foot."
   ],
-  "levelName": "",
-  "levels": [],
   "zones": [
     {
-      "station": "A",
-      "name": "Finger count",
+      "cue": "Eyes up, soft hands.",
       "how": "Stand spread out with a puck. Move it side to side, narrow then wide, and call out how many fingers the coach holds up.",
-      "cue": "Eyes up, soft hands."
+      "name": "Finger count",
+      "station": "A"
     },
     {
-      "station": "B",
-      "name": "Push and chase",
+      "cue": "Push it, chase it.",
       "how": "Start at the boards. Push the puck a little ahead, skate to it and push again, all the way across. Go in waves.",
-      "cue": "Push it, chase it."
+      "name": "Push and chase",
+      "station": "B"
     },
     {
-      "station": "C",
-      "name": "Knee-bend glides",
+      "cue": "Sit low, hold it, stand tall.",
       "how": "A few strides, then glide on one foot. Bend the knee deep, hold it for two seconds, stand up. Switch feet.",
-      "cue": "Sit low, hold it, stand tall."
+      "name": "Knee-bend glides",
+      "station": "C"
     }
   ],
+  "effort": "easy",
+  "format": "groups",
+  "levels": [],
   "source": {
-    "label": "Hockey Canada U7 Phase II Lesson 9 · 2.1.02–2.1.04, 1.1.09",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-2-e.pdf",
-    "note": "The source runs six stations in two sets. We kept three that fit the half-ice zones; the shooting stations and Inside Out are left for other plans."
+    "note": "The source runs six stations in two sets. We kept three that fit the half-ice zones; the shooting stations and Inside Out are left for other plans.",
+    "label": "Hockey Canada U7 Phase II Lesson 9 · 2.1.02–2.1.04, 1.1.09"
   },
   "diagram": {
-    "scope": "half",
     "side": "left",
+    "cones": [],
+    "paths": [
+      {
+        "step": 1,
+        "type": "puck",
+        "points": [
+          [
+            18,
+            17
+          ],
+          [
+            22,
+            19
+          ],
+          [
+            18,
+            21
+          ],
+          [
+            22,
+            23
+          ]
+        ],
+        "caption": "Finger count: Stand spread out with a puck.",
+        "stepLabel": "A"
+      },
+      {
+        "step": 2,
+        "type": "puck",
+        "points": [
+          [
+            12,
+            56
+          ],
+          [
+            38,
+            56
+          ],
+          [
+            64,
+            56
+          ]
+        ],
+        "caption": "Push and chase: Start at the boards.",
+        "stepLabel": "B"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            12,
+            68
+          ],
+          [
+            36,
+            68
+          ],
+          [
+            60,
+            68
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "step": 3,
+        "type": "skate",
+        "points": [
+          [
+            82,
+            18
+          ],
+          [
+            82,
+            40
+          ],
+          [
+            82,
+            70
+          ]
+        ],
+        "caption": "Knee-bend glides: A few strides, then glide on one foot.",
+        "stepLabel": "C"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            92,
+            18
+          ],
+          [
+            92,
+            36
+          ],
+          [
+            92,
+            62
+          ]
+        ],
+        "stepWith": 3
+      }
+    ],
+    "pucks": [
+      {
+        "x": 21,
+        "y": 17
+      },
+      {
+        "x": 35,
+        "y": 17
+      },
+      {
+        "x": 49,
+        "y": 17
+      },
+      {
+        "x": 28,
+        "y": 31
+      },
+      {
+        "x": 42,
+        "y": 31
+      }
+    ],
+    "scope": "half",
     "players": [
       {
         "x": 18,
@@ -123,136 +237,28 @@
         "role": "O"
       }
     ],
-    "paths": [
-      {
-        "type": "puck",
-        "points": [
-          [
-            18,
-            17
-          ],
-          [
-            22,
-            19
-          ],
-          [
-            18,
-            21
-          ],
-          [
-            22,
-            23
-          ]
-        ],
-        "step": 1,
-        "caption": "A: move the puck side to side and call out the coach’s fingers."
-      },
-      {
-        "type": "puck",
-        "points": [
-          [
-            12,
-            56
-          ],
-          [
-            38,
-            56
-          ],
-          [
-            64,
-            56
-          ]
-        ],
-        "step": 2,
-        "caption": "B: push the puck ahead and chase it across the zone."
-      },
-      {
-        "type": "puck",
-        "points": [
-          [
-            12,
-            68
-          ],
-          [
-            36,
-            68
-          ],
-          [
-            60,
-            68
-          ]
-        ],
-        "stepWith": 2
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            82,
-            18
-          ],
-          [
-            82,
-            40
-          ],
-          [
-            82,
-            70
-          ]
-        ],
-        "step": 3,
-        "caption": "C: glide on one foot, bend low, hold it, stand tall."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            92,
-            18
-          ],
-          [
-            92,
-            36
-          ],
-          [
-            92,
-            62
-          ]
-        ],
-        "stepWith": 3
-      }
-    ],
-    "cones": [],
     "stations": {
-      "layout": "halfice",
       "labels": [
         "Finger count",
         "Push and chase",
         "Knee-bend glides"
-      ]
-    },
-    "pucks": [
-      {
-        "x": 21,
-        "y": 17
-      },
-      {
-        "x": 35,
-        "y": 17
-      },
-      {
-        "x": 49,
-        "y": 17
-      },
-      {
-        "x": 28,
-        "y": 31
-      },
-      {
-        "x": 42,
-        "y": 31
-      }
-    ]
+      ],
+      "layout": "halfice"
+    }
   },
-  "status": "in_review"
+  "funName": "Puck Party",
+  "lessons": [
+    9
+  ],
+  "minutes": 4,
+  "ageGroups": [
+    "U7"
+  ],
+  "levelName": "",
+  "plainName": "Puck control and gliding, three zones",
+  "groupModel": "rotation",
+  "description": "Two puck stations and one skating station. Groups move to the next zone on the whistle: puck handling with eyes up, pushing the puck ahead while skating, and deep knee-bend glides.",
+  "sourceTitle": "Phase II Lesson 9 skill stations",
+  "worksAsStation": false,
+  "status": "live"
 }

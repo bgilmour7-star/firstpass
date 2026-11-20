@@ -97,7 +97,7 @@ describe('drills on public pages', () => {
   it('the files that name drills only name listed ones', async () => {
     const { readdirSync } = await import('node:fs');
     const { PUBLIC_DRILLS } = await import('@/lib/content/public-drills');
-    const files: Record<string, string> = { '/': 'src/components/landing/landing.tsx', '/u7/first-practice': 'src/app/u7/first-practice/page.tsx' };
+    const files: Record<string, string> = { '/': 'src/components/landing/landing.tsx', '/u7/first-practice': 'src/app/u7/first-practice/page.tsx', '/u7/keep-kids-listening': 'src/app/u7/keep-kids-listening/page.tsx' };
     const names = readdirSync('content/drills').map((f) => ({ id: f.replace(/\.json$/, ''), name: JSON.parse(readFileSync(`content/drills/${f}`, 'utf8')).funName as string }));
     for (const [page, file] of Object.entries(files)) {
       const src = readFileSync(file, 'utf8');
