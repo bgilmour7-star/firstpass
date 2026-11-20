@@ -127,7 +127,7 @@ export default function StationsHalfIce() {
         <h2 id="cta-title" className="font-display text-[clamp(24px,3vw,30px)] font-bold leading-tight">
           Stations planned for your coaches and your ice
         </h2>
-        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass splits every practice into stations for the coaches you have, with a version of each drill for every skill group. Your first team is free.</p>
+        <p className="mt-3 text-[17px] leading-[1.6] text-white/85">Firstpass splits every practice into stations for the coaches you have, with a version of each drill for every skill group. Free for every team this season.</p>
         <StartLink className={`${ctaOnTeal} mt-5`} />
       </section>
 
