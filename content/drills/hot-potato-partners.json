@@ -1,74 +1,41 @@
 {
   "id": "hot-potato-partners",
-  "funName": "Hot Potato Partners",
-  "plainName": "Passing on the move",
-  "sourceTitle": "Pairs Passing on the Move",
-  "minutes": 8,
-  "gear": "1 puck per pair",
-  "worksAsStation": true,
-  "description": "Partners skate side by side around the zone, passing back and forth as they go. Make sure everyone gets passes on the forehand and the backhand.",
-  "steps": [
-    "Skate side by side around the zone.",
-    "Pass back and forth as you go."
-  ],
   "cues": [
     "Stick on the ice: give a target.",
     "Pass to where they’re going."
   ],
+  "gear": "1 puck per pair",
   "focus": [
     {
-      "attribute": "Passing",
+      "why": "Passing and receiving while moving.",
       "level": 2,
-      "why": "Passing and receiving while moving."
+      "attribute": "Passing"
     },
     {
-      "attribute": "Skating",
+      "why": "Skating with a partner.",
       "level": 1,
-      "why": "Skating with a partner."
+      "attribute": "Skating"
     },
     {
-      "attribute": "Puck control",
+      "why": "Settling a moving puck.",
       "level": 1,
-      "why": "Settling a moving puck."
+      "attribute": "Puck control"
     }
   ],
-  "groupModel": "basic",
-  "part": "skill",
+  "steps": [
+    "Partners stand a few strides apart and pass back and forth."
+  ],
   "effort": "medium",
   "format": "groups",
-  "lessons": [],
-  "levelName": "Stand still and pass with a coach",
   "levels": [
     {
-      "name": "Skate slowly, pass on the forehand",
       "adds": "Skate slowly, pass on the forehand.",
+      "name": "Moving passes",
       "diagram": {
-        "scope": "half",
         "side": "left",
-        "players": [
-          {
-            "x": 22,
-            "y": 22,
-            "role": "O"
-          },
-          {
-            "x": 22,
-            "y": 34,
-            "role": "O"
-          },
-          {
-            "x": 60,
-            "y": 58,
-            "role": "O"
-          },
-          {
-            "x": 60,
-            "y": 70,
-            "role": "O"
-          }
-        ],
         "paths": [
           {
+            "step": 1,
             "type": "skate",
             "points": [
               [
@@ -88,7 +55,6 @@
                 38
               ]
             ],
-            "step": 1,
             "caption": "Skate side by side around the zone."
           },
           {
@@ -114,6 +80,7 @@
             "stepWith": 1
           },
           {
+            "step": 2,
             "type": "pass",
             "points": [
               [
@@ -125,10 +92,9 @@
                 34
               ]
             ],
-            "step": 2,
             "caption": "Pass back and forth as you go.",
-            "fromPlayer": false,
-            "stepSide": "right"
+            "stepSide": "right",
+            "fromPlayer": false
           },
           {
             "type": "skate",
@@ -177,40 +143,41 @@
               ]
             ],
             "fromPlayer": false
+          }
+        ],
+        "scope": "half",
+        "players": [
+          {
+            "x": 22,
+            "y": 22,
+            "role": "O"
+          },
+          {
+            "x": 22,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 58,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 70,
+            "role": "O"
           }
         ]
       }
     },
     {
-      "name": "Full speed, backhand passes too",
       "adds": "Full speed, backhand passes too.",
+      "name": "Skating fast passing",
       "diagram": {
-        "scope": "half",
         "side": "left",
-        "players": [
-          {
-            "x": 22,
-            "y": 22,
-            "role": "O"
-          },
-          {
-            "x": 22,
-            "y": 34,
-            "role": "O"
-          },
-          {
-            "x": 60,
-            "y": 58,
-            "role": "O"
-          },
-          {
-            "x": 60,
-            "y": 70,
-            "role": "O"
-          }
-        ],
         "paths": [
           {
+            "step": 1,
             "type": "skate",
             "points": [
               [
@@ -230,7 +197,6 @@
                 38
               ]
             ],
-            "step": 1,
             "caption": "Skate side by side around the zone."
           },
           {
@@ -256,6 +222,7 @@
             "stepWith": 1
           },
           {
+            "step": 2,
             "type": "pass",
             "points": [
               [
@@ -267,10 +234,9 @@
                 34
               ]
             ],
-            "step": 2,
             "caption": "Pass back and forth as you go.",
-            "fromPlayer": false,
-            "stepSide": "right"
+            "stepSide": "right",
+            "fromPlayer": false
           },
           {
             "type": "skate",
@@ -319,153 +285,146 @@
               ]
             ],
             "fromPlayer": false
+          }
+        ],
+        "scope": "half",
+        "players": [
+          {
+            "x": 22,
+            "y": 22,
+            "role": "O"
+          },
+          {
+            "x": 22,
+            "y": 34,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 58,
+            "role": "O"
+          },
+          {
+            "x": 60,
+            "y": 70,
+            "role": "O"
           }
         ]
       }
     }
   ],
   "source": {
-    "label": "Hockey Canada U7 Plans 23, 30 · skills 2.4.01–2.4.02",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2020/u7-practice-plan-23-e.pdf",
-    "note": "We drew partners standing still. In the source the pairs skate around the zone and pass on the move, forehand and backhand."
+    "note": "We drew partners standing still. In the source the pairs skate around the zone and pass on the move, forehand and backhand.",
+    "label": "Hockey Canada U7 Plans 23, 30 · skills 2.4.01–2.4.02"
   },
   "diagram": {
-    "scope": "half",
     "side": "left",
-    "players": [
-      {
-        "x": 22,
-        "y": 22,
-        "role": "O"
-      },
-      {
-        "x": 22,
-        "y": 34,
-        "role": "O"
-      },
-      {
-        "x": 60,
-        "y": 58,
-        "role": "O"
-      },
-      {
-        "x": 60,
-        "y": 70,
-        "role": "O"
-      }
-    ],
     "paths": [
       {
-        "type": "skate",
-        "points": [
-          [
-            24,
-            22
-          ],
-          [
-            45,
-            20
-          ],
-          [
-            64,
-            24
-          ],
-          [
-            74,
-            38
-          ]
-        ],
         "step": 1,
-        "caption": "Skate side by side around the zone."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            24,
-            34
-          ],
-          [
-            45,
-            34
-          ],
-          [
-            60,
-            38
-          ],
-          [
-            66,
-            48
-          ]
-        ],
-        "stepWith": 1
-      },
-      {
         "type": "pass",
         "points": [
           [
-            40,
-            21
+            29.5,
+            22.5
           ],
           [
-            50,
-            34
+            29.5,
+            33.5
           ]
         ],
-        "step": 2,
-        "caption": "Pass back and forth as you go.",
-        "fromPlayer": false,
-        "stepSide": "right"
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            58,
-            58
-          ],
-          [
-            38,
-            60
-          ],
-          [
-            22,
-            52
-          ]
-        ]
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            58,
-            70
-          ],
-          [
-            36,
-            72
-          ],
-          [
-            18,
-            64
-          ]
-        ]
-      },
-      {
-        "type": "pass",
-        "points": [
-          [
-            42,
-            72
-          ],
-          [
-            32,
-            60
-          ]
-        ],
+        "caption": "Partners stand a few strides apart and pass back and forth.",
+        "stepSide": "right",
         "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            26.5,
+            33.5
+          ],
+          [
+            26.5,
+            22.5
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            53.5,
+            52.5
+          ],
+          [
+            53.5,
+            63.5
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            50.5,
+            63.5
+          ],
+          [
+            50.5,
+            52.5
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      }
+    ],
+    "pucks": [
+      {
+        "x": 30.5,
+        "y": 22.5
+      },
+      {
+        "x": 54.5,
+        "y": 52.5
+      }
+    ],
+    "scope": "half",
+    "players": [
+      {
+        "x": 28,
+        "y": 20,
+        "role": "O"
+      },
+      {
+        "x": 28,
+        "y": 36,
+        "role": "O"
+      },
+      {
+        "x": 52,
+        "y": 50,
+        "role": "O"
+      },
+      {
+        "x": 52,
+        "y": 66,
+        "role": "O"
       }
     ]
   },
-  "status": "in_review"
+  "funName": "Hot Potato Partners",
+  "minutes": 8,
+  "levelName": "Stationary Passes",
+  "plainName": "Passing on the move",
+  "groupModel": "basic",
+  "description": "Partners skate side by side around the zone, passing back and forth as they go. Make sure everyone gets passes on the forehand and the backhand.",
+  "sourceTitle": "Pairs Passing on the Move",
+  "worksAsStation": true,
+  "status": "live"
 }

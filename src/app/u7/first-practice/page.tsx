@@ -7,6 +7,7 @@ import treasure from '../../../../content/drills/game-steal-the-treasure.json';
 import copsAndRobbers from '../../../../content/drills/cops-and-robbers.json';
 import { ContentFrame, ctaOnTeal, prose } from '@/components/content/content-frame';
 import { StartLink } from '@/components/landing/start-link';
+import { PlanTable, totalOf, type PlanRow } from '@/components/content/plan-table';
 import { ANSWER_PAGES, hubFor } from '@/lib/content/pages';
 import { answerMetadata, answerStructuredData } from '@/lib/content/meta';
 
@@ -29,17 +30,20 @@ const diagram = RD.render({
   detail: 'full',
 });
 
-// Live library drills only (src/lib/content/public-drills.ts); names come from the drill files.
-const PLAN: { at: string; what: string; who: string }[] = [
-  { at: '0:00', what: 'Free skate. Every coach says hi to every kid.', who: 'Everyone' },
-  { at: '0:05', what: `${skillDoctor.funName}, a tag game to warm up`, who: 'Everyone' },
-  { at: '0:13', what: 'Split into 3 groups and go to your first station', who: 'Groups' },
-  { at: '0:15', what: `${puckParty.funName}: 3 stations, groups move on the whistle`, who: 'One coach per station' },
-  { at: '0:33', what: 'Water', who: 'Everyone' },
-  { at: '0:36', what: treasure.funName, who: 'Everyone' },
-  { at: '0:46', what: `${copsAndRobbers.funName} (or whatever game they love)`, who: 'Everyone' },
-  { at: '0:56', what: 'Huddle and high fives', who: 'Everyone' },
+// Live library drills only (src/lib/content/public-drills.ts); names and minutes come from the drill files,
+// and the start times are worked out from the minutes (PlanTable).
+const PLAN: PlanRow[] = [
+  { minutes: 5, what: 'Free skate. Every coach says hi to every kid.', who: 'Everyone' },
+  { minutes: skillDoctor.minutes, what: `${skillDoctor.funName}, a tag game to warm up`, who: 'Everyone' },
+  { minutes: 2, what: 'Split into 3 groups and go to your first station', who: 'Groups' },
+  { minutes: puckParty.minutes * 3, what: `${puckParty.funName}: 3 stations, groups move on the whistle`, who: 'One coach per station' },
+  { minutes: 3, what: 'Water', who: 'Everyone' },
+  { minutes: treasure.minutes, what: treasure.funName, who: 'Everyone' },
+  { minutes: copsAndRobbers.minutes, what: `${copsAndRobbers.funName} (or whatever game they love)`, who: 'Everyone' },
+  { minutes: 8, what: 'Small games: 2 on 2 or 3 on 3 across the zone', who: 'Groups' },
+  { minutes: 4, what: 'Huddle and high fives', who: 'Everyone' },
 ];
+if (totalOf(PLAN) !== 60) throw new Error(`The first-practice plan is ${totalOf(PLAN)} minutes, not 60. Adjust the small games.`);
 
 export default function FirstPractice() {
   return (
@@ -59,15 +63,7 @@ export default function FirstPractice() {
       <h2 className={prose.h2}>The plan</h2>
       <p className={prose.p}>This is the 60-minute plan I&apos;d hand a new coach for their first practice. Every block is short, and most of it is games.</p>
 
-      <ol className="mt-5 flex flex-col divide-y divide-border-100 rounded-2xl border border-border-100">
-        {PLAN.map((b) => (
-          <li key={b.at} className="grid grid-cols-[52px_1fr] gap-x-3 px-4 py-3 sm:grid-cols-[60px_1fr_auto]">
-            <span className="font-mono text-[15px] text-ink-200">{b.at}</span>
-            <span className="text-[16px] leading-snug">{b.what}</span>
-            <span className="col-start-2 text-[13px] text-ink-200 sm:col-start-3 sm:text-right">{b.who}</span>
-          </li>
-        ))}
-      </ol>
+      <PlanTable rows={PLAN} />
 
       <figure className="mt-8">
         <div className="rink-frame overflow-hidden rounded-2xl border border-border-100 bg-surface-200 p-3" dangerouslySetInnerHTML={{ __html: diagram }} />

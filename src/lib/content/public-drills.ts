@@ -6,6 +6,7 @@
 export const PUBLIC_DRILLS: Record<string, string[]> = {
   '/': ['ski-racer', 'rotation-puck-party', 'snake-in-the-forest', 'cops-and-robbers'],
   '/u7/first-practice': ['warmup-skill-doctor-tag', 'rotation-puck-party', 'game-steal-the-treasure', 'cops-and-robbers'],
+  '/u7/keep-kids-listening': ['warmup-skill-doctor-tag', 'rotation-puck-party', 'hot-potato-partners', 'game-steal-the-treasure', 'cops-and-robbers'],
 };
 
 export const allPublicDrillIds = () => [...new Set(Object.values(PUBLIC_DRILLS).flat())].sort();

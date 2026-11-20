@@ -1,48 +1,76 @@
 {
   "id": "warmup-skill-doctor-tag",
-  "funName": "Skill Doctor Tag",
-  "plainName": "Tag warm-up with skill tasks",
-  "sourceTitle": "Tag",
-  "minutes": 8,
-  "gear": "None",
-  "worksAsStation": false,
-  "description": "Coaches are it. A tagged skater goes to the Skill Doctor, a coach at the referee’s circle, who gives a task: fall to your knees and get up, balance on one foot, jump on one foot, or C-cuts. Then back into the game.",
-  "steps": [
-    "Coaches chase and tag.",
-    "Tagged? See the Skill Doctor, do the task, and skate back in."
-  ],
   "cues": [
     "Keep your head up!",
     "Do the task, then go!"
   ],
+  "gear": "None",
+  "part": "warmup",
   "focus": [
     {
-      "attribute": "Effort & fun",
+      "why": "A chasing game everyone plays.",
       "level": 2,
-      "why": "A chasing game everyone plays."
+      "attribute": "Effort & fun"
     },
     {
-      "attribute": "Skating",
+      "why": "Agility, balance and quick starts.",
       "level": 1,
-      "why": "Agility, balance and quick starts."
+      "attribute": "Skating"
     }
   ],
-  "groupModel": "basic",
-  "part": "warmup",
+  "steps": [
+    "Coaches chase and tag.",
+    "Tagged? See the Skill Doctor, do the task, and skate back in."
+  ],
   "effort": "hard",
   "format": "everyone",
-  "lessons": [
-    4,
-    6
-  ],
-  "levelName": "",
-  "levels": [],
   "source": {
-    "label": "Hockey Canada U7 Lessons 4, 6 · 1.1.02–1.1.04, 1.4.03",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
-    "note": "The source calls it Tag. The Skill Doctor stands at the referee’s circle."
+    "note": "The source calls it Tag. The Skill Doctor stands at the referee’s circle.",
+    "label": "Hockey Canada U7 Lessons 4, 6 · 1.1.02–1.1.04, 1.4.03"
   },
   "diagram": {
+    "cones": [],
+    "paths": [
+      {
+        "step": 1,
+        "type": "skate",
+        "points": [
+          [
+            60,
+            40
+          ],
+          [
+            66,
+            52
+          ],
+          [
+            70,
+            58
+          ]
+        ],
+        "caption": "Coaches chase and tag."
+      },
+      {
+        "step": 2,
+        "type": "skate",
+        "points": [
+          [
+            72,
+            62
+          ],
+          [
+            86,
+            72
+          ],
+          [
+            98,
+            77
+          ]
+        ],
+        "caption": "Tagged? See the Skill Doctor, do the task, and skate back in."
+      }
+    ],
     "scope": "full",
     "players": [
       {
@@ -85,48 +113,18 @@
         "y": 79,
         "role": "C"
       }
-    ],
-    "paths": [
-      {
-        "type": "skate",
-        "points": [
-          [
-            60,
-            40
-          ],
-          [
-            66,
-            52
-          ],
-          [
-            70,
-            58
-          ]
-        ],
-        "step": 1,
-        "caption": "Coaches chase and tag."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            72,
-            62
-          ],
-          [
-            86,
-            72
-          ],
-          [
-            98,
-            77
-          ]
-        ],
-        "step": 2,
-        "caption": "Tagged? See the Skill Doctor, do the task, and skate back in."
-      }
-    ],
-    "cones": []
+    ]
   },
-  "status": "in_review"
+  "funName": "Skill Doctor Tag",
+  "lessons": [
+    4,
+    6
+  ],
+  "minutes": 8,
+  "plainName": "Tag warm-up with skill tasks",
+  "groupModel": "together",
+  "description": "Coaches are it. A tagged skater goes to the Skill Doctor, a coach at the referee’s circle, who gives a task: fall to your knees and get up, balance on one foot, jump on one foot, or C-cuts. Then back into the game.",
+  "sourceTitle": "Tag",
+  "worksAsStation": false,
+  "status": "live"
 }

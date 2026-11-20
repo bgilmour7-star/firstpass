@@ -110,7 +110,7 @@ function PhoneCard() {
 const PLAN: { at: string; name: string; strong?: boolean; sub?: string }[] = [
   { at: '9:45', name: 'Free skate' },
   { at: '9:50', name: 'Ski Racer', strong: true },
-  { at: '9:58', name: 'Puck Party', strong: true, sub: '3 zones · 4 min' },
+  { at: '9:58', name: 'Puck Party', strong: true, sub: `3 zones · ${puckParty.minutes} min` },
   { at: '10:10', name: 'Water' },
   { at: '10:12', name: 'Snake in the Forest', strong: true },
   { at: '10:22', name: 'Cops and Robbers', strong: true },
@@ -146,7 +146,7 @@ function Pill({ on, children, className = '' }: { on?: boolean; children: React.
 const BLOCKS: { name: string; min: number; tone: 'a' | 'b' | 'gap' }[] = [
   { name: 'Warm-up', min: 5, tone: 'b' },
   { name: 'Ski Racer', min: 8, tone: 'a' },
-  { name: 'Puck Party', min: 12, tone: 'b' },
+  { name: puckParty.funName, min: puckParty.minutes * 3, tone: 'b' },
   { name: 'Water', min: 2, tone: 'gap' },
   { name: 'Snake in the Forest', min: 10, tone: 'a' },
   { name: 'Cops and Robbers', min: 10, tone: 'b' },
@@ -324,7 +324,7 @@ export function Landing() {
                       <span className={`${mono} text-[22px] font-medium`}>
                         7:20 <span className="text-[11px] text-ink-200">left</span>
                       </span>
-                      <span className="text-[11px] leading-normal text-ink-200">3 zones · whistle every 4 min</span>
+                      <span className="text-[11px] leading-normal text-ink-200">3 zones · whistle every {puckParty.minutes} min</span>
                     </div>
                     <div className="flex flex-col gap-1.5 text-xs">
                       <span>

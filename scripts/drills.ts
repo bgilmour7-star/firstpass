@@ -13,7 +13,7 @@
  *   npm run drills -- drafted <requestId> <drillId> "note"   after push of a new drill (In review): link it, mark the request drafted
  *   npm run drills -- propose <requestId> "note"   store content/drills/<drillId>.json as the proposed change (the live drill is untouched)
  *   npm run drills -- cant <requestId> "why"       mark a request drafted with only a note, for the reviewer to decline
- *   npm run drills -- public                check every drill named on a public page is live (decision 0038); run before merging a public-page change
+ *   npm run drills -- public                check every drill named on a public page is live and matches its file (decisions 0038, 0042); run before merging a public-page change
  *
  * Supabase commands use SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS. Keep it in .env.local
  * or the environment, never in the repo or the browser.
@@ -70,17 +70,30 @@ const commands: Record<string, (args: string[]) => Promise<void> | void> = {
   /** Public pages use live drills only (decision 0038). Fails if any drill they name isn't live. */
   async public() {
     const ids = allPublicDrillIds();
-    const { data, error } = await admin().from('drills').select('id, status').in('id', ids);
+    const { data, error } = await admin().from('drills').select('id, status, content').in('id', ids);
     if (error) throw error;
-    const status = new Map((data ?? []).map((r) => [r.id as string, r.status as string]));
+    const rows = new Map((data ?? []).map((r) => [r.id as string, r as { status: string; content: Record<string, unknown> }]));
+    // Key order doesn't matter, and the repo file's status isn't part of the drill.
+    const canon = (v: unknown): unknown => (Array.isArray(v) ? v.map(canon) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon((v as Record<string, unknown>)[k])])) : v);
+    const withoutStatus = (d: Record<string, unknown>) => Object.fromEntries(Object.entries(d).filter(([k]) => k !== 'status'));
     let bad = 0;
     for (const id of ids) {
-      const s = status.get(id) ?? 'missing';
+      const row = rows.get(id);
+      const s = row?.status ?? 'missing';
       const pages = Object.entries(PUBLIC_DRILLS).filter(([, v]) => v.includes(id)).map(([k]) => k).join(', ');
-      if (s === 'live') console.log(`ok    ${id}`);
+      // Public pages are built from content/drills, so the file has to match the live drill (times, names, diagram).
+      const path = join(CONTENT, `${id}.json`);
+      if (!existsSync(path)) {
+        bad++;
+        console.log(`FAIL  ${id}: no content/drills/${id}.json (on ${pages}). Pull it: npm run drills -- pull ${id}`);
+        continue;
+      }
+      const file = withoutStatus(JSON.parse(readFileSync(path, 'utf8')));
+      const same = row && JSON.stringify(canon(file)) === JSON.stringify(canon(withoutStatus(row.content)));
+      if (s === 'live' && same) console.log(`ok    ${id}`);
       else {
         bad++;
-        console.log(`FAIL  ${id} is ${s} (on ${pages})`);
+        console.log(s !== 'live' ? `FAIL  ${id} is ${s} (on ${pages})` : `FAIL  ${id}: content/drills/${id}.json differs from the live drill (on ${pages}). Pull it: npm run drills -- pull ${id}`);
       }
     }
     if (bad) process.exit(1);
