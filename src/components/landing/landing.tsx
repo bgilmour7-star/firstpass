@@ -515,19 +515,19 @@ export function Landing() {
             <span className="ml-2 text-sm text-ink-200">Hockey practice planner, built in Nanaimo, BC</span>
           </span>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1">
-            <Link href="/login" className="py-2.5 underline-offset-2 hover:underline">
+            <Link href="/login" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               Sign in
             </Link>
-            <Link href="/u7" className="py-2.5 underline-offset-2 hover:underline">
+            <Link href="/u7" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               U7 practice help
             </Link>
-            <Link href="/associations" className="py-2.5 underline-offset-2 hover:underline">
+            <Link href="/associations" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               Associations
             </Link>
-            <a href="mailto:hello@firstpass.coach" className="py-2.5 underline-offset-2 hover:underline">
+            <a href="mailto:hello@firstpass.coach" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               hello@firstpass.coach
             </a>
-            <Link href="/privacy" className="py-2.5 underline-offset-2 hover:underline">
+            <Link href="/privacy" className="inline-flex min-h-11 items-center underline-offset-2 hover:underline">
               Privacy
             </Link>
           </nav>

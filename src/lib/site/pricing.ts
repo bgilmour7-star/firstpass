@@ -1,4 +1,4 @@
-// Firstpass prices, in CAD per team per season (decision 0043, option B: "every team pays, founders at both
+// Firstpass prices, in CAD per team per season (decision 0044, option B: "every team pays, founders at both
 // levels"; project doc "Firstpass pricing strategy and market size"). One place, so the public pages, their
 // structured data and the tests agree. Billing isn't built yet, so nothing here charges anyone.
 

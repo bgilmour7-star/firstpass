@@ -27,6 +27,8 @@ const TITLE = 'Firstpass for minor hockey associations';
 const DESCRIPTION = `Every U5–U9 team planning the same way, from $${LOWEST_ASSOCIATION_PRICE} per team a season. Free for every team this season. See all your teams, set up coaches, and pay as one association or team by team.`;
 const UPDATED = '2026-11-20';
 
+const HIGHEST_ASSOCIATION_PRICE = Math.max(...ASSOCIATION_TIERS.flatMap((t) => (t.price === null ? [] : [t.price])));
+
 const EXAMPLE_TEAMS = 12;
 const exampleRate = rateFor(EXAMPLE_TEAMS)!;
 const exampleSaved = EXAMPLE_TEAMS * (TEAM_PRICE - exampleRate);
@@ -100,7 +102,7 @@ const data = {
         '@type': 'AggregateOffer',
         priceCurrency: 'CAD',
         lowPrice: LOWEST_ASSOCIATION_PRICE,
-        highPrice: TEAM_PRICE,
+        highPrice: HIGHEST_ASSOCIATION_PRICE,
         description: `Per team, per season, from the ${PAID_FROM} season, by number of U5–U9 teams`,
       },
     },
@@ -208,7 +210,7 @@ export default function AssociationsPage() {
                 <>
                   <span className="mt-2 font-display text-[36px] font-extrabold leading-none">Custom</span>
                   <span className="mt-3 text-[15px] leading-normal text-ink-200">For large associations and multi-division setups.</span>
-                  <span className="mt-1 text-[15px] leading-normal text-ink-200">Talk to Brett.</span>
+                  <a href="#talk" className="mt-1 inline-flex min-h-11 items-center self-start text-[15px] leading-normal text-rink-100 underline underline-offset-2">Talk to Brett</a>
                 </>
               ) : (
                 <>
@@ -227,7 +229,7 @@ export default function AssociationsPage() {
         })}
       </ul>
       <p className={prose.p}>
-        Per team, per season, in Canadian dollars, from {PAID_FROM}. A team on its own pays ${TEAM_PRICE} after {TRIAL_PRACTICES} free practices. Through the association, every team pays less: <strong className="font-semibold">under $3 a player for the whole season</strong> at the ${LOWEST_ASSOCIATION_PRICE} rate. An association with {EXAMPLE_TEAMS} teams saves its teams ${exampleSaved} a season.
+        Per team, per season, in Canadian dollars, from {PAID_FROM}. A team on its own pays ${TEAM_PRICE} after {TRIAL_PRACTICES} free practices. Through the association, every team pays less: <strong className="font-semibold">{perPlayer(LOWEST_ASSOCIATION_PRICE).toLowerCase()} for the whole season</strong> at the ${LOWEST_ASSOCIATION_PRICE} rate. An association with {EXAMPLE_TEAMS} teams saves its teams ${exampleSaved} a season.
       </p>
 
       <div className="band-teal mt-5 flex flex-col gap-3 rounded-2xl p-6 text-white">
@@ -248,7 +250,7 @@ export default function AssociationsPage() {
       </ul>
       <p className={prose.p}>
         See how it plans a real practice in{' '}
-        <Link href="/u7/stations-half-ice" className="text-rink-100 underline underline-offset-2">
+        <Link href="/u7/stations-half-ice" className="inline-flex min-h-11 items-center text-rink-100 underline underline-offset-2">
           How do I run stations on half ice?
         </Link>
       </p>
