@@ -31,7 +31,7 @@ const FAQ = [
   },
   {
     q: 'What does the association see?',
-    a: 'Which teams are planning and how many practices each has run. Coaches’ notes about kids and their progress scores stay with the team’s coaches.',
+    a: 'Which teams are planning and how many practices each has run. Coaches’ notes and their team’s progress scores stay with the team’s coaches.',
   },
   {
     q: 'Where is our data kept?',
@@ -135,7 +135,7 @@ export default function AssociationsPage() {
       </ul>
 
       <h2 id="pricing" className={prose.h2}>Pricing</h2>
-      <p className={prose.p}>Per team, per season, in Canadian dollars. A team on its own is ${TEAM_PRICE} a season.</p>
+      <p className={prose.p}>Per team, per season, in Canadian dollars. A coach’s first team is free, and each team after that is ${TEAM_PRICE} a season.</p>
       <ul className="mt-6 grid gap-4 sm:grid-cols-3" aria-label="Association price per team">
         {ASSOCIATION_TIERS.map((t, i) => {
           const best = t.price === LOWEST_ASSOCIATION_PRICE;
