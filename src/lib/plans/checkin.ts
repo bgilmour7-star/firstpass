@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { GROUPS, type Drill } from '../drills/schema';
-import { addMinutes, clock, coachesToday, rotationToday, startTimes, stationsToday, todayUnits, type Practice, type Team } from './schema';
+import { addMinutes, clock, rotationToday, startTimes, todayUnits, type Practice, type Team } from './schema';
 
 // The after-practice check-in (decision 0007, "Strava style"): one overall answer, whether
 // they lost steam and from when, and only the drills that stood out. Every drill not marked
@@ -40,8 +40,8 @@ export type Checkin = CheckinInput & { practiceId: string; teamId: string; userI
 export type RateUnit = { key: string; drillId: string; name: string; time: string; zone?: string; group?: string };
 
 /** The practice as a list of things to rate, in order. Activities (water, huddle) and empty blocks are left out. */
-export function rateUnits(p: Pick<Practice, 'blocks' | 'startTime' | 'attendance'>, team: Pick<Team, 'groups'> & { coachesOnIce?: number }, byId: Map<string, Pick<Drill, 'funName' | 'zones'>>): RateUnit[] {
-  const gc = stationsToday(todayUnits(team, p.attendance), coachesToday(team, p.attendance));
+export function rateUnits(p: Pick<Practice, 'blocks' | 'startTime' | 'attendance'>, team: Pick<Team, 'groups'>, byId: Map<string, Pick<Drill, 'funName' | 'zones'>>): RateUnit[] {
+  const gc = todayUnits(team, p.attendance).length;
   const times = startTimes(p.startTime, p.blocks, gc);
   const out: RateUnit[] = [];
   p.blocks.forEach((b, i) => {

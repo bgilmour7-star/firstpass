@@ -24,7 +24,7 @@ export type JoinError = 'link-off' | 'join-migration-missing';
 /** A team the coach is on, with their role on it (decision 0026). */
 export type MyTeam = Team & { role: 'head_coach' | 'coach' };
 /** Everything the Create a team wizard sets up front (decision 0026). */
-export type TeamSetup = Partial<Pick<Team, 'ageGroup' | 'ice' | 'groups' | 'practiceMinutes' | 'coachesOnIce' | 'newDrillsPerWeek' | 'gear' | 'focus'>>;
+export type TeamSetup = Partial<Pick<Team, 'ageGroup' | 'ice' | 'groups' | 'practiceMinutes' | 'coachesOnIce' | 'newDrillsPerWeek' | 'gear' | 'focus' | 'planning'>>;
 /** A U11+ coach's answer on the "not yet" screen (decision 0026). Never kids' names. */
 export type OlderInterest = { ageGroup: 'U11' | 'U13' | 'U15+'; hardestPart: string; wantsCall: boolean };
 /** What a parent link shows: no ids beyond the drills, no coach names. */

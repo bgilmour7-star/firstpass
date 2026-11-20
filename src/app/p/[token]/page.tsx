@@ -37,7 +37,7 @@ export default async function ParentView({ params }: { params: Promise<{ token: 
         </p>
         {focus.length > 0 && <p className="text-[15px]">Today the kids work mostly on {focus.join(' and ')}.</p>}
       </div>
-      <PlanView blocks={withStationDrills(practice.blocks, byId)} startTime={practice.startTime} units={units} drills={byId} mode="parent" coaches={practice.attendance?.coaches} />
+      <PlanView blocks={withStationDrills(practice.blocks, byId)} startTime={practice.startTime} units={units} drills={byId} mode="parent" />
       <p className="text-xs text-ink-200">Shared by your coach. This link stops working after 30 days.</p>
     </main>
   );

@@ -1,25 +1,35 @@
-# 0046 · Stations follow the coaches on the ice; the next practice plans itself
+# 0046 · Groups today follow the coaches; say what changes; one team setting; the next practice plans itself
 
-Date: 2026-11-20 · Decided by: Brett. Spec: `docs/specs/every-practice-planned.md`.
+Date: 2026-11-20 · Decided by: Brett. Spec: `docs/specs/every-practice-planned.md`. Canvas: "Firstpass planning
+changes".
 
 Brett: the promises on the public site and in Create a team ("More coaches on the ice means more stations",
 "every practice arrives planned") are "good. It's actually the next feature we need to work on, before association
-views and capabilities."
+views and capabilities." Then: "instead of asking which groups to merge, just say reduce to 2 groups, as they will
+likely need to keep the number of kids balanced", and "we need to be more transparent with what is going to happen
+after the coach updates the who's here today or when they checkin".
 
 ## Decision
-- **A rotation runs no more stations than there are coaches on the ice.** With fewer coaches than groups, groups
-  double up: the neighbouring pair with the fewest skaters shares a zone (`rotationUnits`, `stationsToday`).
-  - 1 coach: one zone, everyone together. A new team's first plan has no rotation; a second game takes its place.
-  - The rotation block says who shares a zone, on the block (dashed whistle orange). Nothing is applied for the coach.
-- **Coaches today:** "Who's here today" has a Coaches stepper (`attendance.coaches`, optional). It defaults to the
-  team's number and is for this practice only. Times, the rink-side page, the printout, the check-in and Home all
-  count stations this way.
-- **Every practice arrives planned** (PR B): the next practice is planned right after a check-in, or when anyone on
-  the team opens the app within 36 hours of an unplanned practice. It's the same copy-and-suggest as "Plan it".
+- **"Groups today" sets the stations.** Who's here today has skaters per group, Coaches, and Groups today (3 · 2 ·
+  1). Fewer coaches suggests fewer groups ("2 coaches, so 2 groups. Split the 12 kids into 2 even groups."). The
+  coaches rebalance the kids on the ice. The app joins the neighbouring pair with the fewest skaters
+  (`reduceUnits`), so drills with levels start a joined group at the easier level, like a merge. The pair-merge
+  switches are gone; old merges still load.
+- **One team setting, "When something changes"** (`teams.planning`, head coach only, default `auto`):
+  - **Update the plan for us:** applying Who's here updates the plan, and a line says what changed, with Undo and
+    "Use the N minutes". A team with fewer coaches than groups skates one group per coach by default.
+  - **Ask me first:** Who's here offers Update the plan / Save, keep the plan / Cancel. Kept plans keep their zones;
+    the rotation says "3 zones, 2 coaches today. One zone has no coach." with Run 2 zones / Keep 3.
+  - Every screen that acts on its own says which setting caused it and links to Team settings.
+- **First plan with 1 coach:** no rotation, a second everyone-game instead.
+- **The check-in end says what happens next, and the next practice plans itself** (PR B): with "Update the plan
+  for us", right after the check-in ("Thursday's plan is ready", Open / Undo); with "Ask me first", Plan Thursday
+  now / Not yet. Either way, if nobody plans it, Firstpass plans it the day before. Suggestions are never applied
+  without a tap.
 - **Versions per skill group** stay drill-library work, through drill review.
+- No AI: groups today is arithmetic, and the next plan is the last plan plus the rule-based check-in suggestions
+  (decision 0022).
 
 ## Not done (yet)
-- The parent link counts coaches only when the practice sets its own number. The shared-practice function doesn't
-  return the team's coach count (a migration, later).
-- Station drills ("Split by skill", one station per group) don't double up yet. Only rotations do.
-- PR B (the next practice plans itself).
+- The parent link counts coaches only when the practice sets its own number.
+- PR B (the check-in end and the next practice planning itself).

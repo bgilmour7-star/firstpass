@@ -148,6 +148,7 @@ export function TeamSettings(p: {
           Up to {team.newDrillsPerWeek} new drill{team.newDrillsPerWeek === 1 ? '' : 's'} a week · {team.coachesOnIce} coach{team.coachesOnIce === 1 ? '' : 'es'} on the ice
           {team.focus.length ? ` · Focus: ${team.focus.join(', ')}` : ''}
         </p>
+        <p className="text-[13px] text-ink-200">{team.planning === 'ask' ? 'When something changes, Firstpass asks first.' : 'When something changes, Firstpass updates the plan for you.'}</p>
       </SettingsRow>
 
       <LeaveOrDelete team={team} isHead={isHead} others={p.coaches.length - 1} onHandOver={() => document.getElementById('coaches')?.scrollIntoView({ behavior: 'smooth' })} />
@@ -198,6 +199,23 @@ export function TeamSettings(p: {
                 <span className="text-sm font-semibold">Coaches on the ice</span>
                 <Count value={t.coachesOnIce} min={1} max={10} label="coaches on the ice" onChange={(n) => set({ ...t, coachesOnIce: n })} />
               </div>
+              <fieldset className="flex flex-col gap-2.5">
+                <legend className="mb-1 text-sm font-semibold">When something changes</legend>
+                <span className="-mt-1 text-[13px] text-ink-200">Who’s here today, and the check-in after practice. For every coach on the team.</span>
+                {PLANNING.map((o) => (
+                  <label key={o.value} className={`flex cursor-pointer items-start gap-3 rounded-xl p-3.5 ${t.planning === o.value ? 'border-2 border-rink-100 bg-surface-200' : 'border border-border-100'}`}>
+                    <input type="radio" name="planning" value={o.value} checked={t.planning === o.value} onChange={() => set({ ...t, planning: o.value })} className="mt-0.5 h-5 w-5 accent-[var(--rink-100)]" />
+                    <span className="flex flex-col gap-1">
+                      <b className="text-[15px] font-semibold">
+                        {o.title}
+                        {o.value === 'auto' && <span className="ml-1.5 text-xs font-medium text-ink-200">Default</span>}
+                      </b>
+                      <span className="text-[13px] leading-normal text-ink-200">{o.body}</span>
+                    </span>
+                  </label>
+                ))}
+                <span className="text-[13px] text-ink-200">Suggestions from the check-in are never applied without a tap.</span>
+              </fieldset>
               <fieldset className="flex flex-col gap-2">
                 <legend className="mb-2 text-sm font-semibold">Focus this month (up to 2)</legend>
                 <FocusPicker focus={t.focus} onChange={(f) => set({ ...t, focus: f })} />
@@ -209,6 +227,12 @@ export function TeamSettings(p: {
     </div>
   );
 }
+
+// Decision 0046: one team setting for what happens when who's here changes or a coach checks in.
+const PLANNING: { value: Team['planning']; title: string; body: string }[] = [
+  { value: 'auto', title: 'Update the plan for us', body: 'The plan adapts to who’s here, and the next practice gets planned after the check-in. You’ll see what changed, with Undo.' },
+  { value: 'ask', title: 'Ask me first', body: 'Each change asks: update the plan, save and keep the plan, or cancel. If nobody plans the next practice, Firstpass plans it the day before.' },
+];
 
 /** One section's drawer: edits a copy of the team and saves it with the team form's action (saveTeam). */
 function SectionDrawer({ title, team, onClose, note, extra, children }: { title: string; team: Team; onClose: () => void; note?: string; extra?: React.ReactNode; children: (t: Team, set: (t: Team) => void) => React.ReactNode }) {

@@ -16,22 +16,22 @@ Date: 2026-11-20 · Decision 0046 · Asked for by Brett: the promises on the pub
 1. **Stations = coaches on the ice; groups double up.** A rotation runs no more stations than there are coaches.
    - 2 coaches, 3 groups: 2 stations, and the two groups closest in level share one.
    - 1 coach: no rotation. A new plan uses a game or an everyone drill instead, and an existing rotation block gets a warning on the block with a suggested swap.
-2. **The next practice is planned automatically**: right after a coach finishes the check-in (so it uses the suggestions), or the day before practice if nobody checks in.
+2. **The next practice is planned automatically** (team setting decides: plan it for us, or ask first): right after a coach finishes the check-in (so it uses the suggestions), or the day before practice if nobody checks in.
 3. **A version per skill group is drill-library work, alongside this**, through drill review, not planner code.
 
 ## How it works
 
-### A. Stations follow the coaches (PR A)
-- `rotationToday(block, groupCount, coaches)` runs `min(stations, groups, coaches)` stations, at least 1.
-- **Doubling up.** When there are more groups than stations, the rotation's units are merged, using the same merge as attendance (`todayUnits`), until there are as many units as stations.
-  - The pair merged is the two adjacent groups (by level) with the fewest skaters together, so the shared station stays small.
-  - Each merged unit is labelled "Bears + Sharks" on the plan, the rink-side page, the printout and the parent link.
-- **Coaches today.** A practice can override the team's number in "Who's here" (`attendance.coaches`, optional, defaults to `team.coachesOnIce`). A coach who can't make it is the most common reason for a different number.
-- **New plans:**
-  - `firstPlan` takes the coach count. With 1 coach it skips the rotation and fills the time with the skill drill and a second game.
-  - A copied plan keeps its blocks and the rotation adapts on the day.
-- **1 coach and a rotation block:** the block shows "1 coach on the ice: this rotation needs 2. Swap for an everyone drill?" with Swap it in / Keep as is, in the same dashed whistle-orange box as other suggestions. It is suggested, never applied (UX patterns).
-- Create a team already asks who coaches with you (`coachesOnIce = 1 + invites`), so nothing changes there.
+### A. Groups today follow the coaches (PR A, revised 2026-11-20 after the canvas "Firstpass planning changes")
+- Stations = groups today (unchanged rule: a rotation runs one zone per group). What's new is choosing fewer groups.
+- Who's here today: skaters per group, Coaches, and Groups today (3 · 2 · 1). Changing Coaches suggests one group
+  per coach. "Split the 12 kids into 2 even groups." The app joins the smallest neighbouring pair (`reduceUnits`).
+- `attendance.coaches`, `attendance.groups`, `attendance.keepZones` (all optional, jsonb, no migration).
+- Team setting `teams.planning` ('auto' | 'ask', default 'auto'; migration `20261126000000_team_planning.sql`).
+  - auto: Update the plan, then a line with what changed, Undo and "Use the N minutes". A team whose coaches are
+    fewer than its groups skates one group per coach by default (`todayUnits`).
+  - ask: Update the plan / Save, keep the plan / Cancel. A kept plan with more zones than coaches shows "3 zones,
+    2 coaches today" on the rotation, with Run 2 zones / Keep 3.
+- First plan with 1 coach: no rotation, a second game.
 
 ### B. The next practice plans itself (PR B)
 - **Which practice:** the team's next practice ice time from the calendar with no plan (`nextPracticeDate` rule 1).

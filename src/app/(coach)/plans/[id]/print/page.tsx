@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { addMinutes, clock, coachesToday, isAdapted, todayUnits, withStationDrills } from '@/lib/plans/schema';
+import { addMinutes, clock, isAdapted, todayUnits, withStationDrills } from '@/lib/plans/schema';
 import { PlanView } from '@/components/plan-view';
 import { PrintButton } from './print-button';
 
@@ -38,7 +38,7 @@ export default async function Printout({ params }: { params: Promise<{ id: strin
         {isAdapted(team, p.attendance) ? 'Today: ' : 'Groups: '}
         {units.map((u) => `${u.label} ${u.skaters}`).join(' · ')}
       </p>
-      <PlanView blocks={withStationDrills(p.blocks, drills)} startTime={p.startTime} units={units} drills={drills} mode="print" coaches={coachesToday(team, p.attendance)} />
+      <PlanView blocks={withStationDrills(p.blocks, drills)} startTime={p.startTime} units={units} drills={drills} mode="print" />
     </div>
   );
 }

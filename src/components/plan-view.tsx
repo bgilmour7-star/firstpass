@@ -1,16 +1,15 @@
 import { Rink } from '@/components/ds';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
-import { blockLevels, blockMinutes, clock, levelMinutes, rotationToday, startTimes, stationsToday, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
+import { blockLevels, blockMinutes, clock, levelMinutes, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
 import type { RinkDiagramProps } from '../../design-system/index';
 
 // Read-only plan in time order, for the printout and the parent link, adapted to today's groups.
 
 type Mode = 'print' | 'parent';
 
-export function PlanView({ blocks, startTime, units, drills, mode, coaches }: { blocks: Block[]; startTime: string; units: Unit[]; drills: Map<string, Drill>; mode: Mode; coaches?: number }) {
-  // Rotations run no more stations than coaches (decision 0046). The parent link has no coach count yet.
-  const gc = coaches ? stationsToday(units, coaches) : units.length;
+export function PlanView({ blocks, startTime, units, drills, mode }: { blocks: Block[]; startTime: string; units: Unit[]; drills: Map<string, Drill>; mode: Mode }) {
+  const gc = units.length;
   const times = startTimes(startTime, blocks, gc);
   return (
     <ol className="flex flex-col">
@@ -95,8 +94,12 @@ function RotationView({ block, drills, gc, mode }: { block: Extract<Block, { kin
   const rot = block.drillId ? drills.get(block.drillId) : undefined;
   const intro =
     mode === 'parent'
-      ? `Kids rotate through ${active.length} zones in their groups, ${block.minutes} minutes each.`
-      : `${active.length} zones, ${block.minutes} min each. Everyone does every zone; whistle every ${block.minutes} min.`;
+      ? active.length === 1
+        ? `Everyone together in one zone, ${block.minutes} minutes.`
+        : `Kids rotate through ${active.length} zones in their groups, ${block.minutes} minutes each.`
+      : active.length === 1
+        ? `One zone, ${block.minutes} min. Everyone together.`
+        : `${active.length} zones, ${block.minutes} min each. Everyone does every zone; whistle every ${block.minutes} min.`;
   if (rot) {
     const used = rot.zones?.filter((z) => !off.includes(z.station)) ?? [];
     return (

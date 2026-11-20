@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
-import { clock, coachesToday, drillIds, newDrillIds, stationsToday, todayUnits, totalMinutes } from '@/lib/plans/schema';
+import { clock, drillIds, newDrillIds, todayUnits, totalMinutes } from '@/lib/plans/schema';
 import { syncCalendar } from '@/lib/calendar/sync';
 import { activityLine, initials } from '@/lib/plans/activity';
 import { practiceOver } from '@/lib/plans/checkin';
@@ -46,7 +46,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const row = (p: (typeof plans)[number]) => {
     const fresh = newDrillIds(p, plans);
     const ids = [...new Set(p.blocks.flatMap(drillIds))];
-    const overrun = totalMinutes(p.blocks, stationsToday(todayUnits(team, p.attendance), coachesToday(team, p.attendance))) - p.minutes;
+    const overrun = totalMinutes(p.blocks, todayUnits(team, p.attendance).length) - p.minutes;
     const it = iceFor.get(p.id);
     const empty = p.blocks.filter((b) => b.kind !== 'activity' && !b.drillId).length;
     const act = activityLine(activity[p.id], coach.id);
