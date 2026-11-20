@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
+import { planIfDue } from '@/lib/plans/plan-next';
 import { getAppStore } from '@/lib/app/store';
 import { drillIds, withStationDrills } from '@/lib/plans/schema';
 import { TodayView } from './today-view';
@@ -15,6 +16,8 @@ export default async function Today({ searchParams }: { searchParams: Promise<{ 
   const { coach, team } = await requireTeam('/today');
   const { plan } = await searchParams;
   const store = await getAppStore();
+  // Every practice arrives planned: the day before an ice time, whoever opens the app first plans it (decision 0046).
+  await planIfDue(store, team, coach);
   const all = await teamPractices(team.id);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Vancouver' });
   const chosen =

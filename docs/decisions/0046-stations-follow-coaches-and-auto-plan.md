@@ -22,14 +22,24 @@ after the coach updates the who's here today or when they checkin".
     the rotation says "3 zones, 2 coaches today. One zone has no coach." with Run 2 zones / Keep 3.
   - Every screen that acts on its own says which setting caused it and links to Team settings.
 - **First plan with 1 coach:** no rotation, a second everyone-game instead.
-- **The check-in end says what happens next, and the next practice plans itself** (PR B): with "Update the plan
-  for us", right after the check-in ("Thursday's plan is ready", Open / Undo); with "Ask me first", Plan Thursday
-  now / Not yet. Either way, if nobody plans it, Firstpass plans it the day before. Suggestions are never applied
-  without a tap.
+- **The check-in end says what happens next, and the next practice plans itself** (PR B,
+  `src/lib/plans/plan-next.ts`, `next-plan-rule.ts`):
+  - "Update the plan for us": right after a check-in, the next practice is planned ("Thursday's plan is ready",
+    Open / Undo, I'll plan it).
+  - "Ask me first": Plan Thursday now / Not yet.
+  - Either way, the day before a calendar ice time with no plan, whoever on the team opens Home, Plans or Today
+    first plans it. Guessed dates (a week on, for teams with no calendar) are only planned after a check-in, with
+    "change it if it's wrong".
+  - The next practice is the next unplanned ice time, else a week after the last plan. A future draft counts as
+    planned, so nothing is planned twice. The edit log says "Firstpass planned it from Thu, Nov 19's practice".
+  - It runs in the coach's own session (RLS), never with the service key. A "your plan is ready" email the day
+    before is later: it would move this onto the timer.
+  - Suggestions are never applied without a tap.
 - **Versions per skill group** stay drill-library work, through drill review.
 - No AI: groups today is arithmetic, and the next plan is the last plan plus the rule-based check-in suggestions
   (decision 0022).
 
 ## Not done (yet)
 - The parent link counts coaches only when the practice sets its own number.
-- PR B (the check-in end and the next practice planning itself).
+- Two coaches opening the app at the same moment the day before could, rarely, both plan it. A unique guard on
+  `(team_id, date, start_time)` would close it; not added yet.

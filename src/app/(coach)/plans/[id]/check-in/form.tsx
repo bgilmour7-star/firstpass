@@ -73,7 +73,7 @@ export function CheckinForm({
     setError('');
     start(async () => {
       const r = await saveCheckin(practiceId, { ...c, steamFrom: lost ? steamFrom : null });
-      if (r.ok) router.push(`/plans/${practiceId}/check-in?saved=1`);
+      if (r.ok) router.push(`/plans/${practiceId}/check-in?saved=1${r.planned ? `&planned=${r.planned}` : ''}`);
       else setError(r.error);
     });
   }

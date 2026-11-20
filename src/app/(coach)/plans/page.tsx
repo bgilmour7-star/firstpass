@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireTeam } from '@/lib/auth';
+import { planIfDue } from '@/lib/plans/plan-next';
 import { getAppStore } from '@/lib/app/store';
 import { clock, drillIds, newDrillIds, todayUnits, totalMinutes } from '@/lib/plans/schema';
 import { syncCalendar } from '@/lib/calendar/sync';
@@ -19,6 +20,8 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const { hidden, all } = await searchParams;
   const limit = all ? 200 : 10;
   const store = await getAppStore();
+  // Every practice arrives planned: the day before an ice time, whoever opens the app first plans it (decision 0046).
+  await planIfDue(store, team, coach);
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans. The
   // practices are read straight from the store after it: the cached teamPractices may predate the sync.
   const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
