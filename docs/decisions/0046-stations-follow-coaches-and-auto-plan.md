@@ -17,7 +17,8 @@ after the coach updates the who's here today or when they checkin".
   switches are gone; old merges still load.
 - **One team setting, "When something changes"** (`teams.planning`, head coach only, default `auto`):
   - **Update the plan for us:** applying Who's here updates the plan, and a line says what changed, with Undo and
-    "Use the N minutes". A team with fewer coaches than groups skates one group per coach by default.
+    "Use the N minutes". A new plan for a team with fewer coaches than groups starts with one group per coach, saved
+    on the plan; existing plans never change on their own.
   - **Ask me first:** Who's here offers Update the plan / Save, keep the plan / Cancel. Kept plans keep their zones;
     the rotation says "3 zones, 2 coaches today. One zone has no coach." with Run 2 zones / Keep 3.
   - Every screen that acts on its own says which setting caused it and links to Team settings.
@@ -40,6 +41,5 @@ after the coach updates the who's here today or when they checkin".
   (decision 0022).
 
 ## Not done (yet)
-- The parent link counts coaches only when the practice sets its own number.
 - Two coaches opening the app at the same moment the day before could, rarely, both plan it. A unique guard on
   `(team_id, date, start_time)` would close it; not added yet.

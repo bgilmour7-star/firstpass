@@ -13,9 +13,9 @@ Date: 2026-11-20 · Decision 0046 · Asked for by Brett: the promises on the pub
 
 ## Decisions (Brett, 2026-11-20)
 
-1. **Stations = coaches on the ice; groups double up.** A rotation runs no more stations than there are coaches.
-   - 2 coaches, 3 groups: 2 stations, and the two groups closest in level share one.
-   - 1 coach: no rotation. A new plan uses a game or an everyone drill instead, and an existing rotation block gets a warning on the block with a suggested swap.
+1. **Groups today follow the coaches** (revised 2026-11-20): "just say reduce to 2 groups". Stations = groups today.
+   Fewer coaches suggests fewer groups; the coaches rebalance the kids. More zones than coaches shows a warning on the
+   rotation (Run 2 zones / Keep 3). A first plan with 1 coach has no rotation.
 2. **The next practice is planned automatically** (team setting decides: plan it for us, or ask first): right after a coach finishes the check-in (so it uses the suggestions), or the day before practice if nobody checks in.
 3. **A version per skill group is drill-library work, alongside this**, through drill review, not planner code.
 
@@ -27,8 +27,9 @@ Date: 2026-11-20 · Decision 0046 · Asked for by Brett: the promises on the pub
   per coach. "Split the 12 kids into 2 even groups." The app joins the smallest neighbouring pair (`reduceUnits`).
 - `attendance.coaches`, `attendance.groups`, `attendance.keepZones` (all optional, jsonb, no migration).
 - Team setting `teams.planning` ('auto' | 'ask', default 'auto'; migration `20261126000000_team_planning.sql`).
-  - auto: Update the plan, then a line with what changed, Undo and "Use the N minutes". A team whose coaches are
-    fewer than its groups skates one group per coach by default (`todayUnits`).
+  - auto: Update the plan, then a line with what changed, Undo and "Use the N minutes". A new plan for a team whose
+    coaches are fewer than its groups starts with one group per coach, saved on the plan (`startingAttendance`).
+    Existing plans never change on their own.
   - ask: Update the plan / Save, keep the plan / Cancel. A kept plan with more zones than coaches shows "3 zones,
     2 coaches today" on the rotation, with Run 2 zones / Keep 3.
 - First plan with 1 coach: no rotation, a second game.
@@ -56,10 +57,12 @@ Date: 2026-11-20 · Decision 0046 · Asked for by Brett: the promises on the pub
 3. Then restore the stronger claims on `/associations`, the stations page and the comparison page: stations for the coaches you have, every practice planned.
 
 ## Tests
-- `rotationToday`: 3 stations, 3 groups, 2 coaches → 2 stations; 1 coach → 1; doubled units are adjacent and the smallest pair.
+- `todayUnits` / `reduceUnits`: Groups today 2 joins the smallest neighbouring pair; 3 can always be chosen again;
+  no attendance means every group; `startingAttendance` gives a new plan one group per coach on auto teams only.
 - `firstPlan` with 1 coach has no rotation and still fills the minutes.
 - Next practice: planned once after a check-in, once on open within 36 hours, never twice; a past or cancelled ice time is never planned.
 
 ## Risks
 - **Plans the coach didn't ask for.** A plan appearing on its own could surprise a coach who plans on paper. The edit log line and "Firstpass planned it" make it clear, and deleting is one tap.
-- **Doubled-up groups at one station** have twice the kids for one coach. That's the honest outcome with fewer coaches, and the plan says so on the block.
+- **Fewer groups means bigger groups** for one coach. That's the honest outcome with fewer coaches; the plan says
+  so when it updates, and existing plans never change on their own.

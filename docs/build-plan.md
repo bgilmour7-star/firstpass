@@ -254,6 +254,7 @@ Acceptance: a new coach taps Continue with Google on a join link and lands on "Y
 
 ## Milestone 13 — Every practice planned, stations for the coaches you have (decision 0046, 2026-11-20)
 Spec `docs/specs/every-practice-planned.md`. Before association views.
+- [ ] Brett: run `supabase/migrations/20261126000000_team_planning.sql` in the Supabase SQL editor.
 - [x] PR A: Groups today follow the coaches; say what changes; team setting "When something changes"; first plan
       with 1 coach has no rotation.
 - [x] PR B: the next practice plans itself after a check-in, or within 36 hours when anyone opens the app.

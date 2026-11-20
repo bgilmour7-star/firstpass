@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coachesToday, isAdapted, reduceUnits, todayUnits, zonesWithoutCoach, type Attendance } from './schema';
+import { coachesToday, isAdapted, reduceUnits, startingAttendance, todayUnits, zonesWithoutCoach, type Attendance } from './schema';
 
 // Decision 0046: "Groups today" sets the stations; with fewer coaches, fewer groups.
 
@@ -33,9 +33,18 @@ describe('groups today', () => {
     expect(two[0].skaters).toBe(8);
     expect(todayUnits(team, att({ groups: 1 }))).toHaveLength(1);
   });
-  it('a team with fewer coaches than groups: one group per coach when Firstpass updates the plan', () => {
-    expect(todayUnits({ ...team, coachesOnIce: 2 }, null)).toHaveLength(2);
-    expect(todayUnits({ ...team, coachesOnIce: 2, planning: 'ask' }, null)).toHaveLength(3);
+  it('a plan never changes on its own: no attendance means every group', () => {
+    expect(todayUnits({ ...team, coachesOnIce: 2 }, null)).toHaveLength(3);
+  });
+  it('a new plan starts with one group per coach when Firstpass updates the plan', () => {
+    const a = startingAttendance({ ...team, coachesOnIce: 2 })!;
+    expect(a.groups).toBe(2);
+    expect(todayUnits({ ...team, coachesOnIce: 2 }, a)).toHaveLength(2);
+    expect(startingAttendance({ ...team, coachesOnIce: 2, planning: 'ask' })).toBeNull();
+    expect(startingAttendance(team)).toBeNull();
+  });
+  it('three groups can be chosen again', () => {
+    expect(todayUnits({ ...team, coachesOnIce: 2 }, att({ coaches: 2 }))).toHaveLength(3);
   });
   it('reduceUnits never goes below one', () => {
     expect(reduceUnits(todayUnits(team, null), 0)).toHaveLength(1);
