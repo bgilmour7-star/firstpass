@@ -1,4 +1,5 @@
-import { BLOCK_FOR, PART_LABEL, shapeLabel } from "@/lib/drills/schema";
+import { PART_LABEL } from "@/lib/drills/schema";
+import { ShapeLabel } from "@/components/drill-format";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTeam } from "@/lib/auth";
@@ -51,8 +52,9 @@ export default async function DrillPage({
         <div>
           <h1 className="text-[28px] font-extrabold leading-8">{d.funName}</h1>
           <p className="text-ink-200">
-            {PART_LABEL[d.part]} · {shapeLabel(d)}, goes in a{" "}
-            {BLOCK_FOR[d.groupModel]} block · {d.plainName} ·{" "}
+            {PART_LABEL[d.part]} ·{" "}
+            <ShapeLabel drill={d} className="align-bottom font-medium text-rink-100" /> ·{" "}
+            {d.plainName} ·{" "}
             <span className="font-mono text-sm">{d.minutes} min</span> ·{" "}
             {d.gear}
           </p>

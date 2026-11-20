@@ -1,4 +1,5 @@
 import { Rink } from '@/components/ds';
+import { FORMAT_NAME } from '@/components/drill-format';
 import type { Drill } from '@/lib/drills/schema';
 import { levelCount, levelOf } from '@/lib/drills/schema';
 import { blockLevels, blockMinutes, clock, levelMinutes, rotationToday, startTimes, unusedZones, zoneFor, ZONES, type Block, type Unit } from '@/lib/plans/schema';
@@ -130,7 +131,7 @@ function RotationView({ block, drills, gc, mode }: { block: Extract<Block, { kin
   }
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="font-display text-lg font-bold">Rotation</h3>
+      <h3 className="font-display text-lg font-bold">{FORMAT_NAME.rotation}</h3>
       <p className="text-[15px] text-ink-200">{intro}</p>
       <ul className="flex flex-col">
         {active.map((s) => (

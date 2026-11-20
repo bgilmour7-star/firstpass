@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { createContext, useContext, useEffect, useRef } from 'react';
-import { BLOCK_FOR, PART_LABEL, shapeLabel, type Drill, type Group } from '@/lib/drills/schema';
+import { PART_LABEL, type Drill, type Group } from '@/lib/drills/schema';
+import { ShapeLabel } from '@/components/drill-format';
 import type { Favorite } from '@/lib/app/store';
 import { DrillDetail } from '@/components/drill-detail';
 import { FavoriteButton } from '@/components/favorite-button';
@@ -55,7 +56,7 @@ export function DrillDrawer({
           <div className="min-w-0 flex-1">
             <h2 className="font-display text-[24px] font-extrabold leading-7 text-balance">{d.funName}</h2>
             <p className="mt-1 text-[13px] leading-5 text-ink-200">
-              {PART_LABEL[d.part]} · {shapeLabel(d)}, goes in a {BLOCK_FOR[d.groupModel]} block · {d.plainName} · <span className="font-mono">{d.minutes} min</span> · {d.gear}
+              {PART_LABEL[d.part]} · <ShapeLabel drill={d} className="align-bottom font-medium text-rink-100" /> · {d.plainName} · <span className="font-mono">{d.minutes} min</span> · {d.gear}
             </p>
           </div>
           <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} onChange={onFavorite} />

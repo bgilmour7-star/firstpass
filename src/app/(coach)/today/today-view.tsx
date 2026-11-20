@@ -10,6 +10,7 @@ import { levelCount, levelOf } from '@/lib/drills/schema';
 import { addMinutes, blockLevels, blockMinutes, clock, coachesToday, groupLabels, levelMinutes, rotationToday, todayUnits, unusedZones, zoneFor, ZONES, type Block, type Practice, type Team, type Unit } from '@/lib/plans/schema';
 import { currentIndex, practicePhase, upNextIndex, whenLabel, type Phase } from '@/lib/today/phase';
 import { Icon, ShareControl } from '../plans/[id]/parts';
+import { FormatLabel } from '@/components/drill-format';
 import type { RinkDiagramProps } from '../../../../design-system/index';
 
 // Next practice (decision 0032), in three states set by the clock:
@@ -347,8 +348,7 @@ function SheetRow({ span, byId, known, gc, fmt, selected, onSelect }: { span: Sp
           {d && <span className="line-clamp-2 text-sm text-ink-200 sm:line-clamp-1">{d.description}</span>}
           <span className="flex flex-wrap items-baseline gap-x-2 text-xs">
             <span className="font-mono text-ink-200">{mins} min</span>
-            {b.kind === 'stations' && <span className="text-ink-200">Stations</span>}
-            {b.kind === 'rotation' && <span className="text-ink-200">Rotation</span>}
+            <FormatLabel model={b.kind === "drill" ? "basic" : b.kind} className="self-center text-ink-200" />
             {isNew && <span className="font-medium text-warn-text">New today: worth a look</span>}
           </span>
         </span>

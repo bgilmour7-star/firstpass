@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireTeam } from "@/lib/auth";
 import { getAppStore } from "@/lib/app/store";
-import { FOCUS_ATTRIBUTES, levelCount, shapeLabel, startLevelFor } from "@/lib/drills/schema";
+import { FOCUS_ATTRIBUTES, levelCount, startLevelFor } from "@/lib/drills/schema";
+import { ShapeLabel } from "@/components/drill-format";
 import { drillsForAge } from "@/lib/drills/age";
 import { Pips, Rink } from "@/components/ds";
 import { FavoriteButton, StarIcon } from "@/components/favorite-button";
@@ -149,7 +150,7 @@ export default async function Library({
                       <span className="text-ink-200">
                         {startLevelFor(d, team.ageGroup) > 1
                           ? `${team.ageGroup} starts at Level ${startLevelFor(d, team.ageGroup)} of ${levelCount(d)}`
-                          : shapeLabel(d)}
+                          : <ShapeLabel drill={d} className="align-bottom" />}
                       </span>
                       <span className="font-mono text-ink-200">
                         {d.minutes} min

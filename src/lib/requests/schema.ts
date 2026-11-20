@@ -7,7 +7,7 @@ import { FOCUS_ATTRIBUTES, PARTS, drillSchema, type Drill } from '../drills/sche
 export const REQUEST_KINDS = ['new', 'change'] as const;
 export const REQUEST_STATES = ['sent', 'drafted', 'accepted', 'declined'] as const;
 export const SHAPES = ['basic', 'stations', 'rotation', 'unsure'] as const;
-export const SHAPE_LABEL: Record<(typeof SHAPES)[number], string> = { basic: 'Drill', stations: 'Stations', rotation: 'Rotation', unsure: 'Not sure' };
+export const SHAPE_LABEL: Record<(typeof SHAPES)[number], string> = { basic: 'Together', stations: 'Skill groups', rotation: 'Rotate', unsure: 'Not sure' };
 export const OPEN_LIMIT = 5;
 
 export const answersSchema = z.object({

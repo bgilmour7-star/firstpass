@@ -37,7 +37,7 @@ import {
 } from '@/lib/plans/schema';
 import { deletePractice, goalSuggestionTaken, keepSuggestion, savePractice } from '../actions';
 import { RotationCard, StationsCard } from './blocks';
-import { FORMAT_NAME, FormatIcon, formatWhat } from './format';
+import { FORMAT_NAME, FormatIcon, formatWhat } from '@/components/drill-format';
 import { LevelPills, PlayableRink } from './opened';
 import { FavoriteButton } from '@/components/favorite-button';
 import { Rink } from '@/components/ds';
@@ -529,9 +529,9 @@ export function Builder({
   const changeTargets = (b: Block): { label: string; run: () => void; current?: boolean }[] =>
     (
       [
-        ['drill', 'Drill'],
-        ['stations', 'Stations'],
-        ['rotation', 'Rotation'],
+        ['drill', FORMAT_NAME.basic],
+        ['stations', FORMAT_NAME.stations],
+        ['rotation', FORMAT_NAME.rotation],
         ['water', 'Water'],
         ['free_skate', 'Free skate'],
         ['huddle', 'Huddle'],
@@ -1098,7 +1098,7 @@ function BlockBody({
                 <span className="text-[13px] text-ink-200">{d.plainName}</span>
               </>
             ) : b.kind === 'rotation' && isOldRotation(b) ? (
-              <span className="font-display text-[22px] font-bold leading-7">Rotation</span>
+              <span className="font-display text-[22px] font-bold leading-7">{FORMAT_NAME.rotation}</span>
             ) : (
               <span className="font-display text-[22px] font-bold leading-7 text-rink-100">{b.drillId ? 'This drill isn’t live any more. Swap it' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill'}</span>
             )}
@@ -1122,9 +1122,15 @@ function BlockBody({
 
 /** The quiet line above a drill's name: its levels, or how a station or rotation block runs today. */
 function blockTag(b: Block, d: Drill | undefined, gc: number): React.ReactNode {
-  if (b.kind === 'drill' && d?.levels.length) {
-    const lv = blockLevels(d, b);
-    return lv.length > 1 ? `Levels ${lv.join(' → ')}` : `Level ${lv[0]} of ${d.levels.length + 1}`;
+  if (b.kind === 'drill' && d) {
+    const lv = d.levels.length ? blockLevels(d, b) : [];
+    return (
+      <>
+        <FormatIcon model="basic" />
+        {FORMAT_NAME.basic}
+        {lv.length > 1 ? ` · Levels ${lv.join(' → ')}` : lv.length ? ` · Level ${lv[0]} of ${d.levels.length + 1}` : ''}
+      </>
+    );
   }
   if (b.kind === 'stations')
     return (
@@ -1196,7 +1202,7 @@ function BlockPanel({
   const act = b.kind === 'activity';
   const mins = blockMinutes(b, gc);
   const zones = b.kind === 'rotation' ? Math.max(1, rotationToday(b, gc).active.length) : 1;
-  const title = act ? b.title : d ? d.funName : b.kind === 'rotation' && isOldRotation(b) ? 'Rotation' : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill';
+  const title = act ? b.title : d ? d.funName : b.kind === 'rotation' && isOldRotation(b) ? FORMAT_NAME.rotation : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill';
   const tag = blockTag(b, d, gc);
   const howMany = d ? (d.groupModel === 'rotation' ? `${d.zones?.length ?? 0} zones` : d.groupModel === 'stations' ? `${d.stations?.length ?? 0} versions` : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`) : '';
   const heading = useRef<HTMLHeadingElement>(null);
