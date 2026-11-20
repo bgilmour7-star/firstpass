@@ -112,7 +112,7 @@ export default function FirstPractice() {
 
       <p className="mt-10 border-t border-border-100 pt-5 text-[15px] leading-[1.5] text-ink-200">
         Written by Brett, a U7 coach in Nanaimo, BC. Last checked against our practices on November 19, 2026.{' '}
-        <Link href="/u7" className="text-rink-100 underline underline-offset-2">
+        <Link href="/u7" className="inline-flex min-h-11 items-center text-rink-100 underline underline-offset-2">
           More U7 practice help
         </Link>
       </p>

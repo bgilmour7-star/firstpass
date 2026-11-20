@@ -1,115 +1,63 @@
 {
   "id": "rotation-edges-and-pucks",
-  "funName": "Edges and Pucks",
-  "plainName": "Outside edges, stickhandling, side steps, three zones",
-  "sourceTitle": "Lesson 6 skill stations",
-  "minutes": 7,
-  "gear": "1 puck each",
-  "worksAsStation": false,
-  "description": "Lesson 6 introduces the puckhandling stance, stationary stickhandling and figure 8s on the outside edge. Groups move to the next zone on the whistle.",
-  "steps": [
-    "A: ride a figure 8 on the outside edges.",
-    "B: move the puck side to side and call out the fingers.",
-    "C: side-step down the strip and back."
-  ],
   "cues": [
     "Knees bent, chest up.",
     "Eyes up, soft hands.",
     "Step, step, don’t cross."
   ],
+  "gear": "1 puck each",
+  "part": "skill",
   "focus": [
     {
-      "attribute": "Skating",
+      "why": "Outside edges and lateral movement.",
       "level": 2,
-      "why": "Outside edges and lateral movement."
+      "attribute": "Skating"
     },
     {
-      "attribute": "Puck control",
+      "why": "First stickhandling, eyes up.",
       "level": 1,
-      "why": "First stickhandling, eyes up."
+      "attribute": "Puck control"
     }
   ],
-  "groupModel": "rotation",
-  "part": "skill",
-  "effort": "easy",
-  "format": "groups",
-  "lessons": [
-    6
+  "steps": [
+    "A: ride a figure 8 on the outside edges.",
+    "B: move the puck side to side and call out the fingers.",
+    "C: side-step down the strip and back."
   ],
-  "levelName": "",
-  "levels": [],
   "zones": [
     {
-      "station": "A",
-      "name": "Outside 8s",
+      "cue": "Knees bent, chest up.",
       "how": "Ride the outside edge of your left skate all the way around the circle, then switch to the right skate to finish the 8.",
-      "cue": "Knees bent, chest up."
+      "name": "Outside 8s",
+      "station": "A"
     },
     {
-      "station": "B",
-      "name": "Finger count",
+      "cue": "Eyes up, soft hands.",
       "how": "Puck in front, stick heel just off the ice. Roll your wrists to move the puck side to side and call out how many fingers the coach holds up.",
-      "cue": "Eyes up, soft hands."
+      "name": "Finger count",
+      "station": "B"
     },
     {
-      "station": "C",
-      "name": "Side steps",
+      "cue": "Step, step, don’t cross.",
       "how": "Ready stance, side-step down the strip and back without crossing your feet. One step, then two, then three each way.",
-      "cue": "Step, step, don’t cross."
+      "name": "Side steps",
+      "station": "C"
     }
   ],
+  "effort": "easy",
+  "format": "groups",
   "source": {
-    "label": "Hockey Canada U7 Lesson 6 · 1.2.02, 2.1.01, 1.1.11",
     "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Coaching/u7-program/downloads/2022/u7-practice-plans-phase-1-e.pdf",
-    "note": "Lesson 6 also lists inside-edge figure 8s, Horse and Buggy and the stop; those are in Side Step Simon and Horse and Buggy."
+    "note": "Lesson 6 also lists inside-edge figure 8s, Horse and Buggy and the stop; those are in Side Step Simon and Horse and Buggy.",
+    "label": "Hockey Canada U7 Lesson 6 · 1.2.02, 2.1.01, 1.1.11"
   },
+  "status": "live",
   "diagram": {
-    "scope": "half",
     "side": "left",
-    "players": [
-      {
-        "x": 56,
-        "y": 6,
-        "role": "O"
-      },
-      {
-        "x": 16,
-        "y": 56,
-        "role": "O"
-      },
-      {
-        "x": 30,
-        "y": 56,
-        "role": "O"
-      },
-      {
-        "x": 44,
-        "y": 56,
-        "role": "O"
-      },
-      {
-        "x": 23,
-        "y": 72,
-        "role": "O"
-      },
-      {
-        "x": 37,
-        "y": 72,
-        "role": "O"
-      },
-      {
-        "x": 62,
-        "y": 64,
-        "role": "C"
-      },
-      {
-        "x": 87,
-        "y": 17,
-        "role": "O"
-      }
-    ],
+    "cones": [],
     "paths": [
       {
+        "step": 1,
         "type": "skate",
         "points": [
           [
@@ -165,10 +113,10 @@
             36.5
           ]
         ],
-        "step": 1,
         "caption": "A: ride a figure 8 on the outside edges."
       },
       {
+        "step": 2,
         "type": "puck",
         "points": [
           [
@@ -188,10 +136,10 @@
             65
           ]
         ],
-        "step": 2,
         "caption": "B: move the puck side to side and call out the fingers."
       },
       {
+        "step": 3,
         "type": "skate",
         "points": [
           [
@@ -207,19 +155,9 @@
             72
           ]
         ],
-        "step": 3,
         "caption": "C: side-step down the strip and back."
       }
     ],
-    "cones": [],
-    "stations": {
-      "layout": "halfice",
-      "labels": [
-        "Outside 8s",
-        "Finger count",
-        "Side steps"
-      ]
-    },
     "pucks": [
       {
         "x": 19,
@@ -241,7 +179,67 @@
         "x": 40,
         "y": 75
       }
-    ]
+    ],
+    "scope": "half",
+    "players": [
+      {
+        "x": 56,
+        "y": 6,
+        "role": "O"
+      },
+      {
+        "x": 16,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 30,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 44,
+        "y": 56,
+        "role": "O"
+      },
+      {
+        "x": 23,
+        "y": 72,
+        "role": "O"
+      },
+      {
+        "x": 37,
+        "y": 72,
+        "role": "O"
+      },
+      {
+        "x": 62,
+        "y": 64,
+        "role": "C"
+      },
+      {
+        "x": 87,
+        "y": 17,
+        "role": "O"
+      }
+    ],
+    "stations": {
+      "labels": [
+        "Outside 8s",
+        "Finger count",
+        "Side steps"
+      ],
+      "layout": "halfice"
+    }
   },
-  "status": "in_review"
+  "funName": "Edges and Pucks",
+  "lessons": [
+    6
+  ],
+  "minutes": 7,
+  "plainName": "Outside edges, stickhandling, side steps, three zones",
+  "groupModel": "rotation",
+  "description": "Lesson 6 introduces the puckhandling stance, stationary stickhandling and figure 8s on the outside edge. Groups move to the next zone on the whistle.",
+  "sourceTitle": "Lesson 6 skill stations",
+  "worksAsStation": false
 }

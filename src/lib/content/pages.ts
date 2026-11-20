@@ -34,6 +34,14 @@ export const ANSWER_PAGES: AnswerPage[] = [
     published: '2026-11-19',
     updated: '2026-11-19',
   },
+  {
+    path: '/u7/stations-half-ice',
+    age: 'U7',
+    question: 'How do I run stations on half ice?',
+    summary: 'Split the half ice into 2 or 3 zones, one coach per zone, and rotate on the whistle. A 60-minute plan for 12 to 16 kids.',
+    published: '2026-11-20',
+    updated: '2026-11-20',
+  },
 ];
 
 export type Hub = { path: string; age: AgeGroup; title: string; intro: string; updated: string };
