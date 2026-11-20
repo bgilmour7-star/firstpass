@@ -56,7 +56,7 @@ export function channelOf(source: string | null): Channel {
 }
 
 // /privacy records no visits (no VisitTracker), so it isn't listed.
-const PAGE_LABEL = new Map<string, string>([['/', 'Home'], ...HUBS.map((h) => [h.path, h.title] as [string, string]), ...ANSWER_PAGES.map((p) => [p.path, p.question] as [string, string])]);
+const PAGE_LABEL = new Map<string, string>([['/', 'Home'], ['/associations', 'Associations'], ['/firstpass-vs-pdf-practice-plans', 'Firstpass vs. a PDF'], ...HUBS.map((h) => [h.path, h.title] as [string, string]), ...ANSWER_PAGES.map((p) => [p.path, p.question] as [string, string])]);
 /** A page's path without its query or trailing slash; older events with no path are the landing page. */
 const pageOf = (path: string | null | undefined) => (path ? path.split(/[?#]/)[0].replace(/(.)\/$/, '$1') || '/' : '/');
 
