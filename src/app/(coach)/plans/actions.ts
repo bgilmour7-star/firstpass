@@ -10,7 +10,8 @@ import { startPlan as startPlanFor } from '@/lib/plans/start-plan';
 import { SESSION_MS, describeChange, type Snapshot } from '@/lib/plans/activity';
 import type { AppStore } from '@/lib/app/store';
 import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
-import { planNext } from '@/lib/plans/plan-next';
+import { cookies } from 'next/headers';
+import { SKIP_COOKIE, nextTarget, planNext } from '@/lib/plans/plan-next';
 
 const snap = (p: Practice): Snapshot => ({ blocks: p.blocks, status: p.status, attendance: p.attendance, minutes: p.minutes, startTime: p.startTime, date: p.date });
 const shortDay = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -146,7 +147,7 @@ export async function stopSharing(practiceId: string): Promise<{ ok: boolean }> 
 }
 
 /** A coach's after-practice check-in. One per coach per practice; saving again replaces it. */
-export async function saveCheckin(practiceId: string, input: unknown): Promise<{ ok: true; planned?: string } | { ok: false; error: string }> {
+export async function saveCheckin(practiceId: string, input: unknown): Promise<{ ok: true; planned?: string; guessed?: boolean } | { ok: false; error: string }> {
   const { coach, team } = await requireTeam('/plans');
   const parsed = checkinInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: 'Something in the check-in didn’t look right. Try again.' };
@@ -175,23 +176,26 @@ export async function saveCheckin(practiceId: string, input: unknown): Promise<{
   if (p.status !== 'done' && practiceOver(p)) await store.savePractice({ ...p, status: 'done' });
   // The next practice plans itself when the team lets Firstpass update the plan (decision 0046).
   let planned: string | undefined;
+  let guessed = false;
   if (team.planning !== 'ask') {
     try {
-      planned = (await planNext(store, team, coach))?.id;
+      const t = await nextTarget(store, team);
+      guessed = !!t?.guessed;
+      planned = (await planNext(store, team, coach, t, 'checkin'))?.id;
     } catch (e) {
       console.error('[plans] plan next after check-in:', e);
     }
   }
   revalidatePath('/plans');
   revalidatePath(`/plans/${p.id}/check-in`);
-  return { ok: true, planned };
+  return { ok: true, planned, guessed };
 }
 
 /** "Plan Thursday now" at the end of a check-in (decision 0046). */
 export async function planNextNow(fromPracticeId: string) {
   const { coach, team } = await requireTeam('/plans');
   const store = await getAppStore();
-  const p = await planNext(store, team, coach);
+  const p = await planNext(store, team, coach, undefined, 'tap');
   revalidatePath('/plans');
   redirect(p ? `/plans/${p.id}?copied=${encodeURIComponent((await store.getPractice(fromPracticeId))?.date ?? '')}` : '/plans');
 }
@@ -201,9 +205,26 @@ export async function undoPlanned(plannedId: string, fromPracticeId: string) {
   const { team } = await requireTeam('/plans');
   const store = await getAppStore();
   const p = await store.getPractice(plannedId);
-  if (p && p.teamId === team.id && p.status === 'draft') await store.deletePractice(plannedId);
+  if (!p || p.teamId !== team.id) redirect(`/plans/${fromPracticeId}/check-in?saved=1`);
+  // Only the plan exactly as Firstpass made it: once anyone has changed it, it stays.
+  const last = await store.latestEdit(plannedId).catch(() => null);
+  // Edits keep a snapshot (base); the line Firstpass writes when it plans has none.
+  if (p.status !== 'draft' || (last && last.base !== null)) redirect(`/plans/${fromPracticeId}/check-in?saved=1&kept=1`);
+  await store.deletePractice(plannedId);
+  await skipNext(p.date);
   revalidatePath('/plans');
   redirect(`/plans/${fromPracticeId}/check-in?saved=1&undone=1`);
+}
+
+/** "Not yet": leave the next practice for the coach; the day-before rule skips it on this device. */
+export async function notYet(date: string) {
+  await requireTeam('/plans');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) await skipNext(date);
+  redirect('/plans');
+}
+
+async function skipNext(date: string) {
+  (await cookies()).set(SKIP_COOKIE, date, { maxAge: 3 * 24 * 3600, httpOnly: true, sameSite: 'lax', path: '/' });
 }
 
 /** A coach took a season-goal suggestion (decision 0030): counted for Admin → Analytics. Nothing comes back. */

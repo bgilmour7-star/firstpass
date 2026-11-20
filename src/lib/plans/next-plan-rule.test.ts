@@ -15,7 +15,7 @@ describe('the next practice to plan (decision 0046)', () => {
     const t = nextToPlan([{ id: 'a', date: '2026-11-21', startTime: '09:30', status: 'done' }], [ice('i1', '2026-11-26', { cancelled: true }), ice('g', '2026-11-27', { kind: 'game' })], '2026-11-22');
     expect(t).toMatchObject({ date: '2026-11-28', startTime: '09:30', guessed: true });
   });
-  it('never plans for a team with no plans', () => {
+  it('never guesses a date for a team with no plans (a calendar ice time still counts)', () => {
     expect(nextToPlan([], [], '2026-11-22')).toBeNull();
   });
 });

@@ -29,10 +29,14 @@ after the coach updates the who's here today or when they checkin".
     Open / Undo, I'll plan it).
   - "Ask me first": Plan Thursday now / Not yet.
   - Either way, the day before a calendar ice time with no plan, whoever on the team opens Home, Plans or Today
-    first plans it. Guessed dates (a week on, for teams with no calendar) are only planned after a check-in, with
-    "change it if it's wrong".
+    first plans it (after the calendar sync on Plans). Guessed dates (a week on, for teams with no calendar) are
+    only planned after a check-in, with "change it if it's wrong". A team with no plans yet is never guessed for,
+    but its next calendar ice time is planned the day before like any other.
+  - "Undo, I'll plan it" and "Not yet" remember the date on that device, so the day-before rule leaves it alone.
+    Undo only removes the plan exactly as Firstpass made it; once anyone has changed it, it stays.
   - The next practice is the next unplanned ice time, else a week after the last plan. A future draft counts as
-    planned, so nothing is planned twice. The edit log says "Firstpass planned it from Thu, Nov 19's practice".
+    planned, so nothing is planned twice. The edit log says "Sam checked in, and Firstpass planned it from Sat, Nov 21" (or "opened the app, and…"); a coach's own
+    "Plan Thursday now" says "copied it from…".
   - It runs in the coach's own session (RLS), never with the service key. A "your plan is ready" email the day
     before is later: it would move this onto the timer.
   - Suggestions are never applied without a tap.

@@ -10,17 +10,19 @@ import { ProgressNudge } from '../../../progress/nudge';
 import type { Group } from '@/lib/drills/schema';
 import { teamPractices } from '@/lib/app/read';
 import { nextTarget } from '@/lib/plans/plan-next';
-import { planNextNow, undoPlanned } from '../../actions';
+import { notYet, planNextNow, undoPlanned } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
 const weekday = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'long' });
+// Times with am/pm in sentences: an 18:15 practice reads "6:15 pm", not "6:15".
+const at = (hhmm: string) => `${clock(hhmm)} ${Number(hhmm.slice(0, 2)) >= 12 ? 'pm' : 'am'}`;
 const short = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
 
-export default async function CheckinPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; edit?: string; planned?: string; undone?: string }> }) {
+export default async function CheckinPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; edit?: string; planned?: string; undone?: string; guessed?: string; kept?: string }> }) {
   const { coach, team } = await requireTeam('/plans');
   const { id } = await params;
-  const { saved, edit, planned, undone } = await searchParams;
+  const { saved, edit, planned, undone, guessed, kept } = await searchParams;
   const store = await getAppStore();
   const found = await store.getPractice(id);
   if (!found || found.teamId !== team.id) notFound();
@@ -136,7 +138,8 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
           </h2>
           {justPlanned && next ? (
             <p className="text-[15px] leading-normal">
-              {short(next.date)} at {clock(next.startTime)} starts from this practice’s plan{ideasLine}. Nothing changes until you tap a suggestion.
+              {short(next.date)} at {at(next.startTime)} starts from this practice’s plan{ideasLine}. Nothing changes until you tap a suggestion.
+              {guessed ? ' The date is a week on from this one; change it if it’s wrong.' : ''}
             </p>
           ) : next ? (
             <p className="text-[15px] leading-normal">
@@ -144,13 +147,14 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
             </p>
           ) : target ? (
             <p className="text-[15px] leading-normal">
-              {short(target.date)} at {clock(target.startTime)} starts from this practice’s plan{ideasLine}. Suggestions are never applied without a tap.
+              {short(target.date)} at {at(target.startTime)} starts from this practice’s plan{ideasLine}. Suggestions are never applied without a tap.
               {target.guessed ? ' The date is a week on from this one; change it if it’s wrong.' : ''}
             </p>
           ) : (
             <p className="text-[15px] leading-normal">Add your next practice from Plans, and it starts from this practice’s plan.</p>
           )}
-          {undone && <p className="text-[13px] text-ink-200">Removed. Plan it when you’re ready{target && !target.guessed ? '. If it’s still not planned the day before, Firstpass plans it.' : '.'}</p>}
+          {undone && <p className="text-[13px] text-ink-200">Removed. Plan it from Plans when you’re ready.</p>}
+          {kept && <p className="text-[13px] text-ink-200">That plan has been changed since Firstpass made it, so it stays.</p>}
           {next ? (
             <Link href={`/plans/${next.id}`} className="grid min-h-12 place-items-center rounded-full bg-rink-100 px-5 text-base font-semibold text-surface-100 hover:bg-rink-200">
               Open {weekday(next.date)}’s plan
@@ -169,9 +173,17 @@ export default async function CheckinPage({ params, searchParams }: { params: Pr
               </button>
             </form>
           ) : !next ? (
-            <Link href="/plans" className="grid min-h-12 place-items-center rounded-full border border-border-100 px-5 text-base hover:bg-surface-200">
-              {target ? 'Not yet' : 'Back to plans'}
-            </Link>
+            target ? (
+              <form action={notYet.bind(null, target.date)}>
+                <button type="submit" className="min-h-12 w-full rounded-full border border-border-100 px-5 text-base hover:bg-surface-200">
+                  Not yet
+                </button>
+              </form>
+            ) : (
+              <Link href="/plans" className="grid min-h-12 place-items-center rounded-full border border-border-100 px-5 text-base hover:bg-surface-200">
+                Back to plans
+              </Link>
+            )
           ) : null}
           <p className="text-center text-xs text-ink-200">
             {ask

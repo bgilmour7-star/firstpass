@@ -20,11 +20,12 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   const { hidden, all } = await searchParams;
   const limit = all ? 200 : 10;
   const store = await getAppStore();
-  // Every practice arrives planned: the day before an ice time, whoever opens the app first plans it (decision 0046).
-  await planIfDue(store, team, coach);
   // Read the team's calendar first (at most once an hour), so moved ice times move their plans. The
   // practices are read straight from the store after it: the cached teamPractices may predate the sync.
   const sync = await syncCalendar(store, team.id).catch(() => ({ status: 'error' as const, error: 'Couldn’t read your calendar just now.' }));
+  // Every practice arrives planned: the day before an ice time, whoever opens the app first plans it (decision 0046).
+  // After the sync, so a cancelled or moved ice time isn't planned from stale data.
+  await planIfDue(store, team, coach);
   const [plans, drills, ice, activity] = await Promise.all([store.listPractices(team.id), store.libraryDrills(), store.iceTimes(team.id), store.teamActivity(team.id, coach.id).catch(() => ({}) as Awaited<ReturnType<typeof store.teamActivity>>)]);
   const [checkins, coachCount] = await Promise.all([store.teamCheckins(team.id).catch(() => []), store.coachCount(team.id).catch(() => 1)]);
   const names = new Map(drills.map((d) => [d.id, d.funName]));
