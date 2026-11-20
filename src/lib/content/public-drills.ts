@@ -6,6 +6,7 @@
 export const PUBLIC_DRILLS: Record<string, string[]> = {
   '/': ['ski-racer', 'rotation-puck-party', 'snake-in-the-forest', 'cops-and-robbers'],
   '/u7/first-practice': ['warmup-skill-doctor-tag', 'rotation-puck-party', 'game-steal-the-treasure', 'cops-and-robbers'],
+  '/u7/stations-half-ice': ['warmup-merry-go-round', 'rotation-edges-and-pucks', 'keep-away-circle', 'cops-and-robbers'],
   '/u7/keep-kids-listening': ['warmup-skill-doctor-tag', 'rotation-puck-party', 'hot-potato-partners', 'game-steal-the-treasure', 'cops-and-robbers'],
 };
 

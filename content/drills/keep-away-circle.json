@@ -1,119 +1,209 @@
 {
   "id": "keep-away-circle",
-  "funName": "Keep Away",
-  "plainName": "Pass through the circle, small-group keep away",
-  "sourceTitle": "Pass Through The Circle Game",
-  "minutes": 8,
-  "gear": "Pucks, 4 pylons",
-  "worksAsStation": true,
-  "description": "Each group plays keep away around a circle. The passing team scores a point every time they pass through the circle to a teammate. The defenders try to win the puck and knock it out of the area. Every 30 seconds, swap in new defenders.",
-  "steps": [
-    "Pass through the circle to a teammate to score.",
-    "Defenders try to knock the puck out of the area."
-  ],
   "cues": [
     "Heads up, find your open teammate.",
     "No puck? Skate to open ice.",
     "Defenders: stick on the ice."
   ],
+  "gear": "Pucks, 4 pylons",
+  "part": "skill",
   "focus": [
     {
-      "attribute": "Game sense",
+      "why": "Open ice, support and passing lanes.",
       "level": 2,
-      "why": "Open ice, support and passing lanes."
+      "attribute": "Game sense"
     },
     {
-      "attribute": "Passing",
+      "why": "Short passes with a defender in the way.",
       "level": 1,
-      "why": "Short passes with a defender in the way."
+      "attribute": "Passing"
     },
     {
-      "attribute": "Effort & fun",
+      "why": "A game with lots of touches.",
       "level": 1,
-      "why": "A game with lots of touches."
+      "attribute": "Effort & fun"
     }
   ],
-  "groupModel": "stations",
-  "part": "skill",
+  "steps": [
+    "Pass through the circle to a teammate to score.",
+    "Defenders try to knock the puck out of the area."
+  ],
   "effort": "medium",
   "format": "groups",
-  "lessons": [],
-  "levelName": "",
-  "levels": [],
-  "stations": [
-    {
-      "station": "A",
-      "group": "Eagles",
-      "version": "4 on 2 around a face-off circle."
-    },
-    {
-      "station": "B",
-      "group": "Bears",
-      "version": "3 on 1 around a face-off circle."
-    },
-    {
-      "station": "C",
-      "group": "Sharks",
-      "version": "3 on 1 around a pylon square, with a coach defending, stick flipped."
-    }
-  ],
   "source": {
-    "label": "IceHockeySystems · Pass Through The Circle Game",
     "url": "https://www.icehockeysystems.com/hockey-drills/pass-through-circle-game",
-    "note": "The source is 4 forwards against 2 defence with a 2-point rule for skating the puck out. We kept one point per pass, swap defenders every 30 seconds, and made it easier for younger groups: 3 on 1, then a coach defending with the stick flipped. Station C has no circle, so four pylons make one."
+    "note": "The source is 4 forwards against 2 defence with a 2-point rule for skating the puck out. We kept one point per pass, swap defenders every 30 seconds, and made it easier for younger groups: 3 on 1, then a coach defending with the stick flipped. Station C has no circle, so four pylons make one.",
+    "label": "IceHockeySystems · Pass Through The Circle Game"
   },
+  "status": "live",
   "diagram": {
-    "scope": "half",
     "side": "left",
+    "cones": [
+      {
+        "x": 81,
+        "y": 44
+      },
+      {
+        "x": 93,
+        "y": 44
+      },
+      {
+        "x": 81,
+        "y": 56
+      },
+      {
+        "x": 93,
+        "y": 56
+      }
+    ],
+    "paths": [
+      {
+        "step": 1,
+        "type": "pass",
+        "points": [
+          [
+            18,
+            20.5
+          ],
+          [
+            44,
+            20.5
+          ]
+        ],
+        "caption": "Pass through the circle to a teammate to score.",
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            18,
+            64.5
+          ],
+          [
+            44,
+            64.5
+          ]
+        ],
+        "stepWith": 1,
+        "fromPlayer": false
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            80,
+            38
+          ],
+          [
+            92,
+            66
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "step": 2,
+        "type": "skate",
+        "points": [
+          [
+            35,
+            14
+          ],
+          [
+            27,
+            16
+          ],
+          [
+            21,
+            19
+          ]
+        ],
+        "caption": "Defenders try to knock the puck out of the area."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            36,
+            57
+          ],
+          [
+            28,
+            59
+          ],
+          [
+            21,
+            62
+          ]
+        ],
+        "stepWith": 2
+      }
+    ],
+    "pucks": [
+      {
+        "x": 18,
+        "y": 18
+      },
+      {
+        "x": 18,
+        "y": 62
+      },
+      {
+        "x": 81,
+        "y": 38
+      }
+    ],
+    "scope": "half",
     "players": [
       {
-        "x": 12,
-        "y": 9,
+        "x": 38.5,
+        "y": 7.5,
         "role": "O"
       },
       {
-        "x": 50,
-        "y": 8,
-        "role": "O"
-      },
-      {
-        "x": 52,
-        "y": 33,
-        "role": "O"
-      },
-      {
-        "x": 11,
-        "y": 32,
-        "role": "O"
-      },
-      {
-        "x": 22,
-        "y": 26,
-        "role": "X"
-      },
-      {
-        "x": 40,
-        "y": 13,
-        "role": "X"
-      },
-      {
-        "x": 12,
-        "y": 60,
-        "role": "O"
-      },
-      {
-        "x": 50,
-        "y": 60,
+        "x": 46,
+        "y": 20.5,
         "role": "O"
       },
       {
         "x": 31,
-        "y": 83,
+        "y": 35.5,
         "role": "O"
       },
       {
-        "x": 30,
-        "y": 73,
+        "x": 16,
+        "y": 20.5,
+        "role": "O"
+      },
+      {
+        "x": 35,
+        "y": 14,
+        "role": "X"
+      },
+      {
+        "x": 37,
+        "y": 27,
+        "role": "X"
+      },
+      {
+        "x": 16,
+        "y": 64.5,
+        "role": "O"
+      },
+      {
+        "x": 46,
+        "y": 64.5,
+        "role": "O"
+      },
+      {
+        "x": 31,
+        "y": 79.5,
+        "role": "O"
+      },
+      {
+        "x": 36,
+        "y": 57,
         "role": "X"
       },
       {
@@ -137,133 +227,43 @@
         "role": "C"
       }
     ],
-    "paths": [
-      {
-        "type": "pass",
-        "points": [
-          [
-            14,
-            11
-          ],
-          [
-            50,
-            31
-          ]
-        ],
-        "step": 1,
-        "caption": "Pass through the circle to a teammate to score."
-      },
-      {
-        "type": "pass",
-        "points": [
-          [
-            14,
-            62
-          ],
-          [
-            48,
-            61
-          ]
-        ],
-        "stepWith": 1
-      },
-      {
-        "type": "pass",
-        "points": [
-          [
-            80,
-            38
-          ],
-          [
-            92,
-            66
-          ]
-        ],
-        "stepWith": 1
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            40,
-            15
-          ],
-          [
-            45,
-            22
-          ],
-          [
-            49,
-            28
-          ]
-        ],
-        "step": 2,
-        "caption": "Defenders try to knock the puck out of the area."
-      },
-      {
-        "type": "skate",
-        "points": [
-          [
-            31,
-            71
-          ],
-          [
-            40,
-            66
-          ],
-          [
-            46,
-            63
-          ]
-        ],
-        "stepWith": 2
-      }
-    ],
-    "cones": [
-      {
-        "x": 81,
-        "y": 44
-      },
-      {
-        "x": 93,
-        "y": 44
-      },
-      {
-        "x": 81,
-        "y": 56
-      },
-      {
-        "x": 93,
-        "y": 56
-      }
-    ],
     "stations": {
-      "layout": "halfice",
+      "groups": [
+        "Eagles",
+        "Bears",
+        "Sharks"
+      ],
       "labels": [
         "4 on 2",
         "3 on 1",
         "3 on coach"
       ],
-      "groups": [
-        "Eagles",
-        "Bears",
-        "Sharks"
-      ]
-    },
-    "pucks": [
-      {
-        "x": 14,
-        "y": 11
-      },
-      {
-        "x": 14,
-        "y": 62
-      },
-      {
-        "x": 81,
-        "y": 38
-      }
-    ]
+      "layout": "halfice"
+    }
   },
-  "status": "in_review"
+  "funName": "Keep Away",
+  "lessons": [],
+  "minutes": 8,
+  "stations": [
+    {
+      "group": "Eagles",
+      "station": "A",
+      "version": "4 on 2 around a face-off circle."
+    },
+    {
+      "group": "Bears",
+      "station": "B",
+      "version": "3 on 1 around a face-off circle."
+    },
+    {
+      "group": "Sharks",
+      "station": "C",
+      "version": "3 on 1 around a pylon square, with a coach defending, stick flipped."
+    }
+  ],
+  "plainName": "Pass through the circle, small-group keep away",
+  "groupModel": "stations",
+  "description": "Each group plays keep away around a circle. The passing team scores a point every time they pass through the circle to a teammate. The defenders try to win the puck and knock it out of the area. Every 30 seconds, swap in new defenders.",
+  "sourceTitle": "Pass Through The Circle Game",
+  "worksAsStation": true
 }
