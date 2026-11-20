@@ -583,7 +583,7 @@ export function AttendanceDialog({
   const kids = on.reduce((n, g) => n + a.counts[g], 0);
   // Saved with only what differs from the team's usual, so "Back to usual" really is.
   const clean = (x: Attendance): Attendance => ({ ...x, coaches: x.coaches === team.coachesOnIce ? undefined : x.coaches, groups: (x.groups ?? present) >= present ? undefined : x.groups, keepZones: undefined });
-  const setCoaches = (n: number) => setA((s) => ({ ...s, coaches: n, groups: Math.min(n, present) }));
+  const setCoaches = (n: number) => setA((s) => ({ ...s, coaches: n, groups: Math.min(n, present), merges: [] }));
   const changes = preview(clean({ ...a, groups }));
   const ask = team.planning === 'ask';
   useEffect(() => {
@@ -624,7 +624,7 @@ export function AttendanceDialog({
                   key={n}
                   type="button"
                   aria-pressed={groups === n}
-                  onClick={() => setA((s) => ({ ...s, groups: n }))}
+                  onClick={() => setA((s) => ({ ...s, groups: n, merges: [] }))}
                   className={`min-h-11 rounded-[10px] text-[15px] ${groups === n ? 'border-2 border-rink-100 bg-surface-200 font-semibold text-rink-200' : 'border border-border-100 hover:bg-surface-200'}`}
                 >
                   {n} group{n === 1 ? '' : 's'}
@@ -632,8 +632,8 @@ export function AttendanceDialog({
               ))}
             </div>
             <span className="text-[13px] leading-normal text-ink-200">
-              {coaches < present ? `${coaches} coach${coaches === 1 ? '' : 'es'}, so ${Math.min(coaches, present)} group${Math.min(coaches, present) === 1 ? '' : 's'}. ` : ''}
-              {groups < present ? `Split the ${kids} kids into ${groups} even group${groups === 1 ? '' : 's'}.` : 'Every skill group skates on its own.'}
+              {coaches < groups ? `${coaches} coach${coaches === 1 ? '' : 'es'} for ${groups} groups: ${groups - coaches === 1 ? 'one zone has' : `${groups - coaches} zones have`} no coach. ` : ''}
+              {groups === 1 ? 'Everyone skates as one group.' : groups < present ? `Split the ${kids} kids into ${groups} even groups.` : 'Every skill group skates on its own.'}
             </span>
           </fieldset>
         )}

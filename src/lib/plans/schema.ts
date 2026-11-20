@@ -230,14 +230,21 @@ export function todayUnits(team: TeamGroups, attendance: Attendance | null): Uni
   return reduceUnits(out, groupsTarget(team, attendance, out.length));
 }
 
+/** How many groups skate today: the practice's own "Groups today", else every group (decision 0046). */
+function groupsTarget(_team: TeamGroups, attendance: Attendance | null, n: number): number {
+  void _team;
+  return attendance?.groups ?? n;
+}
+
 /**
- * How many groups skate today (decision 0046). The practice's own "Groups today", else, when the team lets
- * Firstpass update the plan and has fewer coaches than groups, one group per coach.
+ * Who's here for a new plan (decision 0046): a team that lets Firstpass update the plan and has fewer coaches
+ * than groups starts with one group per coach, saved on the plan so it shows as changed for today and can be
+ * undone. Existing plans never change on their own.
  */
-function groupsTarget(team: TeamGroups, attendance: Attendance | null, n: number): number {
-  if (attendance?.groups) return attendance.groups;
-  if (!attendance && team.planning !== 'ask' && team.coachesOnIce && team.coachesOnIce < n) return team.coachesOnIce;
-  return n;
+export function startingAttendance(team: TeamGroups & { coachesOnIce: number }): Attendance | null {
+  const n = todayUnits(team, null).length;
+  if (team.planning === 'ask' || team.coachesOnIce >= n) return null;
+  return { counts: usualCounts(team), merges: [], groups: team.coachesOnIce };
 }
 
 /** Coaches on the ice today: the practice's own number, else the team's (decision 0046). */
