@@ -38,15 +38,16 @@ type Metric = { now: number; before: number };
 
 export const CHANNELS = ['Search', 'AI assistants', 'Social', 'Email', 'Shared links', 'Other sites', 'Direct'] as const;
 export type Channel = (typeof CHANNELS)[number];
-const AI = /(^|\.)(chatgpt\.com|openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|copilot\.microsoft\.com|you\.com|phind\.com|meta\.ai)$/;
+const AI = /(^|\.)(edgeservices\.bing\.com|chatgpt\.com|openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|copilot\.microsoft\.com|you\.com|phind\.com|meta\.ai)$/;
 const SEARCH = /(^|\.)(google\.[a-z.]+|bing\.com|duckduckgo\.com|search\.yahoo\.com|yahoo\.com|ecosia\.org|search\.brave\.com|startpage\.com)$/;
 const SOCIAL = /(^|\.)(facebook\.com|instagram\.com|reddit\.com|x\.com|t\.co|twitter\.com|linkedin\.com|lnkd\.in|threads\.net|tiktok\.com|youtube\.com)$/;
 const TAGS = new Set(['share', 'shared-ice', 'invite']);
+const WEBMAIL = /(^|\.)(mail\.google\.com|mail\.yahoo\.com|outlook\.live\.com|outlook\.office\.com|outlook\.office365\.com|mail\.proton\.me)$/;
 
 /** The kind of place a visit came from, from its cleaned source (a ?from= tag or a referring site). */
 export function channelOf(source: string | null): Channel {
   if (!source) return 'Direct';
-  if (EMAIL_REF.test(source) || source.startsWith('email')) return 'Email';
+  if (EMAIL_REF.test(source) || source.startsWith('email') || WEBMAIL.test(source)) return 'Email';
   if (TAGS.has(source)) return 'Shared links';
   if (AI.test(source)) return 'AI assistants';
   if (SEARCH.test(source)) return 'Search';
@@ -54,7 +55,8 @@ export function channelOf(source: string | null): Channel {
   return 'Other sites';
 }
 
-const PAGE_LABEL = new Map<string, string>([['/', 'Home'], ['/privacy', 'Privacy'], ...HUBS.map((h) => [h.path, h.title] as [string, string]), ...ANSWER_PAGES.map((p) => [p.path, p.question] as [string, string])]);
+// /privacy records no visits (no VisitTracker), so it isn't listed.
+const PAGE_LABEL = new Map<string, string>([['/', 'Home'], ...HUBS.map((h) => [h.path, h.title] as [string, string]), ...ANSWER_PAGES.map((p) => [p.path, p.question] as [string, string])]);
 /** A page's path without its query or trailing slash; older events with no path are the landing page. */
 const pageOf = (path: string | null | undefined) => (path ? path.split(/[?#]/)[0].replace(/(.)\/$/, '$1') || '/' : '/');
 

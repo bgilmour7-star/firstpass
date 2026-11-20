@@ -5,11 +5,11 @@ Date: 2026-11-19 · Decided by: Brett ("Okay", to the measurement step of the "F
 ## Decision
 - Admin → Analytics reads each visit's **path**, which has been recorded since decision 0019 but never read back. Its
   first section is now **Public site**, covering the landing page and the answer pages.
-- **Pages**: each public page (landing, hubs, answer pages, privacy) with its visitors and how many tapped "Plan your
+- **Pages**: each public page (landing, hubs, answer pages; privacy records no visits) with its visitors and how many tapped "Plan your
   first practice" on that page. Labels come from `src/lib/content/pages.ts`. Paths that aren't public pages are left
   out, and trailing slashes and queries are ignored.
 - **How they found us**: visitors by channel. Search, AI assistants (ChatGPT, Perplexity, Claude, Gemini, Copilot and
-  others), Social, Email (decision 0036 tags), Shared links (`share`, `shared-ice`, `invite`), Other sites, Direct.
+  others), Social, Email (decision 0036 tags and webmail), Shared links (`share`, `shared-ice`, `invite`), Other sites, Direct.
   `channelOf()` in `src/lib/site/summary.ts`. The source table below it stays for the detail.
 - No database change, no new data collected, still no cookies.
 

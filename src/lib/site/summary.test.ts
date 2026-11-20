@@ -108,6 +108,9 @@ describe('channels and pages (decision 0041)', () => {
     expect(channelOf('l.facebook.com')).toBe('Social');
     expect(channelOf('reddit.com')).toBe('Social');
     expect(channelOf('1a2b3c4d-2')).toBe('Email');
+    expect(channelOf('mail.google.com')).toBe('Email');
+    expect(channelOf('mail.yahoo.com')).toBe('Email');
+    expect(channelOf('edgeservices.bing.com')).toBe('AI assistants');
     expect(channelOf('share')).toBe('Shared links');
     expect(channelOf('nanaimominorhockey.com')).toBe('Other sites');
   });
