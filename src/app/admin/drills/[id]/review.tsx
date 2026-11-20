@@ -702,7 +702,7 @@ function CoachPreview({ drill }: { drill: Drill }) {
       </div>
       <div className="rounded-md border border-border-100 bg-surface-100 p-3">
         <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-          <b className="font-display text-lg">{mode === 'plan' ? `Rotation · ${drill.funName}` : drill.funName}</b>
+          <b className="font-display text-lg">{mode === 'plan' ? `Rotate · ${drill.funName}` : drill.funName}</b>
           <span className="font-mono text-xs text-ink-200">
             {drill.minutes * zones.length} min · whistle every {drill.minutes}
           </span>

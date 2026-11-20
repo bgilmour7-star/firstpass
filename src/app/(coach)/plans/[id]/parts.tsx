@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Rink } from '@/components/ds';
-import { FORMAT_NAME, FormatLabel, formatWhat } from './format';
+import { FORMAT_NAME, FormatLabel, formatWhat } from '@/components/drill-format';
 import { FOCUS_ATTRIBUTES, startLevelFor, type Drill, type Group } from '@/lib/drills/schema';
 import { activeGroups, groupLabel, todayUnits, usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
@@ -302,9 +302,9 @@ export function LibraryDrawer({
   const isPreset = s.part === preset.part && s.fits === preset.fits && Boolean(preset.part || preset.fits);
   const hint =
     filter === 'stations'
-      ? `${FORMAT_NAME.stations}: ${formatWhat('stations').toLowerCase()}.`
+      ? `${FORMAT_NAME.stations}. ${formatWhat('stations')}.`
       : filter === 'rotation'
-        ? `${FORMAT_NAME.rotation}: every group does all the zones, one after another.`
+        ? `${FORMAT_NAME.rotation}. ${formatWhat('rotation')}.`
         : '';
   const chip = (on: boolean) => `inline-flex min-h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[13px] disabled:cursor-default disabled:opacity-[var(--opacity-disabled)] ${on ? 'border-ink-100 bg-ink-100 text-surface-100' : 'border-border-100 hover:bg-surface-200 disabled:hover:bg-transparent'}`;
   const menuItems: [string | null, string][] = menu === 'part' ? PART_OPTIONS : [[null, 'Any skill'], ...FOCUS_ATTRIBUTES.map((f): [string, string] => [f, f])];
