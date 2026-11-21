@@ -1,0 +1,291 @@
+{
+  "id": "trace-the-circles",
+  "funName": "Pretzel Run",
+  "plainName": "Figure 8 around the circles, then a pass and a shot",
+  "sourceTitle": "Trace the circles",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Skaters line up in the corner. One at a time, skate around the top of the first face-off circle, cut across the slot to the bottom of the second circle and go all the way around it, like a figure 8. Keep going up the boards and loop around the face-off dot past the blue line. The coach passes you a puck; skate in and shoot. The next skater goes when the one ahead reaches the second circle, so skaters cross in the slot.",
+  "steps": [
+    "Out of the corner, around the top of the first circle, across the slot and all the way around the second, starting at the bottom.",
+    "Skate up the boards and loop around the face-off dot.",
+    "Take a pass from the coach, skate in and shoot."
+  ],
+  "cues": [
+    "Head up in the middle!",
+    "Stick on the ice for the pass.",
+    "Lean into the turns."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Turning both ways around the circles at speed."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Catching a pass while skating."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "Shooting after skating in with the puck."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Skate, catch, shoot",
+  "levels": [],
+  "source": {
+    "label": "Coach request",
+    "url": null,
+    "note": "Sent to Brett by a coach with a whiteboard sketch. Skaters crossing in the slot is on purpose, to make them keep their heads up."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 12,
+        "y": 4
+      },
+      {
+        "role": "O",
+        "x": 7,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 4,
+        "y": 10
+      },
+      {
+        "role": "C",
+        "x": 84,
+        "y": 22
+      }
+    ],
+    "piles": [
+      {
+        "x": 89,
+        "y": 17
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            7.5
+          ],
+          [
+            15.4,
+            16.8
+          ],
+          [
+            15.1,
+            22.1
+          ],
+          [
+            16.4,
+            27.1
+          ],
+          [
+            19.3,
+            31.5
+          ],
+          [
+            23.5,
+            34.6
+          ],
+          [
+            31,
+            43
+          ],
+          [
+            41.9,
+            51.5
+          ],
+          [
+            46.4,
+            57.2
+          ],
+          [
+            48.0,
+            64.3
+          ],
+          [
+            46.5,
+            71.4
+          ],
+          [
+            42.2,
+            77.3
+          ],
+          [
+            35.8,
+            80.8
+          ],
+          [
+            28.6,
+            81.3
+          ],
+          [
+            21.8,
+            78.8
+          ],
+          [
+            16.6,
+            73.6
+          ],
+          [
+            14.2,
+            66.8
+          ],
+          [
+            14.7,
+            59.5
+          ],
+          [
+            18.3,
+            53.2
+          ],
+          [
+            24.2,
+            48.9
+          ],
+          [
+            31.3,
+            47.5
+          ],
+          [
+            38.4,
+            49.2
+          ],
+          [
+            44.1,
+            53.7
+          ],
+          [
+            47.4,
+            60.2
+          ],
+          [
+            47.7,
+            67.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Out of the corner, around the top of the first circle, across the slot and all the way around the second, starting at the bottom.",
+        "stepAt": 0.12
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            49,
+            71.5
+          ],
+          [
+            53,
+            78
+          ],
+          [
+            62,
+            81
+          ],
+          [
+            68,
+            81
+          ],
+          [
+            79,
+            78.5
+          ],
+          [
+            87,
+            74
+          ],
+          [
+            91,
+            66
+          ],
+          [
+            89,
+            57
+          ],
+          [
+            83,
+            51.5
+          ]
+        ],
+        "step": 2,
+        "caption": "Skate up the boards and loop around the face-off dot.",
+        "stepAt": 0.55
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            82,
+            25
+          ],
+          [
+            79,
+            41
+          ]
+        ],
+        "step": 3,
+        "caption": "Take a pass from the coach, skate in and shoot."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            77,
+            44
+          ],
+          [
+            60,
+            43
+          ],
+          [
+            42,
+            42
+          ],
+          [
+            26,
+            42
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            24,
+            42
+          ],
+          [
+            13,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U7",
+    "U9"
+  ]
+}
