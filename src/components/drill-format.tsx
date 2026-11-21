@@ -58,12 +58,34 @@ export function FormatLabel({ model, className = '' }: { model: Model; className
   );
 }
 
-/** "[picture] Together · 3 levels": the drill's shape with its picture. */
-export function ShapeLabel({ drill, className = '' }: { drill: Pick<Drill, 'groupModel' | 'levels' | 'zones'>; className?: string }) {
+/** "[picture] Together (1)(2)(3)": the drill's shape with its picture, and level chips when it has levels. */
+export function ShapeLabel({ drill, on, className = '' }: { drill: Pick<Drill, 'groupModel' | 'levels' | 'zones'>; on?: number[]; className?: string }) {
+  const levels = drill.groupModel === 'basic' ? (drill.levels?.length ?? 0) + 1 : 0;
   return (
     <span className={`inline-flex items-center gap-1.5 ${className}`}>
       <FormatIcon model={drill.groupModel} />
-      {shapeLabel(drill)}
+      {levels > 1 ? FORMAT_NAME.basic : shapeLabel(drill)}
+      {levels > 1 && <LevelChips count={levels} on={on} className="ml-0.5" />}
+    </span>
+  );
+}
+
+/** "1 2 3": a drill's levels as small chips, like colour swatches on a product (decision 0049).
+ *  Filled chips are the ones in use; with none given, all show as available. Display only. */
+export function LevelChips({ count, on = [], className = '' }: { count: number; on?: number[]; className?: string }) {
+  if (count < 2) return null;
+  const label = on.length ? `Level${on.length > 1 ? 's' : ''} ${on.join(' and ')} of ${count}` : `${count} levels`;
+  return (
+    <span role="img" aria-label={label} className={`inline-flex items-center gap-1 ${className}`}>
+      {Array.from({ length: count }, (_, i) => i + 1).map((n) => (
+        <span
+          key={n}
+          aria-hidden="true"
+          className={`inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full border font-mono text-[11px] leading-none ${on.includes(n) ? 'border-rink-100 bg-rink-100 text-surface-100' : 'border-rink-100 text-rink-100'}`}
+        >
+          {n}
+        </span>
+      ))}
     </span>
   );
 }

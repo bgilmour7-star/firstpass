@@ -12,5 +12,5 @@ Decision 0024 named how a drill is run: Everyone rotates, Split by skill, Whole 
 - One word and one icon (circular arrows, three lanes, a group of people) on every drill and block a coach sees: library cards, the drill page and drawer, the picker, plan blocks, Today, the printout, and the drill request form. The labels and icons live in `src/components/drill-format.tsx`.
 - The data model keeps its names (`rotation`, `stations`, `basic`). Only the words change.
 
-## Not decided yet
-Whether a Skill groups block can run a drill's levels, one per group at the same time (sticky on the canvas). Level chips on drill cards are mocked up, not built.
+## Settled since
+A Skill groups block never runs a drill's levels, and level chips are built (decision 0049).
