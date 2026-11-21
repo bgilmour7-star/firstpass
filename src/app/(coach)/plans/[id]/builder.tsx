@@ -276,6 +276,7 @@ export function Builder({
         // A break is extra time on purpose, so it isn't held to the gap.
         fitsMinutes: left > 0 && !p.why ? left : null,
         part: p.part ?? (p.filter === 'basic' ? partForSlot(p.at, blocks.length) : null),
+        presetPart: p.part ?? null,
       };
     }
     const b = blocks.find((x) => x.id === p.blockId);
