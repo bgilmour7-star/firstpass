@@ -1,0 +1,546 @@
+{
+  "id": "wiggle-worm",
+  "funName": "Wiggle Worm",
+  "plainName": "Weave around the cones, take a pass and shoot",
+  "sourceTitle": "Cone slalom, pass and shot",
+  "minutes": 8,
+  "gear": "Pucks, 5 cones",
+  "worksAsStation": false,
+  "description": "Set five cones in two staggered rows: three near the boards and two inside the face-off circle. Skaters line up in the corner. One at a time, wrap around each cone in turn, like a worm wiggling down the ice. After the last cone, the coach passes a puck; skate in and shoot. The next skater goes when the one ahead reaches the third cone.",
+  "steps": [
+    "Out of the corner, weave around all five cones.",
+    "Take a pass from the coach.",
+    "Skate in and shoot."
+  ],
+  "cues": [
+    "Lean into each turn.",
+    "Stick on the ice, ready for the pass.",
+    "Eyes on the net, then shoot."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Tight turns both ways around the cones."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Catching a pass from the coach, and the give-and-go in Level 2."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "A shot to finish."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Carrying the puck through the turns in Level 2."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Skate the cones, then a pass",
+  "levels": [
+    {
+      "name": "Puck the whole way, give-and-go",
+      "adds": "Carry a puck around every cone. After the last one, pass to the coach, keep skating, get it back, then shoot.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 8,
+            "y": 4
+          },
+          {
+            "role": "O",
+            "x": 4.5,
+            "y": 7.5
+          },
+          {
+            "role": "O",
+            "x": 3,
+            "y": 12
+          },
+          {
+            "role": "C",
+            "x": 62,
+            "y": 37
+          }
+        ],
+        "cones": [
+          {
+            "x": 18,
+            "y": 9.5
+          },
+          {
+            "x": 25,
+            "y": 24
+          },
+          {
+            "x": 32,
+            "y": 9.5
+          },
+          {
+            "x": 39,
+            "y": 24
+          },
+          {
+            "x": 46,
+            "y": 9.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 5,
+            "y": 17
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                11,
+                12
+              ],
+              [
+                13,
+                7
+              ],
+              [
+                17,
+                5
+              ],
+              [
+                21,
+                6.5
+              ],
+              [
+                22.5,
+                11
+              ],
+              [
+                22,
+                16
+              ],
+              [
+                21.5,
+                23
+              ],
+              [
+                23.5,
+                28.5
+              ],
+              [
+                27.5,
+                28
+              ],
+              [
+                28.5,
+                22
+              ],
+              [
+                28.5,
+                15
+              ],
+              [
+                29,
+                8
+              ],
+              [
+                32,
+                5
+              ],
+              [
+                35.5,
+                7
+              ],
+              [
+                36.5,
+                12
+              ],
+              [
+                36,
+                17
+              ],
+              [
+                35.5,
+                23
+              ],
+              [
+                37.5,
+                28.5
+              ],
+              [
+                41.5,
+                28
+              ],
+              [
+                42.5,
+                22
+              ],
+              [
+                42.5,
+                15
+              ],
+              [
+                43,
+                8
+              ],
+              [
+                46,
+                5
+              ],
+              [
+                49.5,
+                7.5
+              ],
+              [
+                50.5,
+                13
+              ],
+              [
+                50.5,
+                22
+              ],
+              [
+                51,
+                29
+              ]
+            ],
+            "step": 1,
+            "caption": "Out of the corner with a puck, weave around all five cones.",
+            "stepAt": 0.58,
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                52.5,
+                30.5
+              ],
+              [
+                59.5,
+                35
+              ]
+            ],
+            "step": 2,
+            "caption": "Pass to the coach and keep skating.",
+            "stepAt": 0.4,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                50.5,
+                33
+              ],
+              [
+                49.5,
+                40
+              ],
+              [
+                46.5,
+                44
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                60,
+                40
+              ],
+              [
+                48.5,
+                45.5
+              ]
+            ],
+            "step": 3,
+            "caption": "Get the pass back, skate in and shoot.",
+            "stepAt": 0.5,
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                45.5,
+                45.5
+              ],
+              [
+                36,
+                43
+              ],
+              [
+                26,
+                41
+              ]
+            ],
+            "stepWith": 3
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                24,
+                40.5
+              ],
+              [
+                13,
+                42.5
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Coach request",
+    "url": null,
+    "note": "Sent to Brett by a coach with a whiteboard sketch; the cone layout and route follow the sketch, and Level 2 comes from the coach's description."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 8,
+        "y": 4
+      },
+      {
+        "role": "O",
+        "x": 4.5,
+        "y": 7.5
+      },
+      {
+        "role": "O",
+        "x": 3,
+        "y": 12
+      },
+      {
+        "role": "C",
+        "x": 62,
+        "y": 37
+      }
+    ],
+    "cones": [
+      {
+        "x": 18,
+        "y": 9.5
+      },
+      {
+        "x": 25,
+        "y": 24
+      },
+      {
+        "x": 32,
+        "y": 9.5
+      },
+      {
+        "x": 39,
+        "y": 24
+      },
+      {
+        "x": 46,
+        "y": 9.5
+      }
+    ],
+    "piles": [
+      {
+        "x": 66,
+        "y": 33
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            11,
+            12
+          ],
+          [
+            13,
+            7
+          ],
+          [
+            17,
+            5
+          ],
+          [
+            21,
+            6.5
+          ],
+          [
+            22.5,
+            11
+          ],
+          [
+            22,
+            16
+          ],
+          [
+            21.5,
+            23
+          ],
+          [
+            23.5,
+            28.5
+          ],
+          [
+            27.5,
+            28
+          ],
+          [
+            28.5,
+            22
+          ],
+          [
+            28.5,
+            15
+          ],
+          [
+            29,
+            8
+          ],
+          [
+            32,
+            5
+          ],
+          [
+            35.5,
+            7
+          ],
+          [
+            36.5,
+            12
+          ],
+          [
+            36,
+            17
+          ],
+          [
+            35.5,
+            23
+          ],
+          [
+            37.5,
+            28.5
+          ],
+          [
+            41.5,
+            28
+          ],
+          [
+            42.5,
+            22
+          ],
+          [
+            42.5,
+            15
+          ],
+          [
+            43,
+            8
+          ],
+          [
+            46,
+            5
+          ],
+          [
+            49.5,
+            7.5
+          ],
+          [
+            50.5,
+            13
+          ],
+          [
+            50.5,
+            22
+          ],
+          [
+            50,
+            31
+          ]
+        ],
+        "step": 1,
+        "caption": "Out of the corner, weave around all five cones.",
+        "stepAt": 0.58,
+        "stepSide": "right"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            59.5,
+            36.5
+          ],
+          [
+            52.5,
+            33.5
+          ]
+        ],
+        "step": 2,
+        "caption": "Take a pass from the coach."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            50,
+            35
+          ],
+          [
+            40,
+            38
+          ],
+          [
+            30,
+            39.5
+          ],
+          [
+            26,
+            40
+          ]
+        ],
+        "step": 3,
+        "caption": "Skate in and shoot."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            24,
+            40.5
+          ],
+          [
+            13,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U7",
+    "U9"
+  ]
+}
