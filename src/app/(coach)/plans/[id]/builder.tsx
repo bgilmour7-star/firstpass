@@ -37,7 +37,7 @@ import {
 } from '@/lib/plans/schema';
 import { deletePractice, goalSuggestionTaken, keepSuggestion, savePractice } from '../actions';
 import { RotationCard, StationsCard } from './blocks';
-import { FORMAT_NAME, FormatIcon, formatWhat } from '@/components/drill-format';
+import { FORMAT_NAME, FormatIcon, LevelChips, formatWhat } from '@/components/drill-format';
 import { LevelPills, PlayableRink } from './opened';
 import { FavoriteButton } from '@/components/favorite-button';
 import { Rink } from '@/components/ds';
@@ -1140,7 +1140,7 @@ function blockTag(b: Block, d: Drill | undefined, gc: number): React.ReactNode {
       <>
         <FormatIcon model="basic" />
         {FORMAT_NAME.basic}
-        {lv.length > 1 ? ` · Levels ${lv.join(' → ')}` : lv.length ? ` · Level ${lv[0]} of ${d.levels.length + 1}` : ''}
+        {lv.length > 0 && <LevelChips count={d.levels.length + 1} on={lv} className="ml-0.5" />}
       </>
     );
   }

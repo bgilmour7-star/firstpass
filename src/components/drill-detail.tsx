@@ -1,5 +1,6 @@
-import { levelCount, levelOf, type Drill, type Group } from "@/lib/drills/schema";
-import { Pips, Rink, RinkStepper } from "@/components/ds";
+import { levelCount, type Drill, type Group } from "@/lib/drills/schema";
+import { LevelSwitcher } from "@/components/level-switcher";
+import { Pips, RinkStepper } from "@/components/ds";
 
 // Everything about a drill, read-only (v1: coaches never edit drills). One component for the
 // drill page and the drawer that opens from a practice plan, so they always say the same thing.
@@ -33,31 +34,7 @@ export function DrillDetail({
         />
         {levelCount(d) > 1 && (
           <Section title="Levels">
-            <ol
-              className={
-                wide ? "grid gap-4 sm:grid-cols-3" : "grid grid-cols-2 gap-4"
-              }
-            >
-              {Array.from({ length: levelCount(d) }, (_, i) =>
-                levelOf(d, i + 1),
-              ).map((l) => (
-                <li key={l.n} className="flex flex-col gap-1.5">
-                  <Rink
-                    spec={l.diagram}
-                    title={`${d.funName} level ${l.n}`}
-                    detail="thumb"
-                    className="rounded-sm border border-border-100"
-                  />
-                  <span className="font-mono text-sm font-medium text-rink-100">
-                    Level {l.n}
-                  </span>
-                  <b className="text-sm">{l.name}</b>
-                  <span className="text-xs text-ink-200">
-                    {l.n === 1 ? "The drill as written." : `Adds: ${l.adds}`}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <LevelSwitcher drill={d} />
             <p className="text-xs text-ink-200">
               In a plan, switch on one or more levels. The whole group does them
               in order, sharing the block’s minutes.

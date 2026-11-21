@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Rink } from '@/components/ds';
-import { FORMAT_NAME, FormatLabel, formatWhat } from '@/components/drill-format';
+import { FORMAT_NAME, ShapeLabel, formatWhat } from '@/components/drill-format';
 import { FOCUS_ATTRIBUTES, startLevelFor, type Drill, type Group } from '@/lib/drills/schema';
 import { activeGroups, groupLabel, todayUnits, usualCounts, type Attendance, type Team } from '@/lib/plans/schema';
 import { EMPTY, blockMinutes, countWith, filterDrills, widenOptions, type DrawerContext, type DrawerState, type FilterKey } from '@/lib/plans/drawer';
@@ -439,9 +439,8 @@ export function LibraryDrawer({
                         ) : (
                           <span className="rounded-full border border-whistle-100 px-1.5 text-[11px] font-semibold text-whistle-100">New</span>
                         )}
-                        <FormatLabel model={d.groupModel} className="font-medium text-rink-100" />
-                        {d.groupModel === 'basic' && d.levels.length > 0 && <span>{startsAt(d, ageGroup) > 1 ? `Starts at Level ${startsAt(d, ageGroup)} of ${d.levels.length + 1}` : `${d.levels.length + 1} levels`}</span>}
-                        {d.groupModel === 'rotation' && <span>{d.zones?.length ?? 0} zones</span>}
+                        <ShapeLabel drill={d} on={startsAt(d, ageGroup) > 1 ? [startsAt(d, ageGroup)] : []} className="font-medium text-rink-100" />
+                        {d.groupModel === 'basic' && startsAt(d, ageGroup) > 1 && <span>Starts at Level {startsAt(d, ageGroup)}</span>}
                         {d.lessons.length > 0 && <span>Lesson {d.lessons.join(', ')}</span>}
                       </span>
                       <span className="text-xs font-medium">{d.focus.filter((f) => f.level === 2).map((f) => f.attribute).join(' · ')}</span>
