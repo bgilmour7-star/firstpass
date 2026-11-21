@@ -226,7 +226,8 @@ export type DrawerFilter = 'all' | 'basic' | 'stations' | 'rotation';
 /** Quick activities offered at the top when adding. */
 export type QuickActivity = 'water' | 'scrimmage' | 'huddle';
 /** The spot the drawer was opened for: where it is, the minutes it has and the part of practice it suggests. */
-export type DrawerSlot = { label: string; fitsMinutes: number | null; part: Drill['part'] | null };
+/** The spot being filled. part and fitsMinutes rank the best fits first; only presetPart (an explicit "add a game") turns a filter on. */
+export type DrawerSlot = { label: string; fitsMinutes: number | null; part: Drill['part'] | null; presetPart?: Drill['part'] | null };
 
 const PART_OPTIONS: [Drill['part'] | null, string][] = [[null, 'Any part'], ['warmup', 'Warm-up'], ['skill', 'Skill'], ['game', 'Fun game']];
 const TOGGLES: [Exclude<FilterKey, 'part' | 'fits' | 'focus'>, string][] = [['fav', 'Team favourites'], ['known', 'Known to them'], ['isNew', 'New'], ['fresh', 'Not used lately'], ['levels', 'Has levels'], ['loved', 'Kids loved it']];
@@ -271,8 +272,10 @@ export function LibraryDrawer({
   onActivity?: (k: QuickActivity) => void;
   onClose: () => void;
 }) {
-  // Opens pre-set from the slot: its part of practice and the minutes it has.
-  const preset: DrawerState = { ...EMPTY, part: slot.part, fits: slot.fitsMinutes != null };
+  // Opens with no filters on: drills that suit the spot (its part of practice, its minutes) are sorted
+  // first instead, so coaches never have to clear filters to see the library. Only an explicit
+  // "add a game" opens filtered to games.
+  const preset: DrawerState = { ...EMPTY, part: slot.presetPart ?? null };
   const [s, setS] = useState<DrawerState>(preset);
   const [menu, setMenu] = useState<'part' | 'focus' | null>(null);
   const menuRef = useDismiss(menu !== null, () => setMenu(null));
@@ -289,8 +292,10 @@ export function LibraryDrawer({
   // Already in the plan last, then drills that flopped or lost them last time; Big hits first.
   // Team favourites first, then drills the kids loved; warnings and drills already in the plan last.
   const rank = (id: string) => (inPlan.has(id) ? 3 : feedback[id]?.warn ? 2 : favSet.has(id) ? -1 : feedback[id]?.loved ? 0 : 1);
+  // How well a drill suits the spot: same part of practice, and fits the minutes. Lower is better.
+  const misfit = (d: Drill) => (slot.part && d.part !== slot.part ? 1 : 0) + (slot.fitsMinutes != null && blockMinutes(d) > slot.fitsMinutes ? 1 : 0);
   const list = filterDrills(pool, s, ctx).sort(
-    (a, b) => rank(a.id) - rank(b.id) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName),
+    (a, b) => rank(a.id) - rank(b.id) || misfit(a) - misfit(b) || Number(!known.has(a.id)) - Number(!known.has(b.id)) || a.funName.localeCompare(b.funName),
   );
   const widen = list.length <= 2 ? widenOptions(pool, s, ctx) : [];
   const set = (patch: Partial<DrawerState>) => {
@@ -320,7 +325,7 @@ export function LibraryDrawer({
               {slot.label && (
                 <p className="text-[13px] text-ink-200">
                   {slot.label}
-                  {isPreset && ' · filtered for this spot'}
+                  {isPreset ? ' · filtered for this spot' : !anyOn && (slot.part || slot.fitsMinutes != null) ? ' · best fits first' : ''}
                 </p>
               )}
             </div>
