@@ -1,0 +1,995 @@
+{
+  "id": "pretzel-run",
+  "funName": "Pretzel Run",
+  "plainName": "Figure 8 around the circles, then a pass and a shot",
+  "sourceTitle": "Trace the circles",
+  "minutes": 8,
+  "gear": "Pucks, 1 cone",
+  "worksAsStation": false,
+  "description": "Put a cone on the face-off dot just outside the blue line. Skaters line up in the corner. One at a time, skate around the outside of the first face-off circle one and a half times, cut across the slot and go around the second circle one and a half times the other way, like a figure 8. Keep going down the far boards past the blue line and around the cone. The coach passes you a puck; skate in through the slot and shoot. The next skater goes when the one ahead reaches the second circle, so skaters cross in the slot.",
+  "steps": [
+    "Out of the corner and around the first circle one and a half times.",
+    "Cut across the slot and around the second circle one and a half times.",
+    "Down the far boards and around the cone on the face-off dot.",
+    "Take a pass from the coach, skate in and shoot."
+  ],
+  "cues": [
+    "Head up in the middle!",
+    "Stick on the ice for the pass.",
+    "Lean into the turns."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Turning both ways around the circles at speed."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Catching a pass while skating."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "Shooting after skating in with the puck."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Skate, catch, shoot",
+  "levels": [
+    {
+      "name": "Skate with puck, pass, catch, shoot",
+      "adds": "Puck control while doing cross-overs",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 10,
+            "y": 4
+          },
+          {
+            "role": "O",
+            "x": 6,
+            "y": 7.5
+          },
+          {
+            "role": "O",
+            "x": 4,
+            "y": 12
+          },
+          {
+            "role": "C",
+            "x": 84,
+            "y": 31
+          }
+        ],
+        "piles": [
+          {
+            "x": 5,
+            "y": 17
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                13,
+                6
+              ],
+              [
+                20.4,
+                5.3
+              ],
+              [
+                24.7,
+                3.2
+              ],
+              [
+                29.5,
+                2.2
+              ],
+              [
+                34.3,
+                2.6
+              ],
+              [
+                38.8,
+                4.1
+              ],
+              [
+                42.8,
+                6.8
+              ],
+              [
+                45.9,
+                10.4
+              ],
+              [
+                47.9,
+                14.7
+              ],
+              [
+                48.8,
+                19.3
+              ],
+              [
+                48.4,
+                24.0
+              ],
+              [
+                46.8,
+                28.4
+              ],
+              [
+                44.1,
+                32.2
+              ],
+              [
+                40.6,
+                35.1
+              ],
+              [
+                36.4,
+                37.0
+              ],
+              [
+                31.9,
+                37.8
+              ],
+              [
+                27.4,
+                37.3
+              ],
+              [
+                23.1,
+                35.7
+              ],
+              [
+                19.5,
+                33.1
+              ],
+              [
+                16.7,
+                29.6
+              ],
+              [
+                14.9,
+                25.5
+              ],
+              [
+                14.2,
+                21.1
+              ],
+              [
+                14.7,
+                16.7
+              ],
+              [
+                16.3,
+                12.7
+              ],
+              [
+                19.0,
+                9.2
+              ],
+              [
+                22.4,
+                6.5
+              ],
+              [
+                26.4,
+                4.8
+              ],
+              [
+                30.6,
+                4.2
+              ],
+              [
+                34.9,
+                4.8
+              ],
+              [
+                38.8,
+                6.4
+              ],
+              [
+                42.2,
+                9.0
+              ],
+              [
+                44.7,
+                12.4
+              ],
+              [
+                46.3,
+                16.2
+              ],
+              [
+                46.8,
+                20.4
+              ],
+              [
+                46.2,
+                24.5
+              ],
+              [
+                44.5,
+                28.3
+              ],
+              [
+                42.0,
+                31.5
+              ]
+            ],
+            "step": 1,
+            "caption": "Out of the corner with a puck and around the first circle one and a half times.",
+            "stepAt": 0.08,
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                39,
+                36.5
+              ],
+              [
+                32,
+                42.5
+              ],
+              [
+                25,
+                48.5
+              ],
+              [
+                18.3,
+                55.6
+              ],
+              [
+                16.3,
+                59.2
+              ],
+              [
+                15.4,
+                63.2
+              ],
+              [
+                15.5,
+                67.4
+              ],
+              [
+                16.7,
+                71.4
+              ],
+              [
+                18.9,
+                74.9
+              ],
+              [
+                22.0,
+                77.8
+              ],
+              [
+                25.8,
+                79.8
+              ],
+              [
+                29.9,
+                80.7
+              ],
+              [
+                34.2,
+                80.5
+              ],
+              [
+                38.4,
+                79.2
+              ],
+              [
+                42.0,
+                76.8
+              ],
+              [
+                44.9,
+                73.6
+              ],
+              [
+                46.9,
+                69.7
+              ],
+              [
+                47.8,
+                65.3
+              ],
+              [
+                47.5,
+                60.9
+              ],
+              [
+                46.1,
+                56.7
+              ],
+              [
+                43.6,
+                52.9
+              ],
+              [
+                40.2,
+                50.0
+              ],
+              [
+                36.1,
+                48.0
+              ],
+              [
+                31.6,
+                47.1
+              ],
+              [
+                27.0,
+                47.5
+              ],
+              [
+                22.6,
+                49.1
+              ],
+              [
+                18.8,
+                51.7
+              ],
+              [
+                15.8,
+                55.3
+              ],
+              [
+                13.9,
+                59.6
+              ],
+              [
+                13.1,
+                64.2
+              ],
+              [
+                13.5,
+                68.9
+              ],
+              [
+                15.2,
+                73.4
+              ],
+              [
+                18.0,
+                77.3
+              ],
+              [
+                21.8,
+                80.3
+              ],
+              [
+                26.2,
+                82.3
+              ],
+              [
+                31.0,
+                83.0
+              ]
+            ],
+            "step": 2,
+            "caption": "Across the slot and around the second circle one and a half times.",
+            "stepAt": 0.12
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                33,
+                83
+              ],
+              [
+                48,
+                83
+              ],
+              [
+                62,
+                82.5
+              ],
+              [
+                74,
+                80
+              ],
+              [
+                83,
+                76
+              ],
+              [
+                88.5,
+                69.5
+              ],
+              [
+                89,
+                61
+              ],
+              [
+                85,
+                55.5
+              ],
+              [
+                78.5,
+                54
+              ],
+              [
+                74.5,
+                54.5
+              ]
+            ],
+            "step": 3,
+            "caption": "Down the far boards and around the cone.",
+            "stepAt": 0.55,
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                75,
+                52.5
+              ],
+              [
+                82,
+                34.5
+              ]
+            ],
+            "step": 4,
+            "caption": "Pass to the coach and keep skating.",
+            "stepAt": 0.45,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                72,
+                54
+              ],
+              [
+                67.5,
+                49.5
+              ],
+              [
+                64,
+                46.5
+              ]
+            ],
+            "stepWith": 4
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                81.5,
+                34.5
+              ],
+              [
+                66,
+                44
+              ]
+            ],
+            "step": 5,
+            "caption": "Catch the pass back, skate in and shoot.",
+            "stepAt": 0.5,
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                62,
+                45
+              ],
+              [
+                48,
+                44
+              ],
+              [
+                36,
+                43
+              ],
+              [
+                26,
+                42.5
+              ]
+            ],
+            "stepWith": 5
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                24,
+                42.5
+              ],
+              [
+                13,
+                42.5
+              ]
+            ],
+            "stepWith": 5
+          }
+        ],
+        "cones": [
+          {
+            "x": 80,
+            "y": 64.5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Coach request",
+    "url": null,
+    "note": "Sent to Brett by a coach with a whiteboard sketch. Skaters crossing in the slot is on purpose, to make them keep their heads up."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 10,
+        "y": 4
+      },
+      {
+        "role": "O",
+        "x": 6,
+        "y": 7.5
+      },
+      {
+        "role": "O",
+        "x": 4,
+        "y": 12
+      },
+      {
+        "role": "C",
+        "x": 84,
+        "y": 31
+      }
+    ],
+    "piles": [
+      {
+        "x": 89,
+        "y": 27
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            13,
+            6
+          ],
+          [
+            20.4,
+            5.3
+          ],
+          [
+            24.7,
+            3.2
+          ],
+          [
+            29.5,
+            2.2
+          ],
+          [
+            34.3,
+            2.6
+          ],
+          [
+            38.8,
+            4.1
+          ],
+          [
+            42.8,
+            6.8
+          ],
+          [
+            45.9,
+            10.4
+          ],
+          [
+            47.9,
+            14.7
+          ],
+          [
+            48.8,
+            19.3
+          ],
+          [
+            48.4,
+            24.0
+          ],
+          [
+            46.8,
+            28.4
+          ],
+          [
+            44.1,
+            32.2
+          ],
+          [
+            40.6,
+            35.1
+          ],
+          [
+            36.4,
+            37.0
+          ],
+          [
+            31.9,
+            37.8
+          ],
+          [
+            27.4,
+            37.3
+          ],
+          [
+            23.1,
+            35.7
+          ],
+          [
+            19.5,
+            33.1
+          ],
+          [
+            16.7,
+            29.6
+          ],
+          [
+            14.9,
+            25.5
+          ],
+          [
+            14.2,
+            21.1
+          ],
+          [
+            14.7,
+            16.7
+          ],
+          [
+            16.3,
+            12.7
+          ],
+          [
+            19.0,
+            9.2
+          ],
+          [
+            22.4,
+            6.5
+          ],
+          [
+            26.4,
+            4.8
+          ],
+          [
+            30.6,
+            4.2
+          ],
+          [
+            34.9,
+            4.8
+          ],
+          [
+            38.8,
+            6.4
+          ],
+          [
+            42.2,
+            9.0
+          ],
+          [
+            44.7,
+            12.4
+          ],
+          [
+            46.3,
+            16.2
+          ],
+          [
+            46.8,
+            20.4
+          ],
+          [
+            46.2,
+            24.5
+          ],
+          [
+            44.5,
+            28.3
+          ],
+          [
+            42.0,
+            31.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Out of the corner and around the first circle one and a half times.",
+        "stepAt": 0.08,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            39,
+            36.5
+          ],
+          [
+            32,
+            42.5
+          ],
+          [
+            25,
+            48.5
+          ],
+          [
+            18.3,
+            55.6
+          ],
+          [
+            16.3,
+            59.2
+          ],
+          [
+            15.4,
+            63.2
+          ],
+          [
+            15.5,
+            67.4
+          ],
+          [
+            16.7,
+            71.4
+          ],
+          [
+            18.9,
+            74.9
+          ],
+          [
+            22.0,
+            77.8
+          ],
+          [
+            25.8,
+            79.8
+          ],
+          [
+            29.9,
+            80.7
+          ],
+          [
+            34.2,
+            80.5
+          ],
+          [
+            38.4,
+            79.2
+          ],
+          [
+            42.0,
+            76.8
+          ],
+          [
+            44.9,
+            73.6
+          ],
+          [
+            46.9,
+            69.7
+          ],
+          [
+            47.8,
+            65.3
+          ],
+          [
+            47.5,
+            60.9
+          ],
+          [
+            46.1,
+            56.7
+          ],
+          [
+            43.6,
+            52.9
+          ],
+          [
+            40.2,
+            50.0
+          ],
+          [
+            36.1,
+            48.0
+          ],
+          [
+            31.6,
+            47.1
+          ],
+          [
+            27.0,
+            47.5
+          ],
+          [
+            22.6,
+            49.1
+          ],
+          [
+            18.8,
+            51.7
+          ],
+          [
+            15.8,
+            55.3
+          ],
+          [
+            13.9,
+            59.6
+          ],
+          [
+            13.1,
+            64.2
+          ],
+          [
+            13.5,
+            68.9
+          ],
+          [
+            15.2,
+            73.4
+          ],
+          [
+            18.0,
+            77.3
+          ],
+          [
+            21.8,
+            80.3
+          ],
+          [
+            26.2,
+            82.3
+          ],
+          [
+            31.0,
+            83.0
+          ]
+        ],
+        "step": 2,
+        "caption": "Cut across the slot and around the second circle one and a half times.",
+        "stepAt": 0.12
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            33,
+            83
+          ],
+          [
+            48,
+            83
+          ],
+          [
+            62,
+            82.5
+          ],
+          [
+            74,
+            80
+          ],
+          [
+            83,
+            76
+          ],
+          [
+            88.5,
+            69.5
+          ],
+          [
+            89,
+            61
+          ],
+          [
+            85,
+            55.5
+          ],
+          [
+            78.5,
+            54
+          ],
+          [
+            73,
+            55.5
+          ]
+        ],
+        "step": 3,
+        "caption": "Down the far boards and around the cone on the face-off dot.",
+        "stepAt": 0.55,
+        "stepSide": "right"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            82,
+            33.5
+          ],
+          [
+            75,
+            46
+          ]
+        ],
+        "step": 4,
+        "caption": "Take a pass from the coach, skate in and shoot."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            73,
+            48.5
+          ],
+          [
+            56,
+            45.5
+          ],
+          [
+            40,
+            43.5
+          ],
+          [
+            26,
+            42.5
+          ]
+        ],
+        "stepWith": 4
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            24,
+            42.5
+          ],
+          [
+            13,
+            42.5
+          ]
+        ],
+        "stepWith": 4
+      }
+    ],
+    "cones": [
+      {
+        "x": 80,
+        "y": 64.5
+      }
+    ]
+  },
+  "status": "live",
+  "ageGroups": [
+    "U7",
+    "U9"
+  ]
+}
