@@ -430,10 +430,13 @@ export function Builder({
 
   const swapFor = (b: Block) => setPicker({ mode: 'fill', blockId: b.id, filter: b.kind === 'stations' || b.kind === 'rotation' ? b.kind : 'basic' });
   // The ⋯ menu (design system: DrillActions): only the actions that apply to this block.
-  const menuFor = (b: Block, i: number): MenuItem[] => {
+  // Swap only applies to a drill (or an old rotation); everything else gets a drill through "Change to".
+  const canSwap = (b: Block): boolean => b.kind !== 'activity' && (Boolean(b.drillId && byId.has(b.drillId)) || isOldRotation(b));
+  // inPill: the desktop hover pill already shows Swap and Remove as buttons, so the ⋯ menu leaves them out.
+  const menuFor = (b: Block, i: number, inPill = false): MenuItem[] => {
     const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
     const items: MenuItem[] = [];
-    if (b.kind !== 'activity' && (d || isOldRotation(b))) items.push({ label: 'Swap for another drill', icon: A.swap, run: () => swapFor(b) });
+    if (!inPill && canSwap(b)) items.push({ label: 'Swap for another drill', icon: A.swap, run: () => swapFor(b) });
     if (b.kind === 'drill' && d && d.levels.length > 0) items.push({
         label: 'Change levels',
         icon: A.levels,
@@ -452,7 +455,7 @@ export function Builder({
     if (i > 0) items.push({ label: 'Move to the start', icon: A.start, run: () => move(i, 0) });
     if (i < blocks.length - 1) items.push({ label: 'Move to the end', icon: A.end, run: () => move(i, blocks.length - 1) });
     if (d) items.push({ label: 'Open details', icon: A.details, run: () => setViewing(d.id) });
-    items.push({ label: 'Remove', icon: A.remove, danger: true, sep: true, run: () => remove(b) });
+    if (!inPill) items.push({ label: 'Remove', icon: A.remove, danger: true, sep: true, run: () => remove(b) });
     return items;
   };
   const pill = (b: Block, i: number) => (
@@ -463,7 +466,15 @@ export function Builder({
       <button type="button" aria-label="Move down" title="Move down" disabled={i === blocks.length - 1} onClick={() => move(i, i + 1)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200 disabled:opacity-30">
         {A.down}
       </button>
-      <Menu items={menuFor(b, i)} />
+      {canSwap(b) && (
+        <button type="button" aria-label="Swap for another drill" title="Swap for another drill" onClick={() => swapFor(b)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200">
+          {A.swap}
+        </button>
+      )}
+      <button type="button" aria-label={`Remove ${name(b)}`} title="Remove" onClick={() => remove(b)} className="grid size-9 place-items-center rounded-full text-flag-100 hover:bg-surface-200">
+        {A.remove}
+      </button>
+      <Menu items={menuFor(b, i, true)} />
     </span>
   );
 
@@ -732,12 +743,12 @@ export function Builder({
               <section className={`blk group grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 lg:grid-cols-[96px_minmax(0,1fr)] ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/60 px-4 lg:-mx-3 lg:rounded-xl lg:px-3 lg:outline lg:outline-2 lg:-outline-offset-2 lg:outline-rink-100' : ''}`}>
                 <div className="flex flex-col items-start gap-0.5 pt-1">
                   <span className={`font-mono text-sm font-medium ${b.kind === 'activity' ? 'text-ink-200' : ''}`}>{clock(times[i])}</span>
-                  {/* Minutes: the number, or a stepper while the row is hovered or focused (desktop). */}
+                  {/* Minutes: the number, or a stepper while the row is hovered or focused (desktop). No "min" label
+                      under the stepper: it pushed the row down, and the rows around it already say "min". */}
                   <span className={`font-mono text-xs text-ink-200 ${desktop ? 'lg:group-focus-within:hidden lg:group-hover:hidden' : ''}`}>{blockMinutes(b, gc)} min</span>
                   {desktop && (
-                    <span className="hidden flex-col gap-0.5 lg:group-focus-within:flex lg:group-hover:flex">
+                    <span className="hidden lg:group-focus-within:flex lg:group-hover:flex">
                       <Stepper size="sm" label="" value={b.minutes} min={b.kind === 'rotation' ? 2 : 1} max={b.kind === 'rotation' ? 20 : 60} onChange={(m) => update(b.id, (x) => ({ ...x, minutes: m }) as Block, `min:${b.id}`)} />
-                      <span className="text-[11px] text-ink-200">{b.kind === 'rotation' ? 'min a zone' : 'min'}</span>
                     </span>
                   )}
                   <button
