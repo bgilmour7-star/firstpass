@@ -103,6 +103,8 @@ const data = {
         priceCurrency: 'CAD',
         lowPrice: LOWEST_ASSOCIATION_PRICE,
         highPrice: HIGHEST_ASSOCIATION_PRICE,
+        // One offer per priced tier (5–9 and 10–24 teams); 25+ is custom. Search Console asks for it (Nov 21).
+        offerCount: ASSOCIATION_TIERS.filter((t) => t.price !== null).length,
         description: `Per team, per season, from the ${PAID_FROM} season, by number of U5–U9 teams`,
       },
     },
