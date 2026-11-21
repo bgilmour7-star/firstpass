@@ -6,10 +6,11 @@
   "minutes": 8,
   "gear": "Pucks",
   "worksAsStation": false,
-  "description": "Skaters line up in the corner. One at a time, skate around the top of the first face-off circle, cut across the slot to the bottom of the second circle and go all the way around it, like a figure 8. Keep going up the boards and loop around the face-off dot past the blue line. The coach passes you a puck; skate in and shoot. The next skater goes when the one ahead reaches the second circle, so skaters cross in the slot.",
+  "description": "Skaters line up in the corner. One at a time, skate along the boards and around the outside of the first face-off circle, cut across the slot and around the outside of the second circle, like a figure 8. Keep going down the far boards past the blue line and swing back around the face-off dot. The coach passes you a puck; skate in through the slot and shoot. The next skater goes when the one ahead reaches the second circle, so skaters cross in the slot.",
   "steps": [
-    "Out of the corner, around the top of the first circle, across the slot and all the way around the second, starting at the bottom.",
-    "Skate up the boards and loop around the face-off dot.",
+    "Out of the corner, along the boards and around the bottom of the first circle.",
+    "Cut across the slot and around the top of the second circle.",
+    "Down the far boards and swing back around the face-off dot.",
     "Take a pass from the coach, skate in and shoot."
   ],
   "cues": [
@@ -52,29 +53,29 @@
     "players": [
       {
         "role": "O",
-        "x": 12,
+        "x": 10,
         "y": 4
       },
       {
         "role": "O",
-        "x": 7,
-        "y": 6
+        "x": 6,
+        "y": 7.5
       },
       {
         "role": "O",
         "x": 4,
-        "y": 10
+        "y": 12
       },
       {
         "role": "C",
-        "x": 84,
-        "y": 22
+        "x": 87,
+        "y": 21
       }
     ],
     "piles": [
       {
-        "x": 89,
-        "y": 17
+        "x": 91,
+        "y": 16
       }
     ],
     "paths": [
@@ -82,204 +83,178 @@
         "type": "skate",
         "points": [
           [
-            14,
-            7.5
+            13,
+            5.5
           ],
           [
-            15.4,
-            16.8
+            22,
+            3
           ],
           [
-            15.1,
-            22.1
+            33,
+            2.8
           ],
           [
-            16.4,
-            27.1
+            43,
+            5.5
           ],
           [
-            19.3,
-            31.5
+            49.5,
+            12
           ],
           [
-            23.5,
-            34.6
+            51.5,
+            20.5
+          ],
+          [
+            49.5,
+            29
+          ],
+          [
+            44,
+            35.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Out of the corner, along the boards and around the bottom of the first circle.",
+        "stepAt": 0.7,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            43,
+            37.5
           ],
           [
             31,
             43
           ],
           [
-            41.9,
-            51.5
+            20,
+            48.5
           ],
           [
-            46.4,
-            57.2
+            14.5,
+            56
           ],
           [
-            48.0,
-            64.3
+            13,
+            64.5
           ],
           [
-            46.5,
-            71.4
+            15.5,
+            73.5
           ],
           [
-            42.2,
-            77.3
+            22,
+            80
           ],
           [
-            35.8,
-            80.8
-          ],
-          [
-            28.6,
-            81.3
-          ],
-          [
-            21.8,
-            78.8
-          ],
-          [
-            16.6,
-            73.6
-          ],
-          [
-            14.2,
-            66.8
-          ],
-          [
-            14.7,
-            59.5
-          ],
-          [
-            18.3,
-            53.2
-          ],
-          [
-            24.2,
-            48.9
-          ],
-          [
-            31.3,
-            47.5
-          ],
-          [
-            38.4,
-            49.2
-          ],
-          [
-            44.1,
-            53.7
-          ],
-          [
-            47.4,
-            60.2
-          ],
-          [
-            47.7,
-            67.5
+            31,
+            82.5
           ]
         ],
-        "step": 1,
-        "caption": "Out of the corner, around the top of the first circle, across the slot and all the way around the second, starting at the bottom.",
-        "stepAt": 0.12
+        "step": 2,
+        "caption": "Cut across the slot and around the top of the second circle.",
+        "stepAt": 0.6
       },
       {
         "type": "skate",
         "points": [
           [
-            49,
-            71.5
+            33,
+            82.5
           ],
           [
-            53,
-            78
+            50,
+            82.8
           ],
           [
-            62,
-            81
+            66,
+            82.2
           ],
           [
-            68,
-            81
+            80,
+            80.5
           ],
           [
-            79,
-            78.5
+            90,
+            76.5
           ],
           [
-            87,
-            74
+            96,
+            68
           ],
           [
-            91,
-            66
-          ],
-          [
-            89,
+            97,
             57
           ],
           [
-            83,
-            51.5
+            93.5,
+            48.5
+          ],
+          [
+            87,
+            44
           ]
         ],
-        "step": 2,
-        "caption": "Skate up the boards and loop around the face-off dot.",
-        "stepAt": 0.55
+        "step": 3,
+        "caption": "Down the far boards and swing back around the face-off dot.",
+        "stepAt": 0.8,
+        "stepSide": "right"
       },
       {
         "type": "pass",
         "points": [
           [
-            82,
-            25
+            85,
+            24
           ],
           [
-            79,
-            41
+            82,
+            39.5
           ]
         ],
-        "step": 3,
+        "step": 4,
         "caption": "Take a pass from the coach, skate in and shoot."
       },
       {
         "type": "puck",
         "points": [
           [
-            77,
-            44
+            81,
+            42.5
           ],
           [
-            60,
-            43
+            64,
+            42.5
           ],
           [
-            42,
-            42
+            46,
+            42.5
           ],
           [
             26,
-            42
+            42.5
           ]
         ],
-        "stepWith": 3
+        "stepWith": 4
       },
       {
         "type": "shot",
         "points": [
           [
             24,
-            42
+            42.5
           ],
           [
             13,
             42.5
           ]
         ],
-        "stepWith": 3
+        "stepWith": 4
       }
     ]
   },
