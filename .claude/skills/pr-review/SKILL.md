@@ -74,9 +74,9 @@ report problems you can point to; "consider adding tests" without a concrete gap
   and ask "what happens the second time?"
 - Safe against the live data: a new `not null` column has a default; a backfill can't fail on
   existing rows; nothing drops or rewrites data without saying so in the PR body.
-- The PR body contains the full SQL, matching the migration file exactly (diff them). Brett runs it
-  by hand in the Supabase SQL editor, so the body must say when to run it relative to the merge and
-  what breaks in between.
+- The PR body contains the full SQL, matching the migration file exactly (diff them). Claude runs it
+  with the Supabase connector (Brett in the SQL editor if the connector isn't there), so the body must
+  say when to run it relative to the merge and what breaks in between.
 - Anything the deployed code calls (a column, function or table) either exists before the merge or
   the code handles its absence (like `MigrationMissing`).
 

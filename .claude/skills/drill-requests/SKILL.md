@@ -89,4 +89,7 @@ One or two plain sentences Brett reads in review: what you based it on and anyth
 
 - No child-identifiable data, ever. If a description names a child, don't carry the name into the drill or the note.
 - Never set a drill's status beyond `in_review`, never update a live drill's content, never mark a request accepted or declined.
+  The one exception: in a conversation, Brett (a reviewer) can tell you to make a drill live ("add that one"). Then run
+  `update public.drills set status = 'live', updated_at = now(), updated_by = (select id from auth.users where email = 'bgilmour7@gmail.com') where id = '<id>' and status in ('in_review','approved') returning id, status;`
+  with the connector, only for the drills he named. The scheduled run never does this.
 - `npm run check` before committing.
