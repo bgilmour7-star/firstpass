@@ -337,8 +337,14 @@ export function DrillReview({ detail, asked = null }: { detail: DrillDetail; ask
           </Section>
         </div>
 
-        {/* Right: the words coaches read */}
+        {/* Right: the words coaches read, starting with what the drill is */}
         <div className="flex min-w-0 flex-col gap-6">
+          <Section title={rotation ? 'How it runs' : 'Description'} hint={rotation ? 'The rotation, not the activities. The zones describe those.' : undefined}>
+            <Field label={rotation ? 'How the rotation works' : 'How it runs'} error={errors.description}>
+              <textarea rows={4} className={input} value={draft.description} onChange={(e) => set('description', e.target.value)} />
+            </Field>
+          </Section>
+
           <Section title="Age groups" hint="Pick every age it works for. Coaches only see it when their team's age is ticked.">
             <AgeGroups drill={draft} error={errors.ageGroups} onChange={(patch) => setDraft((d) => ({ ...d, ...patch }))} />
           </Section>
@@ -386,12 +392,6 @@ export function DrillReview({ detail, asked = null }: { detail: DrillDetail; ask
               <input type="checkbox" className="h-4 w-4 accent-[var(--rink-100)]" checked={draft.worksAsStation} onChange={(e) => set('worksAsStation', e.target.checked)} />
               Works as a station
             </label>
-          </Section>
-
-          <Section title={rotation ? 'How it runs' : 'Description'} hint={rotation ? 'The rotation, not the activities. The zones describe those.' : undefined}>
-            <Field label={rotation ? 'How the rotation works' : 'How it runs'} error={errors.description}>
-              <textarea rows={4} className={input} value={draft.description} onChange={(e) => set('description', e.target.value)} />
-            </Field>
           </Section>
 
           {rotation ? (

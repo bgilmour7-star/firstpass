@@ -5,12 +5,13 @@ import { DiagramFlag, GROUP_MODEL_LABEL, StatusPill } from '@/components/status'
 import { Rink } from '@/components/ds';
 import { getRequestStore } from '@/lib/requests/store';
 import { isOpen } from '@/lib/requests/schema';
+import { ReviewSearch } from './search';
 
 export const dynamic = 'force-dynamic';
 
 // The review queue: drills that need a person first, then the rest by status.
-export default async function DrillQueue({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const { status } = await searchParams;
+export default async function DrillQueue({ searchParams }: { searchParams: Promise<{ status?: string; q?: string }> }) {
+  const { status, q } = await searchParams;
   const filter = STATUSES.includes(status as Status) ? (status as Status) : null;
   const [all, requests] = await Promise.all([(await getDrillStore()).list(), getRequestStore().then((r) => r.all()).catch(() => [])]);
   const names = new Map(all.map((d) => [d.id, d.funName]));
@@ -70,46 +71,51 @@ export default async function DrillQueue({ searchParams }: { searchParams: Promi
         </section>
       )}
 
-      <nav aria-label="Filter by status" className="-mx-1 flex gap-1 overflow-x-auto px-1">
-        <FilterTab href="/admin/drills" on={!filter} label="All" count={all.length - counts.archived} />
-        {STATUSES.filter((s) => s !== 'archived' || counts.archived > 0).map((s) => (
-          <FilterTab key={s} href={`/admin/drills?status=${s}`} on={filter === s} label={STATUS_LABEL[s]} count={counts[s]} />
-        ))}
-      </nav>
-
-      {shown.length === 0 ? (
-        <p className="rounded-md border border-dashed border-border-100 p-8 text-center text-sm text-ink-200">
-          No drills here. {filter ? 'Try another status.' : 'Add drill files to content/drills and run the seed script.'}
-        </p>
-      ) : (
-        <ul className="grid gap-3">
-          {shown.map((d) => (
-            <li key={d.id}>
-              <Link
-                href={`/admin/drills/${d.id}`}
-                className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-4 rounded-md border border-border-100 p-3 hover:border-ink-200 sm:grid-cols-[160px_minmax(0,1fr)_auto]"
-              >
-                <Rink spec={d.diagram} title={d.funName} detail="thumb" className="rounded-sm" />
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="font-display text-lg font-bold leading-6">{d.funName}</span>
-                  <span className="text-sm text-ink-200">
-                    {d.plainName} · <span className="font-mono">{d.minutes} min</span>
-                  </span>
-                  <span className="flex flex-wrap gap-1.5 pt-1 sm:hidden">
-                    <StatusPill status={d.status} />
-                    <DiagramFlag count={d.openRequests} />
-                  </span>
-                  <span className="text-xs text-ink-200">{d.groupModel === 'basic' && d.levelCount > 1 ? `Together · ${d.levelCount} levels` : GROUP_MODEL_LABEL[d.groupModel]}</span>
-                </div>
-                <div className="hidden flex-col items-end gap-1.5 sm:flex">
+      <ReviewSearch
+        initialQ={q ?? ''}
+        tab={filter ? STATUS_LABEL[filter] : null}
+        tabs={
+          <nav aria-label="Filter by status" className="-mx-1 flex gap-1 overflow-x-auto px-1">
+            <FilterTab href="/admin/drills" on={!filter} label="All" count={all.length - counts.archived} />
+            {STATUSES.filter((s) => s !== 'archived' || counts.archived > 0).map((s) => (
+              <FilterTab key={s} href={`/admin/drills?status=${s}`} on={filter === s} label={STATUS_LABEL[s]} count={counts[s]} />
+            ))}
+          </nav>
+        }
+        empty={
+          <p className="rounded-md border border-dashed border-border-100 p-8 text-center text-sm text-ink-200">
+            No drills here. {filter ? 'Try another status.' : 'Add drill files to content/drills and run the seed script.'}
+          </p>
+        }
+        items={shown.map((d) => ({
+          id: d.id,
+          funName: d.funName,
+          plainName: d.plainName,
+          card: (
+            <Link
+              href={`/admin/drills/${d.id}`}
+              className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-4 rounded-md border border-border-100 p-3 hover:border-ink-200 sm:grid-cols-[160px_minmax(0,1fr)_auto]"
+            >
+              <Rink spec={d.diagram} title={d.funName} detail="thumb" className="rounded-sm" />
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="font-display text-lg font-bold leading-6">{d.funName}</span>
+                <span className="text-sm text-ink-200">
+                  {d.plainName} · <span className="font-mono">{d.minutes} min</span>
+                </span>
+                <span className="flex flex-wrap gap-1.5 pt-1 sm:hidden">
                   <StatusPill status={d.status} />
                   <DiagramFlag count={d.openRequests} />
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+                </span>
+                <span className="text-xs text-ink-200">{d.groupModel === 'basic' && d.levelCount > 1 ? `Together · ${d.levelCount} levels` : GROUP_MODEL_LABEL[d.groupModel]}</span>
+              </div>
+              <div className="hidden flex-col items-end gap-1.5 sm:flex">
+                <StatusPill status={d.status} />
+                <DiagramFlag count={d.openRequests} />
+              </div>
+            </Link>
+          ),
+        }))}
+      />
     </div>
   );
 }
