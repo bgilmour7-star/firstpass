@@ -433,7 +433,7 @@ export function Builder({
   // The ⋯ menu (design system: DrillActions): only the actions that apply to this block.
   // Swap only applies to a drill (or an old rotation); everything else gets a drill through "Change to".
   const canSwap = (b: Block): boolean => b.kind !== 'activity' && (Boolean(b.drillId && byId.has(b.drillId)) || isOldRotation(b));
-  // inPill: the desktop hover pill already shows Swap and Remove as buttons, so the ⋯ menu leaves them out.
+  // inPill: the desktop hover pill already shows Add after, Swap and Remove as buttons, so the ⋯ menu leaves them out.
   const menuFor = (b: Block, i: number, inPill = false): MenuItem[] => {
     const d = b.kind !== 'activity' && b.drillId ? byId.get(b.drillId) : undefined;
     const items: MenuItem[] = [];
@@ -452,7 +452,7 @@ export function Builder({
       });
     items.push({ label: 'Change to', icon: A.change, sub: changeTargets(b), note: 'Keeps the time slot and minutes' });
     items.push({ label: 'Duplicate', icon: A.duplicate, run: () => setBlocks((bs) => [...bs.slice(0, i + 1), { ...structuredClone(b), id: newId() }, ...bs.slice(i + 1)], { toast: `Duplicated ${name(b)}` }) });
-    items.push({ label: 'Add a drill after', icon: Icon.plus(16), run: () => openAdd(i + 1) });
+    if (!inPill) items.push({ label: 'Add a drill after', icon: Icon.plus(16), run: () => openAdd(i + 1) });
     if (i > 0) items.push({ label: 'Move to the start', icon: A.start, run: () => move(i, 0) });
     if (i < blocks.length - 1) items.push({ label: 'Move to the end', icon: A.end, run: () => move(i, blocks.length - 1) });
     if (d) items.push({ label: 'Open details', icon: A.details, run: () => setViewing(d.id) });
@@ -466,6 +466,9 @@ export function Builder({
       </button>
       <button type="button" aria-label="Move down" title="Move down" disabled={i === blocks.length - 1} onClick={() => move(i, i + 1)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200 disabled:opacity-30">
         {A.down}
+      </button>
+      <button type="button" aria-label={`Add a drill after ${name(b)}`} title="Add a drill after" onClick={() => openAdd(i + 1)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200">
+        {Icon.plus(16)}
       </button>
       {canSwap(b) && (
         <button type="button" aria-label="Swap for another drill" title="Swap for another drill" onClick={() => swapFor(b)} className="grid size-9 place-items-center rounded-full hover:bg-surface-200">
