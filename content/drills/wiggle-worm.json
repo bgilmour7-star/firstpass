@@ -1,0 +1,682 @@
+{
+  "id": "wiggle-worm",
+  "funName": "Wiggle Worm",
+  "plainName": "Weave around the cones, take a pass and shoot",
+  "sourceTitle": "Cone slalom, pass and shot",
+  "minutes": 8,
+  "gear": "Pucks, 5 cones",
+  "worksAsStation": false,
+  "description": "Set five cones in two staggered rows: three near the boards and two toward the middle, spread from the face-off circle to just before the blue line. Skaters line up in the corner. One at a time, wrap around each cone in turn, like a worm wiggling down the ice. After the last cone, the coach passes a puck; skate in and shoot. The next skater goes when the one ahead reaches the third cone.",
+  "steps": [
+    "Out of the corner, weave around all five cones.",
+    "Take a pass from the coach.",
+    "Skate in and shoot."
+  ],
+  "cues": [
+    "Lean into each turn.",
+    "Stick on the ice, ready for the pass.",
+    "Eyes on the net, then shoot."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Tight turns both ways around the cones."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Catching a pass from the coach, and the give-and-go in Level 2."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "A shot to finish."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Carrying the puck through the turns in Level 2."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Skate the cones, then a pass",
+  "levels": [
+    {
+      "name": "Puck the whole way, give-and-go",
+      "adds": "Carry a puck around every cone. After the last one, pass to the coach, keep skating, get it back, then shoot.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 8,
+            "y": 4
+          },
+          {
+            "role": "O",
+            "x": 4.5,
+            "y": 7.5
+          },
+          {
+            "role": "O",
+            "x": 3,
+            "y": 12
+          },
+          {
+            "role": "C",
+            "x": 71,
+            "y": 45
+          }
+        ],
+        "cones": [
+          {
+            "x": 18,
+            "y": 10.5
+          },
+          {
+            "x": 31,
+            "y": 22.5
+          },
+          {
+            "x": 44,
+            "y": 10.5
+          },
+          {
+            "x": 57,
+            "y": 22.5
+          },
+          {
+            "x": 70,
+            "y": 10.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 5,
+            "y": 17
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                10,
+                6
+              ],
+              [
+                14,
+                4.6
+              ],
+              [
+                18,
+                3.5
+              ],
+              [
+                19.5,
+                3.9
+              ],
+              [
+                21,
+                5.3
+              ],
+              [
+                22.5,
+                7.7
+              ],
+              [
+                24,
+                12.1
+              ],
+              [
+                25.5,
+                23.2
+              ],
+              [
+                27,
+                26.7
+              ],
+              [
+                28.5,
+                28.8
+              ],
+              [
+                30,
+                29.8
+              ],
+              [
+                31,
+                30.0
+              ],
+              [
+                32,
+                29.8
+              ],
+              [
+                33.5,
+                28.8
+              ],
+              [
+                35,
+                26.7
+              ],
+              [
+                36.5,
+                23.2
+              ],
+              [
+                38,
+                12.1
+              ],
+              [
+                39.5,
+                7.7
+              ],
+              [
+                41,
+                5.3
+              ],
+              [
+                42.5,
+                3.9
+              ],
+              [
+                44,
+                3.5
+              ],
+              [
+                45,
+                3.7
+              ],
+              [
+                46.5,
+                4.7
+              ],
+              [
+                48,
+                6.8
+              ],
+              [
+                49.5,
+                10.3
+              ],
+              [
+                51,
+                21.4
+              ],
+              [
+                52.5,
+                25.8
+              ],
+              [
+                54,
+                28.2
+              ],
+              [
+                55.5,
+                29.6
+              ],
+              [
+                57,
+                30.0
+              ],
+              [
+                58,
+                29.8
+              ],
+              [
+                59.5,
+                28.8
+              ],
+              [
+                61,
+                26.7
+              ],
+              [
+                62.5,
+                23.2
+              ],
+              [
+                64,
+                12.1
+              ],
+              [
+                65.5,
+                7.7
+              ],
+              [
+                67,
+                5.3
+              ],
+              [
+                68.5,
+                3.9
+              ],
+              [
+                70,
+                3.5
+              ],
+              [
+                72.5,
+                5
+              ],
+              [
+                74,
+                9
+              ],
+              [
+                74.5,
+                14
+              ],
+              [
+                72.5,
+                22
+              ],
+              [
+                69,
+                29
+              ]
+            ],
+            "step": 1,
+            "caption": "Out of the corner with a puck, weave around all five cones.",
+            "stepAt": 0.33,
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                69.5,
+                31.5
+              ],
+              [
+                70.5,
+                42
+              ]
+            ],
+            "step": 2,
+            "caption": "Pass to the coach and keep skating.",
+            "stepAt": 0.4,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                67,
+                32
+              ],
+              [
+                62,
+                38
+              ],
+              [
+                57,
+                42
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                68.5,
+                45.5
+              ],
+              [
+                56.5,
+                44
+              ]
+            ],
+            "step": 3,
+            "caption": "Get the pass back, skate in and shoot.",
+            "stepAt": 0.5,
+            "stepSide": "right"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                54,
+                43.5
+              ],
+              [
+                40,
+                42
+              ],
+              [
+                26,
+                41
+              ]
+            ],
+            "stepWith": 3
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                24,
+                40.5
+              ],
+              [
+                13,
+                42.5
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Coach request",
+    "url": null,
+    "note": "Sent to Brett by a coach with a whiteboard sketch; the route follows the sketch, with the cones spread out so the last is just before the blue line (Brett's call). Level 2 comes from the coach's description."
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 8,
+        "y": 4
+      },
+      {
+        "role": "O",
+        "x": 4.5,
+        "y": 7.5
+      },
+      {
+        "role": "O",
+        "x": 3,
+        "y": 12
+      },
+      {
+        "role": "C",
+        "x": 71,
+        "y": 45
+      }
+    ],
+    "cones": [
+      {
+        "x": 18,
+        "y": 10.5
+      },
+      {
+        "x": 31,
+        "y": 22.5
+      },
+      {
+        "x": 44,
+        "y": 10.5
+      },
+      {
+        "x": 57,
+        "y": 22.5
+      },
+      {
+        "x": 70,
+        "y": 10.5
+      }
+    ],
+    "piles": [
+      {
+        "x": 72,
+        "y": 50
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            10,
+            6
+          ],
+          [
+            14,
+            4.6
+          ],
+          [
+            18,
+            3.5
+          ],
+          [
+            19.5,
+            3.9
+          ],
+          [
+            21,
+            5.3
+          ],
+          [
+            22.5,
+            7.7
+          ],
+          [
+            24,
+            12.1
+          ],
+          [
+            25.5,
+            23.2
+          ],
+          [
+            27,
+            26.7
+          ],
+          [
+            28.5,
+            28.8
+          ],
+          [
+            30,
+            29.8
+          ],
+          [
+            31,
+            30.0
+          ],
+          [
+            32,
+            29.8
+          ],
+          [
+            33.5,
+            28.8
+          ],
+          [
+            35,
+            26.7
+          ],
+          [
+            36.5,
+            23.2
+          ],
+          [
+            38,
+            12.1
+          ],
+          [
+            39.5,
+            7.7
+          ],
+          [
+            41,
+            5.3
+          ],
+          [
+            42.5,
+            3.9
+          ],
+          [
+            44,
+            3.5
+          ],
+          [
+            45,
+            3.7
+          ],
+          [
+            46.5,
+            4.7
+          ],
+          [
+            48,
+            6.8
+          ],
+          [
+            49.5,
+            10.3
+          ],
+          [
+            51,
+            21.4
+          ],
+          [
+            52.5,
+            25.8
+          ],
+          [
+            54,
+            28.2
+          ],
+          [
+            55.5,
+            29.6
+          ],
+          [
+            57,
+            30.0
+          ],
+          [
+            58,
+            29.8
+          ],
+          [
+            59.5,
+            28.8
+          ],
+          [
+            61,
+            26.7
+          ],
+          [
+            62.5,
+            23.2
+          ],
+          [
+            64,
+            12.1
+          ],
+          [
+            65.5,
+            7.7
+          ],
+          [
+            67,
+            5.3
+          ],
+          [
+            68.5,
+            3.9
+          ],
+          [
+            70,
+            3.5
+          ],
+          [
+            72.5,
+            5
+          ],
+          [
+            74,
+            9
+          ],
+          [
+            74.5,
+            14
+          ],
+          [
+            72.5,
+            22
+          ],
+          [
+            68.5,
+            30.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Out of the corner, weave around all five cones.",
+        "stepAt": 0.33,
+        "stepSide": "right"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            69.5,
+            42.5
+          ],
+          [
+            67,
+            35
+          ]
+        ],
+        "step": 2,
+        "caption": "Take a pass from the coach."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            66,
+            34.5
+          ],
+          [
+            52,
+            37.5
+          ],
+          [
+            38,
+            39.5
+          ],
+          [
+            26,
+            40
+          ]
+        ],
+        "step": 3,
+        "caption": "Skate in and shoot."
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            24,
+            40.5
+          ],
+          [
+            13,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "live",
+  "ageGroups": [
+    "U7",
+    "U9"
+  ]
+}

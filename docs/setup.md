@@ -16,7 +16,7 @@ Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace 
    Then **Authentication → Sign In / Providers → Email:** Confirm email on, minimum password length 8, email OTP length 6, OTP expiry 3600 seconds.
 5. **Authentication → Emails → SMTP Settings:** sign-in emails go out through Resend (free: 3,000 a month, 100 a day), with `firstpass.coach` verified there. Host `smtp.resend.com`, port `465`, username `resend`, password a Resend API key with sending access, sender email `hello@firstpass.coach`, sender name `Firstpass`. Then **Authentication → Rate Limits:** emails per hour 30.
 6. **Check-in emails (decision 0010):** in Vercel, add the environment variable `RESEND_API_KEY` (a Resend key with sending access) and redeploy. Then run `supabase/migrations/20261021000000_checkin_emails.sql` in the SQL editor: it adds the email tables and starts a 10-minute timer that calls `https://firstpass.coach/api/cron/checkin-emails`. To stop the timer: `select cron.unschedule('firstpass-checkin-emails');`.
-7. **Landing page and waitlist (decision 0019):** run `supabase/migrations/20261026000000_waitlist_and_analytics.sql` in the SQL editor. It adds the waitlist and visit tables and lets `brett@paddio.ca` see Admin → Analytics (to let another admin see it: `update public.admins set analytics = true where email = '…';`). Waitlist alerts go to hello@firstpass.coach: set up forwarding for that address at your email host (it's a sending domain in Resend, not an inbox), or set the Vercel env var `WAITLIST_ALERT_TO` to another address.
+7. **Landing page and waitlist (decision 0019):** run `supabase/migrations/20261026000000_waitlist_and_analytics.sql` in the SQL editor. It adds the waitlist and visit tables and lets Brett see Admin → Analytics (the migration names an old address; the live admin row is `bgilmour7@gmail.com`) (to let another admin see it: `update public.admins set analytics = true where email = '…';`). Waitlist alerts go to hello@firstpass.coach: set up forwarding for that address at your email host (it's a sending domain in Resend, not an inbox), or set the Vercel env var `WAITLIST_ALERT_TO` to another address.
 8. **Continue with Google (decision 0033):**
    - **Google Cloud Console → APIs & Services → OAuth consent screen:** External, app name `Firstpass`, support email, logo optional, authorised domain `firstpass.coach`, scopes `openid`, `email`, `profile`. Publish it (In production), so any Google account can sign in, not just test users.
    - **Credentials → Create credentials → OAuth client ID:** Web application. Authorised JavaScript origins `https://firstpass.coach`. Authorised redirect URI: the **Callback URL** Supabase shows on its Google provider page (`https://<project-ref>.supabase.co/auth/v1/callback`).
@@ -29,7 +29,7 @@ Production: https://firstpass.coach (`www.` redirects to it; DNS at Squarespace 
 2. You'll land on "Admins only". In the SQL editor:
    ```sql
    insert into public.admins (user_id, email)
-   select id, email from auth.users where email = 'brett@paddio.ca';
+   select id, email from auth.users where email = 'bgilmour7@gmail.com';
    ```
 3. Reload. Repeat for the head coach after they've signed in once.
 
