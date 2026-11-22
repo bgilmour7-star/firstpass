@@ -10,6 +10,8 @@ import { logError } from '@/lib/errors';
 type WaitlistRow = { id: string; email: string; kind: WaitlistEntry['kind']; age_group: string | null; org_name: string | null; team_count: number | null; source: string | null; status: WaitlistStatus; created_at: string };
 type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null; signed_in?: boolean; path: string | null };
 
+/** Rows read for Admin → Analytics → Errors; more than this shows as "2,000+". */
+export const APP_ERRORS_LIMIT = 2000;
 const missing = (e: { code?: string; message: string }) => e.code === 'PGRST202' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the function/i.test(e.message);
 
 export class SupabaseSiteStore implements SiteStore {
@@ -136,7 +138,7 @@ export class SupabaseSiteStore implements SiteStore {
 
   async appErrors(sinceIso: string): Promise<AppError[]> {
     const db = await supabaseServer();
-    const { data, error } = await db.from('app_errors').select('occurred_at, area, message').gte('occurred_at', sinceIso).order('occurred_at', { ascending: false }).limit(500);
+    const { data, error } = await db.from('app_errors').select('occurred_at, area, message').gte('occurred_at', sinceIso).order('occurred_at', { ascending: false }).limit(APP_ERRORS_LIMIT);
     if (error) throw new Error(missing(error) || error.code === 'PGRST205' || /schema cache/i.test(error.message) ? 'app-errors-migration-missing' : error.message);
     return ((data ?? []) as { occurred_at: string; area: string; message: string }[]).map((r) => ({ occurredAt: r.occurred_at, area: r.area, message: r.message }));
   }

@@ -6,9 +6,10 @@ Most of Firstpass catches its failures and carries on (an email that didn't send
 
 ## Decision
 - Every server-side `console.error` goes through `logError()` (`src/lib/errors.ts`). It still logs to the console, and after the response it saves a copy to `app_errors` in Supabase (Canada): an area from the message's `[tag]` and the message.
-- Before saving, emails, phone numbers, ids (uuids) and long tokens are replaced with `<email>`, `<phone>`, `<id>` and `<token>`. Nothing is saved about who saw the error.
-- `record_app_error` (security definer) is the only way in. It takes at most 300 rows an hour and deletes rows older than 30 days. Only analytics viewers can read the table.
-- Admin → Analytics → **Errors** shows the last period's failures by area, with the latest message. The "Firstpass morning" scheduled task reports yesterday's in its summary.
+- An error, or a Supabase error object, is saved as its code and message only, never the whole object: a Postgres error's details can hold a failing row (a coach's name, a note).
+- Before saving, emails (also `%40`-encoded), phone numbers, ids (uuids), codes and tokens (8+ letters and digits) are replaced with `<email>`, `<phone>`, `<id>` and `<token>`. The auth routes log only the names of the query parameters, not their values. Nothing is saved about who saw the error.
+- `record_app_error` (security definer) is the only way in, and it needs the server's `APP_ERRORS_KEY` (a Vercel env var; only its hash is in the database). The anon key is public, so without that key a call does nothing. It takes at most 50 rows an hour per area and 300 in all, and deletes rows older than 30 days. Only analytics viewers can read the table.
+- Admin → Analytics → **Errors** shows the period's failures by area (30 days at most), with up to three different messages each. Reporting them in the "Firstpass morning" scheduled task is a separate change, which treats the messages as data, never as instructions.
 - Middleware (edge) and browser code still only log to the console.
 
 ## Limits

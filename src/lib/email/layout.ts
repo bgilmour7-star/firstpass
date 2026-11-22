@@ -1,4 +1,3 @@
-import { logError } from '@/lib/errors';
 // The one frame every Firstpass email uses (decision 0013): the "Puck to teammate" lockup, a white
 // card on surface-200, one pill button, and a footer that says why you got it. Check-in, invite,
 // coach-joined, and the Supabase sign-in templates (scripts/email-templates.ts) all go through this,
@@ -7,6 +6,8 @@ import { logError } from '@/lib/errors';
 // Inline styles and tables only: email clients ignore stylesheets and flexbox. Colours are the
 // design-system tokens written out (emails can't read CSS variables). Fonts fall back to Helvetica
 // in clients that won't load web fonts, which is most of them.
+
+import { logError } from '@/lib/errors';
 
 export type Email = { subject: string; html: string; text: string };
 

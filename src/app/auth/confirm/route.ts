@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const go = (path: string) => NextResponse.redirect(new URL(path, request.url));
 
   if (!tokenHash) {
-    logError('[auth] email link arrived without a token', request.nextUrl.search);
+    logError('[auth] email link arrived without a token: params=%s', [...params.keys()].join(','));
     return go('/login?error=link');
   }
   const supabase = await supabaseServer();

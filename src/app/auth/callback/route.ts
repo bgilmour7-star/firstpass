@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   // Google sends the coach back with an error when they cancel or it refuses (?error=access_denied).
   if (!code) {
-    logError('[auth] sign-in returned without a code', request.nextUrl.search);
+    logError('[auth] sign-in returned without a code: error=%s params=%s', params.get('error_code') ?? params.get('error') ?? '', [...params.keys()].join(','));
     return back(params.get('error') ?? 'missing_token');
   }
   const supabase = await supabaseServer();
