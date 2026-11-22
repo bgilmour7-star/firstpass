@@ -1,4 +1,5 @@
 import type { PageEvent, WaitlistEntry } from './schema';
+import type { AccountSource } from './store';
 import { ANSWER_PAGES, HUBS } from '@/lib/content/pages';
 import { EMAIL_REF } from '@/lib/broadcasts/ref';
 
@@ -293,4 +294,40 @@ export function summarizeGrowth(g: { teams: string[]; coaches: string[]; account
     coaches: metric(g.coaches),
     daily: [...new Set(days)].map((day) => ({ day, teams: upTo(g.teams, day), coaches: upTo(g.coaches, day) })),
   };
+}
+
+/** One row of "Where accounts came from" (decision 0052): a channel's new accounts and how far they got. */
+export type SourceRow = { label: string; accounts: number; madeTeam: number; ranPractice: number; pages: string[] };
+
+/**
+ * New accounts in the period by the channel of the visit that led to them (decision 0052). Invited coaches have
+ * their own row (they join a team rather than make one), and accounts with no same-day visit are "Not traced".
+ */
+export function summarizeAccountSources(rows: AccountSource[], opts: { days: number; now?: Date }): { rows: SourceRow[]; total: number } {
+  const end = (opts.now ?? new Date()).getTime();
+  const start = end - opts.days * DAY;
+  const inWin = rows.filter((r) => {
+    const ms = Date.parse(r.createdAt);
+    return ms > start && ms <= end;
+  });
+  const groups = new Map<string, AccountSource[]>();
+  for (const r of inWin) {
+    const key = r.invited ? 'Invited to a team' : r.traced ? channelOf(r.source) : 'Not traced';
+    groups.set(key, [...(groups.get(key) ?? []), r]);
+  }
+  const rank = (label: string) => (label === 'Invited to a team' ? 2 : label === 'Not traced' ? 1 : 0);
+  const out = [...groups.entries()]
+    .map(([label, list]) => ({
+      label,
+      accounts: list.length,
+      madeTeam: list.filter((r) => r.madeTeam).length,
+      ranPractice: list.filter((r) => r.ranPractice).length,
+      // The pages these accounts first landed on, most common first.
+      pages: [...list.reduce((m, r) => (r.landing ? m.set(pageOf(r.landing), (m.get(pageOf(r.landing)) ?? 0) + 1) : m), new Map<string, number>()).entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([path]) => PAGE_LABEL.get(path) ?? path),
+    }))
+    // Channels by accounts, then Not traced, then invited coaches.
+    .sort((a, b) => rank(a.label) - rank(b.label) || b.accounts - a.accounts);
+  return { rows: out, total: inWin.length };
 }

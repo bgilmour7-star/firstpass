@@ -33,6 +33,14 @@ export async function hasSession(): Promise<boolean> {
   return Boolean(data.user);
 }
 
+/** Whether this sign-in is the one that made the account (see NEW_ACCOUNT_MS). */
+export function isNewAccount(user: { created_at?: string | null; email_confirmed_at?: string | null }, now = Date.now()): boolean {
+  return [user.created_at, user.email_confirmed_at].some((t) => {
+    const ms = t ? Date.parse(t) : NaN;
+    return Number.isFinite(ms) && now - ms < NEW_ACCOUNT_MS;
+  });
+}
+
 /**
  * Note a sign-in on the visit counts (decision 0051), under the same daily visitor id as the browser's
  * page views: account_created for a brand-new account (a lead converting), sign_in for anyone else (a
@@ -42,11 +50,7 @@ export async function recordSignIn(user: { created_at?: string | null; email_con
   try {
     const v = opts.visit ?? (await visit());
     if (v.bot) return;
-    const now = opts.now ?? Date.now();
-    const isNew = [user.created_at, user.email_confirmed_at].some((t) => {
-      const ms = t ? Date.parse(t) : NaN;
-      return Number.isFinite(ms) && now - ms < NEW_ACCOUNT_MS;
-    });
+    const isNew = isNewAccount(user, opts.now);
     const name = isNew ? 'account_created' : 'sign_in';
     // An invited coach's new account is on /join: the lead funnel leaves those out (they didn't come from the site).
     const path = isNew ? (opts.joinCode && JOIN_CODE.test(opts.joinCode) ? '/join' : '/signup') : '/login';
