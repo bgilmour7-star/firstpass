@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const next = navPractice(team ? await teamPractices(team.id).catch(() => []) : []);
   return (
     <AppShell email={admin.email} isAdmin local={admin.local} teamName={team?.name} next={next} reviewCount={reviewCount} analytics={admin.analytics} initialCollapsed={jar.get(NAV_COOKIE)?.value === 'collapsed'}>
-      {/* Brett's pages: Analytics, Leads, Survey, Coaches, Emails (decision 0027). */}
+      {/* Tabs only where two pages pair up: Leads with Survey, Emails with Send (decision 0050). */}
       {admin.analytics && <AdminTabs />}
       {children}
     </AppShell>

@@ -3,24 +3,30 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// Brett's pages under Admin (decisions 0019, 0027): Analytics, Leads, Survey, Coaches, Emails, Send (decision 0035).
-// Shown only on those pages; drill review keeps its own screen.
-const TABS = [
-  { href: '/admin/analytics', label: 'Analytics' },
-  { href: '/admin/leads', label: 'Leads' },
-  { href: '/admin/survey', label: 'Survey' },
-  { href: '/admin/coaches', label: 'Coaches' },
-  { href: '/admin/emails', label: 'Emails' },
-  { href: '/admin/send', label: 'Send' },
+// Admin pages each have their own item in the left nav, under the Admin heading (decision 0050).
+// Two of them pair with a sibling page, shown as tabs at the top: Leads with Survey (the waitlist
+// survey's answers), and Emails with Send. The other pages have no tabs.
+const GROUPS = [
+  [
+    { href: '/admin/leads', label: 'Leads' },
+    { href: '/admin/survey', label: 'Survey' },
+  ],
+  [
+    { href: '/admin/emails', label: 'All emails' },
+    { href: '/admin/send', label: 'Send' },
+  ],
 ];
+
+const under = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
 export function AdminTabs() {
   const path = usePathname();
-  if (!TABS.some((t) => path === t.href || path.startsWith(`${t.href}/`))) return null;
+  const tabs = GROUPS.find((g) => g.some((t) => under(path, t.href)));
+  if (!tabs) return null;
   return (
-    <nav aria-label="Brett’s pages" className="-mt-1 mb-6 flex gap-5 overflow-x-auto border-b border-border-100 text-sm">
-      {TABS.map((t) => {
-        const on = path === t.href || path.startsWith(`${t.href}/`);
+    <nav aria-label="This section" className="-mt-1 mb-6 flex gap-5 overflow-x-auto border-b border-border-100 text-sm">
+      {tabs.map((t) => {
+        const on = under(path, t.href);
         return (
           <Link
             key={t.href}
