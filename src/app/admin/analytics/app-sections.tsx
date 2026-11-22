@@ -1,5 +1,6 @@
 import { change } from '@/lib/site/summary';
 import type { Usage } from '@/lib/site/usage';
+import { ACTIVATION_DAYS, type Activation, type WeekCell } from '@/lib/site/activation';
 import { METRIC_INFO, formatVital, rate, type MetricName, type Rating, type SpeedSummary } from '@/lib/site/vitals';
 
 // Admin → Analytics, the two sections from decision 0029: how coaches use the app, and how fast
@@ -290,6 +291,94 @@ export function Speed({ s, missing }: { s: SpeedSummary; missing: boolean }) {
                 , by Google’s Core Web Vitals lines.
               </p>
             </section>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+const shortWeek = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+const CELL: Record<WeekCell, { cls: string; say: string }> = {
+  before: { cls: '', say: 'not made yet' },
+  quiet: { cls: 'border border-border-100', say: 'quiet' },
+  active: { cls: 'border-2 border-rink-100', say: 'opened or planned' },
+  checkin: { cls: 'bg-rink-100', say: 'checked in' },
+};
+
+/** Activation and retention (decision 0053): does a new team run a practice in its first week, and does it come back? */
+export function ActivationSection({ a, missing }: { a: Activation; missing: boolean }) {
+  const { teams, yes } = a.activated;
+  return (
+    <section aria-labelledby="activation-title" className="flex scroll-mt-6 flex-col gap-8" id="activation">
+      <SectionTitle id="activation-title" title="Activation and retention" sub={`Does a new team run a practice in its first ${ACTIVATION_DAYS} days, and does it keep coming back? All teams, week by week (weeks start Monday). Only coaches’ use counts: admins’ own use and teams with only admins on them are left out.`} />
+      {missing ? (
+        <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
+          Not set up yet: its database change hasn’t run.
+        </p>
+      ) : a.teams.length === 0 ? (
+        <p className="text-sm text-ink-200">No teams yet.</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-6">
+            <Tile label={`Ran a practice in ${ACTIVATION_DAYS} days`} value={teams ? `${yes} of ${teams}` : '–'} note={teams ? 'new teams, checked in after a practice' : 'no team is a week old yet'} />
+            <Tile label="Days to first practice" value={a.medianDays === null ? '–' : String(a.medianDays)} note={`middle value · ${plural(a.neverCheckedIn, 'team')} never checked in`} />
+            <Tile label="Active this week" value={String(a.activeThisWeek)} note={`${a.activeLastWeek} last week`} />
+            <Tile label="Came back" value={a.activeLastWeek ? `${a.cameBack} of ${a.activeLastWeek}` : '–'} note="last week’s active teams, active again this week" />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+              <h3 className="text-lg font-semibold">Each team, week by week</h3>
+              <span className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-ink-200" aria-hidden="true">
+                {(['checkin', 'active', 'quiet'] as WeekCell[]).map((c) => (
+                  <span key={c} className="inline-flex items-center gap-1.5">
+                    <span className={`size-3 rounded-[3px] ${CELL[c].cls}`} /> {c === 'checkin' ? 'Checked in' : c === 'active' ? 'Opened or planned' : 'Quiet'}
+                  </span>
+                ))}
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="border-collapse text-sm tabular-nums">
+                <thead>
+                  <tr className="text-left text-xs text-ink-200">
+                    <th scope="col" className="pb-2 pr-4 font-medium">
+                      Team
+                    </th>
+                    {/* One label per four weeks, over the week it names, keeps the header readable. */}
+                    {a.weeks.map((w, i) =>
+                      i % 4 === 0 ? (
+                        <th key={w} scope="col" colSpan={Math.min(4, a.weeks.length - i)} className="whitespace-nowrap px-0.5 pb-2 text-left font-medium">
+                          {shortWeek(w)}
+                        </th>
+                      ) : null,
+                    )}
+                    <th scope="col" className="pb-2 pl-4 text-right font-medium">
+                      Active
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {a.teams.map((t, r) => (
+                    <tr key={r} className="border-t border-border-100">
+                      <th scope="row" className="whitespace-nowrap py-2 pr-4 text-left font-normal">
+                        {t.label} <span className="text-ink-200">· made {shortWeek(t.madeDay)}</span>
+                      </th>
+                      {t.cells.map((c, i) => (
+                        <td key={a.weeks[i]} className="w-5 px-0.5 py-2 text-left">
+                          <span aria-hidden="true" title={`Week of ${shortWeek(a.weeks[i])}: ${CELL[c].say}`} className={`inline-block size-4 rounded-[4px] align-middle ${CELL[c].cls}`} />
+                          <span className="sr-only">{`Week of ${shortWeek(a.weeks[i])}: ${CELL[c].say}`}</span>
+                        </td>
+                      ))}
+                      <td className="whitespace-nowrap py-2 pl-4 text-right font-mono">
+                        {t.activeWeeks} of {plural(t.ageWeeks, 'wk', 'wks')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-ink-200">Active means a coach on the team opened the app, changed a plan or checked in that week. Admins’ own use (Brett and the head coach) doesn’t count. Rows show the age group and the day the team was made, never its name.</p>
           </div>
         </>
       )}

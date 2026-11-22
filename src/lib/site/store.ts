@@ -33,7 +33,12 @@ export interface SiteStore {
   growth(): Promise<Growth>;
   /** Accounts made since then, where each came from and how far it got (decision 0052). No ids or emails. Throws 'account-sources-migration-missing' before its SQL. */
   accountSources(sinceIso: string): Promise<AccountSource[]>;
+  /** Every team (not admin-only), all time: when made, age group, first check-in, active weeks (decision 0053). Throws 'team-weeks-migration-missing' before its SQL. */
+  teamWeeks(): Promise<TeamWeeks[]>;
 }
+
+/** One team, unnamed: its active weeks are Mondays (Vancouver), with whether that week had a check-in. */
+export type TeamWeeks = { createdAt: string; ageGroup: string | null; firstCheckinAt: string | null; weeks: { week: string; checkedIn: boolean }[] };
 
 /** One account: its same-day visit (traced) if any, and whether its coach made a team and ran a practice. */
 export type AccountSource = { createdAt: string; invited: boolean; traced: boolean; source: string | null; landing: string | null; madeTeam: boolean; ranPractice: boolean };

@@ -4,7 +4,7 @@ import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } 
 import type { UsageRows } from './usage';
 import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
-import type { Growth, NewEvent, SiteStore, AccountSource } from './store';
+import type { Growth, NewEvent, SiteStore, AccountSource, TeamWeeks } from './store';
 
 type WaitlistRow = { id: string; email: string; kind: WaitlistEntry['kind']; age_group: string | null; org_name: string | null; team_count: number | null; source: string | null; status: WaitlistStatus; created_at: string };
 type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null; signed_in?: boolean; path: string | null };
@@ -131,6 +131,14 @@ export class SupabaseSiteStore implements SiteStore {
     if (error) throw new Error(missing(error) ? 'account-sources-migration-missing' : error.message);
     type Row = { created_at: string; invited: boolean; traced: boolean; source: string | null; landing: string | null; made_team: boolean; ran_practice: boolean };
     return ((data ?? []) as Row[]).map((r) => ({ createdAt: r.created_at, invited: r.invited, traced: r.traced, source: r.source, landing: r.landing, madeTeam: r.made_team, ranPractice: r.ran_practice }));
+  }
+
+  async teamWeeks(): Promise<TeamWeeks[]> {
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc('team_weeks');
+    if (error) throw new Error(missing(error) ? 'team-weeks-migration-missing' : error.message);
+    type Row = { created_at: string; age_group: string | null; first_checkin_at: string | null; weeks: { week: string; checkedIn: boolean }[] };
+    return ((data ?? []) as Row[]).map((r) => ({ createdAt: r.created_at, ageGroup: r.age_group, firstCheckinAt: r.first_checkin_at, weeks: r.weeks ?? [] }));
   }
 
   async growth(): Promise<Growth> {
