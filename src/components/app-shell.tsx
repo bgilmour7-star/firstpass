@@ -250,9 +250,10 @@ function Nav({
   ];
   const fade = `transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-100' : 'opacity-0'}`;
   const row = 'relative grid h-11 grid-cols-[24px_minmax(0,1fr)] items-center gap-3 whitespace-nowrap rounded-[10px] px-[10px] text-[15px]';
-  const link = (href: string, label: string, icon: React.ReactNode, sub?: string, badge = 0) => {
+  const link = (href: string, label: string, icon: React.ReactNode, sub?: string, badge = 0, also: string[] = []) => {
     // /team/new is Create a team and /team/settings has its own item, not Home.
-    const on = (path === href || path.startsWith(href + '/')) && !(href === '/team' && (path === '/team/new' || path.startsWith('/team/settings')));
+    // also: sibling pages that live under this item (Survey under Leads, Send under Emails).
+    const on = [href, ...also].some((h) => path === h || path.startsWith(h + '/')) && !(href === '/team' && (path === '/team/new' || path.startsWith('/team/settings')));
     return (
       <Link key={href} href={href} onClick={onNavigate} aria-current={on ? 'page' : undefined} aria-label={expanded ? (badge ? `${label}, ${badge} waiting` : undefined) : sub ? `${label}, ${sub}` : badge ? `${label}, ${badge} waiting` : label} className={`${row} isolate ${sub ? 'h-[52px]' : ''} ${on ? 'bg-ink-100 text-surface-100' : 'text-ink-100 hover:bg-surface-300'}`}>
         {!on && <LinkPending />}
@@ -319,9 +320,21 @@ function Nav({
         {items.map((i) => link(i.href, i.label, i.icon, 'sub' in i ? i.sub : undefined))}
         {isAdmin && (
           <>
-            <div aria-hidden="true" className="mx-[10px] my-2.5 h-px bg-border-100" />
+            {/* Admin (decision 0050): a heading when the menu is open, a line when it's collapsed. */}
+            <div className="relative mx-[10px] mb-1 mt-4 h-5">
+              <div aria-hidden="true" className={`absolute inset-x-0 top-1/2 h-px bg-border-100 transition-opacity duration-150 motion-reduce:transition-none ${expanded ? 'opacity-0' : 'opacity-100'}`} />
+              <h2 className={`whitespace-nowrap font-mono text-xs font-medium uppercase tracking-[0.08em] text-ink-200 ${fade}`}>Admin</h2>
+            </div>
             {link('/admin/drills', 'Drill review', <Icon d="M7 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 4V3h6v1M9 13l2 2 4-4.5" />, undefined, reviewCount)}
-            {analytics && link('/admin/analytics', 'Analytics', <Icon d="M4 20h16M6 16l4-5 3 3 5-7" />)}
+            {/* Brett's pages (requireAnalytics): leads and emails hold personal emails (decision 0019). */}
+            {analytics && (
+              <>
+                {link('/admin/analytics', 'Analytics', <Icon d="M4 20h16M6 16l4-5 3 3 5-7" />)}
+                {link('/admin/leads', 'Leads', <Icon d="M4 5h16l-6 7.5V19l-4 1.5v-8L4 5Z" />, undefined, 0, ['/admin/survey'])}
+                {link('/admin/coaches', 'Coaches', <Icon d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.8 2.7 2.6 3 5.2" />)}
+                {link('/admin/emails', 'Emails', <Icon d="M3.5 6.5h17v11h-17zM3.5 7l8.5 6.5L20.5 7" />, undefined, 0, ['/admin/send'])}
+              </>
+            )}
           </>
         )}
       </nav>
