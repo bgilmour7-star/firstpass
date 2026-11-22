@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireAnalytics } from '@/lib/auth';
 import { getSiteStore } from '@/lib/site/store';
-import { change, summarize, summarizeGrowth, type GrowthSummary, type Summary } from '@/lib/site/summary';
+import { change, summarize, summarizeGrowth, type FunnelStep, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
 import { InTheApp, SectionTitle, Speed } from './app-sections';
 import { ProgressScoring } from './progress-section';
@@ -124,19 +124,17 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       )}
 
       <div id="site" className="-mb-3 scroll-mt-6">
-        <SectionTitle id="site-title" first title="Public site" sub="Visits to firstpass.coach (the landing page and the answer pages) and taps on Plan your first practice, counted without cookies. New accounts are counted in the app, so they include coaches who came another way." />
+        <SectionTitle id="site-title" first title="Public site" sub="Visits to firstpass.coach (the landing page and the answer pages), counted without cookies. Returning visitors are coaches who were signed in, or signed in that day in the same browser; everyone else is a lead. A lead who makes an account stays a lead: that's the conversion." />
       </div>
       <Headline s={s} />
       <VisitsChart s={s} />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-14 gap-y-10">
-        <Funnel s={s} />
-        <Sources s={s} />
-      </div>
+      <Funnel s={s} />
+      <Pages s={s} />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-14 gap-y-10">
-        <Pages s={s} />
         <Channels s={s} />
+        <Sources s={s} />
       </div>
 
       <Who s={s} />
@@ -151,14 +149,15 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 function Headline({ s }: { s: Summary }) {
   const prev = `vs previous ${s.days} days`;
   const tiles = [
-    { label: 'Visits', value: s.visits.now.toLocaleString('en-CA'), delta: change(s.visits.now, s.visits.before, 'percent'), note: prev },
-    { label: 'Unique visitors', value: s.uniques.now.toLocaleString('en-CA'), delta: change(s.uniques.now, s.uniques.before, 'percent'), note: 'counted per day' },
+    { label: 'Lead visitors', value: s.leads.now.toLocaleString('en-CA'), delta: change(s.leads.now, s.leads.before, 'percent'), note: prev },
+    { label: 'Returning visitors', value: s.returning.now.toLocaleString('en-CA'), delta: change(s.returning.now, s.returning.before, 'percent'), note: 'signed-in coaches' },
+    { label: 'Visits', value: s.visits.now.toLocaleString('en-CA'), delta: change(s.visits.now, s.visits.before, 'percent'), note: 'page views, everyone' },
     { label: 'New accounts', value: String(s.accounts.now), delta: change(s.accounts.now, s.accounts.before, 'count'), note: prev },
     {
-      label: 'Visitors who tapped',
-      value: pct(s.funnel[0].visitors ? s.funnel[1].visitors / s.funnel[0].visitors : null),
+      label: 'Leads who made an account',
+      value: pct(s.funnel[0].count ? s.funnel[3].count / s.funnel[0].count : null),
       delta: null,
-      note: 'Plan your first practice ÷ unique visitors',
+      note: 'traced to a visit the same day',
     },
   ];
   return (
@@ -185,23 +184,33 @@ function niceMax(n: number) {
 function VisitsChart({ s }: { s: Summary }) {
   const W = 800, H = 200, L = 36, R = 12, T = 12, B = 28;
   const n = s.daily.length;
-  const max = niceMax(Math.max(...s.daily.map((d) => d.visits), 1));
+  const max = niceMax(Math.max(...s.daily.map((d) => Math.max(d.leads, d.returning)), 1));
   const x = (i: number) => L + (n > 1 ? (i * (W - L - R)) / (n - 1) : (W - L - R) / 2);
   const y = (v: number) => T + (H - T - B) * (1 - v / max);
-  const line = s.daily.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(d.visits).toFixed(1)}`).join(' ');
+  const path = (pick: (d: Summary['daily'][number]) => number) => s.daily.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(pick(d)).toFixed(1)}`).join(' ');
+  const peakLeads = s.daily.reduce<{ i: number; n: number } | null>((best, d, i) => (d.leads > 0 && (!best || d.leads > best.n) ? { i, n: d.leads } : best), null);
   const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f));
   const ticks = [...new Set([0, Math.round((n - 1) / 4), Math.round((n - 1) / 2), Math.round((3 * (n - 1)) / 4), n - 1])];
-  const peakIdx = s.peak ? s.daily.findIndex((d) => d.day === s.peak!.day) : -1;
   const maxSign = Math.max(...s.daily.map((d) => d.accounts), 1);
   const slot = (W - L - R) / Math.max(n - 1, 1);
-  const describe = s.peak ? `Peak of ${s.peak.visits} on ${shortDay(s.peak.day)}.` : 'No visits yet.';
+  const describe = peakLeads ? `Most leads: ${peakLeads.n} on ${shortDay(s.daily[peakLeads.i].day)}. ${s.leads.now} leads and ${s.returning.now} returning in all.` : 'No lead visitors yet.';
 
   return (
     <section aria-labelledby="visits-title" className="flex flex-col gap-2.5">
-      <h2 id="visits-title" className="text-lg font-semibold">
-        Visits per day
-      </h2>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`Visits per day, ${shortDay(s.from)} to ${shortDay(s.to)}. ${describe}`} className="block overflow-visible">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <h2 id="visits-title" className="text-lg font-semibold">
+          Visitors per day
+        </h2>
+        <span className="flex gap-4 text-[13px] text-ink-200" aria-hidden="true">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-0.5 w-4 rounded bg-rink-100" /> Leads
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-4 border-t-2 border-dashed border-ink-200" /> Returning
+          </span>
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`Unique visitors per day, leads and returning, ${shortDay(s.from)} to ${shortDay(s.to)}. ${describe}`} className="block overflow-visible">
         <g stroke="var(--border-100)" strokeWidth="1">
           {grid.map((g) => (
             <path key={g} d={`M${L} ${y(g)}H${W - R}`} />
@@ -221,19 +230,20 @@ function VisitsChart({ s }: { s: Summary }) {
             </text>
           ))}
         </g>
-        <path d={line} fill="none" stroke="var(--rink-100)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        {peakIdx >= 0 && (
+        <path d={path((d) => d.returning)} fill="none" stroke="var(--ink-200)" strokeWidth="1.5" strokeDasharray="4 4" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={path((d) => d.leads)} fill="none" stroke="var(--rink-100)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        {peakLeads && (
           <>
-            <circle cx={x(peakIdx)} cy={y(s.peak!.visits)} r="5" fill="var(--rink-100)" stroke="var(--surface-100)" strokeWidth="2" />
-            <text x={x(peakIdx) + (peakIdx > n / 2 ? -12 : 12)} y={y(s.peak!.visits) + 4} textAnchor={peakIdx > n / 2 ? 'end' : 'start'} fontSize="12" fill="var(--ink-100)">
-              {shortDay(s.peak!.day)} · {s.peak!.visits} visits
+            <circle cx={x(peakLeads.i)} cy={y(peakLeads.n)} r="5" fill="var(--rink-100)" stroke="var(--surface-100)" strokeWidth="2" />
+            <text x={x(peakLeads.i) + (peakLeads.i > n / 2 ? -12 : 12)} y={y(peakLeads.n) + 4} textAnchor={peakLeads.i > n / 2 ? 'end' : 'start'} fontSize="12" fill="var(--ink-100)">
+              {shortDay(s.daily[peakLeads.i].day)} · {peakLeads.n} lead{peakLeads.n === 1 ? '' : 's'}
             </text>
           </>
         )}
         {/* Hover targets wider than the line, one per day, with the day's numbers. */}
         {s.daily.map((d, i) => (
           <rect key={d.day} x={x(i) - slot / 2} y={T} width={slot} height={H - T - B} fill="transparent">
-            <title>{`${shortDay(d.day)}: ${d.visits} visits, ${d.accounts} new account${d.accounts === 1 ? '' : 's'}`}</title>
+            <title>{`${shortDay(d.day)}: ${d.leads} lead${d.leads === 1 ? '' : 's'}, ${d.returning} returning, ${d.visits} visits, ${d.accounts} new account${d.accounts === 1 ? '' : 's'}`}</title>
           </rect>
         ))}
       </svg>
@@ -256,6 +266,8 @@ function VisitsChart({ s }: { s: Summary }) {
           <thead>
             <tr className="text-left font-body text-ink-200">
               <th className="pb-1.5 font-medium">Day</th>
+              <th className="pb-1.5 text-right font-medium">Leads</th>
+              <th className="pb-1.5 text-right font-medium">Returning</th>
               <th className="pb-1.5 text-right font-medium">Visits</th>
               <th className="pb-1.5 text-right font-medium">New accounts</th>
             </tr>
@@ -264,6 +276,8 @@ function VisitsChart({ s }: { s: Summary }) {
             {s.daily.map((d) => (
               <tr key={d.day} className="border-t border-border-100">
                 <td className="py-1">{shortDay(d.day)}</td>
+                <td className="py-1 text-right">{d.leads}</td>
+                <td className="py-1 text-right">{d.returning}</td>
                 <td className="py-1 text-right">{d.visits}</td>
                 <td className="py-1 text-right">{d.accounts}</td>
               </tr>
@@ -275,30 +289,54 @@ function VisitsChart({ s }: { s: Summary }) {
   );
 }
 
+/** The lead funnel (decision 0051): each step's count, what it kept from the step before, and who dropped off. */
 function Funnel({ s }: { s: Summary }) {
-  const top = s.funnel[0].visitors || 1;
-  // Accounts and teams can't be linked to each other here (invited coaches make accounts but no team), so the note
-  // compares only the steps that are the same people.
-  const [visited, tapped, , teams, planned] = s.funnel.map((f) => f.visitors);
-  const note =
-    visited > 0
-      ? `${tapped ? `${Math.round((Math.min(tapped, visited) / visited) * 100)}% of visitors tapped Plan your first practice. ` : 'Nobody has tapped Plan your first practice yet. '}${teams ? `${planned} of ${teams} new team${teams === 1 ? '' : 's'} checked in after a practice. ` : ''}Accounts, teams and check-ins are counted in the app (test teams and invited coaches included), so they include people who came another way.`
-      : 'No visits yet.';
-  return (
-    <section aria-labelledby="funnel-title" className="flex flex-col gap-3.5">
-      <h2 id="funnel-title" className="text-lg font-semibold">
-        From visit to first practice
-      </h2>
-      <div className="grid grid-cols-[150px_1fr_56px] items-center gap-x-3.5 gap-y-3 text-sm">
-        {s.funnel.map((f) => (
-          <div key={f.label} className="contents">
-            <span>{f.label}</span>
-            <span className="h-3.5 rounded bg-rink-100" style={{ width: `${Math.min(100, Math.max((f.visitors / top) * 100, f.visitors ? 1.5 : 0))}%` }} />
-            <span className="text-right font-mono">{f.visitors}</span>
-          </div>
-        ))}
+  const site = s.funnel.filter((f) => f.where === 'site');
+  const app = s.funnel.filter((f) => f.where === 'app');
+  // The biggest leak on the site: the step that lost the most leads.
+  const worst = site.reduce<FunnelStep | null>((w, f) => (f.dropped && (!w || f.dropped > (w.dropped ?? 0)) ? f : w), null);
+  const { accounts, traced, invited } = s.funnelNote;
+  const other = Math.max(accounts - traced - invited, 0);
+  const part = (title: string, note: string, steps: FunnelStep[]) => {
+    const top = steps[0]?.count || 1;
+    return (
+      <div className="flex flex-col gap-1">
+        <h3 className="text-sm font-semibold">
+          {title} <span className="font-normal text-ink-200">· {note}</span>
+        </h3>
+        <ol className="flex flex-col">
+          {steps.map((f) => (
+            <li key={f.label} className="grid grid-cols-[minmax(0,1fr)_48px] items-center gap-x-4 gap-y-1 border-b border-border-100 py-2.5 text-sm sm:grid-cols-[220px_minmax(0,1fr)_48px_250px]">
+              <span className={f === worst ? 'font-semibold' : ''}>{f.label}</span>
+              <span className="order-3 col-span-2 h-3 overflow-hidden rounded bg-surface-200 sm:order-none sm:col-span-1" aria-hidden="true">
+                <span className="block h-full rounded bg-rink-100" style={{ width: `${Math.min(100, Math.max((f.count / top) * 100, f.count ? 1.5 : 0))}%` }} />
+              </span>
+              <span className="text-right font-mono text-base tabular-nums">{f.count}</span>
+              <span className={`order-4 col-span-2 text-[13px] sm:order-none sm:col-span-1 sm:text-right ${f === worst ? 'font-semibold text-whistle-100' : 'text-ink-200'}`}>
+                {f.dropped === null ? (f.ofFirst === 1 ? 'everyone starts here' : '') : f.ofPrev === null ? '' : f.ofPrev > 1 ? `${f.count - Math.round(f.count / f.ofPrev)} more than the step before` : `kept ${pct(f.ofPrev)} · ${f.dropped} dropped${f === worst ? ', the biggest drop' : ''}`}
+              </span>
+            </li>
+          ))}
+        </ol>
       </div>
-      <p className="text-sm text-ink-200">{note}</p>
+    );
+  };
+  return (
+    <section aria-labelledby="funnel-title" className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1">
+        <h2 id="funnel-title" className="text-lg font-semibold">
+          Lead funnel
+        </h2>
+        <p className="text-sm text-ink-200">From a lead’s first visit to a team that ran a practice. Returning coaches are left out.</p>
+      </div>
+      {site[0]?.count ? part('On the site', 'the same visitor, the same day', site) : <p className="text-sm text-ink-200">No lead visitors in this period yet.</p>}
+      {part('In the app', 'counted in the app, not linked to visits', app)}
+      <p className="text-sm text-ink-200">
+        {accounts === 0
+          ? 'No new accounts in this period.'
+          : `${accounts} new account${accounts === 1 ? '' : 's'}: ${traced} traced to a lead’s visit that day, ${invited} invited to a team${other ? `, ${other} not traced (another day, another browser or device, or from before sign-ins were counted)` : ''}.`}{' '}
+        Test teams count too.
+      </p>
     </section>
   );
 }
@@ -322,10 +360,13 @@ function Pages({ s }: { s: Summary }) {
                 Page
               </th>
               <th scope="col" className={`${th} text-right`}>
-                Visitors
+                Leads
               </th>
-              <th scope="col" className={`${th} text-right`}>
-                Tapped Plan your first practice
+              <th scope="col" className={`${th} pl-4 text-right`}>
+                Returning
+              </th>
+              <th scope="col" className={`${th} pl-4 text-right`} title="Leads who tapped Plan your first practice on this page">
+                Leads who tapped
               </th>
             </tr>
           </thead>
@@ -338,7 +379,8 @@ function Pages({ s }: { s: Summary }) {
                   </a>{' '}
                   <span className="font-mono text-xs text-ink-200">{r.path}</span>
                 </td>
-                <td className={`${td} text-right font-mono`}>{r.visitors}</td>
+                <td className={`${td} text-right font-mono`}>{r.leads}</td>
+                <td className={`${td} text-right font-mono text-ink-200`}>{r.returning}</td>
                 <td className={`${td} text-right font-mono`}>{r.taps}</td>
               </tr>
             ))}
@@ -351,7 +393,7 @@ function Pages({ s }: { s: Summary }) {
 
 /** Visitors by kind of source (decision 0041). AI assistants is the AEO check: ChatGPT, Perplexity, Gemini and others. */
 function Channels({ s }: { s: Summary }) {
-  const total = s.channels.reduce((n, c) => n + c.visitors, 0);
+  const total = Math.max(...s.channels.map((c) => c.visitors), 1);
   return (
     <section aria-labelledby="channels-title" className="flex flex-col gap-3.5">
       <h2 id="channels-title" className="text-lg font-semibold">
@@ -361,13 +403,21 @@ function Channels({ s }: { s: Summary }) {
         <p className="text-sm text-ink-200">No visits in this period yet.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
+          <li className="grid grid-cols-[120px_1fr_52px_72px] gap-3 text-[13px] text-ink-200" aria-hidden="true">
+            <span />
+            <span />
+            <span className="text-right">Leads</span>
+            <span className="text-right">Returning</span>
+          </li>
           {s.channels.map((c) => (
-            <li key={c.channel} className="grid grid-cols-[140px_1fr_44px] items-center gap-3 text-sm">
+            <li key={c.channel} className="grid grid-cols-[120px_1fr_52px_72px] items-center gap-3 text-sm" aria-label={`${c.channel}: ${c.leads} leads, ${c.returning} returning`}>
               <span>{c.channel}</span>
-              <span className="h-2.5 overflow-hidden rounded-full bg-surface-200" aria-hidden="true">
-                <span className="block h-full rounded-full bg-rink-100" style={{ width: `${Math.max(4, (c.visitors / (total || 1)) * 100)}%` }} />
+              <span className="flex h-2.5 overflow-hidden rounded-full bg-surface-200" aria-hidden="true">
+                <span className="block h-full bg-rink-100" style={{ width: `${(c.leads / total) * 100}%` }} />
+                <span className="block h-full bg-ink-200/40" style={{ width: `${(c.returning / total) * 100}%` }} />
               </span>
-              <span className="text-right font-mono tabular-nums">{c.visitors}</span>
+              <span className="text-right font-mono tabular-nums">{c.leads}</span>
+              <span className="text-right font-mono tabular-nums text-ink-200">{c.returning}</span>
             </li>
           ))}
         </ul>

@@ -24,7 +24,7 @@ export default function Privacy() {
       </header>
       <main className="mx-auto max-w-[680px] px-[clamp(16px,4vw,48px)] pb-24 pt-8">
         <h1 className="font-display text-[clamp(40px,6vw,56px)] font-extrabold leading-[1] tracking-[-0.03em]">Privacy</h1>
-        <p className="mt-3 text-sm text-ink-200">Last updated November 18, 2026</p>
+        <p className="mt-3 text-sm text-ink-200">Last updated November 22, 2026</p>
         <p className={p}>Firstpass is a practice planner for volunteer hockey coaches, run by Brett in Nanaimo, BC. This page says what we collect, why, and how to have it removed.</p>
 
         <h2 className={h2}>No kids’ information, ever</h2>
@@ -47,6 +47,7 @@ export default function Privacy() {
         <h2 className={h2}>When you visit this site</h2>
         <p className={p}>We count visits without cookies. For each visit we keep the page, the time, the type of device (phone, tablet or computer), the city and province your connection appears to come from, and the site or link that sent you.</p>
         <p className={p}>To tell visitors apart within a day, we scramble your internet address and browser together with a code that changes every day. We don’t keep your internet address, and yesterday’s code is deleted, so the scrambled value can’t be traced back to you or followed from one day to the next.</p>
+        <p className={p}>We also note whether a visit came from someone signed in, and when someone signs in or makes an account, under that same scrambled value. That tells new visitors apart from coaches already using Firstpass. It doesn’t say who you are: no name, email or account is stored with your visits.</p>
         <p className={p}>We also measure how fast pages load and respond, from your browser: a few timings, the kind of page and the type of device. Nothing that identifies you is attached, and the timings are deleted after 90 days.</p>
 
         <h2 className={h2}>If you coach with Firstpass</h2>

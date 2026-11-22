@@ -1,7 +1,7 @@
 'use server';
 
-import { headers } from 'next/headers';
-import { cleanSource, deviceOf, isBot, regionOf, waitlistInput, type EventName } from '@/lib/site/schema';
+import { cleanSource, waitlistInput, type EventName } from '@/lib/site/schema';
+import { hasSession, visit } from '@/lib/site/visit';
 import { getSiteStore } from '@/lib/site/store';
 import { sendEmail } from '@/lib/email/layout';
 import { WAITLIST_ALERT_TO, waitlistAlertEmail } from '@/lib/email/waitlist-emails';
@@ -9,18 +9,6 @@ import { WAITLIST_ALERT_TO, waitlistAlertEmail } from '@/lib/email/waitlist-emai
 // The landing page's two actions (decision 0019): join the waitlist, and count a visit.
 
 export type JoinResult = { ok: true } | { ok: false; error: string; field?: 'email' | 'orgName' | 'teamCount' };
-
-async function visit() {
-  const h = await headers();
-  const agent = h.get('user-agent');
-  return {
-    ip: h.get('x-forwarded-for')?.split(',')[0]?.trim() || h.get('x-real-ip'),
-    agent,
-    device: deviceOf(agent),
-    region: regionOf({ city: h.get('x-vercel-ip-city'), region: h.get('x-vercel-ip-country-region'), country: h.get('x-vercel-ip-country') }),
-    bot: isBot(agent),
-  };
-}
 
 export async function joinWaitlist(raw: { kind: string; email: string; ageGroup?: string; orgName?: string; teamCount?: string; source?: string; website?: string }): Promise<JoinResult> {
   // A hidden field people never see: bots fill it in. Pretend it worked.
@@ -58,7 +46,9 @@ export async function track(name: EventName, path: string, source: string | null
   try {
     const v = await visit();
     if (v.bot) return;
-    await (await getSiteStore()).record({ name, path: path.slice(0, 200), ip: v.ip, agent: v.agent, source: cleanSource(source), device: v.device, region: v.region });
+    // A signed-in coach on the site is returning, not a lead (decision 0051). Only whether, never who.
+    const signedIn = await hasSession().catch(() => false);
+    await (await getSiteStore()).record({ name, path: path.slice(0, 200), ip: v.ip, agent: v.agent, source: cleanSource(source), device: v.device, region: v.region, signedIn });
   } catch (e) {
     console.error('[site] track failed:', e instanceof Error ? e.message : e);
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { change, channelOf, summarize, summarizeGrowth } from './summary';
+import { change, channelOf, funnelSteps, returningVisitors, summarize, summarizeGrowth } from './summary';
 import type { PageEvent, WaitlistEntry } from './schema';
 
 const NOW = new Date('2026-10-20T19:00:00Z'); // noon in Vancouver
@@ -21,25 +21,54 @@ describe('summarize', () => {
   it('has one row per day, quiet days included, and finds the peak', () => {
     const s = summarize([view(ago(0), 'a'), view(ago(0, 1), 'b'), view(ago(3), 'c')], [], { days: 7, now: NOW });
     expect(s.daily).toHaveLength(7);
-    expect(s.daily.at(-1)).toEqual({ day: '2026-10-20', visits: 2, accounts: 0 });
+    expect(s.daily.at(-1)).toEqual({ day: '2026-10-20', visits: 2, accounts: 0, leads: 2, returning: 0 });
     expect(s.peak).toEqual({ day: '2026-10-20', visits: 2 });
     expect(s.from).toBe('2026-10-14');
   });
 
-  it('builds the funnel from distinct visitors, taps, new accounts, and new teams that checked in (decisions 0033, 0034)', () => {
+  it('builds the lead funnel: site steps follow one visitor, app steps are counted in the app (decision 0051)', () => {
     const at = ago(1);
-    const events: PageEvent[] = [view(at, 'a'), view(at, 'b'), view(at, 'c'), { ...view(at, 'a'), name: 'reached_form' }, { ...view(at, 'a'), name: 'form_start' }, { ...view(at, 'a'), name: 'form_start' }, { ...view(at, 'b'), name: 'form_start' }];
+    const ev = (visitor: string, name: PageEvent['name'], extra: Partial<PageEvent> = {}): PageEvent => ({ ...view(at, visitor), name, ...extra });
+    const events: PageEvent[] = [
+      view(at, 'a'), view(at, 'b'), view(at, 'c'), view(at, 'd'), view(at, 'coach', { signedIn: true }),
+      ev('a', 'reached_form'), ev('a', 'form_start'), ev('a', 'form_start'), ev('a', 'account_created', { path: '/signup', signedIn: true }),
+      ev('b', 'form_start'), // tapped the hero button without scrolling to the section: counts as reaching it
+      ev('c', 'reached_form'),
+      ev('coach', 'form_start', { signedIn: true }), // a returning coach's tap isn't a lead's
+      ev('inv', 'account_created', { path: '/join', signedIn: true }),
+      ev('nobody', 'account_created', { path: '/signup', signedIn: true }), // no visit that day: not traced
+    ];
     const app = {
       teams: [{ id: 't1', createdAt: at }, { id: 't2', createdAt: at }, { id: 'old', createdAt: ago(30) }],
       practices: [{ teamId: 't1', createdAt: at, checkedIn: true }, { teamId: 't2', createdAt: at, checkedIn: false }, { teamId: 'old', createdAt: at, checkedIn: true }],
       accounts: [at, at, ago(0), ago(9)],
     };
     const s = summarize(events, [entry(at)], { days: 7, now: NOW, app });
-    expect(s.funnel.map((f) => f.label)).toEqual(['Visited', 'Tapped Plan your first practice', 'Created an account', 'Made a team', 'Checked in after a practice']);
-    expect(s.funnel.map((f) => f.visitors)).toEqual([3, 2, 3, 2, 1]);
-    // New accounts: 3 this week, 1 the week before, and one bar per day.
+    expect(s.funnel.map((f) => [f.label, f.count])).toEqual([
+      ['Visited', 4],
+      ['Reached the sign-up section', 3],
+      ['Tapped Plan your first practice', 2],
+      ['Made an account', 1],
+      ['New accounts, not invited', 2],
+      ['Made a team', 2],
+      ['Ran a practice and checked in', 1],
+    ]);
+    expect(s.funnel[1]).toMatchObject({ ofPrev: 0.75, dropped: 1, ofFirst: 0.75 });
+    // The app's first step isn't compared with the site's last: they're counted differently.
+    expect(s.funnel[4]).toMatchObject({ ofPrev: null, dropped: null, ofFirst: null });
+    expect(s.funnel[6]).toMatchObject({ ofPrev: 0.5, dropped: 1 });
+    expect(s.funnelNote).toEqual({ accounts: 3, traced: 1, invited: 1 });
+    expect(s.leads.now).toBe(4);
+    expect(s.returning.now).toBe(1);
+    expect(s.pages[0]).toMatchObject({ path: '/', leads: 4, returning: 1, taps: 2 });
     expect(s.accounts).toEqual({ now: 3, before: 1 });
     expect(s.daily.reduce((n, d) => n + d.accounts, 0)).toBe(3);
+  });
+
+  it('splits channels into leads and returning', () => {
+    const at = ago(1);
+    const s = summarize([view(at, 'a', { source: 'google.com' }), view(at, 'b', { source: 'google.com' }), { ...view(at, 'b'), name: 'sign_in' }], [], { days: 7, now: NOW });
+    expect(s.channels).toEqual([{ channel: 'Search', visitors: 2, leads: 1, returning: 1 }]);
   });
 
   it('groups sources, with no tag counted as direct', () => {
@@ -64,6 +93,26 @@ describe('summarize', () => {
     const s = summarize([], [], { days: 30, now: NOW });
     expect(s.peak).toBeNull();
     expect(s.sources).toEqual([]);
+  });
+});
+
+describe('returningVisitors', () => {
+  const at = ago(1);
+  const e = (visitor: string, name: PageEvent['name'], extra: Partial<PageEvent> = {}): PageEvent => ({ ...view(at, visitor), name, ...extra });
+  it('is anyone signed in, signing in, or joining from an invite that day', () => {
+    const back = returningVisitors([view(at, 'lead'), view(at, 'in', { signedIn: true }), view(at, 'later'), e('later', 'sign_in', { path: '/login' }), e('inv', 'account_created', { path: '/join' })]);
+    expect([...back].sort()).toEqual(['in', 'inv', 'later']);
+  });
+  it('keeps a lead who made their own account a lead, even once signed in', () => {
+    const back = returningVisitors([view(at, 'new'), e('new', 'account_created', { path: '/signup', signedIn: true }), view(at, 'new', { signedIn: true })]);
+    expect(back.size).toBe(0);
+  });
+});
+
+describe('funnelSteps', () => {
+  it('compares each step with the one before in the same part, never across parts', () => {
+    const steps = funnelSteps([{ label: 'A', count: 10, where: 'site' }, { label: 'B', count: 0, where: 'site' }, { label: 'C', count: 3, where: 'app' }, { label: 'D', count: 4, where: 'app' }]);
+    expect(steps.map((f) => [f.ofPrev, f.dropped])).toEqual([[null, null], [0, 10], [null, null], [4 / 3, 0]]);
   });
 });
 
@@ -118,9 +167,9 @@ describe('channels and pages (decision 0041)', () => {
   it('counts visitors per channel', () => {
     const s = summarize([view(ago(1), 'a', { source: 'google.com' }), view(ago(1), 'a', { source: 'google.com' }), view(ago(1), 'b', { source: 'chatgpt.com' }), view(ago(1), 'c')], [], { days: 7, now: NOW });
     expect(s.channels).toEqual([
-      { channel: 'Search', visitors: 1 },
-      { channel: 'AI assistants', visitors: 1 },
-      { channel: 'Direct', visitors: 1 },
+      { channel: 'Search', visitors: 1, leads: 1, returning: 0 },
+      { channel: 'AI assistants', visitors: 1, leads: 1, returning: 0 },
+      { channel: 'Direct', visitors: 1, leads: 1, returning: 0 },
     ]);
   });
 
@@ -132,9 +181,9 @@ describe('channels and pages (decision 0041)', () => {
       { days: 7, now: NOW },
     );
     expect(s.pages).toEqual([
-      { path: '/u7/first-practice', label: 'How do I run my first U7 hockey practice?', visitors: 2, taps: 1 },
-      { path: '/', label: 'Home', visitors: 2, taps: 0 },
-      { path: '/u7', label: 'U7 hockey practice help for volunteer coaches', visitors: 1, taps: 0 },
+      { path: '/u7/first-practice', label: 'How do I run my first U7 hockey practice?', visitors: 2, leads: 2, returning: 0, taps: 1 },
+      { path: '/', label: 'Home', visitors: 2, leads: 2, returning: 0, taps: 0 },
+      { path: '/u7', label: 'U7 hockey practice help for volunteer coaches', visitors: 1, leads: 1, returning: 0, taps: 0 },
     ]);
   });
 });

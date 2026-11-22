@@ -4,6 +4,8 @@ import { editorLabel } from './plans/activity';
 import { coachJoinedEmail } from './email/account-emails';
 import { SITE, sendEmail } from './email/layout';
 import { TEAM_COOKIE } from './nav';
+import { after } from 'next/server';
+import { recordSignIn, visit } from './site/visit';
 
 // Where every successful sign-in goes next (decision 0013), whether it came from a password, a
 // typed code or a tapped email link:
@@ -57,6 +59,10 @@ export async function afterSignIn(session: Session | null, opts: { next?: string
   const next = safeNext(opts.next);
   if (!session) return next;
   const user = session.user;
+  // Visit counts (decision 0051): this browser's visits today are a returning coach's, or a lead's who just made an account.
+  // Read the request now; record after the response so sign-in never waits on it.
+  const v = await visit().catch(() => null);
+  if (v) after(() => recordSignIn(user, { joinCode: opts.joinCode, visit: v }));
 
   if (opts.joinCode && JOIN_CODE.test(opts.joinCode)) {
     const code = opts.joinCode;
