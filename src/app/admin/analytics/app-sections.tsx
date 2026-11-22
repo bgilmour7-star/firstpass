@@ -311,7 +311,7 @@ export function ActivationSection({ a, missing }: { a: Activation; missing: bool
   const { teams, yes } = a.activated;
   return (
     <section aria-labelledby="activation-title" className="flex scroll-mt-6 flex-col gap-8" id="activation">
-      <SectionTitle id="activation-title" title="Activation and retention" sub={`Does a new team run a practice in its first ${ACTIVATION_DAYS} days, and does it keep coming back? All teams, week by week (weeks start Monday). Teams with only admins on them are left out.`} />
+      <SectionTitle id="activation-title" title="Activation and retention" sub={`Does a new team run a practice in its first ${ACTIVATION_DAYS} days, and does it keep coming back? All teams, week by week (weeks start Monday). Only coaches’ use counts: admins’ own use and teams with only admins on them are left out.`} />
       {missing ? (
         <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
           Not set up yet: its database change hasn’t run.
@@ -348,7 +348,7 @@ export function ActivationSection({ a, missing }: { a: Activation; missing: bool
                     {/* One label per four weeks, over the week it names, keeps the header readable. */}
                     {a.weeks.map((w, i) =>
                       i % 4 === 0 ? (
-                        <th key={w} scope="colgroup" colSpan={Math.min(4, a.weeks.length - i)} className="whitespace-nowrap px-0.5 pb-2 text-left font-medium">
+                        <th key={w} scope="col" colSpan={Math.min(4, a.weeks.length - i)} className="whitespace-nowrap px-0.5 pb-2 text-left font-medium">
                           {shortWeek(w)}
                         </th>
                       ) : null,
@@ -366,9 +366,8 @@ export function ActivationSection({ a, missing }: { a: Activation; missing: bool
                       </th>
                       {t.cells.map((c, i) => (
                         <td key={a.weeks[i]} className="w-5 px-0.5 py-2 text-left">
-                          <span title={`Week of ${shortWeek(a.weeks[i])}: ${CELL[c].say}`} className={`inline-block size-4 rounded-[4px] align-middle ${CELL[c].cls}`}>
-                            <span className="sr-only">{`Week of ${shortWeek(a.weeks[i])}: ${CELL[c].say}`}</span>
-                          </span>
+                          <span aria-hidden="true" title={`Week of ${shortWeek(a.weeks[i])}: ${CELL[c].say}`} className={`inline-block size-4 rounded-[4px] align-middle ${CELL[c].cls}`} />
+                          <span className="sr-only">{`Week of ${shortWeek(a.weeks[i])}: ${CELL[c].say}`}</span>
                         </td>
                       ))}
                       <td className="whitespace-nowrap py-2 pl-4 text-right font-mono">
@@ -379,7 +378,7 @@ export function ActivationSection({ a, missing }: { a: Activation; missing: bool
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-ink-200">Active means a coach on the team opened the app, changed a plan or checked in that week. Rows show the age group and the day the team was made, never its name.</p>
+            <p className="text-xs text-ink-200">Active means a coach on the team opened the app, changed a plan or checked in that week. Admins’ own use (Brett and the head coach) doesn’t count. Rows show the age group and the day the team was made, never its name.</p>
           </div>
         </>
       )}

@@ -116,8 +116,6 @@ export class LocalSiteStore implements SiteStore {
     };
   }
 
-  // Local mode reads the app's own file. Memberships made before this change have no time, so
-  // they count from the day the file was first used.
   // Local mode has no week-by-week history to show.
   async teamWeeks(): Promise<TeamWeeks[]> {
     return [];
@@ -128,6 +126,8 @@ export class LocalSiteStore implements SiteStore {
     return [];
   }
 
+  // Local mode reads the app's own file. Memberships made before this change have no time, so
+  // they count from the day the file was first used.
   async growth(): Promise<Growth> {
     let app: { members?: { teamId: string; userId: string; role: string; at?: string }[] } = {};
     try {
