@@ -13,3 +13,5 @@ Admin → Analytics counted every visitor the same, so coaches already using the
 ## Limits
 - Same day, same browser only (no cookies). A lead who visits Monday and signs up Wednesday shows as an untraced account; so does a magic link opened in an email app's own browser.
 - Events from before this change have no flag, so they all count as leads.
+- In the app part, a step can be bigger than the one before (a test team, a coach making a second team); it reads "N more than the step before", not a percentage. "Invited" counts invited sign-ins by daily visitor id, so it can be off by one.
+- Like the old recording function, `record_site_event` is open to anyone, so someone could post fake events. The site's own client only sends view, reached_form and form_start.

@@ -1,7 +1,7 @@
 'use server';
 
 import { cleanSource, waitlistInput, type EventName } from '@/lib/site/schema';
-import { visit } from '@/lib/site/visit';
+import { hasSession, visit } from '@/lib/site/visit';
 import { getSiteStore } from '@/lib/site/store';
 import { sendEmail } from '@/lib/email/layout';
 import { WAITLIST_ALERT_TO, waitlistAlertEmail } from '@/lib/email/waitlist-emails';
@@ -47,8 +47,7 @@ export async function track(name: EventName, path: string, source: string | null
     const v = await visit();
     if (v.bot) return;
     // A signed-in coach on the site is returning, not a lead (decision 0051). Only whether, never who.
-    const { optionalUser } = await import('@/lib/auth');
-    const signedIn = Boolean(await optionalUser().catch(() => null));
+    const signedIn = await hasSession().catch(() => false);
     await (await getSiteStore()).record({ name, path: path.slice(0, 200), ip: v.ip, agent: v.agent, source: cleanSource(source), device: v.device, region: v.region, signedIn });
   } catch (e) {
     console.error('[site] track failed:', e instanceof Error ? e.message : e);

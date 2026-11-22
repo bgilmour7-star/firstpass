@@ -313,7 +313,7 @@ function Funnel({ s }: { s: Summary }) {
               </span>
               <span className="text-right font-mono text-base tabular-nums">{f.count}</span>
               <span className={`order-4 col-span-2 text-[13px] sm:order-none sm:col-span-1 sm:text-right ${f === worst ? 'font-semibold text-whistle-100' : 'text-ink-200'}`}>
-                {f.dropped === null ? (f.ofFirst === 1 ? 'everyone starts here' : '') : f.ofPrev === null ? '' : `kept ${pct(f.ofPrev)} · ${f.dropped} dropped${f === worst ? ', the biggest drop' : ''}`}
+                {f.dropped === null ? (f.ofFirst === 1 ? 'everyone starts here' : '') : f.ofPrev === null ? '' : f.ofPrev > 1 ? `${f.count - Math.round(f.count / f.ofPrev)} more than the step before` : `kept ${pct(f.ofPrev)} · ${f.dropped} dropped${f === worst ? ', the biggest drop' : ''}`}
               </span>
             </li>
           ))}

@@ -16,23 +16,40 @@ export async function visit() {
   };
 }
 
-/** An account this new is being made right now: its first sign-in (a code or link expires within the hour). */
-export const NEW_ACCOUNT_MS = 60 * 60 * 1000;
+/**
+ * This sign-in made the account: it was created, or its email confirmed, in the last few minutes. Confirming
+ * counts because a password sign-up is created when the form is sent but only signs in once confirmed.
+ */
+export const NEW_ACCOUNT_MS = 10 * 60 * 1000;
+const JOIN_CODE = /^[A-Za-z0-9]{8,64}$/;
+
+/** Whether the request has a signed-in Supabase session: one Auth check, no profile or role lookups. */
+export async function hasSession(): Promise<boolean> {
+  const { usingSupabase } = await import('@/lib/drills/store');
+  // Local mode is always "signed in" as the local coach, which would make every local visit returning.
+  if (!usingSupabase()) return false;
+  const { supabaseServer } = await import('@/lib/supabase/server');
+  const { data } = await (await supabaseServer()).auth.getUser();
+  return Boolean(data.user);
+}
 
 /**
  * Note a sign-in on the visit counts (decision 0051), under the same daily visitor id as the browser's
  * page views: account_created for a brand-new account (a lead converting), sign_in for anyone else (a
  * returning coach). No user id or email goes into page_events. Never throws.
  */
-export async function recordSignIn(user: { created_at?: string | null }, opts: { joinCode?: string | null; now?: number } = {}): Promise<void> {
+export async function recordSignIn(user: { created_at?: string | null; email_confirmed_at?: string | null }, opts: { joinCode?: string | null; now?: number; visit?: Awaited<ReturnType<typeof visit>> } = {}): Promise<void> {
   try {
-    const v = await visit();
+    const v = opts.visit ?? (await visit());
     if (v.bot) return;
-    const created = user.created_at ? Date.parse(user.created_at) : NaN;
-    const isNew = Number.isFinite(created) && (opts.now ?? Date.now()) - created < NEW_ACCOUNT_MS;
+    const now = opts.now ?? Date.now();
+    const isNew = [user.created_at, user.email_confirmed_at].some((t) => {
+      const ms = t ? Date.parse(t) : NaN;
+      return Number.isFinite(ms) && now - ms < NEW_ACCOUNT_MS;
+    });
     const name = isNew ? 'account_created' : 'sign_in';
     // An invited coach's new account is on /join: the lead funnel leaves those out (they didn't come from the site).
-    const path = isNew ? (opts.joinCode ? '/join' : '/signup') : '/login';
+    const path = isNew ? (opts.joinCode && JOIN_CODE.test(opts.joinCode) ? '/join' : '/signup') : '/login';
     await (await getSiteStore()).record({ name, path, ip: v.ip, agent: v.agent, source: null, device: v.device, region: v.region, signedIn: true });
   } catch (e) {
     console.error('[site] sign-in event failed:', e instanceof Error ? e.message : e);
