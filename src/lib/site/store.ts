@@ -31,7 +31,12 @@ export interface SiteStore {
   progressUsage(month: string): Promise<ProgressUsageRows>;
   /** When each team was created, each coach first joined a team and each account was made (decision 0034), as ISO timestamps. Timestamps only, no names. Throws 'growth-migration-missing' before the SQL has run. */
   growth(): Promise<Growth>;
+  /** Accounts made since then, where each came from and how far it got (decision 0052). No ids or emails. Throws 'account-sources-migration-missing' before its SQL. */
+  accountSources(sinceIso: string): Promise<AccountSource[]>;
 }
+
+/** One account: its same-day visit (traced) if any, and whether its coach made a team and ran a practice. */
+export type AccountSource = { createdAt: string; invited: boolean; traced: boolean; source: string | null; landing: string | null; madeTeam: boolean; ranPractice: boolean };
 
 export type Growth = { teams: string[]; coaches: string[]; accounts: string[] };
 

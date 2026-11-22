@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { change, channelOf, funnelSteps, returningVisitors, summarize, summarizeGrowth } from './summary';
+import { change, channelOf, funnelSteps, returningVisitors, summarize, summarizeAccountSources, summarizeGrowth } from './summary';
 import type { PageEvent, WaitlistEntry } from './schema';
 
 const NOW = new Date('2026-10-20T19:00:00Z'); // noon in Vancouver
@@ -188,3 +188,28 @@ describe('channels and pages (decision 0041)', () => {
   });
 });
 
+
+describe('summarizeAccountSources (decision 0052)', () => {
+  const acct = (extra: Partial<import('./store').AccountSource>): import('./store').AccountSource => ({ createdAt: ago(1), invited: false, traced: true, source: null, landing: '/', madeTeam: false, ranPractice: false, ...extra });
+  it('groups new accounts by channel, then not traced, then invited, with how far each got', () => {
+    const { rows, total } = summarizeAccountSources(
+      [
+        acct({ source: 'google.com', landing: '/u7/first-practice', madeTeam: true, ranPractice: true }),
+        acct({ source: 'google.ca', landing: '/u7/first-practice', madeTeam: true }),
+        acct({ source: null }),
+        acct({ traced: false, source: null, landing: null, madeTeam: true }),
+        acct({ invited: true, traced: true, source: 'share' }),
+        acct({ createdAt: ago(40), source: 'google.com' }),
+      ],
+      { days: 30, now: NOW },
+    );
+    expect(total).toBe(5);
+    expect(rows.map((r) => [r.label, r.accounts, r.madeTeam, r.ranPractice])).toEqual([
+      ['Search', 2, 2, 1],
+      ['Direct', 1, 0, 0],
+      ['Not traced', 1, 1, 0],
+      ['Invited to a team', 1, 0, 0],
+    ]);
+    expect(rows[0].pages).toEqual(['How do I run my first U7 hockey practice?']);
+  });
+});

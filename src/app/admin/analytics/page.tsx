@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireAnalytics } from '@/lib/auth';
-import { getSiteStore } from '@/lib/site/store';
-import { change, summarize, summarizeGrowth, type FunnelStep, type GrowthSummary, type Summary } from '@/lib/site/summary';
+import { getSiteStore, type AccountSource } from '@/lib/site/store';
+import { change, summarize, summarizeAccountSources, summarizeGrowth, type FunnelStep, type SourceRow, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
 import { InTheApp, SectionTitle, Speed } from './app-sections';
 import { ProgressScoring } from './progress-section';
@@ -50,6 +50,17 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     else throw e;
   }
   const g = summarizeGrowth(growth, { days });
+
+  // Where accounts came from (decision 0052). Its table comes from a later migration.
+  let accountRows: AccountSource[] = [];
+  let sourcesMissing = false;
+  try {
+    accountRows = await store.accountSources(new Date(Date.now() - days * DAY).toISOString());
+  } catch (e) {
+    if (e instanceof Error && e.message === 'account-sources-migration-missing') sourcesMissing = true;
+    else throw e;
+  }
+  const acctSources = summarizeAccountSources(accountRows, { days });
 
   // In the app and Speed (decision 0029). Their tables come from a later migration.
   const since = new Date(Date.now() - 2 * days * DAY).toISOString();
@@ -130,6 +141,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       <VisitsChart s={s} />
 
       <Funnel s={s} />
+      <AccountSources rows={acctSources.rows} total={acctSources.total} missing={sourcesMissing} />
       <Pages s={s} />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-x-14 gap-y-10">
@@ -337,6 +349,65 @@ function Funnel({ s }: { s: Summary }) {
           : `${accounts} new account${accounts === 1 ? '' : 's'}: ${traced} traced to a lead’s visit that day, ${invited} invited to a team${other ? `, ${other} not traced (another day, another browser or device, or from before sign-ins were counted)` : ''}.`}{' '}
         Test teams count too.
       </p>
+    </section>
+  );
+}
+
+/** New accounts by the channel that brought them, followed to a team and a practice (decision 0052). */
+function AccountSources({ rows, total, missing }: { rows: SourceRow[]; total: number; missing: boolean }) {
+  const th = 'border-b border-border-100 pb-2 font-medium';
+  const td = 'border-b border-border-100 py-2.5 align-top';
+  const of = (n: number, d: number) => (
+    <>
+      {n}
+      {d > 0 && <span className="block text-xs text-ink-200">{pct(n / d)}</span>}
+    </>
+  );
+  return (
+    <section aria-labelledby="acct-src-title" className="flex flex-col gap-3.5">
+      <div className="flex flex-col gap-1">
+        <h2 id="acct-src-title" className="text-lg font-semibold">
+          Where accounts came from
+        </h2>
+        <p className="text-sm text-ink-200">Each new account, by the visit that led to it, and whether its coach went on to make a team and run a practice. Made a team and ran a practice count head coaches. Accounts are traced only when made the same day as the visit, in the same browser; earlier accounts show as not traced.</p>
+      </div>
+      {missing ? (
+        <p className="text-sm text-ink-200">Not set up yet: its database change hasn’t run.</p>
+      ) : total === 0 ? (
+        <p className="text-sm text-ink-200">No new accounts in this period.</p>
+      ) : (
+        <table className="w-full border-collapse text-sm tabular-nums">
+          <thead>
+            <tr className="text-left text-ink-200">
+              <th scope="col" className={th}>
+                Came from
+              </th>
+              <th scope="col" className={`${th} pl-4 text-right`}>
+                Accounts
+              </th>
+              <th scope="col" className={`${th} pl-4 text-right`}>
+                Made a team
+              </th>
+              <th scope="col" className={`${th} pl-4 text-right`}>
+                Ran a practice
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.label}>
+                <td className={td}>
+                  {r.label}
+                  {r.pages.length > 0 && <span className="block text-xs text-ink-200">Landed on {r.pages.slice(0, 2).join(' · ')}</span>}
+                </td>
+                <td className={`${td} pl-4 text-right font-mono`}>{r.accounts}</td>
+                <td className={`${td} pl-4 text-right font-mono`}>{r.label === 'Invited to a team' ? '–' : of(r.madeTeam, r.accounts)}</td>
+                <td className={`${td} pl-4 text-right font-mono`}>{r.label === 'Invited to a team' ? '–' : of(r.ranPractice, r.accounts)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }

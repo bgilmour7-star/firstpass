@@ -5,7 +5,7 @@ import { coachJoinedEmail } from './email/account-emails';
 import { SITE, sendEmail } from './email/layout';
 import { TEAM_COOKIE } from './nav';
 import { after } from 'next/server';
-import { recordSignIn, visit } from './site/visit';
+import { isNewAccount, recordSignIn, visit } from './site/visit';
 
 // Where every successful sign-in goes next (decision 0013), whether it came from a password, a
 // typed code or a tapped email link:
@@ -62,7 +62,20 @@ export async function afterSignIn(session: Session | null, opts: { next?: string
   // Visit counts (decision 0051): this browser's visits today are a returning coach's, or a lead's who just made an account.
   // Read the request now; record after the response so sign-in never waits on it.
   const v = await visit().catch(() => null);
-  if (v) after(() => recordSignIn(user, { joinCode: opts.joinCode, visit: v }));
+  if (v)
+    after(async () => {
+      await recordSignIn(user, { joinCode: opts.joinCode, visit: v });
+      // Where a new account came from (decision 0052), saved once under its own session. Never throws.
+      if (!v.bot && isNewAccount(user)) {
+        try {
+          const { error } = await asUser(session).rpc('record_account_source', { ip: v.ip, agent: v.agent, invited: Boolean(opts.joinCode && JOIN_CODE.test(opts.joinCode)) });
+          // Before 20261128000000_account_sources.sql the function doesn't exist: nothing to save yet.
+          if (error && error.code !== 'PGRST202') console.error('[site] account source failed: %s', error.message);
+        } catch (e) {
+          console.error('[site] account source failed:', e instanceof Error ? e.message : e);
+        }
+      }
+    });
 
   if (opts.joinCode && JOIN_CODE.test(opts.joinCode)) {
     const code = opts.joinCode;
