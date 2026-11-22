@@ -12,7 +12,7 @@ export const WAITLIST_STATUS_LABEL: Record<WaitlistStatus, string> = {
   onboarded: 'Onboarded',
   not_a_fit: 'Not a fit',
 };
-// sign_in and account_created come from the server when someone signs in (decision 0050): they mark the day's
+// sign_in and account_created come from the server when someone signs in (decision 0051): they mark the day's
 // visitor as a returning coach, or as a lead who just made an account.
 export const EVENTS = ['view', 'reached_form', 'form_start', 'signup', 'sign_in', 'account_created'] as const;
 export const DEVICES = ['phone', 'tablet', 'desktop'] as const;
@@ -66,7 +66,7 @@ export type WaitlistEntry = {
 };
 
 /** `path` is the page the event happened on (decision 0041); older rows and the local store may not have it. */
-/** signedIn: the visitor was signed in when it happened (decision 0050); false on rows from before it was recorded. */
+/** signedIn: the visitor was signed in when it happened (decision 0051); false on rows from before it was recorded. */
 export type PageEvent = { occurredAt: string; name: EventName; visitor: string; source: string | null; device: Device | null; region: string | null; path?: string | null; signedIn?: boolean };
 
 /** A link tag (?from=shared-ice) or a referring site, lower-case and short. Our own site doesn't count. */

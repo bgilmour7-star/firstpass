@@ -23,17 +23,25 @@ export type Summary = {
   signups: Metric & { coaches: number; associations: number };
   /** Accounts created (decision 0034), from the app. Not linked to visits. */
   accounts: Metric;
-  daily: { day: string; visits: number; accounts: number }[];
+  /** Unique visitors who were or became signed-in coaches that day, or anyone else (decision 0051). */
+  leads: Metric;
+  returning: Metric;
+  daily: { day: string; visits: number; accounts: number; leads: number; returning: number }[];
   peak: { day: string; visits: number } | null;
-  funnel: { label: string; visitors: number }[];
+  /** The lead funnel (decision 0051): site steps follow the same lead visitor through one day; app steps are counted in the app. */
+  funnel: FunnelStep[];
+  /** New accounts in the period, how many were traced to a lead's visit that day, and how many were invited to a team. */
+  funnelNote: { accounts: number; traced: number; invited: number };
   sources: { source: string; visitors: number; signups: number }[];
   devices: { label: string; share: number }[];
   regions: { label: string; share: number }[];
   /** Visitors by kind of source (decision 0041): is search or an AI assistant bringing anyone in? */
-  channels: { channel: Channel; visitors: number }[];
-  /** Each public page: its visitors, and how many tapped Plan your first practice there (decision 0041). */
-  pages: { path: string; label: string; visitors: number; taps: number }[];
+  channels: { channel: Channel; visitors: number; leads: number; returning: number }[];
+  /** Each public page: its visitors, and how many leads tapped Plan your first practice there (decision 0041). */
+  pages: { path: string; label: string; visitors: number; leads: number; returning: number; taps: number }[];
 };
+/** ofPrev and dropped compare with the step before in the same part (null on a part's first step); ofFirst with Visited. */
+export type FunnelStep = { label: string; count: number; where: 'site' | 'app'; ofPrev: number | null; dropped: number | null; ofFirst: number | null };
 type Metric = { now: number; before: number };
 
 export const CHANNELS = ['Search', 'AI assistants', 'Social', 'Email', 'Shared links', 'Other sites', 'Direct'] as const;
@@ -63,6 +71,35 @@ const pageOf = (path: string | null | undefined) => (path ? path.split(/[?#]/)[0
 /** New teams and their plans, from the app (Admin → Analytics → In the app's rows), for the funnel's last steps. */
 export type FunnelApp = { teams: { id: string; createdAt: string }[]; practices: { teamId: string; createdAt: string; checkedIn: boolean }[]; accounts?: string[] };
 
+/**
+ * Returning visitors (decision 0051): a visitor id (one browser, one day) that was signed in on any event, signed
+ * in, or made an account from a team invite. Everyone else is a lead, including someone who made their own account
+ * that day: that's the lead converting.
+ */
+export function returningVisitors(events: PageEvent[]): Set<string> {
+  const converted = new Set(events.filter((e) => e.name === 'account_created' && pageOf(e.path) !== '/join').map((e) => e.visitor));
+  const out = new Set<string>();
+  for (const e of events) {
+    if (converted.has(e.visitor)) continue;
+    if (e.signedIn || e.name === 'sign_in' || (e.name === 'account_created' && pageOf(e.path) === '/join')) out.add(e.visitor);
+  }
+  return out;
+}
+
+/** Counts → steps with the share kept from the step before and from the first step. */
+export function funnelSteps(rows: { label: string; count: number; where: 'site' | 'app' }[]): FunnelStep[] {
+  const first = rows[0]?.count ?? 0;
+  return rows.map((r, i) => {
+    const prev = i > 0 && rows[i - 1].where === r.where ? rows[i - 1].count : null;
+    return {
+      ...r,
+      ofPrev: prev === null ? null : prev ? r.count / prev : null,
+      dropped: prev === null ? null : Math.max(prev - r.count, 0),
+      ofFirst: r.where === 'site' && first ? r.count / first : null,
+    };
+  });
+}
+
 export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: { days: number; now?: Date; app?: FunnelApp }): Summary {
   const now = opts.now ?? new Date();
   const end = now.getTime();
@@ -87,6 +124,13 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
   const visitors = (list: PageEvent[]) => new Set(list.map((e) => e.visitor)).size;
   const uniques = visitors(views);
   const prevUniques = visitors(prevViews);
+  // Visitor ids change every day, so the whole list can be classified at once.
+  const back = returningVisitors(events);
+  const isLead = (e: PageEvent) => !back.has(e.visitor);
+  const leadViews = views.filter(isLead);
+  const leads = visitors(leadViews);
+  const returning = uniques - leads;
+  const prevLeads = visitors(prevViews.filter(isLead));
 
   // Every day in the period, even the quiet ones, so the chart has no gaps.
   const days: string[] = [];
@@ -98,22 +142,35 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     day,
     visits: views.filter((e) => vanDay(e.occurredAt) === day).length,
     accounts: accounts.filter((t) => vanDay(t) === day).length,
+    leads: visitors(leadViews.filter((e) => vanDay(e.occurredAt) === day)),
+    returning: visitors(views.filter((e) => !isLead(e) && vanDay(e.occurredAt) === day)),
   }));
   const peak = daily.reduce<Summary['peak']>((best, d) => (d.visits > 0 && (!best || d.visits > best.visits) ? { day: d.day, visits: d.visits } : best), null);
 
-  const reached = (name: PageEvent['name']) => visitors(cur.filter((e) => e.name === name));
-  // Sign-up is open (decision 0033): from a visit to a team that has run a practice. The last three steps are counted
-  // in the app, not linked to visits (no cookies), so they can include coaches who came another way.
+  // The lead funnel (decision 0051). On the site, each step is the visitors from the step before who went on
+  // to do it (or a later step), so a visitor is followed through one day and no step can grow.
+  const did = (names: PageEvent['name'][]) => new Set(cur.filter((e) => isLead(e) && names.includes(e.name) && (e.name !== 'account_created' || pageOf(e.path) !== '/join')).map((e) => e.visitor));
+  const visited = new Set(leadViews.map((e) => e.visitor));
+  const chain = [visited];
+  for (const names of [['reached_form', 'form_start', 'account_created'], ['form_start', 'account_created'], ['account_created']] as PageEvent['name'][][]) {
+    const later = did(names);
+    chain.push(new Set([...chain[chain.length - 1]].filter((v) => later.has(v))));
+  }
+  // In the app: every new account in the period, less the ones invited to a team (they join a team rather than
+  // make one), then new teams and the ones that ran a practice. Not linked to visits.
+  const invited = new Set(cur.filter((e) => e.name === 'account_created' && pageOf(e.path) === '/join').map((e) => e.visitor)).size;
   const newTeams = new Set((opts.app?.teams ?? []).filter((t) => inWin(t.createdAt)).map((t) => t.id));
   // Every new team gets its first plan at setup, so the step that shows real use is a practice run and checked in.
   const checkedIn = new Set((opts.app?.practices ?? []).filter((p) => newTeams.has(p.teamId) && p.checkedIn).map((p) => p.teamId));
-  const funnel = [
-    { label: 'Visited', visitors: uniques },
-    { label: 'Tapped Plan your first practice', visitors: reached('form_start') },
-    { label: 'Created an account', visitors: accounts.length },
-    { label: 'Made a team', visitors: newTeams.size },
-    { label: 'Checked in after a practice', visitors: checkedIn.size },
-  ];
+  const funnel = funnelSteps([
+    { label: 'Visited', count: chain[0].size, where: 'site' },
+    { label: 'Reached the sign-up section', count: chain[1].size, where: 'site' },
+    { label: 'Tapped Plan your first practice', count: chain[2].size, where: 'site' },
+    { label: 'Made an account', count: chain[3].size, where: 'site' },
+    { label: 'New accounts, not invited', count: Math.max(accounts.length - invited, 0), where: 'app' },
+    { label: 'Made a team', count: newTeams.size, where: 'app' },
+    { label: 'Ran a practice and checked in', count: checkedIn.size, where: 'app' },
+  ]);
 
   const bySource = new Map<string, { visitors: Set<string>; signups: number }>();
   const slot = (s: string | null) => {
@@ -152,8 +209,12 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     if (!byChannel.has(c)) byChannel.set(c, new Set());
     byChannel.get(c)!.add(e.visitor);
   }
+  const split = (set: Set<string>) => {
+    const l = [...set].filter((v) => !back.has(v)).length;
+    return { visitors: set.size, leads: l, returning: set.size - l };
+  };
   const channels = CHANNELS.filter((c) => byChannel.has(c))
-    .map((channel) => ({ channel, visitors: byChannel.get(channel)!.size }))
+    .map((channel) => ({ channel, ...split(byChannel.get(channel)!) }))
     .sort((a, b) => b.visitors - a.visitors);
 
   const byPage = new Map<string, { visitors: Set<string>; taps: Set<string> }>();
@@ -162,11 +223,11 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     return byPage.get(p)!;
   };
   for (const e of views) pageSlot(pageOf(e.path)).visitors.add(e.visitor);
-  for (const e of cur) if (e.name === 'form_start') pageSlot(pageOf(e.path)).taps.add(e.visitor);
+  for (const e of cur) if (e.name === 'form_start' && isLead(e)) pageSlot(pageOf(e.path)).taps.add(e.visitor);
   // Public pages only: anything else (a mistyped address) is left out rather than listed.
   const pages = [...byPage.entries()]
     .filter(([p]) => PAGE_LABEL.has(p))
-    .map(([path, v]) => ({ path, label: PAGE_LABEL.get(path)!, visitors: v.visitors.size, taps: v.taps.size }))
+    .map(([path, v]) => ({ path, label: PAGE_LABEL.get(path)!, ...split(v.visitors), taps: v.taps.size }))
     .sort((a, b) => b.visitors - a.visitors || b.taps - a.taps);
 
   return {
@@ -177,9 +238,12 @@ export function summarize(events: PageEvent[], waitlist: WaitlistEntry[], opts: 
     uniques: { now: uniques, before: prevUniques },
     signups: { now: joined.length, before: joinedBefore.length, coaches: coaches.length, associations: joined.length - coaches.length },
     accounts: { now: accounts.length, before: allAccounts.filter((t) => inPrev(t)).length },
+    leads: { now: leads, before: prevLeads },
+    returning: { now: returning, before: prevUniques - prevLeads },
     daily,
     peak,
     funnel,
+    funnelNote: { accounts: accounts.length, traced: chain[3].size, invited },
     sources,
     devices: share((e) => (e.device ? DEVICE_LABEL[e.device] : null), 3, 'Other'),
     regions: share((e) => e.region, 4, 'Elsewhere'),

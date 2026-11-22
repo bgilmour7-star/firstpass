@@ -1,4 +1,4 @@
--- Admin → Analytics: leads and returning visitors, and the lead funnel (decision 0050).
+-- Admin → Analytics: leads and returning visitors, and the lead funnel (decision 0051).
 -- A visit now records whether the visitor was signed in, and sign-ins record themselves too, so a
 -- visitor who is (or becomes, that day) a signed-in coach counts as returning, not as a lead.
 -- New sign-ups record "account_created" with the same daily visitor hash, which ties the funnel's
