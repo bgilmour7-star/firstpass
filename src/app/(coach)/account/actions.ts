@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth';
+import { logError } from '@/lib/errors';
 
 // Your account (decision 0014): the first name your co-coaches see, and your sign-in email.
 // Both live in Supabase Auth: the name in user metadata, the email on the user itself.
@@ -16,7 +17,7 @@ export async function saveName(raw: string): Promise<Result> {
   const { supabaseServer } = await import('@/lib/supabase/server');
   const { error } = await (await supabaseServer()).auth.updateUser({ data: { first_name: name } });
   if (error) {
-    console.error('[account] name: %s', error.message);
+    logError('[account] name: %s', error.message);
     return { ok: false, error: 'Couldn’t save it just now. Try again in a minute.' };
   }
   revalidatePath('/', 'layout');
@@ -36,7 +37,7 @@ export async function changeEmail(raw: string): Promise<Result> {
   if (error) {
     if (/already/i.test(error.message)) return { ok: false, error: 'Another Firstpass account uses that email.' };
     if (error.status === 429) return { ok: false, error: 'Too many emails in a short time. Try again in a minute.' };
-    console.error('[account] email: %s %s', error.status ?? '', error.message);
+    logError('[account] email: %s %s', error.status ?? '', error.message);
     return { ok: false, error: 'Couldn’t start the change just now. Try again in a minute.' };
   }
   return { ok: true };

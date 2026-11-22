@@ -14,6 +14,7 @@ import { startPlan } from '@/lib/plans/start-plan';
 import { inviteEmail } from '@/lib/email/account-emails';
 import { SITE, sendEmail } from '@/lib/email/layout';
 import { setActiveTeam } from '../actions';
+import { logError } from '@/lib/errors';
 
 // Create a team (decision 0026, W1b–W7 on the canvas). One question per screen on the client; this
 // file reads the calendar link for the Ice times screen, saves the U11+ answer, and does the build.
@@ -58,7 +59,7 @@ export async function sendOlderInterest(input: unknown): Promise<{ ok: true } | 
   } catch (e) {
     const m = e instanceof Error ? e.message : '';
     if (m === 'older-migration-missing') return { ok: false, error: 'This needs a one-time database update (supabase/migrations/20261028000000_multi_team_and_older_interest.sql).' };
-    console.error('[team/new] older interest:', m);
+    logError('[team/new] older interest:', m);
     return { ok: false, error: 'Couldn’t send that just now. Try again in a minute.' };
   }
 }
@@ -98,7 +99,7 @@ export async function buildTeam(input: unknown): Promise<{ ok: false; error: str
     if (w.calendarUrl) {
       const read = await readCalendar(w.calendarUrl);
       if (read.ok) {
-        await store.setCalendar(team.id, read.url).catch((e) => console.error('[team/new] calendar:', e instanceof Error ? e.message : e));
+        await store.setCalendar(team.id, read.url).catch((e) => logError('[team/new] calendar:', e instanceof Error ? e.message : e));
         await syncCalendar(store, team.id, { force: true }).catch(() => undefined);
         const today = todayLocal();
         const x = (await store.iceTimes(team.id).catch(() => [])).find((i) => i.kind === 'practice' && !i.cancelled && !i.ignored && i.date >= today);
@@ -119,11 +120,11 @@ export async function buildTeam(input: unknown): Promise<{ ok: false; error: str
         const code = await store.newJoinCode(team.id);
         await Promise.all(w.invites.filter((to) => to !== coach.email.toLowerCase()).map((to) => sendEmail(to, inviteEmail({ inviter: coach.name, teamName: team.name, to, joinUrl: `${SITE}/join/${code}?email=${encodeURIComponent(to)}` }), 'invite')));
       } catch (e) {
-        console.error('[team/new] invites:', e instanceof Error ? e.message : e);
+        logError('[team/new] invites:', e instanceof Error ? e.message : e);
       }
     }
   } catch (e) {
-    console.error('[team/new] building the team failed:', e instanceof Error ? e.message : e);
+    logError('[team/new] building the team failed:', e instanceof Error ? e.message : e);
     return { ok: false, error: 'Couldn’t set up the team just now. Try again in a minute.' };
   }
   revalidatePath('/', 'layout');

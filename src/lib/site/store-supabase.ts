@@ -4,11 +4,14 @@ import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } 
 import type { UsageRows } from './usage';
 import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
-import type { Growth, NewEvent, SiteStore, AccountSource, TeamWeeks } from './store';
+import type { Growth, NewEvent, SiteStore, AccountSource, TeamWeeks, AppError } from './store';
+import { logError } from '@/lib/errors';
 
 type WaitlistRow = { id: string; email: string; kind: WaitlistEntry['kind']; age_group: string | null; org_name: string | null; team_count: number | null; source: string | null; status: WaitlistStatus; created_at: string };
 type EventRow = { occurred_at: string; name: PageEvent['name']; visitor: string; source: string | null; device: PageEvent['device']; region: string | null; signed_in?: boolean; path: string | null };
 
+/** Rows read for Admin → Analytics → Errors; more than this shows as "2,000+". */
+export const APP_ERRORS_LIMIT = 2000;
 const missing = (e: { code?: string; message: string }) => e.code === 'PGRST202' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the function/i.test(e.message);
 
 export class SupabaseSiteStore implements SiteStore {
@@ -27,7 +30,7 @@ export class SupabaseSiteStore implements SiteStore {
     const { data, error } = await db.rpc('can_create_account', { address: email });
     if (error) {
       // Before the migration has run nobody can sign up without a join link: invite-only fails closed.
-      console.error('[site] can_create_account failed: %s', error.message);
+      logError('[site] can_create_account failed: %s', error.message);
       return false;
     }
     return data === true;
@@ -39,7 +42,7 @@ export class SupabaseSiteStore implements SiteStore {
     let { error } = await db.rpc('record_site_event', { ...args, signed_in: e.signedIn === true });
     // Before 20261127000000_leads_and_returning.sql: the old function, for the events it knows.
     if (error && missing(error) && ['view', 'reached_form', 'form_start', 'signup'].includes(e.name)) ({ error } = await db.rpc('record_page_event', args));
-    if (error && !missing(error)) console.error('[site] record_site_event failed: %s', error.message);
+    if (error && !missing(error)) logError('[site] record_site_event failed: %s', error.message);
   }
 
   async waitlist() {
@@ -88,14 +91,14 @@ export class SupabaseSiteStore implements SiteStore {
   async recordVitals(page: PageGroup, device: Device, metrics: { name: MetricName; value: number }[]) {
     const db = await supabaseServer();
     const { error } = await db.rpc('record_web_vitals', { page, kind_of_device: device, items: metrics });
-    if (error && !missing(error)) console.error('[site] record_web_vitals failed: %s', error.message);
+    if (error && !missing(error)) logError('[site] record_web_vitals failed: %s', error.message);
   }
 
   async recordAppOpen(_userId: string, installed: boolean, device: Device) {
     // The database takes the coach from the session (auth.uid()), not from the caller.
     const db = await supabaseServer();
     const { error } = await db.rpc('record_app_open', { installed, kind_of_device: device });
-    if (error && !missing(error)) console.error('[site] record_app_open failed: %s', error.message);
+    if (error && !missing(error)) logError('[site] record_app_open failed: %s', error.message);
   }
 
   async vitals(sinceIso: string) {
@@ -131,6 +134,13 @@ export class SupabaseSiteStore implements SiteStore {
     if (error) throw new Error(missing(error) ? 'account-sources-migration-missing' : error.message);
     type Row = { created_at: string; invited: boolean; traced: boolean; source: string | null; landing: string | null; made_team: boolean; ran_practice: boolean };
     return ((data ?? []) as Row[]).map((r) => ({ createdAt: r.created_at, invited: r.invited, traced: r.traced, source: r.source, landing: r.landing, madeTeam: r.made_team, ranPractice: r.ran_practice }));
+  }
+
+  async appErrors(sinceIso: string): Promise<AppError[]> {
+    const db = await supabaseServer();
+    const { data, error } = await db.from('app_errors').select('occurred_at, area, message').gte('occurred_at', sinceIso).order('occurred_at', { ascending: false }).limit(APP_ERRORS_LIMIT);
+    if (error) throw new Error(missing(error) || error.code === 'PGRST205' || /schema cache/i.test(error.message) ? 'app-errors-migration-missing' : error.message);
+    return ((data ?? []) as { occurred_at: string; area: string; message: string }[]).map((r) => ({ occurredAt: r.occurred_at, area: r.area, message: r.message }));
   }
 
   async teamWeeks(): Promise<TeamWeeks[]> {

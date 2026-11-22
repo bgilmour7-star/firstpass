@@ -4,6 +4,7 @@ import { broadcastEmail } from '../email/broadcast-email';
 import { FROM_BRETT, SITE } from '../email/layout';
 import { OPTED_OUT, type Broadcast } from './schema';
 import type { BroadcastStore, Queued } from './store';
+import { logError } from '@/lib/errors';
 
 // Sending an email to coaches (decision 0035). Up to 100 people per Resend batch call, each with their own greeting
 // and opt-out link. Rows are marked as they go, so if the function stops halfway, "Carry on sending" picks up the
@@ -68,7 +69,7 @@ async function sendBatch(key: string, b: Broadcast, batch: Queued[]): Promise<{ 
   }).catch(() => null);
   if (res?.ok) return { ok: true };
   const detail = res ? `${res.status} ${(await res.text().catch(() => '')).slice(0, 200)}` : 'network';
-  console.error('[broadcast] batch failed: %s', detail);
+  logError('[broadcast] batch failed: %s', detail);
   // 409 concurrent_idempotent_requests: the same batch is already in progress (a double Carry on). Leave it queued
   // rather than call it failed. Other 409s (the same key with a different body) are real failures.
   const busy = res?.status === 409 && /concurrent_idempotent_requests/.test(detail);

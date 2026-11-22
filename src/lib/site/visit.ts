@@ -2,6 +2,7 @@ import 'server-only';
 import { headers } from 'next/headers';
 import { deviceOf, isBot, regionOf } from './schema';
 import { getSiteStore } from './store';
+import { logError } from '@/lib/errors';
 
 /** Who's asking, from the request headers: hashed into the day's visitor id by the store (decision 0019). */
 export async function visit() {
@@ -56,6 +57,6 @@ export async function recordSignIn(user: { created_at?: string | null; email_con
     const path = isNew ? (opts.joinCode && JOIN_CODE.test(opts.joinCode) ? '/join' : '/signup') : '/login';
     await (await getSiteStore()).record({ name, path, ip: v.ip, agent: v.agent, source: null, device: v.device, region: v.region, signedIn: true });
   } catch (e) {
-    console.error('[site] sign-in event failed:', e instanceof Error ? e.message : e);
+    logError('[site] sign-in event failed:', e instanceof Error ? e.message : e);
   }
 }

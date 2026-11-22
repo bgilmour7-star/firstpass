@@ -5,6 +5,7 @@ import { startPlan } from './start-plan';
 import { dueDayBefore, nextToPlan, type NextTarget } from './next-plan-rule';
 import { cookies } from 'next/headers';
 import { TEAM_TIME_ZONE } from '../calendar/ics';
+import { logError } from '@/lib/errors';
 
 /** "Undo, I'll plan it" and "Not yet" remember the date on this device, so the day-before rule leaves it alone. */
 export const SKIP_COOKIE = 'fp_skip_next';
@@ -43,7 +44,7 @@ export async function planNext(store: AppStore, team: Team, coach: { id: string;
     const summary = why === 'checkin' ? `checked in, and Firstpass planned it${from}` : why === 'open' ? `opened the app, and Firstpass planned it${from}` : last ? `copied it from ${shortDay(last.date)}` : 'started the plan';
     await store.addEdit({ practiceId: p.id, teamId: p.teamId, userId: coach.id, editor: coach.name, summary, base: null });
   } catch (e) {
-    console.error('[plans] edit log:', e);
+    logError('[plans] edit log:', e);
   }
   return p;
 }
@@ -57,6 +58,6 @@ export async function planIfDue(store: AppStore, team: Team, coach: { id: string
     if ((await cookies()).get(SKIP_COOKIE)?.value === t.date) return;
     await planNext(store, team, coach, t, 'open');
   } catch (e) {
-    console.error('[plans] day-before plan:', e);
+    logError('[plans] day-before plan:', e);
   }
 }

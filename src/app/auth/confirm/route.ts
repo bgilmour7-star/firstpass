@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { supabaseServer } from '@/lib/supabase/server';
 import { afterSignIn, JOIN_CODE, safeNext } from '@/lib/auth-after';
+import { logError } from '@/lib/errors';
 
 // Where every button in a Supabase email lands (decision 0013, templates in supabase/templates).
 // It works in any browser or app (e.g. inside the Gmail app) because the link carries a plain
@@ -19,13 +20,13 @@ export async function GET(request: NextRequest) {
   const go = (path: string) => NextResponse.redirect(new URL(path, request.url));
 
   if (!tokenHash) {
-    console.error('[auth] email link arrived without a token', request.nextUrl.search);
+    logError('[auth] email link arrived without a token: params=%s', [...params.keys()].join(','));
     return go('/login?error=link');
   }
   const supabase = await supabaseServer();
   const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
   if (error) {
-    console.error('[auth] verifyOtp failed: %s %s', error.status ?? '', error.code ?? error.message);
+    logError('[auth] verifyOtp failed: %s %s', error.status ?? '', error.code ?? error.message);
     return go(`/login?error=link${join && JOIN_CODE.test(join) ? `&next=${encodeURIComponent(`/join/${join}`)}` : ''}`);
   }
   // A password link always ends on the screen that sets it.

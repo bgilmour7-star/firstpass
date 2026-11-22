@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAnalytics } from '@/lib/auth';
 import { getSiteStore } from '@/lib/site/store';
 import { WAITLIST_STATUSES, type WaitlistStatus } from '@/lib/site/schema';
+import { logError } from '@/lib/errors';
 
 /** Brett's progress with each sign-up: New → Emailed → Call booked → Onboarded (may sign up) or Not a fit. */
 export async function setWaitlistStatus(id: string, status: string): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -12,7 +13,7 @@ export async function setWaitlistStatus(id: string, status: string): Promise<{ o
   try {
     await (await getSiteStore()).setStatus(id, status as WaitlistStatus);
   } catch (e) {
-    console.error('[waitlist] status change failed:', e instanceof Error ? e.message : e);
+    logError('[waitlist] status change failed:', e instanceof Error ? e.message : e);
     return { ok: false, error: 'Couldn’t save. Try again.' };
   }
   revalidatePath('/admin/leads');

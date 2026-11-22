@@ -7,6 +7,8 @@
 // design-system tokens written out (emails can't read CSS variables). Fonts fall back to Helvetica
 // in clients that won't load web fonts, which is most of them.
 
+import { logError } from '@/lib/errors';
+
 export type Email = { subject: string; html: string; text: string };
 
 export const SITE = process.env.SITE_URL ?? 'https://firstpass.coach';
@@ -98,7 +100,7 @@ export async function sendEmail(to: string, email: Email, tag: string, options?:
   const idempotencyKey = o.idempotencyKey;
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    console.error('[email] RESEND_API_KEY is not set; skipped %s', tag);
+    logError('[email] RESEND_API_KEY is not set; skipped %s', tag);
     return false;
   }
   const res = await fetch('https://api.resend.com/emails', {
@@ -107,6 +109,6 @@ export async function sendEmail(to: string, email: Email, tag: string, options?:
     body: JSON.stringify({ from: o.from ?? FROM, to: [to], subject: email.subject, html: email.html, text: email.text, tags: [{ name: 'kind', value: tag }], ...(o.headers ? { headers: o.headers } : {}) }),
   }).catch(() => null);
   if (res?.ok) return true;
-  console.error('[email] %s failed: %s', tag, res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
+  logError('[email] %s failed: %s', tag, res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
   return false;
 }

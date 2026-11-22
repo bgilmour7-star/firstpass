@@ -5,6 +5,7 @@ import { hasSession, visit } from '@/lib/site/visit';
 import { getSiteStore } from '@/lib/site/store';
 import { sendEmail } from '@/lib/email/layout';
 import { WAITLIST_ALERT_TO, waitlistAlertEmail } from '@/lib/email/waitlist-emails';
+import { logError } from '@/lib/errors';
 
 // The landing page's two actions (decision 0019): join the waitlist, and count a visit.
 
@@ -25,7 +26,7 @@ export async function joinWaitlist(raw: { kind: string; email: string; ageGroup?
   try {
     ({ isNew } = await store.join(input));
   } catch (e) {
-    console.error('[waitlist] join failed:', e instanceof Error ? e.message : e);
+    logError('[waitlist] join failed:', e instanceof Error ? e.message : e);
     return { ok: false, error: 'Something went wrong on our side. Try again in a minute, or email hello@firstpass.coach.' };
   }
   const v = await visit();
@@ -50,7 +51,7 @@ export async function track(name: EventName, path: string, source: string | null
     const signedIn = await hasSession().catch(() => false);
     await (await getSiteStore()).record({ name, path: path.slice(0, 200), ip: v.ip, agent: v.agent, source: cleanSource(source), device: v.device, region: v.region, signedIn });
   } catch (e) {
-    console.error('[site] track failed:', e instanceof Error ? e.message : e);
+    logError('[site] track failed:', e instanceof Error ? e.message : e);
   }
 }
 
@@ -63,6 +64,6 @@ export async function noteAppOpen(installed: boolean): Promise<void> {
     const v = await visit();
     await (await getSiteStore()).recordAppOpen(user.id, installed === true, v.device);
   } catch (e) {
-    console.error('[site] app open failed:', e instanceof Error ? e.message : e);
+    logError('[site] app open failed:', e instanceof Error ? e.message : e);
   }
 }

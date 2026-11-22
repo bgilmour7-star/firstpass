@@ -6,6 +6,7 @@ import { requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { activateTeam, notifyHeadCoach } from '@/lib/auth-after';
 import { usingSupabase } from '@/lib/drills/store';
+import { logError } from '@/lib/errors';
 
 /** Already signed in: join the team behind a join link as a coach (decisions 0011, 0013). A coach can be on several teams (0026). */
 export async function joinTeam(code: string) {
@@ -21,7 +22,7 @@ export async function joinTeam(code: string) {
     await activateTeam(teamId);
   } catch (e) {
     const m = e instanceof Error ? e.message : '';
-    console.error('[join] joining failed:', m);
+    logError('[join] joining failed:', m);
     // on-another-team only comes from a database where the 20261028 migration hasn't run yet.
     redirect(`/join/${encodeURIComponent(code)}?error=${encodeURIComponent(m === 'link-off' || m === 'on-another-team' ? m : 'failed')}`);
   }

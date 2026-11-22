@@ -6,6 +6,7 @@ import { SITE, sendEmail } from './email/layout';
 import { TEAM_COOKIE } from './nav';
 import { after } from 'next/server';
 import { isNewAccount, recordSignIn, visit } from './site/visit';
+import { logError } from '@/lib/errors';
 
 // Where every successful sign-in goes next (decision 0013), whether it came from a password, a
 // typed code or a tapped email link:
@@ -70,9 +71,9 @@ export async function afterSignIn(session: Session | null, opts: { next?: string
         try {
           const { error } = await asUser(session).rpc('record_account_source', { ip: v.ip, agent: v.agent, invited: Boolean(opts.joinCode && JOIN_CODE.test(opts.joinCode)) });
           // Before 20261128000000_account_sources.sql the function doesn't exist: nothing to save yet.
-          if (error && error.code !== 'PGRST202') console.error('[site] account source failed: %s', error.message);
+          if (error && error.code !== 'PGRST202') logError('[site] account source failed: %s', error.message);
         } catch (e) {
-          console.error('[site] account source failed:', e instanceof Error ? e.message : e);
+          logError('[site] account source failed:', e instanceof Error ? e.message : e);
         }
       }
     });
@@ -85,7 +86,7 @@ export async function afterSignIn(session: Session | null, opts: { next?: string
     if (error) {
       // Before the 20261028 migration, join_team still refuses a coach who's on another team.
       const m = /link-off|on-another-team/.exec(error.message)?.[0] ?? 'failed';
-      if (m === 'failed') console.error('[join] joining failed: %s', error.message);
+      if (m === 'failed') logError('[join] joining failed: %s', error.message);
       return `/join/${code}?error=${m}`;
     }
     const already = ((before ?? []) as { team_id: string }[]).some((r) => r.team_id === teamId);
@@ -106,7 +107,7 @@ export async function activateTeam(teamId: string) {
     const { cookies } = await import('next/headers');
     (await cookies()).set(TEAM_COOKIE, teamId, { path: '/', maxAge: 31536000, sameSite: 'lax', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
   } catch (e) {
-    console.error('[join] setting the active team failed:', e instanceof Error ? e.message : e);
+    logError('[join] setting the active team failed:', e instanceof Error ? e.message : e);
   }
 }
 
@@ -123,6 +124,6 @@ export async function notifyHeadCoach(db: SupabaseClient, teamId: string, newCoa
     const email = coachJoinedEmail({ name: me.first_name || editorLabel(me.email), email: me.email, teamName: name, coachesUrl: `${SITE}/team/settings#coaches` });
     await sendEmail(head.email, email, 'coach-joined', `joined-${teamId}-${newCoachId}`);
   } catch (e) {
-    console.error('[join] head coach email failed:', e instanceof Error ? e.message : e);
+    logError('[join] head coach email failed:', e instanceof Error ? e.message : e);
   }
 }

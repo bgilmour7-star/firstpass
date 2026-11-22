@@ -1,6 +1,7 @@
 'use server';
 
 import { getDiscoveryStore } from '@/lib/discovery/store';
+import { logError } from '@/lib/errors';
 
 /** Public: the token is the permission. Sets unsubscribed_at and skips every queued discovery email. */
 export async function unsubscribe(token: string): Promise<boolean> {
@@ -8,7 +9,7 @@ export async function unsubscribe(token: string): Promise<boolean> {
   try {
     return await (await getDiscoveryStore()).unsubscribe(token);
   } catch (e) {
-    console.error('[unsubscribe] failed:', e instanceof Error ? e.message : e);
+    logError('[unsubscribe] failed:', e instanceof Error ? e.message : e);
     return false;
   }
 }

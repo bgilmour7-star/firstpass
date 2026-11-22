@@ -35,7 +35,12 @@ export interface SiteStore {
   accountSources(sinceIso: string): Promise<AccountSource[]>;
   /** Every team (not admin-only), all time: when made, age group, first check-in, active weeks (decision 0053). Throws 'team-weeks-migration-missing' before its SQL. */
   teamWeeks(): Promise<TeamWeeks[]>;
+  /** Failures the app caught since then (decision 0054), newest first. Throws 'app-errors-migration-missing' before its SQL. */
+  appErrors(sinceIso: string): Promise<AppError[]>;
 }
+
+/** A caught failure: its area ("email", "join") and a scrubbed message. */
+export type AppError = { occurredAt: string; area: string; message: string };
 
 /** One team, unnamed: its active weeks are Mondays (Vancouver), with whether that week had a check-in. */
 export type TeamWeeks = { createdAt: string; ageGroup: string | null; firstCheckinAt: string | null; weeks: { week: string; checkedIn: boolean }[] };
