@@ -1,6 +1,7 @@
 import { change } from '@/lib/site/summary';
 import type { Usage } from '@/lib/site/usage';
 import { ACTIVATION_DAYS, type Activation, type WeekCell } from '@/lib/site/activation';
+import type { AppError } from '@/lib/site/store';
 import { METRIC_INFO, formatVital, rate, type MetricName, type Rating, type SpeedSummary } from '@/lib/site/vitals';
 
 // Admin → Analytics, the two sections from decision 0029: how coaches use the app, and how fast
@@ -381,6 +382,54 @@ export function ActivationSection({ a, missing }: { a: Activation; missing: bool
             <p className="text-xs text-ink-200">Active means a coach on the team opened the app, changed a plan or checked in that week. Admins’ own use (Brett and the head coach) doesn’t count. Rows show the age group and the day the team was made, never its name.</p>
           </div>
         </>
+      )}
+    </section>
+  );
+}
+
+/** Failures the app caught and carried on from (decision 0054), by area, newest message first. */
+export function ErrorsSection({ errors, days, missing }: { errors: AppError[]; days: number; missing: boolean }) {
+  const byArea = new Map<string, AppError[]>();
+  for (const e of errors) byArea.set(e.area, [...(byArea.get(e.area) ?? []), e]);
+  const rows = [...byArea.entries()].sort((a, b) => b[1].length - a[1].length);
+  const when = (iso: string) => new Date(iso).toLocaleString('en-CA', { timeZone: 'America/Vancouver', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return (
+    <section aria-labelledby="errors-title" className="flex scroll-mt-6 flex-col gap-5" id="errors">
+      <SectionTitle id="errors-title" title="Errors" sub={`Things that failed and that the app carried on from, like an email that didn’t send, in the last ${days} days. Emails, ids and tokens are taken out before they’re saved. Kept 30 days.`} />
+      {missing ? (
+        <p role="status" className="rounded-xl border border-border-100 bg-surface-200 p-4 text-sm">
+          Not set up yet: its database change hasn’t run.
+        </p>
+      ) : rows.length === 0 ? (
+        <p className="text-sm text-ink-200">None in this period.</p>
+      ) : (
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="text-left text-ink-200">
+              <th scope="col" className="border-b border-border-100 pb-2 font-medium">
+                Area
+              </th>
+              <th scope="col" className="border-b border-border-100 pb-2 pl-4 text-right font-medium">
+                Times
+              </th>
+              <th scope="col" className="border-b border-border-100 pb-2 pl-4 font-medium">
+                Latest
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([area, list]) => (
+              <tr key={area}>
+                <td className="border-b border-border-100 py-2.5 align-top font-mono">{area}</td>
+                <td className="border-b border-border-100 py-2.5 pl-4 text-right align-top font-mono tabular-nums">{list.length}</td>
+                <td className="border-b border-border-100 py-2.5 pl-4 align-top">
+                  <span className="break-words">{list[0].message}</span>
+                  <span className="block text-xs text-ink-200">{when(list[0].occurredAt)}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </section>
   );

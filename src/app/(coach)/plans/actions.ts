@@ -12,6 +12,7 @@ import type { AppStore } from '@/lib/app/store';
 import { checkinInput, cleanMarks, practiceOver, rateUnits } from '@/lib/plans/checkin';
 import { cookies } from 'next/headers';
 import { SKIP_COOKIE, nextTarget, planNext } from '@/lib/plans/plan-next';
+import { logError } from '@/lib/errors';
 
 const snap = (p: Practice): Snapshot => ({ blocks: p.blocks, status: p.status, attendance: p.attendance, minutes: p.minutes, startTime: p.startTime, date: p.date });
 const shortDay = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -34,7 +35,7 @@ async function logEdit(store: AppStore, coach: { id: string; name: string }, bef
     if (sameSession && !fixed) await store.updateEdit(last.id, { summary, at: new Date().toISOString() });
     else await store.addEdit({ practiceId: after.id, teamId: after.teamId, userId: coach.id, editor: coach.name, summary, base: fixed ? null : base });
   } catch (e) {
-    console.error('[plans] edit log:', e);
+    logError('[plans] edit log:', e);
   }
 }
 
@@ -183,7 +184,7 @@ export async function saveCheckin(practiceId: string, input: unknown): Promise<{
       guessed = !!t?.guessed;
       planned = (await planNext(store, team, coach, t, 'checkin'))?.id;
     } catch (e) {
-      console.error('[plans] plan next after check-in:', e);
+      logError('[plans] plan next after check-in:', e);
     }
   }
   revalidatePath('/plans');

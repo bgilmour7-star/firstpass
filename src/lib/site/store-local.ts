@@ -6,7 +6,7 @@ import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } 
 import type { UsageRows } from './usage';
 import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
-import type { Growth, NewEvent, SiteStore, AccountSource, TeamWeeks } from './store';
+import type { Growth, NewEvent, SiteStore, AccountSource, TeamWeeks, AppError } from './store';
 
 // Local mode: the waitlist and visits live in .local/site.json.
 const FILE = join(process.cwd(), '.local', 'site.json');
@@ -114,6 +114,11 @@ export class LocalSiteStore implements SiteStore {
         .flatMap((c) => (c.marks ?? []).filter((m) => m.rating === 'hit' || m.rating === 'flop').map((m) => ({ drillId: m.drillId, rating: m.rating as 'hit' | 'flop', at: c.savedAt }))),
       actions: (app.kept ?? []).filter((k) => k.at >= sinceIso).map((k) => ({ kind: 'kept' as const, at: k.at })),
     };
+  }
+
+  // Local mode logs failures to the console only.
+  async appErrors(): Promise<AppError[]> {
+    return [];
   }
 
   // Local mode has no week-by-week history to show.

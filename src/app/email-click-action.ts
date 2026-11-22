@@ -2,6 +2,7 @@
 
 import { getBroadcastStore } from '@/lib/broadcasts/store';
 import { EMAIL_REF } from '@/lib/broadcasts/ref';
+import { logError } from '@/lib/errors';
 
 /**
  * A coach landed on Firstpass from an update email link (?from=<ref>-<n>, decision 0036). Records one click for the
@@ -13,7 +14,7 @@ export async function recordEmailClick(from: unknown): Promise<'stored' | 'ignor
   try {
     return await (await getBroadcastStore()).recordClick(m[1], Number(m[2]));
   } catch (e) {
-    console.error('[email-click] %s', e instanceof Error ? e.message : e);
+    logError('[email-click] %s', e instanceof Error ? e.message : e);
     return 'ignored';
   }
 }

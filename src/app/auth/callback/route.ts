@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { afterSignIn, googleProfilePatch, JOIN_CODE, safeNext } from '@/lib/auth-after';
+import { logError } from '@/lib/errors';
 
 // Where a sign-in that returns with a one-time code lands: Continue with Google (decision 0033), and
 // older magic links. Swap the code for a session, then continue as every sign-in does (afterSignIn):
@@ -18,13 +19,13 @@ export async function GET(request: NextRequest) {
 
   // Google sends the coach back with an error when they cancel or it refuses (?error=access_denied).
   if (!code) {
-    console.error('[auth] sign-in returned without a code', request.nextUrl.search);
+    logError('[auth] sign-in returned without a code', request.nextUrl.search);
     return back(params.get('error') ?? 'missing_token');
   }
   const supabase = await supabaseServer();
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    console.error('[auth] %s failed: %s %s', 'exchangeCodeForSession', error.status ?? '', error.code ?? error.message);
+    logError('[auth] %s failed: %s %s', 'exchangeCodeForSession', error.status ?? '', error.code ?? error.message);
     return back(error.code ?? error.message);
   }
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
     const patch = googleProfilePatch(data.user.user_metadata ?? {});
     if (Object.keys(patch).length) {
       const { error: e } = await supabase.auth.updateUser({ data: patch });
-      if (e) console.error('[auth] saving the Google first name failed: %s', e.message);
+      if (e) logError('[auth] saving the Google first name failed: %s', e.message);
     }
   }
   return go(await afterSignIn(data.session, { next, joinCode, viaPassword: google }));

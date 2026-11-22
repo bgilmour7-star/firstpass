@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { deviceOf, isBot } from '@/lib/site/schema';
 import { getSiteStore } from '@/lib/site/store';
 import { pageGroup, vitalsInput } from '@/lib/site/vitals';
+import { logError } from '@/lib/errors';
 
 // Page speed from real visits (decision 0029). The browser posts a few numbers when a page is
 // hidden or closed. Open to signed-out visitors (the landing page); nothing about the visitor is
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const parsed = vitalsInput.safeParse(JSON.parse(await request.text()));
     if (parsed.success) await (await getSiteStore()).recordVitals(pageGroup(parsed.data.path), deviceOf(agent), parsed.data.metrics);
   } catch (e) {
-    console.error('[vitals] failed:', e instanceof Error ? e.message : e);
+    logError('[vitals] failed:', e instanceof Error ? e.message : e);
   }
   return new NextResponse(null, { status: 204 });
 }

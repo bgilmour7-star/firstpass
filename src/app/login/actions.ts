@@ -3,6 +3,7 @@
 import { cookies, headers } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
 import { afterSignIn, JOIN_CODE, LAST_EMAIL, safeNext } from '@/lib/auth-after';
+import { logError } from '@/lib/errors';
 
 // Email-first sign-in (decision 0013). The screen asks for an email, then:
 //   new       → create an account (first name + password), or "email me a link instead"
@@ -64,7 +65,7 @@ async function remember(email: string) {
 
 function friendly(error: { status?: number; message: string; code?: string }, what: string): string {
   if (error.status === 429 || /rate limit|security purposes/i.test(error.message)) return 'Too many emails in a short time. Use the most recent one in your inbox, or try again in a minute.';
-  console.error('[auth] %s failed: %s %s', what, error.status ?? '', error.code ?? error.message);
+  logError('[auth] %s failed: %s %s', what, error.status ?? '', error.code ?? error.message);
   return `Something went wrong. Try again in a minute.`;
 }
 
@@ -180,7 +181,7 @@ export async function googleSignIn(input: Ctx): Promise<Result<{ url: string }>>
   const { supabaseServer } = await import('@/lib/supabase/server');
   const { data, error } = await (await supabaseServer()).auth.signInWithOAuth({ provider: 'google', options: { redirectTo, skipBrowserRedirect: true, queryParams: { prompt: 'select_account' } } });
   if (error || !data.url) {
-    if (error) console.error('[auth] signInWithOAuth failed: %s %s', error.status ?? '', error.code ?? error.message);
+    if (error) logError('[auth] signInWithOAuth failed: %s %s', error.status ?? '', error.code ?? error.message);
     return { ok: false, error: 'Google sign-in isn’t working right now. Use your email instead.' };
   }
   return { ok: true, url: data.url };

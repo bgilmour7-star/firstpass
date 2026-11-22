@@ -5,6 +5,7 @@ import { requireTeam } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { getRequestStore } from '@/lib/requests/store';
 import { OPEN_LIMIT, requestInput } from '@/lib/requests/schema';
+import { logError } from '@/lib/errors';
 
 // A coach asks for a new drill or suggests a change (decision 0018). Claude drafts it once a day;
 // an admin reviews it; the coach hears back by email.
@@ -22,7 +23,7 @@ export async function sendDrillRequest(raw: unknown): Promise<{ ok: true } | { o
     const m = e instanceof Error ? e.message : '';
     if (m === 'request-limit') return { ok: false, error: `Your team has ${OPEN_LIMIT} requests waiting. Send this one once one of them is done.` };
     if (m === 'requests-migration-missing') return { ok: false, error: 'Drill requests aren’t set up in the database yet. Run supabase/migrations/20261025000000_drill_requests.sql.' };
-    console.error('[requests] sending failed:', m);
+    logError('[requests] sending failed:', m);
     return { ok: false, error: 'Couldn’t send that. Try again in a minute.' };
   }
   revalidatePath('/drills');

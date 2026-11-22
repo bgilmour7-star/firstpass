@@ -6,6 +6,7 @@ import { drillSchema, type Drill } from '../drills/schema';
 import type { PracticeActivity, Snapshot } from '../plans/activity';
 import { checkinInput, type Checkin } from '../plans/checkin';
 import { newShareToken, type AppStore, type IceTime, type IceTimeRow, type MyTeam, type NewPractice, type OlderInterest, type Share, type SharedPractice, type TeamCoach, type TeamSetup, type Favorite, type JoinPreview } from './store';
+import { logError } from '@/lib/errors';
 
 // Every query runs as the signed-in coach, so RLS limits it to their own team.
 
@@ -134,7 +135,7 @@ export class SupabaseAppStore implements AppStore {
     let { error } = await db.from('practices').update(row).eq('id', p.id);
     if (error && /attendance/.test(error.message)) {
       // The attendance migration hasn't run yet: save the plan anyway, without today's groups.
-      console.error('[store] practices.attendance missing; run supabase/migrations/20261015000000_attendance.sql');
+      logError('[store] practices.attendance missing; run supabase/migrations/20261015000000_attendance.sql');
       const { attendance: _skip, ...rest } = row;
       void _skip;
       ({ error } = await db.from('practices').update(rest).eq('id', p.id));
@@ -287,17 +288,17 @@ export class SupabaseAppStore implements AppStore {
   async addEdit(e: { practiceId: string; teamId: string; userId: string; editor: string; summary: string; base: Snapshot | null }) {
     const db = await supabaseServer();
     const { error } = await db.from('practice_edits').insert({ practice_id: e.practiceId, team_id: e.teamId, user_id: e.userId, editor: e.editor, summary: e.summary, base: e.base });
-    if (error) console.error('[store] practice_edits:', error.message);
+    if (error) logError('[store] practice_edits:', error.message);
   }
   async updateEdit(id: string, patch: { summary: string; at: string }) {
     const db = await supabaseServer();
     const { error } = await db.from('practice_edits').update(patch).eq('id', id);
-    if (error) console.error('[store] practice_edits:', error.message);
+    if (error) logError('[store] practice_edits:', error.message);
   }
   async markViewed(practiceId: string, userId: string) {
     const db = await supabaseServer();
     const { error } = await db.from('practice_views').upsert({ practice_id: practiceId, user_id: userId, viewed_at: new Date().toISOString() });
-    if (error) console.error('[store] practice_views:', error.message);
+    if (error) logError('[store] practice_views:', error.message);
   }
   async teamActivity(teamId: string, userId: string) {
     const db = await supabaseServer();

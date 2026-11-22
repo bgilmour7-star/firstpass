@@ -4,6 +4,7 @@ import { checkinEmail } from '@/lib/email/checkin-email';
 import { draftReadyEmail } from '@/lib/email/request-emails';
 import { progressReminderEmail, progressReportEmail, progressScoringEmail } from '@/lib/email/progress-emails';
 import { reminderInput, reportInput, scoringInput, type Due as ProgressDue, type ScoreRow } from '@/lib/progress/emails';
+import { logError } from '@/lib/errors';
 
 // Called every 10 minutes by the database's timer (pg_cron, see the checkin_emails migration).
 // The timer's secret travels as a bearer token and is checked by the database itself, so this
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await db.rpc('claim_checkin_emails', { secret });
   if (error) {
     const denied = /not allowed/i.test(error.message);
-    if (!denied) console.error('[checkin-email] claiming failed: %s', error.message);
+    if (!denied) logError('[checkin-email] claiming failed: %s', error.message);
     return NextResponse.json({ error: denied ? 'not allowed' : 'claim failed' }, { status: denied ? 401 : 500 });
   }
 
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       continue;
     }
     failed++;
-    console.error('[checkin-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
+    logError('[checkin-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
     // Hand it back so the next run tries again (until six hours after the practice).
     await db.rpc('release_checkin_email', { secret, practice: d.practice_id, coach: d.user_id });
   }
@@ -74,7 +75,7 @@ async function sendRequestEmails(db: SupabaseClient<any, 'public', any>, secret:
   const { data, error } = await db.rpc('claim_request_emails', { secret });
   // Before the drill requests SQL has run there's nothing to send.
   if (error) {
-    if (!/claim_request_emails|does not exist|schema cache/i.test(error.message)) console.error('[request-email] claiming failed: %s', error.message);
+    if (!/claim_request_emails|does not exist|schema cache/i.test(error.message)) logError('[request-email] claiming failed: %s', error.message);
     return { sent: 0, failed: 0 };
   }
   let sent = 0;
@@ -93,7 +94,7 @@ async function sendRequestEmails(db: SupabaseClient<any, 'public', any>, secret:
       continue;
     }
     failed++;
-    console.error('[request-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
+    logError('[request-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
     await db.rpc('release_request_email', { secret, request: d.request_id });
   }
   return { sent, failed };
@@ -104,7 +105,7 @@ async function sendProgressEmails(db: SupabaseClient<any, 'public', any>, secret
   const { data, error } = await db.rpc('claim_progress_emails', { secret });
   // Before the progress emails SQL has run there's nothing to send.
   if (error) {
-    if (!/claim_progress_emails|does not exist|schema cache/i.test(error.message)) console.error('[progress-email] claiming failed: %s', error.message);
+    if (!/claim_progress_emails|does not exist|schema cache/i.test(error.message)) logError('[progress-email] claiming failed: %s', error.message);
     return { sent: 0, failed: 0 };
   }
   let sent = 0;
@@ -114,7 +115,7 @@ async function sendProgressEmails(db: SupabaseClient<any, 'public', any>, secret
     if (!rounds.has(d.round_id)) {
       const r = await db.rpc('progress_email_scores', { secret, r: d.round_id });
       rounds.set(d.round_id, r.error ? null : ((r.data ?? []) as ScoreRow[]));
-      if (r.error) console.error('[progress-email] reading scores failed: %s', r.error.message);
+      if (r.error) logError('[progress-email] reading scores failed: %s', r.error.message);
     }
     const rows = rounds.get(d.round_id);
     // Couldn't read the round: hand the email back so the next run tries again.
@@ -137,7 +138,7 @@ async function sendProgressEmails(db: SupabaseClient<any, 'public', any>, secret
       continue;
     }
     failed++;
-    console.error('[progress-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
+    logError('[progress-email] sending failed: %s', res ? `${res.status} ${await res.text().catch(() => '')}` : 'network');
     await db.rpc('release_progress_email', { secret, r: d.round_id, coach: d.user_id, k: d.kind });
   }
   return { sent, failed };

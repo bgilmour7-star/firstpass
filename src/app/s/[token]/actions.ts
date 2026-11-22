@@ -2,6 +2,7 @@
 
 import { getDiscoveryStore } from '@/lib/discovery/store';
 import { surveyAnswers, toRow } from '@/lib/discovery/schema';
+import { logError } from '@/lib/errors';
 
 export type SubmitSurveyResult = { ok: true } | { ok: false; error: string; field?: 'phone' };
 
@@ -21,7 +22,7 @@ export async function submitSurvey(token: string, raw: unknown): Promise<SubmitS
     if (r === 'used') return { ok: false, error: 'You’ve already answered this one. Thank you!' };
     if (r === 'unknown') return { ok: false, error: 'This survey link isn’t right. Use the button in the email.' };
   } catch (e) {
-    console.error('[survey] submit failed:', e instanceof Error ? e.message : e);
+    logError('[survey] submit failed:', e instanceof Error ? e.message : e);
     return { ok: false, error: 'Something went wrong on our side. Try again in a minute, or reply to the email instead.' };
   }
   return { ok: true };

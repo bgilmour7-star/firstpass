@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { supabaseServer } from '../supabase/server';
 import { OPTED_OUT, draftSchema, type Age, type Broadcast, type Draft, type Recipient, type Segment, type SendCounts, type Stats, type Status } from './schema';
 import type { BroadcastStore, Queued } from './store';
+import { logError } from '@/lib/errors';
 
 type Err = { code?: string; message: string };
 const missing = (e: Err) => e.code === 'PGRST202' || e.code === 'PGRST205' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the (function|table)|schema cache/i.test(e.message);
@@ -152,7 +153,7 @@ export class SupabaseBroadcastStore implements BroadcastStore {
     if (!u.user) return 'signed-out';
     const { data, error } = await db.rpc('record_email_click', { ref, link });
     if (error) {
-      console.error('[email-click] %s', error.message);
+      logError('[email-click] %s', error.message);
       return 'ignored';
     }
     return data === true ? 'stored' : 'ignored';

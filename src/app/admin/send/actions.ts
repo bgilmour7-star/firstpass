@@ -8,6 +8,7 @@ import { deliver, updatesUrl } from '@/lib/broadcasts/send';
 import { AGES, SEGMENTS, draftSchema, problems, type Age, type Draft, type Segment } from '@/lib/broadcasts/schema';
 import { broadcastEmail } from '@/lib/email/broadcast-email';
 import { FROM_BRETT, sendEmail } from '@/lib/email/layout';
+import { logError } from '@/lib/errors';
 
 // Admin → Send (decision 0035). Brett only: every action checks requireAnalytics() and validates its input; the
 // tables and functions behind the store are RLS'd to can_see_analytics() as well.
@@ -18,7 +19,7 @@ const MIGRATION = 'The email tables aren’t set up yet. Run supabase/migrations
 const why = (e: unknown, fallback: string) => {
   const m = e instanceof Error ? e.message : '';
   if (m === 'broadcasts-migration-missing') return MIGRATION;
-  console.error('[send] %s: %s', fallback, m);
+  logError('[send] %s: %s', fallback, m);
   return fallback;
 };
 

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { FROM_BRETT, SITE, sendEmail } from '@/lib/email/layout';
 import { idempotencyKey, queuedEntry } from '@/lib/email/journeys';
+import { logError } from '@/lib/errors';
 
 // The discovery email journeys (decision 0027), called every 10 minutes by the database's timer
 // (pg_cron, see the discovery migration), the same way as the check-in emails (decision 0010): the
@@ -38,12 +39,12 @@ export async function POST(request: NextRequest) {
     if (denied(queued.error.message)) return NextResponse.json({ error: 'not allowed' }, { status: 401 });
     // Before the discovery SQL has run there's nothing to send.
     if (/does not exist|schema cache|could not find/i.test(queued.error.message)) return NextResponse.json({ sent: 0, skipped: 0, failed: 0, setup: 'discovery migration not run' });
-    console.error('[journey-email] enqueue failed: %s', queued.error.message);
+    logError('[journey-email] enqueue failed: %s', queued.error.message);
   }
 
   const { data, error } = await db.rpc('claim_due_emails', { secret });
   if (error) {
-    if (!denied(error.message)) console.error('[journey-email] claiming failed: %s', error.message);
+    if (!denied(error.message)) logError('[journey-email] claiming failed: %s', error.message);
     return NextResponse.json({ error: denied(error.message) ? 'not allowed' : 'claim failed' }, { status: denied(error.message) ? 401 : 500 });
   }
 

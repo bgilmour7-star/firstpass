@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { requireAnalytics } from '@/lib/auth';
-import { getSiteStore, type AccountSource, type TeamWeeks } from '@/lib/site/store';
+import { getSiteStore, type AccountSource, type AppError, type TeamWeeks } from '@/lib/site/store';
 import { change, summarize, summarizeAccountSources, summarizeGrowth, type FunnelStep, type SourceRow, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
-import { ActivationSection, InTheApp, SectionTitle, Speed } from './app-sections';
+import { ActivationSection, ErrorsSection, InTheApp, SectionTitle, Speed } from './app-sections';
 import { summarizeActivation } from '@/lib/site/activation';
 import { ProgressScoring } from './progress-section';
 import { EMPTY_PROGRESS_USAGE, summarizeProgress, type ProgressUsageRows } from '@/lib/progress/usage';
@@ -74,6 +74,16 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
   const activation = summarizeActivation(weekRows);
 
+  // Errors the app caught (decision 0054). Its table comes from a later migration.
+  let appErrors: AppError[] = [];
+  let errorsMissing = false;
+  try {
+    appErrors = await store.appErrors(new Date(Date.now() - days * DAY).toISOString());
+  } catch (e) {
+    if (e instanceof Error && e.message === 'app-errors-migration-missing') errorsMissing = true;
+    else throw e;
+  }
+
   // In the app and Speed (decision 0029). Their tables come from a later migration.
   const since = new Date(Date.now() - 2 * days * DAY).toISOString();
   let rows: UsageRows = EMPTY_USAGE_ROWS;
@@ -117,6 +127,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
               ['#activation', 'Activation'],
               ['#progress', 'Progress scoring'],
               ['#speed', 'Speed'],
+              ['#errors', 'Errors'],
             ].map(([href, label], i) => (
               <span key={href}>
                 {i > 0 && ' · '}
@@ -168,6 +179,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       <TeamsAndCoaches g={g} days={days} missing={growthMissing} />
       <ProgressScoring u={progress} months={progressRows.months} days={days} missing={progressMissing} now={Date.now()} />
       <Speed s={speed} missing={usageMissing} />
+      <ErrorsSection errors={appErrors} days={days} missing={errorsMissing} />
     </div>
   );
 }

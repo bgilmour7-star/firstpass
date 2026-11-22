@@ -2,6 +2,7 @@ import 'server-only';
 import { supabaseServer } from '../supabase/server';
 import type { Audience, CallStatus, GiftCard, Invite, Note, NoteKind, Person, SendStats, SurveyResponse, Usage } from './schema';
 import type { DiscoveryStore, SubmitResult, ThemeTarget } from './store';
+import { logError } from '@/lib/errors';
 
 type Err = { code?: string; message: string };
 const missing = (e: Err) => e.code === 'PGRST202' || e.code === 'PGRST205' || e.code === '42P01' || e.code === '42883' || /does not exist|could not find the (function|table)|schema cache/i.test(e.message);
@@ -25,7 +26,7 @@ export class SupabaseDiscoveryStore implements DiscoveryStore {
   async invite(token: string): Promise<Invite | null> {
     const { data, error } = await (await supabaseServer()).rpc('survey_invite', { t: token });
     if (error) {
-      if (!missing(error)) console.error('[survey] invite lookup failed: %s', error.message);
+      if (!missing(error)) logError('[survey] invite lookup failed: %s', error.message);
       return null;
     }
     const r = (data as { audience: Audience; first_name: string | null; email: string; used: boolean; team_name: string | null }[] | null)?.[0];
@@ -82,7 +83,7 @@ export class SupabaseDiscoveryStore implements DiscoveryStore {
       }
       out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     } else if (older.error && !missing(older.error)) {
-      console.error('[discovery] older_team_interest read failed: %s', older.error.message);
+      logError('[discovery] older_team_interest read failed: %s', older.error.message);
     }
     return out;
   }
@@ -118,7 +119,7 @@ export class SupabaseDiscoveryStore implements DiscoveryStore {
     // A theme Brett types himself is approved by typing it: add it to the list the daily task picks from.
     if (themes.length) {
       const { error: e2 } = await db.from('insight_themes').upsert(themes.map((name) => ({ name })), { onConflict: 'name', ignoreDuplicates: true });
-      if (e2) console.error('[discovery] adding themes failed: %s', e2.message);
+      if (e2) logError('[discovery] adding themes failed: %s', e2.message);
     }
   }
 

@@ -10,6 +10,7 @@ import { teamSchema } from '@/lib/plans/schema';
 import { readCalendar, syncCalendar, todayLocal } from '@/lib/calendar/sync';
 import { headCoachEmail, inviteEmail } from '@/lib/email/account-emails';
 import { SITE, sendEmail } from '@/lib/email/layout';
+import { logError } from '@/lib/errors';
 
 /** Make a team the active one (decision 0026). Only a team the coach is on; anything else is ignored. */
 export async function setActiveTeam(teamId: string): Promise<boolean> {
@@ -50,7 +51,7 @@ export async function leaveTeam(): Promise<{ ok: false; error: string } | void> 
     const m = e instanceof Error ? e.message : '';
     if (m === 'head-coach-leaves') return { ok: false, error: 'You’re the head coach, so the team can’t be left without you. Delete it instead.' };
     if (m === 'teams-migration-missing') return { ok: false, error: 'Leaving a team needs a one-time database update (supabase/migrations/20261028000000_multi_team_and_older_interest.sql).' };
-    console.error('[team] leaving failed:', m);
+    logError('[team] leaving failed:', m);
     return { ok: false, error: 'Couldn’t leave just now. Try again in a minute.' };
   }
   (await cookies()).delete(TEAM_COOKIE);
@@ -67,7 +68,7 @@ export async function deleteTeam(typedName: string): Promise<{ ok: false; error:
   } catch (e) {
     const m = e instanceof Error ? e.message : '';
     if (m === 'not-head-coach') return { ok: false, error: 'Only the head coach can delete the team.' };
-    console.error('[team] deleting failed:', m);
+    logError('[team] deleting failed:', m);
     return { ok: false, error: 'Couldn’t delete it just now. Try again in a minute.' };
   }
   (await cookies()).delete(TEAM_COOKIE);
@@ -114,7 +115,7 @@ function calendarError(e: unknown): string {
   const m = e instanceof Error ? e.message : '';
   if (m === 'calendar-migration-missing') return 'The calendar isn’t set up in the database yet. Run supabase/migrations/20261016000000_calendar.sql in the Supabase SQL editor, then try again.';
   if (m === 'not-head-coach') return 'Only the head coach can change the calendar link.';
-  console.error('[calendar] saving the link failed:', m);
+  logError('[calendar] saving the link failed:', m);
   return 'Couldn’t save the link. Try again in a minute.';
 }
 
@@ -132,7 +133,7 @@ export async function setCheckinEmails(teamId: string, on: boolean): Promise<{ o
   } catch (e) {
     const m = e instanceof Error ? e.message : '';
     if (m === 'email-migration-missing') return { ok: false, error: 'Emails aren’t set up in the database yet. Run supabase/migrations/20261021000000_checkin_emails.sql in the Supabase SQL editor.' };
-    console.error('[checkin-email] saving the setting failed:', m);
+    logError('[checkin-email] saving the setting failed:', m);
     return { ok: false, error: 'Couldn’t save that. Try again in a minute.' };
   }
   return { ok: true };
@@ -145,7 +146,7 @@ function coachError(e: unknown): string {
   if (m === 'not-head-coach') return 'Only the head coach can do that.';
   if (m === 'not-yourself') return 'You can’t remove yourself: the team needs its head coach.';
   if (m === 'join-migration-missing') return 'Join links aren’t set up in the database yet. Run supabase/migrations/20261022000000_team_join_link.sql in the Supabase SQL editor.';
-  console.error('[coaches] change failed:', m);
+  logError('[coaches] change failed:', m);
   return 'Couldn’t save that. Try again in a minute.';
 }
 

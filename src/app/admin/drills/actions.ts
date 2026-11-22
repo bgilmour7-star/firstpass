@@ -6,6 +6,7 @@ import { getDrillStore } from '@/lib/drills/store';
 import { STATUSES, canMove, drillSchema, groupModelProblem, type Status } from '@/lib/drills/schema';
 import { getRequestStore } from '@/lib/requests/store';
 import { closeRequest, openRequestFor } from '@/lib/requests/outcome';
+import { logError } from '@/lib/errors';
 
 export type ActionResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
 
@@ -94,7 +95,7 @@ export async function closeDiagramRequest(drillId: string, requestId: string, ho
   try {
     await store.resolveDiagramRequest(requestId, drillId, resolution);
   } catch (e) {
-    console.error('[review] closing a diagram request failed:', e instanceof Error ? e.message : e);
+    logError('[review] closing a diagram request failed:', e instanceof Error ? e.message : e);
     return { ok: false, error: 'Couldn’t close it. Try again in a minute.' };
   }
   revalidatePath('/admin/drills');
