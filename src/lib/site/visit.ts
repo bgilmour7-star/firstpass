@@ -33,11 +33,6 @@ export async function hasSession(): Promise<boolean> {
   return Boolean(data.user);
 }
 
-/**
- * Note a sign-in on the visit counts (decision 0051), under the same daily visitor id as the browser's
- * page views: account_created for a brand-new account (a lead converting), sign_in for anyone else (a
- * returning coach). No user id or email goes into page_events. Never throws.
- */
 /** Whether this sign-in is the one that made the account (see NEW_ACCOUNT_MS). */
 export function isNewAccount(user: { created_at?: string | null; email_confirmed_at?: string | null }, now = Date.now()): boolean {
   return [user.created_at, user.email_confirmed_at].some((t) => {
@@ -46,6 +41,11 @@ export function isNewAccount(user: { created_at?: string | null; email_confirmed
   });
 }
 
+/**
+ * Note a sign-in on the visit counts (decision 0051), under the same daily visitor id as the browser's
+ * page views: account_created for a brand-new account (a lead converting), sign_in for anyone else (a
+ * returning coach). No user id or email goes into page_events. Never throws.
+ */
 export async function recordSignIn(user: { created_at?: string | null; email_confirmed_at?: string | null }, opts: { joinCode?: string | null; now?: number; visit?: Awaited<ReturnType<typeof visit>> } = {}): Promise<void> {
   try {
     const v = opts.visit ?? (await visit());

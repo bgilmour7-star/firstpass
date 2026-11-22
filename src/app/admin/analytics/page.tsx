@@ -369,7 +369,7 @@ function AccountSources({ rows, total, missing }: { rows: SourceRow[]; total: nu
         <h2 id="acct-src-title" className="text-lg font-semibold">
           Where accounts came from
         </h2>
-        <p className="text-sm text-ink-200">Each new account, by the visit that led to it, and whether its coach went on to make a team and run a practice. Made a team and ran a practice count head coaches. Accounts are traced only when made the same day as the visit, in the same browser; earlier accounts show as not traced.</p>
+        <p className="text-sm text-ink-200">Each new account, by the visit that led to it, and whether its coach went on to make a team and run a practice (head coaches only).</p>
       </div>
       {missing ? (
         <p className="text-sm text-ink-200">Not set up yet: its database change hasn’t run.</p>
@@ -408,6 +408,7 @@ function AccountSources({ rows, total, missing }: { rows: SourceRow[]; total: nu
           </tbody>
         </table>
       )}
+      <p className="text-xs text-ink-200">An account is traced when it was made the same day as the visit, in the same browser. Accounts from before Nov 22 show as not traced.</p>
     </section>
   );
 }
