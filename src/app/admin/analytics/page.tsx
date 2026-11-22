@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { requireAnalytics } from '@/lib/auth';
-import { getSiteStore, type AccountSource } from '@/lib/site/store';
+import { getSiteStore, type AccountSource, type TeamWeeks } from '@/lib/site/store';
 import { change, summarize, summarizeAccountSources, summarizeGrowth, type FunnelStep, type SourceRow, type GrowthSummary, type Summary } from '@/lib/site/summary';
 import type { PageEvent, WaitlistEntry } from '@/lib/site/schema';
-import { InTheApp, SectionTitle, Speed } from './app-sections';
+import { ActivationSection, InTheApp, SectionTitle, Speed } from './app-sections';
+import { summarizeActivation } from '@/lib/site/activation';
 import { ProgressScoring } from './progress-section';
 import { EMPTY_PROGRESS_USAGE, summarizeProgress, type ProgressUsageRows } from '@/lib/progress/usage';
 import { monthOf } from '@/lib/progress/report';
@@ -62,6 +63,17 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
   const acctSources = summarizeAccountSources(accountRows, { days });
 
+  // Activation and retention (decision 0053): every team, week by week. Its function comes from a later migration.
+  let weekRows: TeamWeeks[] = [];
+  let weeksMissing = false;
+  try {
+    weekRows = await store.teamWeeks();
+  } catch (e) {
+    if (e instanceof Error && e.message === 'team-weeks-migration-missing') weeksMissing = true;
+    else throw e;
+  }
+  const activation = summarizeActivation(weekRows);
+
   // In the app and Speed (decision 0029). Their tables come from a later migration.
   const since = new Date(Date.now() - 2 * days * DAY).toISOString();
   let rows: UsageRows = EMPTY_USAGE_ROWS;
@@ -102,6 +114,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
             {[
               ['#site', 'Landing page'],
               ['#app', 'In the app'],
+              ['#activation', 'Activation'],
               ['#progress', 'Progress scoring'],
               ['#speed', 'Speed'],
             ].map(([href, label], i) => (
@@ -151,6 +164,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       <Who s={s} />
       <InTheApp u={usage} days={days} names={names} missing={usageMissing} />
+      <ActivationSection a={activation} missing={weeksMissing} />
       <TeamsAndCoaches g={g} days={days} missing={growthMissing} />
       <ProgressScoring u={progress} months={progressRows.months} days={days} missing={progressMissing} now={Date.now()} />
       <Speed s={speed} missing={usageMissing} />

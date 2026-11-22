@@ -6,7 +6,7 @@ import type { Device, PageEvent, WaitlistEntry, WaitlistInput, WaitlistStatus } 
 import type { UsageRows } from './usage';
 import type { ProgressUsageRows } from '../progress/usage';
 import type { MetricName, PageGroup, Vital } from './vitals';
-import type { Growth, NewEvent, SiteStore, AccountSource } from './store';
+import type { Growth, NewEvent, SiteStore, AccountSource, TeamWeeks } from './store';
 
 // Local mode: the waitlist and visits live in .local/site.json.
 const FILE = join(process.cwd(), '.local', 'site.json');
@@ -118,6 +118,11 @@ export class LocalSiteStore implements SiteStore {
 
   // Local mode reads the app's own file. Memberships made before this change have no time, so
   // they count from the day the file was first used.
+  // Local mode has no week-by-week history to show.
+  async teamWeeks(): Promise<TeamWeeks[]> {
+    return [];
+  }
+
   // Local mode has no accounts to trace.
   async accountSources(): Promise<AccountSource[]> {
     return [];
