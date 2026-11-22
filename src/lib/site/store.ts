@@ -8,7 +8,7 @@ import type { MetricName, PageGroup, Vital } from './vitals';
 // The one seam for the public site (decision 0019). Supabase in production: anyone may join the
 // waitlist and record a visit (security-definer functions), only Brett reads them (RLS). A JSON
 // file in local mode. Nothing else talks to storage directly.
-export type NewEvent = { name: EventName; path: string; ip: string | null; agent: string | null; source: string | null; device: Device; region: string | null };
+export type NewEvent = { name: EventName; path: string; ip: string | null; agent: string | null; source: string | null; device: Device; region: string | null; signedIn?: boolean };
 
 export interface SiteStore {
   /** Joins, or updates the row when the email is already on the list. isNew is false for a repeat. Throws 'waitlist-migration-missing' before the SQL has run. */

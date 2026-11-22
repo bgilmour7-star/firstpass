@@ -50,7 +50,7 @@ export class LocalSiteStore implements SiteStore {
     const d = await read();
     const day = new Date().toISOString().slice(0, 10);
     const visitor = createHash('sha256').update(`${day}|${e.ip ?? ''}|${e.agent ?? ''}`).digest('hex');
-    d.events.push({ occurredAt: new Date().toISOString(), name: e.name, visitor, source: e.source, device: e.device, region: e.region, path: e.path });
+    d.events.push({ occurredAt: new Date().toISOString(), name: e.name, visitor, source: e.source, device: e.device, region: e.region, path: e.path, signedIn: e.signedIn === true });
     await write(d);
   }
 
