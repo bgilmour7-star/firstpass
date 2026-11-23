@@ -26,16 +26,21 @@ export function StationsCard({ block, drill, units, onZone }: { block: StationsB
   } as RinkDiagramProps;
   const merged = units.find((u) => u.groups.length > 1);
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 sm:grid-cols-[220px_minmax(0,1fr)]">
+    // Sized to its own space, like RotationCard: stacked in the side panel, side by side when wide. It used to switch
+    // on the screen width, which squeezed the list into a sliver beside the diagram in the panel.
+    <div className="@container">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 @lg:grid-cols-[220px_minmax(0,1fr)]">
       <Rink spec={spec} title={`${drill.funName}: ${units.length} groups today`} detail="thumb" className="max-w-[260px] rounded-sm border border-border-100" />
       <div className="flex min-w-0 flex-col">
         {ZONES.filter((z) => drill.stations?.some((s) => s.station === z)).map((z) => {
           const here = who.get(z) ?? [];
           return (
-            <div key={z} className={`grid grid-cols-[28px_minmax(0,140px)_minmax(0,1fr)] items-baseline gap-2.5 border-t border-border-100 py-2 text-sm ${here.length ? '' : 'opacity-50'}`}>
+            <div key={z} className={`grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2.5 border-t border-border-100 py-2 text-sm ${here.length ? '' : 'opacity-50'}`}>
               <Badge zone={z} dim={!here.length} />
-              <b className="truncate">{here.map((u) => u.label).join(', ') || '—'}</b>
-              <span>{here.length ? version(z) : 'Not used today'}</span>
+              <span className="flex min-w-0 flex-col">
+                <b>{here.map((u) => u.label).join(', ') || '—'}</b>
+                <span className="text-xs text-ink-200">{here.length ? version(z) : 'Not used today'}</span>
+              </span>
             </div>
           );
         })}
@@ -58,14 +63,15 @@ export function StationsCard({ block, drill, units, onZone }: { block: StationsB
             </button>
           </div>
         ) : (
-          <p className="pt-2 text-xs text-ink-200">
+          <p className="border-t border-border-100 pt-2 text-xs text-ink-200">
             {merged ? `${merged.label} play the ${merged.names[0]} station. ` : 'All at once, each group at its own station. '}
-            <button type="button" onClick={() => setEdit(true)} className="text-rink-100 hover:underline">
+            <button type="button" onClick={() => setEdit(true)} className="inline-flex min-h-11 items-center text-rink-100 hover:underline">
               Change
             </button>
           </p>
         )}
       </div>
+    </div>
     </div>
   );
 }
