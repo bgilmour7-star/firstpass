@@ -1280,17 +1280,12 @@ function BlockPanel({
           {perZone}
         </div>
       ) : (
-        <>
-          <div className="flex flex-wrap items-center gap-2">
-            {stepper}
-            {perZone}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <ActionButton icon={A.up} label="Move up" disabled={index === 0} onClick={() => onMove(index - 1)} />
-            <ActionButton icon={A.down} label="Move down" disabled={index === count - 1} onClick={() => onMove(index + 1)} />
-            <Menu items={menu} trigger="labelled" align="left" />
-          </div>
-        </>
+        // Desktop: moving, swapping, removing and the rest live on the selected row's toolbar, right beside this
+        // panel, so the panel keeps only the minutes and gives its space to the drill itself.
+        <div className="flex flex-wrap items-center gap-2">
+          {stepper}
+          {perZone}
+        </div>
       )}
 
       {act && (
