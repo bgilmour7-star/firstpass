@@ -819,7 +819,7 @@ export function Builder({
 
         <div className="border-t border-border-100 pt-6 lg:border-l lg:border-t-0 lg:bg-surface-200 lg:px-7 lg:pb-24 lg:pt-7">
         {desktop && openIndex >= 0 ? (
-          <section aria-label={name(blocks[openIndex])} className="lg:sticky lg:top-[96px] lg:max-h-[calc(100dvh-112px)] lg:overflow-y-auto lg:pb-6">
+          <section aria-label={name(blocks[openIndex])} className="lg:sticky lg:top-[96px] lg:max-h-[calc(100dvh-112px)] lg:overflow-y-auto lg:overflow-x-hidden lg:pb-6">
             {panelFor(openIndex)}
           </section>
         ) : (
@@ -1249,7 +1249,7 @@ function BlockPanel({
           <span className={`font-mono text-[13px] ${used === total ? 'text-good-100' : used > total ? 'text-flag-100' : 'text-whistle-100'}`}>
             {used} of {total} min
           </span>
-          <button type="button" aria-label="Close" title="Close" onClick={onClose} className="-mr-2.5 grid size-11 place-items-center rounded-full hover:bg-surface-100">
+          <button type="button" aria-label="Close" title="Close" onClick={onClose} className="-mr-2.5 grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-100">
             {A.close}
           </button>
         </div>
@@ -1258,9 +1258,13 @@ function BlockPanel({
         <span className="text-[13px] text-ink-200">
           {clock(start)}–{clock(addMinutes(start, mins))}
         </span>
-        <h2 ref={heading} tabIndex={-1} className="font-display text-[26px] font-bold leading-8 outline-none">
-          {title}
-        </h2>
+        {/* The team favourite sits with the drill's name, where a coach looks first (it used to be last in the panel). */}
+        <div className="flex items-start gap-2">
+          <h2 ref={heading} tabIndex={-1} className="min-w-0 flex-1 font-display text-[26px] font-bold leading-8 outline-none">
+            {title}
+          </h2>
+          {d && <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} onChange={onFavorite} />}
+        </div>
         {tag && <span className="flex items-center gap-1.5 text-xs font-medium text-rink-100">{tag}</span>}
       </div>
 
@@ -1276,17 +1280,12 @@ function BlockPanel({
           {perZone}
         </div>
       ) : (
-        <>
-          <div className="flex flex-wrap items-center gap-2">
-            {stepper}
-            {perZone}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <ActionButton icon={A.up} label="Move up" disabled={index === 0} onClick={() => onMove(index - 1)} />
-            <ActionButton icon={A.down} label="Move down" disabled={index === count - 1} onClick={() => onMove(index + 1)} />
-            <Menu items={menu} trigger="labelled" align="left" />
-          </div>
-        </>
+        // Desktop: moving, swapping, removing and the rest live on the selected row's toolbar, right beside this
+        // panel, so the panel keeps only the minutes and gives its space to the drill itself.
+        <div className="flex flex-wrap items-center gap-2">
+          {stepper}
+          {perZone}
+        </div>
       )}
 
       {act && (
@@ -1353,11 +1352,6 @@ function BlockPanel({
             ›
           </span>
         </button>
-      )}
-      {d && (
-        <div>
-          <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} variant="full" onChange={onFavorite} />
-        </div>
       )}
     </div>
   );
