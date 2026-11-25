@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth';
 import { getDrillStore } from '@/lib/drills/store';
 import { STATUSES, canMove, drillSchema, groupModelProblem, type Status } from '@/lib/drills/schema';
 import { getRequestStore } from '@/lib/requests/store';
+import { FEEDBACK_MAX } from '@/lib/requests/schema';
 import { closeRequest, openRequestFor } from '@/lib/requests/outcome';
 import { logError } from '@/lib/errors';
 
@@ -122,6 +123,26 @@ export async function decideChange(requestId: string, accept: boolean, why = '')
   revalidatePath('/admin/drills');
   revalidatePath('/admin/requests');
   if (req.drillId) revalidatePath(`/admin/drills/${req.drillId}`);
+  return { ok: true };
+}
+
+/** Send Claude's drafted change back with a note to redraw it (decision 0055). Nobody is emailed now: Brett hears when the redraw is drafted. */
+export async function askClaudeAgain(requestId: string, note: string): Promise<ActionResult> {
+  await requireAdmin();
+  const text = note.trim().slice(0, FEEDBACK_MAX);
+  if (text.length < 3) return { ok: false, error: 'Say what Claude should change.', fields: { note: 'Say what Claude should change.' } };
+  const store = await getRequestStore();
+  let sent = false;
+  try {
+    sent = await store.askAgain(requestId, text);
+  } catch (e) {
+    logError('[requests] sending a change back to Claude failed:', e instanceof Error ? e.message : e);
+    return { ok: false, error: 'Couldn’t send it. Try again in a minute.' };
+  }
+  if (!sent) return { ok: false, error: 'This request changed since you opened it. Reload to see the latest.' };
+  revalidatePath('/admin/drills');
+  revalidatePath('/admin/requests');
+  revalidatePath(`/admin/requests/${requestId}`);
   return { ok: true };
 }
 

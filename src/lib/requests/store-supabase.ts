@@ -1,6 +1,6 @@
 import 'server-only';
 import { supabaseServer } from '../supabase/server';
-import { answersSchema, parseProposed, type DrillRequest, type RequestInput } from './schema';
+import { answersSchema, parseFeedback, parseProposed, type DrillRequest, type RequestInput } from './schema';
 import type { RequestStore } from './store';
 
 // Every query runs as the signed-in user: coaches see their own team's requests, admins all.
@@ -19,6 +19,7 @@ type Row = {
   state: DrillRequest['state'];
   proposed: unknown;
   claude_note: string | null;
+  feedback?: unknown;
   reason: string | null;
   created_at: string;
   drafted_at: string | null;
@@ -26,7 +27,7 @@ type Row = {
   teams?: { name: string } | null;
 };
 const COLS =
-  'id, kind, team_id, requested_by, requester_name, requester_email, drill_id, answers, description, link, state, proposed, claude_note, reason, created_at, drafted_at, decided_at, teams(name)';
+  'id, kind, team_id, requested_by, requester_name, requester_email, drill_id, answers, description, link, state, proposed, claude_note, feedback, reason, created_at, drafted_at, decided_at, teams(name)';
 
 const toRequest = (r: Row): DrillRequest => ({
   id: r.id,
@@ -43,6 +44,7 @@ const toRequest = (r: Row): DrillRequest => ({
   state: r.state,
   proposed: parseProposed(r.proposed),
   claudeNote: r.claude_note,
+  feedback: parseFeedback(r.feedback),
   reason: r.reason,
   createdAt: r.created_at,
   draftedAt: r.drafted_at,
@@ -120,6 +122,23 @@ export class SupabaseRequestStore implements RequestStore {
       .in('state', ['sent', 'drafted']);
     if (error) throw error;
     return before;
+  }
+
+  async askAgain(id: string, text: string) {
+    const before = await this.get(id);
+    if (!before || before.kind !== 'change' || before.state !== 'drafted') return false;
+    const db = await supabaseServer();
+    const feedback = [...before.feedback, { text, at: new Date().toISOString() }];
+    // Guarded on state and draft time, so a second click or a decision in another tab changes nothing.
+    const { data, error } = await db
+      .from('drill_requests')
+      .update({ state: 'sent', feedback, drafted_at: null, admin_emailed_at: null })
+      .eq('id', id)
+      .eq('state', 'drafted')
+      .eq('drafted_at', before.draftedAt)
+      .select('id');
+    if (error) throw error;
+    return (data ?? []).length > 0;
   }
 
   async markCoachEmailed(id: string) {

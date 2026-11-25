@@ -47,11 +47,25 @@ export type DrillRequest = {
   state: (typeof REQUEST_STATES)[number];
   proposed: Drill | null;
   claudeNote: string | null;
+  /** An admin's notes sending a drafted change back to Claude, oldest first (decision 0055). */
+  feedback: Feedback[];
   reason: string | null;
   createdAt: string;
   draftedAt: string | null;
   decidedAt: string | null;
 };
+
+export type Feedback = { text: string; at: string };
+export const FEEDBACK_MAX = 1000;
+
+/** Parse stored feedback; anything malformed is dropped rather than crashing the page. */
+export function parseFeedback(v: unknown): Feedback[] {
+  if (!Array.isArray(v)) return [];
+  return v.flatMap((f) => (f && typeof f.text === 'string' && typeof f.at === 'string' ? [{ text: f.text, at: f.at }] : []));
+}
+
+/** A change sent back to Claude and not yet redrawn. */
+export const waitingForRedraw = (r: Pick<DrillRequest, 'state' | 'feedback'>) => r.state === 'sent' && r.feedback.length > 0;
 
 export const isOpen = (r: Pick<DrillRequest, 'state'>) => r.state === 'sent' || r.state === 'drafted';
 

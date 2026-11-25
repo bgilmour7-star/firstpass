@@ -21,12 +21,15 @@ Use whichever works, in this order:
 ## 1. List what's waiting
 
 ```sql
-select r.id, r.kind, r.drill_id, r.answers, r.description, r.link, r.requester_name, t.name as team, r.created_at
+select r.id, r.kind, r.drill_id, r.answers, r.description, r.link, r.requester_name, r.feedback, r.proposed is not null as has_proposal, t.name as team, r.created_at
 from public.drill_requests r join public.teams t on t.id = r.team_id
 where r.state = 'sent' order by r.created_at;
 ```
 
 None waiting: stop and say so in one line.
+
+A change with `feedback` (a non-empty list) is one Brett sent back from review (decision 0055): work it with
+**2c** instead of 2b.
 
 Work them oldest first, one at a time, and finish each one (drafted or noted) before the next.
 
@@ -64,9 +67,23 @@ Work them oldest first, one at a time, and finish each one (drafted or noted) be
    the live drill changes only when Brett accepts.
    With the connector instead:
    ```sql
-   update public.drill_requests set state = 'drafted', proposed = $json$<the full changed drill JSON, with id>$json$::jsonb, drafted_at = now(), claude_note = $n$<note>$n$
+   update public.drill_requests set state = 'drafted', proposed = $json$<the full changed drill JSON, with id and status>$json$::jsonb, drafted_at = now(), claude_note = $n$<note>$n$
    where id = '<requestId>' and state = 'sent';
    ```
+   Keep `"status"` (the live drill's status) in the proposed JSON: the review page checks the proposal against the
+   drill schema, and without a status it treats the request as not drafted and hides Accept. The CLI keeps it for you.
+
+## 2c. A change sent back with feedback
+
+Brett looked at your proposal and asked for something different instead of accepting it. `feedback` is his notes,
+oldest first; the newest one is what to do now, and earlier ones still apply unless the newest says otherwise.
+
+1. Start from the earlier proposal, not the live drill: `npm run drills -- redraw <requestId>`, or with the
+   connector select `proposed` and the live drill's `status`, and write both (with `id`) to `content/drills/<drillId>.json`.
+2. Change only what the feedback asks, following the rink-diagram skill for any diagram change (preview, look, fix).
+   If the feedback can't be done as asked, leave the proposal as it was and say why in the note.
+3. Validate and store it exactly as in 2b step 3 (`propose`, or the same SQL), then pull the live drill back.
+   The note starts with the round ("Round 2: ...") and says what moved since the last draft, not since the live drill.
 
 ## 3. When you can't draft it
 
