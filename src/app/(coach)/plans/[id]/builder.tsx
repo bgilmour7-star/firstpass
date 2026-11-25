@@ -40,7 +40,7 @@ import { RotationCard, StationsCard } from './blocks';
 import { FORMAT_NAME, FormatIcon, LevelChips, formatWhat } from '@/components/drill-format';
 import { LevelPills, PlayableRink } from './opened';
 import { FavoriteButton } from '@/components/favorite-button';
-import { Rink } from '@/components/ds';
+import { Rink, RinkLegend } from '@/components/ds';
 import type { RinkDiagramProps } from '../../../../../design-system/index';
 import { DrillDrawer, OpenDrill, useOpenDrill } from '@/components/drill-drawer';
 import { A, ActionButton, AttendanceDialog, FeedbackLine, Icon, input, LibraryDrawer, Menu, PanelSec, ShareControl, Stepper, useDismiss, type DrawerFilter, type DrawerSlot, type MenuItem, type QuickActivity } from './parts';
@@ -619,13 +619,24 @@ export function Builder({
     </button>
   );
 
+  // The grey column pins just under the plan bar, whatever its height (2026-11-25).
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barH, setBarH] = useState(72);
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setBarH(Math.round(el.getBoundingClientRect().height)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const startNote = (cls: string) => (copiedFrom ? <p className={`${cls} text-ink-200`}>Copied from {day(copiedFrom)}. Change what you need.</p> : null);
 
   return (
     <OpenDrill.Provider value={setViewing}>
     <div className="flex flex-col gap-5">
       {/* Plan bar: sticky on desktop, the practice on the left, its status in the middle, actions on the right */}
-      <div className="sticky top-[env(safe-area-inset-top,0px)] z-10 -mx-4 -mt-6 hidden border-b border-border-100 bg-surface-100/95 px-4 py-3 lg:-mx-8 lg:px-8 shadow-[0_6px_16px_-14px_rgba(14,27,30,0.5)] backdrop-blur lg:block print:hidden">
+      <div ref={barRef} className="sticky top-[env(safe-area-inset-top,0px)] z-10 -mx-4 -mt-6 hidden border-b border-border-100 bg-surface-100/95 px-4 py-3 lg:-mx-8 lg:px-8 shadow-[0_6px_16px_-14px_rgba(14,27,30,0.5)] backdrop-blur lg:block print:hidden">
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4">
             <button type="button" onClick={() => setDetailsOpen(true)} className="flex min-w-0 flex-col items-start text-left" aria-label="Date, time and ice">
@@ -690,7 +701,7 @@ export function Builder({
       {suggest && <PhoneLine day={suggest.day} open={[...openSug].sort((x, y) => blocks.findIndex((b) => b.id === x.blockId) - blocks.findIndex((b) => b.id === y.blockId))} />}
 
       {/* The plan leads on the white page; practice-wide info sits in a grey margin column beside it (design system: Panel). */}
-      <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-stretch">
+      <div className="grid lg:-mb-24 lg:-mr-8 lg:-mt-5 lg:grid-cols-[minmax(0,1fr)_clamp(340px,30vw,560px)] lg:items-stretch">
         <ol className="flex min-w-0 flex-col pb-6 lg:pr-14 lg:pt-5">
           {changed && (
             <li role="status" className="mb-2 mt-3 flex flex-col gap-2 rounded-xl border border-rink-100 px-3.5 py-3 lg:mt-0">
@@ -744,7 +755,15 @@ export function Builder({
               }}
               className={`flex flex-col max-lg:select-none max-lg:[-webkit-touch-callout:none] ${drag?.from === i ? 'opacity-40' : ''} ${drag && drag.over === i && drag.from !== i ? (drag.from < i ? 'border-b-4 border-rink-100' : 'border-t-4 border-rink-100') : ''}`}
             >
-              <section className={`blk group grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 lg:grid-cols-[96px_minmax(0,1fr)] ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/60 px-4 lg:-mx-3 lg:rounded-xl lg:px-3 lg:outline lg:outline-2 lg:-outline-offset-2 lg:outline-rink-100' : ''}`}>
+              {/* The whole row opens the drill (2026-11-25): a click anywhere but on the row's own controls acts
+                  like a click on its name, so a tall row has no dead space. */}
+              <section
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest('button, a, input, select, textarea, label, [role="menu"], [role="menuitem"], [role="dialog"]')) return;
+                  document.getElementById(`open-${b.id}`)?.click();
+                }}
+                className={`blk group grid cursor-pointer grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 lg:-mx-3 lg:grid-cols-[96px_minmax(0,1fr)] lg:rounded-xl lg:px-3 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/60 px-4 lg:outline lg:outline-2 lg:-outline-offset-2 lg:outline-rink-100' : 'lg:hover:bg-surface-200/50'}`}
+              >
                 <div className="flex flex-col items-start gap-0.5 pt-1">
                   <span className={`font-mono text-sm font-medium ${b.kind === 'activity' ? 'text-ink-200' : ''}`}>{clock(times[i])}</span>
                   {/* Minutes: the number, or a stepper while the row is hovered or focused (desktop). No "min" label
@@ -817,13 +836,16 @@ export function Builder({
           </li>
         </ol>
 
-        <div className="border-t border-border-100 pt-6 lg:border-l lg:border-t-0 lg:bg-surface-200 lg:px-7 lg:pb-24 lg:pt-7">
+        {/* The grey column is one scroll area pinned under the plan bar (2026-11-25): its padding sits inside it, so
+            there's a single scrollbar at the right edge and nothing is clipped. */}
+        <div className="border-t border-border-100 pt-6 lg:border-l lg:border-t-0 lg:bg-surface-200 lg:pt-0">
+        <div style={{ '--bar': `${barH}px` } as React.CSSProperties} className="lg:sticky lg:top-[var(--bar)] lg:h-[calc(100dvh-var(--bar))] lg:overflow-y-auto lg:overflow-x-hidden lg:px-7 lg:pb-16 lg:[scrollbar-gutter:stable]">
         {desktop && openIndex >= 0 ? (
-          <section aria-label={name(blocks[openIndex])} className="lg:sticky lg:top-[96px] lg:max-h-[calc(100dvh-112px)] lg:overflow-y-auto lg:overflow-x-hidden lg:pb-6">
+          <section aria-label={name(blocks[openIndex])}>
             {panelFor(openIndex)}
           </section>
         ) : (
-        <aside aria-label="This practice" className="flex flex-col gap-[18px] lg:sticky lg:top-[96px]">
+        <aside aria-label="This practice" className="flex flex-col gap-[18px] lg:pt-6">
           <p className="hidden text-xs font-semibold tracking-[0.02em] text-ink-200 lg:block">This practice</p>
           <div className="flex flex-col">
           <div id="time-card" />
@@ -910,6 +932,7 @@ export function Builder({
           </div>
         </aside>
         )}
+        </div>
         </div>
       </div>
       {!desktop && openIndex >= 0 && (
@@ -1219,7 +1242,6 @@ function BlockPanel({
   const zones = b.kind === 'rotation' ? Math.max(1, rotationToday(b, gc).active.length) : 1;
   const title = act ? b.title : d ? d.funName : b.kind === 'rotation' && isOldRotation(b) ? FORMAT_NAME.rotation : b.kind === 'rotation' ? 'Choose a rotation' : 'Choose a drill';
   const tag = blockTag(b, d, gc);
-  const howMany = d ? (d.groupModel === 'rotation' ? `${d.zones?.length ?? 0} zones` : d.groupModel === 'stations' ? `${d.stations?.length ?? 0} versions` : `${d.steps.length} step${d.steps.length === 1 ? '' : 's'}`) : '';
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (!phone) heading.current?.focus();
@@ -1244,14 +1266,15 @@ function BlockPanel({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* The way back stays in view while the drill scrolls (2026-11-25). Escape and clicking the row again work too. */}
       {!phone && (
-        <div className="-mb-2 flex items-center justify-between">
+        <div className="sticky top-0 z-10 -mx-7 flex items-center justify-between gap-3 border-b border-border-100 bg-surface-200 px-7 py-2">
+          <button type="button" onClick={onClose} className="-ml-3 inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium hover:bg-surface-100">
+            <span aria-hidden="true" className="text-lg leading-none">‹</span> This practice
+          </button>
           <span className={`font-mono text-[13px] ${used === total ? 'text-good-100' : used > total ? 'text-flag-100' : 'text-whistle-100'}`}>
             {used} of {total} min
           </span>
-          <button type="button" aria-label="Close" title="Close" onClick={onClose} className="-mr-2.5 grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-100">
-            {A.close}
-          </button>
         </div>
       )}
       <div className="flex flex-col gap-0.5">
@@ -1260,12 +1283,13 @@ function BlockPanel({
         </span>
         {/* The team favourite sits with the drill's name, where a coach looks first (it used to be last in the panel). */}
         <div className="flex items-start gap-2">
-          <h2 ref={heading} tabIndex={-1} className="min-w-0 flex-1 font-display text-[26px] font-bold leading-8 outline-none">
+          <h2 ref={heading} tabIndex={-1} className="min-w-0 flex-1 font-display text-[26px] font-bold leading-8 outline-none focus-visible:!shadow-none">
             {title}
           </h2>
           {d && <FavoriteButton key={d.id} drillId={d.id} drillName={d.funName} initial={favorite} onChange={onFavorite} />}
         </div>
         {tag && <span className="flex items-center gap-1.5 text-xs font-medium text-rink-100">{tag}</span>}
+        {d && <p className="mt-1.5 text-[15px] leading-[22px]">{d.description}</p>}
       </div>
 
       {phone ? (
@@ -1307,7 +1331,12 @@ function BlockPanel({
           />
         </div>
       )}
-      {b.kind === 'drill' && d && <PlayableRink spec={b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? (levelOf(d, Math.max(...blockLevels(d, b))).diagram as RinkDiagramProps) : d.diagram} title={d.funName} />}
+      {b.kind === 'drill' && d && (
+        <div className="flex flex-col gap-2">
+          <PlayableRink spec={b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? (levelOf(d, Math.max(...blockLevels(d, b))).diagram as RinkDiagramProps) : d.diagram} title={d.funName} />
+          <RinkLegend spec={(b.levels.length && Math.max(...blockLevels(d, b)) > 1 ? levelOf(d, Math.max(...blockLevels(d, b))).diagram : d.diagram) as RinkDiagramProps} />
+        </div>
+      )}
       {b.kind === 'drill' && d && d.levels.length > 0 && (
         <div id={`levels-${b.id}`}>
           <LevelPills block={b} drill={d} suggested={levelSuggested} onLevels={(levels) => update((x) => (x.kind === 'drill' ? { ...x, levels } : x))} />
@@ -1333,24 +1362,37 @@ function BlockPanel({
           <RotationCard block={b} drill={d} byId={byId} known={known} groupCount={gc} onChoose={onSwap} onUseInstead={(z) => update((x) => (x.kind === 'rotation' ? { ...x, drop: [z] } : x))} />
         </>
       )}
-      {d?.cues[0] && (
-        <p className="text-sm">
-          <span className="text-ink-200">Say:</span> “{d.cues[0]}”
-        </p>
+      {/* How to run it, in the panel (2026-11-25): steps, every cue and the gear, so a coach doesn't leave the plan to
+          understand a drill. The full drill (variations, where it came from) is one tap further. */}
+      {d && (
+        <section aria-label="How to run it" className="flex flex-col gap-2.5 border-t border-border-100 pt-4">
+          <h3 className="text-[15px] font-semibold">How to run it</h3>
+          {d.steps.length > 0 && (
+            <ol className="flex flex-col gap-2">
+              {d.steps.map((st, n) => (
+                <li key={n} className="grid grid-cols-[22px_minmax(0,1fr)] gap-1.5 text-sm leading-[21px]">
+                  <span className="font-mono text-ink-200">{n + 1}</span>
+                  <span>{st}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+          {d.cues.map((c) => (
+            <p key={c} className="text-sm">
+              <span className="text-ink-200">Say:</span> “{c}”
+            </p>
+          ))}
+          {d.gear && d.gear !== 'None' && (
+            <p className="text-sm">
+              <span className="text-ink-200">Set up:</span> {d.gear}
+            </p>
+          )}
+        </section>
       )}
       {feedback ? <FeedbackLine fb={feedback} /> : d && !known.has(d.id) ? <span className="text-[13px] text-ink-200">New to the kids</span> : null}
       {d && (
-        <button type="button" onClick={() => openDrill(d.id)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border border-border-100 bg-surface-100 px-3.5 py-3 text-left hover:bg-surface-200">
-          <span className="flex flex-col">
-            <b className="text-[15px] font-semibold">How to run it</b>
-            <span className="text-[13px] text-ink-200">
-              {howMany}
-              {d.gear && d.gear !== 'None' ? ` · ${d.gear}` : ''}
-            </span>
-          </span>
-          <span aria-hidden="true" className="text-xl leading-none text-ink-200">
-            ›
-          </span>
+        <button type="button" onClick={() => openDrill(d.id)} className="inline-flex min-h-11 w-fit items-center gap-1 text-sm font-medium text-rink-100 hover:underline">
+          More about this drill <span aria-hidden="true">›</span>
         </button>
       )}
     </div>
