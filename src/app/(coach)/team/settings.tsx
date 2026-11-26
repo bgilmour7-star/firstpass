@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { TeamCoach } from '@/lib/app/store';
+import { AGE_GROUPS, AGE_LABEL } from '@/lib/drills/schema';
 import { clock, type Team } from '@/lib/plans/schema';
 import type { WeeklySlot } from '@/lib/plans/team-summary';
 import { deleteTeam, leaveTeam, saveTeam } from './actions';
@@ -80,7 +81,7 @@ export function TeamSettings(p: {
         .
       </p>
 
-      <SettingsRow isHead={isHead} onEdit={setEdit} s="name" title="Team name">
+      <SettingsRow isHead={isHead} onEdit={setEdit} s="name" title="Team name and age group">
         <p className="text-[15px]">
           {team.name} · {team.ageGroup}
         </p>
@@ -279,14 +280,29 @@ function SectionDrawer({ title, team, onClose, note, extra, children }: { title:
 
 function NameDrawer({ team, onClose }: { team: Team; onClose: () => void }) {
   return (
-    <SectionDrawer title="Team name" team={team} onClose={onClose}>
+    <SectionDrawer title="Team name and age group" team={team} onClose={onClose} note="Plans already made keep their drills.">
       {(t, set) => (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="team-name" className="text-sm font-semibold">
-            Team name
-          </label>
-          <input id="team-name" className={field} value={t.name} maxLength={80} onChange={(e) => set({ ...t, name: e.target.value })} />
-          <span className="text-[13px] text-ink-200">Team details only. Never kids&apos; names.</span>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="team-name" className="text-sm font-semibold">
+              Team name
+            </label>
+            <input id="team-name" className={field} value={t.name} maxLength={80} onChange={(e) => set({ ...t, name: e.target.value })} />
+            <span className="text-[13px] text-ink-200">Team details only. Never kids&apos; names.</span>
+          </div>
+          <fieldset className="flex flex-col">
+            <legend className="mb-1 text-sm font-semibold">Age group</legend>
+            {AGE_GROUPS.map((a) => (
+              <label key={a} className="flex min-h-12 cursor-pointer items-center justify-between gap-3 border-t border-border-100 py-1.5 first-of-type:border-t-0">
+                <span className="flex flex-col">
+                  <b className="text-[15px] font-semibold">{a}</b>
+                  <span className="text-[13px] text-ink-200">{AGE_LABEL[a]}</span>
+                </span>
+                <input type="radio" name="team-age" checked={t.ageGroup === a} onChange={() => set({ ...t, ageGroup: a })} className="size-5 shrink-0 accent-[var(--rink-100)]" />
+              </label>
+            ))}
+            <span className="mt-1 text-[13px] text-ink-200">Sets which drills you see and the level they start at.</span>
+          </fieldset>
         </div>
       )}
     </SectionDrawer>

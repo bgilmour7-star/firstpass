@@ -28,8 +28,10 @@ export const GROUP_MODEL_LABEL: Record<(typeof GROUP_MODELS)[number], string> = 
 /** A basic drill plus at most two added levels: one level per group. */
 export const MAX_LEVELS = 3;
 /** The ages a drill can suit (decision 0025). A coach's library shows only drills for their team's age. */
-export const AGE_GROUPS = ['U5', 'U7', 'U9'] as const;
+export const AGE_GROUPS = ['U5', 'U7', 'U9', 'U11', 'U13'] as const;
 export type AgeGroup = (typeof AGE_GROUPS)[number];
+/** The ages each group covers, as coaches see them when they pick one. */
+export const AGE_LABEL: Record<AgeGroup, string> = { U5: 'Ages 3 and 4', U7: 'Ages 5 and 6', U9: 'Ages 7 and 8', U11: 'Ages 9 and 10', U13: 'Ages 11 and 12' };
 
 const point = z.tuple([z.number(), z.number()]);
 const xy = z.object({ x: z.number(), y: z.number() }).passthrough();

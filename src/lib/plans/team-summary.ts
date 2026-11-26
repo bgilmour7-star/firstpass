@@ -63,8 +63,10 @@ export const isOlder = (age: string) => /^U(1[1-9])/.test(age);
 
 /** Where a new team starts its focus: the first skills for its age (Hockey Canada's order). */
 export function guessFocus(age: string): { focus: Team['focus']; why: string } {
-  const pick = (age === 'U9' ? ['Passing', 'Skating'] : ['Skating', 'Puck control']) as Team['focus'];
-  return { focus: pick.filter((f) => (FOCUS_ATTRIBUTES as readonly string[]).includes(f)), why: age === 'U9' ? 'U9s add passing to their skating.' : `Skating and puck control come first at ${age || 'this age'}.` };
+  const older = age === 'U11' || age === 'U13';
+  const pick = (older ? ['Passing', 'Shooting'] : age === 'U9' ? ['Passing', 'Skating'] : ['Skating', 'Puck control']) as Team['focus'];
+  const why = older ? `${age}s build passing and shooting on their skating.` : age === 'U9' ? 'U9s add passing to their skating.' : `Skating and puck control come first at ${age || 'this age'}.`;
+  return { focus: pick.filter((f) => (FOCUS_ATTRIBUTES as readonly string[]).includes(f)), why };
 }
 
 export const DEFAULT_GEAR: Team['gear'] = { pucks: 30, bluePucks: 0, cones: 20, nets: 2 };

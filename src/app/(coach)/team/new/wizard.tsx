@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState, useTransition } from 'react';
+import { AGE_GROUPS, AGE_LABEL, type AgeGroup } from '@/lib/drills/schema';
 import { clock, type Team } from '@/lib/plans/schema';
 import { ageFromName, DEFAULT_GEAR, guessFocus } from '@/lib/plans/team-summary';
 import { FocusPicker, GearEditor, GroupsEditor, ICE_OPTIONS, NO_KIDS, Segmented, Why, field, gearLine, primary, shownGroups } from '../ui';
@@ -22,16 +23,15 @@ export type WizardContext = {
 
 type Step = 'name' | 'copy' | 'age' | 'ice' | 'groups' | 'coaches' | 'gear' | 'focus' | 'check';
 const TITLE: Record<Step, string> = { name: 'Team name', copy: 'Copy settings', age: 'Age group', ice: 'Ice times', groups: 'Skill groups', coaches: 'Coaches', gear: 'Gear', focus: 'Focus', check: 'Check' };
-const AGES = [
-  ['U5', 'Ages 3 and 4'],
-  ['U7', 'Ages 5 and 6'],
-  ['U9', 'Ages 7 and 8'],
-] as const;
-const OLDER = [
-  ['U11', 'U11'],
-  ['U13', 'U13'],
-  ['U15+', 'U15 and up'],
-] as const;
+type Age = AgeGroup;
+const AGES = AGE_GROUPS.map((a) => [a, AGE_LABEL[a]] as const);
+const isAge = (a: string | null | undefined): a is Age => (AGE_GROUPS as readonly string[]).includes(a ?? '');
+/** What a coach sees under an age whose drills are still being added. */
+const NEW_AGE: Partial<Record<Age, string>> = {
+  U9: "U9 drills are new to Firstpass. You'll start with U7 drills at their harder levels, and U9 drills will show up in your library as we add them.",
+  U11: "U11 drills are new to Firstpass. You'll get the first U11 skating, breakout and shooting drills, plus U9 warm-ups and games, and more as we add them.",
+  U13: "U13 drills are new to Firstpass. You'll get the first U13 skating, breakout and shooting drills, plus U9 warm-ups and games, and more as we add them.",
+};
 const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
 const DEFAULT_GROUPS: Team['groups'] = [
   { group: 'Sharks', skaters: 4, name: 'Sharks' },
@@ -45,7 +45,7 @@ export function Wizard({ ctx }: { ctx: WizardContext }) {
   const [older, setOlder] = useState(false);
   const [name, setName] = useState('');
   const [copy, setCopy] = useState({ gear: Boolean(o), minutes: Boolean(o), drills: Boolean(o) });
-  const [age, setAge] = useState<'U5' | 'U7' | 'U9' | null>(null);
+  const [age, setAge] = useState<Age | null>(null);
   const [cal, setCal] = useState('');
   const [calGuess, setCalGuess] = useState<CalendarGuess | null>(null);
   const [ice, setIce] = useState<Team['ice'] | null>(null);
@@ -59,8 +59,7 @@ export function Wizard({ ctx }: { ctx: WizardContext }) {
 
   // The guesses, each with its reason.
   const nameAge = ageFromName(name);
-  const ageGuess: { v: 'U5' | 'U7' | 'U9'; why: string } =
-    nameAge === 'U5' || nameAge === 'U7' || nameAge === 'U9' ? { v: nameAge, why: `The name says ${nameAge}.` } : o && ['U5', 'U7', 'U9'].includes(o.ageGroup) ? { v: o.ageGroup as 'U7', why: `Like your ${o.short}.` } : { v: 'U7', why: 'Most teams on Firstpass are U7.' };
+  const ageGuess: { v: Age; why: string } = isAge(nameAge) ? { v: nameAge, why: `The name says ${nameAge}.` } : o && isAge(o.ageGroup) ? { v: o.ageGroup, why: `Like your ${o.short}.` } : { v: 'U7', why: 'Most teams on Firstpass are U7.' };
   const ageNow = age ?? ageGuess.v;
   const calOk = calGuess?.ok ? calGuess : null;
   const iceGuess: { v: Team['ice']; why: string } = calOk ? { v: calOk.ice, why: calOk.why } : o ? { v: o.ice, why: `Like your ${o.short}.` } : { v: 'half', why: 'Most young teams practise on half ice.' };
@@ -163,12 +162,12 @@ export function Wizard({ ctx }: { ctx: WizardContext }) {
                   </span>
                   <input type="radio" name="age" checked={ageNow === v} onChange={() => setAge(v)} className="size-5 shrink-0 accent-[var(--rink-100)]" />
                 </label>
-                {ageNow === 'U9' && v === 'U9' && <p className="mb-3 rounded-[10px] bg-surface-200 p-3 text-[13px] leading-[18px]">U9 drills are new to Firstpass. You&apos;ll start with U7 drills at their harder levels, and U9 drills will show up in your library as we add them.</p>}
+                {ageNow === v && NEW_AGE[v] && <p className="mb-3 rounded-[10px] bg-surface-200 p-3 text-[13px] leading-[18px]">{NEW_AGE[v]}</p>}
               </div>
             ))}
             <button type="button" onClick={() => setOlder(true)} className="flex min-h-14 items-center justify-between gap-3 border-t border-border-100 py-2 text-left">
               <span className="flex flex-col">
-                <b className="text-[15px] font-semibold">U11 or older</b>
+                <b className="text-[15px] font-semibold">U15 or older</b>
                 <span className="text-[13px] text-ink-200">Not yet. Tell us about your team</span>
               </span>
               <Chevron />
@@ -406,9 +405,9 @@ function CoachesStep({ me, myEmail, nick, invites, setInvites, mates, from }: { 
   );
 }
 
-/** U11 or older (W3b): not a dead end. What's hardest, a call if they're happy to, and a way back. */
+/** U15 or older (W3b): not a dead end. What's hardest, a call if they're happy to, and a way back. U11 and U13 are teams now (decision 0056). */
 function Older({ onBack, hasTeam }: { onBack: () => void; hasTeam: boolean }) {
-  const [age, setAge] = useState<'U11' | 'U13' | 'U15+'>('U11');
+  const age = 'U15+' as const;
   const [hard, setHard] = useState('');
   const [call, setCall] = useState(true);
   const [sent, setSent] = useState(false);
@@ -416,7 +415,7 @@ function Older({ onBack, hasTeam }: { onBack: () => void; hasTeam: boolean }) {
   const [pending, start] = useTransition();
   if (sent)
     return (
-      <Frame progress="U11 or older" onBack={onBack} closeHref={hasTeam ? '/team' : undefined}>
+      <Frame progress="U15 or older" onBack={onBack} closeHref={hasTeam ? '/team' : undefined}>
         <Screen title="Thanks. We'll let you know" lead={call ? 'Brett will email you to find a time for a 15-minute chat.' : 'We’ll email you when Firstpass plans practices for older teams.'}>
           <span />
         </Screen>
@@ -433,12 +432,8 @@ function Older({ onBack, hasTeam }: { onBack: () => void; hasTeam: boolean }) {
       </Frame>
     );
   return (
-    <Frame progress="U11 or older" onBack={onBack} closeHref={hasTeam ? '/team' : undefined}>
-      <Screen title={`We don't plan ${age === 'U15+' ? 'U15' : age} practices yet`} lead="We started with the youngest teams. Help us decide what's next, and we'll tell you when it's ready.">
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-sm font-semibold">Age group</legend>
-          <Segmented label="Age group" value={age} options={OLDER} onChange={setAge} />
-        </fieldset>
+    <Frame progress="U15 or older" onBack={onBack} closeHref={hasTeam ? '/team' : undefined}>
+      <Screen title="We don't plan U15 practices yet" lead="Firstpass plans practices for U5 to U13 so far. Help us decide what's next, and we'll tell you when it's ready.">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="older-hard" className="text-sm font-semibold">
             What&apos;s the hardest part of planning practice for them?

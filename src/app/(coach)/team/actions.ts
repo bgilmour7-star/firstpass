@@ -7,6 +7,7 @@ import { TEAM_COOKIE } from '@/lib/nav';
 import { requireTeam, requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { teamSchema } from '@/lib/plans/schema';
+import { AGE_GROUPS } from '@/lib/drills/schema';
 import { readCalendar, syncCalendar, todayLocal } from '@/lib/calendar/sync';
 import { headCoachEmail, inviteEmail } from '@/lib/email/account-emails';
 import { SITE, sendEmail } from '@/lib/email/layout';
@@ -33,6 +34,7 @@ export async function saveTeam(input: unknown): Promise<{ ok: true } | { ok: fal
   const parsed = teamSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Check the fields.' };
   if (parsed.data.id !== team.id) return { ok: false, error: 'You can only edit your own team.' };
+  if (!(AGE_GROUPS as readonly string[]).includes(parsed.data.ageGroup)) return { ok: false, error: 'Pick an age group from U5 to U13.' };
   try {
     await (await getAppStore()).updateTeam(parsed.data);
   } catch {

@@ -120,11 +120,12 @@ describe('age groups', () => {
     expect(startLevelFor(d, 'U7')).toBe(1);
     expect(startLevelFor(d, 'U9')).toBe(1);
   });
-  it('needs at least one age group, each once, from U5 U7 U9', () => {
+  it('needs at least one age group, each once, from U5 to U13', () => {
     expect(drillSchema.safeParse({ ...ski, ageGroups: [] }).success).toBe(false);
     expect(drillSchema.safeParse({ ...ski, ageGroups: ['U7', 'U7'] }).success).toBe(false);
-    expect(drillSchema.safeParse({ ...ski, ageGroups: ['U11'] }).success).toBe(false);
+    expect(drillSchema.safeParse({ ...ski, ageGroups: ['U15'] }).success).toBe(false);
     expect(drillSchema.parse({ ...ski, ageGroups: ['U7', 'U9'] }).ageGroups).toEqual(['U7', 'U9']);
+    expect(drillSchema.parse({ ...ski, ageGroups: ['U11', 'U13'] }).ageGroups).toEqual(['U11', 'U13']);
   });
   it('a start level is per age, 1 to 3, kept within the levels the drill has', () => {
     const d = drillSchema.parse({ ...ski, ageGroups: ['U7', 'U9'], startLevel: { U9: 2 } });

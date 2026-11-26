@@ -166,9 +166,9 @@ export default async function Library({
         />
       )}
 
-      {team.ageGroup === "U9" && all.length > 0 && (
+      {["U9", "U11", "U13"].includes(team.ageGroup) && all.length > 0 && (
         <p className="border-t border-border-100 pt-4 text-sm text-ink-200">
-          New U9 drills show up here as they&apos;re added.
+          New {team.ageGroup} drills show up here as they&apos;re added.
         </p>
       )}
 

@@ -17,7 +17,7 @@ export const SEGMENT_NOTE: Record<Segment, string> = {
   age: 'Coaches on a team of this age group.',
   stalled: 'Signed up 3+ days ago and never ran a practice, or nothing done in the app for 14 days.',
 };
-export const AGES = ['U5', 'U7', 'U9'] as const;
+export const AGES = ['U5', 'U7', 'U9', 'U11', 'U13'] as const;
 export type Age = (typeof AGES)[number];
 
 const https = z
