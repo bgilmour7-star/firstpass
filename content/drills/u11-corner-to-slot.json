@@ -1,0 +1,456 @@
+{
+  "id": "u11-corner-to-slot",
+  "funName": "Corner to Slot",
+  "plainName": "Corner puck to a shot from the slot",
+  "sourceTitle": "Corner Retrieval, Protect and Shot",
+  "minutes": 10,
+  "gear": "Pucks",
+  "worksAsStation": true,
+  "description": "Two lines near the tops of the circles, facing the net. The coach spots a puck into the corner. The first player gets it, makes a quick fake, and takes it to the net for a shot from the slot. Then the coach spots one into the other corner for the other line.",
+  "steps": [
+    "The coach spots a puck into the corner.",
+    "The first player gets it, fakes, and takes it to the net."
+  ],
+  "cues": [
+    "Be quick to loose pucks.",
+    "Shoulder check before you touch it.",
+    "Quick release in the slot."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "Quick shots from the slot after a retrieval."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Protect the puck coming off the wall."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Level 2 finds a partner in the high slot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Retrieve and shoot",
+  "levels": [
+    {
+      "name": "Pass to the slot",
+      "adds": "After getting the puck, pass to a partner who has moved into the high slot. The partner shoots.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 48,
+            "y": 26
+          },
+          {
+            "role": "O",
+            "x": 48,
+            "y": 59
+          },
+          {
+            "role": "O",
+            "x": 52,
+            "y": 59
+          },
+          {
+            "role": "C",
+            "x": 40,
+            "y": 4
+          },
+          {
+            "role": "G",
+            "x": 9,
+            "y": 42.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 44,
+            "y": 4
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                38,
+                6
+              ],
+              [
+                20,
+                6
+              ],
+              [
+                8,
+                12
+              ]
+            ],
+            "step": 1,
+            "caption": "The coach spots a puck into the corner."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                46,
+                24
+              ],
+              [
+                30,
+                16
+              ],
+              [
+                14,
+                12
+              ]
+            ],
+            "step": 2,
+            "caption": "The first player gets it and looks for the partner in the high slot.",
+            "stepAt": 0.4,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                46,
+                56
+              ],
+              [
+                44,
+                48
+              ],
+              [
+                42,
+                44
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                13,
+                15
+              ],
+              [
+                39,
+                43
+              ]
+            ],
+            "step": 3,
+            "caption": "Pass to the high slot for the shot.",
+            "stepAt": 0.5,
+            "stepSide": "right"
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                38,
+                44
+              ],
+              [
+                13,
+                42.5
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add a defender",
+      "adds": "A defender pressures from the start, so the pass has to get past them.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 48,
+            "y": 26
+          },
+          {
+            "role": "O",
+            "x": 48,
+            "y": 59
+          },
+          {
+            "role": "O",
+            "x": 52,
+            "y": 59
+          },
+          {
+            "role": "C",
+            "x": 40,
+            "y": 4
+          },
+          {
+            "role": "G",
+            "x": 9,
+            "y": 42.5
+          },
+          {
+            "role": "X",
+            "x": 24,
+            "y": 26
+          }
+        ],
+        "piles": [
+          {
+            "x": 44,
+            "y": 4
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                38,
+                6
+              ],
+              [
+                20,
+                6
+              ],
+              [
+                8,
+                12
+              ]
+            ],
+            "step": 1,
+            "caption": "The coach spots a puck into the corner."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                46,
+                24
+              ],
+              [
+                30,
+                16
+              ],
+              [
+                14,
+                12
+              ]
+            ],
+            "step": 2,
+            "caption": "The first player gets it and looks for the partner in the high slot.",
+            "stepAt": 0.4,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                24,
+                24
+              ],
+              [
+                18,
+                18
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                46,
+                56
+              ],
+              [
+                44,
+                48
+              ],
+              [
+                42,
+                44
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                13,
+                15
+              ],
+              [
+                39,
+                43
+              ]
+            ],
+            "step": 3,
+            "caption": "Pass past the defender to the high slot for the shot.",
+            "stepAt": 0.5,
+            "stepSide": "right"
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                38,
+                44
+              ],
+              [
+                13,
+                42.5
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U11 and U13 Preparation Plan 3 · Corner Retrieval, Protect and Shot",
+    "url": "https://www.ohf.on.ca/media/ocflloyv/1-u11-preparation-plan-all-in-one.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 48,
+        "y": 26
+      },
+      {
+        "role": "O",
+        "x": 52,
+        "y": 26
+      },
+      {
+        "role": "O",
+        "x": 48,
+        "y": 59
+      },
+      {
+        "role": "O",
+        "x": 52,
+        "y": 59
+      },
+      {
+        "role": "C",
+        "x": 40,
+        "y": 4
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "piles": [
+      {
+        "x": 44,
+        "y": 4
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            38,
+            6
+          ],
+          [
+            20,
+            6
+          ],
+          [
+            8,
+            12
+          ]
+        ],
+        "step": 1,
+        "caption": "The coach spots a puck into the corner."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            46,
+            24
+          ],
+          [
+            30,
+            16
+          ],
+          [
+            14,
+            12
+          ]
+        ],
+        "step": 2,
+        "caption": "The first player gets it, fakes, and takes it to the net.",
+        "stepAt": 0.4,
+        "stepSide": "left"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            11,
+            14
+          ],
+          [
+            14,
+            24
+          ],
+          [
+            20,
+            33
+          ],
+          [
+            24,
+            38
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            25,
+            39
+          ],
+          [
+            13,
+            42
+          ]
+        ],
+        "stepWith": 2
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

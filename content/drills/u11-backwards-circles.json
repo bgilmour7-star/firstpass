@@ -1,0 +1,272 @@
+{
+  "id": "u11-backwards-circles",
+  "funName": "Backwards Circles",
+  "plainName": "Backward crossovers around the circle, pivot and go",
+  "sourceTitle": "Skating – Circle Skating Backwards",
+  "minutes": 10,
+  "gear": "None",
+  "worksAsStation": true,
+  "description": "One line in each corner. Skaters go one at a time from both corners. Skate backward around your circle: crossunders first, then crossovers reaching for ice. At the slot side of the circle, make an inside pivot to forward and burst out with one crossover. Switch corners so you turn both ways.",
+  "steps": [
+    "Skate backward around your circle, crossunders then crossover reaches.",
+    "Pivot to forward on the slot side and burst out with one crossover."
+  ],
+  "cues": [
+    "Outside foot stays on the ice.",
+    "Reach and grab ice.",
+    "Pivot fast, one crossover, go."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Backward crossovers and pivots to forward, both directions."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "A burst out of every pivot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada Drill Hub Practice Plan 06 · Circle Skating Backwards",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Drill-Hub/Downloads/Practice-Plans/practice_plan_06_e.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 6,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 4,
+        "y": 10
+      },
+      {
+        "role": "O",
+        "x": 6,
+        "y": 79
+      },
+      {
+        "role": "O",
+        "x": 4,
+        "y": 75
+      }
+    ],
+    "paths": [
+      {
+        "type": "backward",
+        "points": [
+          [
+            10,
+            9
+          ],
+          [
+            19.0,
+            8.5
+          ],
+          [
+            23.5,
+            5.3
+          ],
+          [
+            28.7,
+            3.7
+          ],
+          [
+            34.2,
+            3.8
+          ],
+          [
+            39.4,
+            5.7
+          ],
+          [
+            43.7,
+            9.2
+          ],
+          [
+            46.6,
+            13.9
+          ],
+          [
+            48.0,
+            19.2
+          ],
+          [
+            47.5,
+            24.7
+          ],
+          [
+            45.3,
+            29.8
+          ],
+          [
+            41.5,
+            33.8
+          ],
+          [
+            36.7,
+            36.5
+          ],
+          [
+            31.3,
+            37.5
+          ],
+          [
+            25.8,
+            36.7
+          ],
+          [
+            20.9,
+            34.2
+          ],
+          [
+            17.1,
+            30.3
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate backward around your circle, crossunders then crossover reaches.",
+        "stepAt": 0.25,
+        "stepSide": "right"
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            10,
+            76
+          ],
+          [
+            19.0,
+            76.5
+          ],
+          [
+            23.5,
+            79.7
+          ],
+          [
+            28.7,
+            81.3
+          ],
+          [
+            34.2,
+            81.2
+          ],
+          [
+            39.4,
+            79.3
+          ],
+          [
+            43.7,
+            75.8
+          ],
+          [
+            46.6,
+            71.1
+          ],
+          [
+            48.0,
+            65.8
+          ],
+          [
+            47.5,
+            60.3
+          ],
+          [
+            45.3,
+            55.2
+          ],
+          [
+            41.5,
+            51.2
+          ],
+          [
+            36.7,
+            48.5
+          ],
+          [
+            31.3,
+            47.5
+          ],
+          [
+            25.8,
+            48.3
+          ],
+          [
+            20.9,
+            50.8
+          ],
+          [
+            17.1,
+            54.7
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            24.9,
+            36.5
+          ],
+          [
+            34,
+            40
+          ],
+          [
+            48,
+            38
+          ],
+          [
+            64,
+            30
+          ]
+        ],
+        "step": 2,
+        "caption": "Pivot to forward on the slot side and burst out with one crossover.",
+        "stepAt": 0.6
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            24.9,
+            48.5
+          ],
+          [
+            34,
+            45
+          ],
+          [
+            48,
+            47
+          ],
+          [
+            64,
+            55
+          ]
+        ],
+        "stepWith": 2
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

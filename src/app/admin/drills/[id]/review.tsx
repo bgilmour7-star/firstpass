@@ -467,7 +467,9 @@ function AgeGroups({ drill, error, onChange }: { drill: Drill; error?: string; o
     const rest = without(a);
     onChange({ ageGroups: drill.ageGroups, startLevel: starts(n > 1 ? { ...rest, [a]: n } : rest) });
   }
-  const others = drill.ageGroups.filter((a) => a !== 'U9');
+  // The youngest ticked age always starts at Level 1; each older ticked age can start higher.
+  const ticked = AGE_GROUPS.filter((a) => drill.ageGroups.includes(a));
+  const [youngest, ...older] = ticked;
   return (
     <div className="flex flex-col gap-4">
       <div role="group" aria-label="Age groups" className="flex flex-wrap gap-2">
@@ -495,19 +497,23 @@ function AgeGroups({ drill, error, onChange }: { drill: Drill; error?: string; o
         })}
       </div>
       {error && <span className="text-xs font-medium text-flag-100">{error}</span>}
-      {drill.ageGroups.includes('U9') && levels > 1 && (
-        <div className="flex flex-col gap-2 border-t border-border-100 pt-4">
-          <label htmlFor="start-u9" className="text-sm font-semibold">
-            U9 teams start at
-          </label>
-          <select id="start-u9" className={`${input} min-h-12`} value={startLevelFor(drill, 'U9')} onChange={(e) => setStart('U9', Number(e.target.value))}>
-            {Array.from({ length: levels }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                Level {n} · {n === 1 ? drill.levelName || drill.plainName || 'Basic' : levelOf(drill, n).name || `Level ${n}`}
-              </option>
-            ))}
-          </select>
-          {others.length > 0 && <span className="text-[13px] text-ink-200">{others.map((a) => `${a} teams start at Level ${startLevelFor(drill, a)}`).join('. ')}.</span>}
+      {levels > 1 && older.length > 0 && (
+        <div className="flex flex-col gap-3 border-t border-border-100 pt-4">
+          {older.map((a) => (
+            <div key={a} className="flex flex-col gap-2">
+              <label htmlFor={`start-${a}`} className="text-sm font-semibold">
+                {a} teams start at
+              </label>
+              <select id={`start-${a}`} className={`${input} min-h-12`} value={startLevelFor(drill, a)} onChange={(e) => setStart(a, Number(e.target.value))}>
+                {Array.from({ length: levels }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>
+                    Level {n} · {n === 1 ? drill.levelName || drill.plainName || 'Basic' : levelOf(drill, n).name || `Level ${n}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
+          <span className="text-[13px] text-ink-200">{youngest} teams start at Level 1.</span>
         </div>
       )}
     </div>

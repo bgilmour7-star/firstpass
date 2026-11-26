@@ -8,7 +8,10 @@ import type { Block } from './schema';
 import { pickSwap, suggestions, type SuggestInput } from './suggest';
 
 const dir = join(__dirname, '../../../content/drills');
-const drills: Drill[] = readdirSync(dir).map((f) => drillSchema.parse(JSON.parse(readFileSync(join(dir, f), 'utf8'))));
+// The younger-team library: the app only suggests drills for the team's age (drillsForAge), so U11/U13 drills stay out.
+const drills: Drill[] = readdirSync(dir)
+  .map((f) => drillSchema.parse(JSON.parse(readFileSync(join(dir, f), 'utf8'))))
+  .filter((d) => !d.ageGroups.includes('U11') && !d.ageGroups.includes('U13'));
 const byId = new Map(drills.map((d) => [d.id, d]));
 const team = { groups: [{ group: 'Sharks' as const, skaters: 4 }, { group: 'Bears' as const, skaters: 4 }, { group: 'Eagles' as const, skaters: 4 }] };
 

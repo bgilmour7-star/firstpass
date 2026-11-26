@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth';
 import { getAppStore } from '@/lib/app/store';
 import { groupsSchema, gearSchema, teamSchema } from '@/lib/plans/schema';
-import { FOCUS_ATTRIBUTES } from '@/lib/drills/schema';
+import { AGE_GROUPS, FOCUS_ATTRIBUTES } from '@/lib/drills/schema';
 import { readCalendar, syncCalendar, todayLocal } from '@/lib/calendar/sync';
 import { guessIce, weeklySlots, type WeeklySlot } from '@/lib/plans/team-summary';
 import { nextPracticeDate } from '@/lib/plans/next-date';
@@ -66,7 +66,7 @@ export async function sendOlderInterest(input: unknown): Promise<{ ok: true } | 
 
 const wizardInput = z.object({
   name: teamSchema.shape.name,
-  ageGroup: z.enum(['U5', 'U7', 'U9']),
+  ageGroup: z.enum(AGE_GROUPS),
   ice: z.enum(['half', 'full', 'varies']),
   practiceMinutes: z.number().int().min(20).max(120),
   newDrillsPerWeek: z.number().int().min(0).max(10),

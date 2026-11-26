@@ -1,0 +1,236 @@
+{
+  "id": "u11-speed-ladder",
+  "funName": "Speed Ladder",
+  "plainName": "Skating skills down the middle, sprint back",
+  "sourceTitle": "Skating Warm-Up: Speed Progression",
+  "minutes": 8,
+  "gear": "None",
+  "worksAsStation": false,
+  "description": "Skaters line up at one end and go one at a time down the middle of the ice, then sprint back along the boards. Work up the ladder: crossunders on one foot then the other, alternating crossunders, riding the inside edge each way, inside foot drops, then one and two quick crossovers each way. Do a few slow reps of the first four for technique before going full speed.",
+  "steps": [
+    "Down the middle doing the skill: crossunders, inside edges, foot drops, one and two crossovers.",
+    "Sprint back along the boards to the line."
+  ],
+  "cues": [
+    "Eyes up, scan the ice.",
+    "Stay low, legs loaded.",
+    "Both legs equal."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Crossunders, edges and quick crossovers both ways."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Full-speed sprints back."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Skills down the middle",
+  "levels": [
+    {
+      "name": "Fake and burst",
+      "adds": "Skate the dot line: crossovers into an inside fake, then accelerate outside. Come back down the middle.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "role": "O",
+            "x": 14,
+            "y": 31
+          },
+          {
+            "role": "O",
+            "x": 10,
+            "y": 29
+          },
+          {
+            "role": "O",
+            "x": 6,
+            "y": 27
+          }
+        ],
+        "paths": [
+          {
+            "type": "skate",
+            "points": [
+              [
+                17,
+                30
+              ],
+              [
+                40,
+                22
+              ],
+              [
+                80,
+                20
+              ],
+              [
+                120,
+                20.5
+              ],
+              [
+                160,
+                20.5
+              ],
+              [
+                184,
+                30
+              ]
+            ],
+            "step": 1,
+            "caption": "Along the dot line: crossovers, fake inside, then burst outside.",
+            "stepAt": 0.35
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                186,
+                36
+              ],
+              [
+                180,
+                42.5
+              ],
+              [
+                120,
+                42.5
+              ],
+              [
+                60,
+                42.5
+              ],
+              [
+                26,
+                40
+              ],
+              [
+                18,
+                35
+              ]
+            ],
+            "step": 2,
+            "caption": "Back down the middle to the line.",
+            "stepAt": 0.5
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U11 and U13 Preparation Plan 2 · Skating Warm-Up: Speed Progression",
+    "url": "https://www.ohf.on.ca/media/0tqhs2k1/1-u13-preparation-plan-all-in-one.pdf"
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 14,
+        "y": 31
+      },
+      {
+        "role": "O",
+        "x": 10,
+        "y": 29
+      },
+      {
+        "role": "O",
+        "x": 6,
+        "y": 27
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            17,
+            33
+          ],
+          [
+            26,
+            40
+          ],
+          [
+            60,
+            42.5
+          ],
+          [
+            110,
+            42.5
+          ],
+          [
+            165,
+            42.5
+          ],
+          [
+            178,
+            46
+          ],
+          [
+            183,
+            54
+          ]
+        ],
+        "step": 1,
+        "caption": "Down the middle doing the skill: crossunders, inside edges, foot drops, one and two crossovers.",
+        "stepAt": 0.3
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            184,
+            58
+          ],
+          [
+            178,
+            72
+          ],
+          [
+            150,
+            80
+          ],
+          [
+            100,
+            80.5
+          ],
+          [
+            50,
+            80
+          ],
+          [
+            22,
+            74
+          ],
+          [
+            16,
+            52
+          ],
+          [
+            16,
+            40
+          ]
+        ],
+        "step": 2,
+        "caption": "Sprint back along the boards to the line.",
+        "stepAt": 0.5
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

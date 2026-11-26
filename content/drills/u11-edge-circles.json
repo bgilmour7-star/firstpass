@@ -1,0 +1,287 @@
+{
+  "id": "u11-edge-circles",
+  "funName": "Edge Circles",
+  "plainName": "Skating skills around both end circles",
+  "sourceTitle": "Skating – Skating Circles",
+  "minutes": 10,
+  "gear": "None",
+  "worksAsStation": true,
+  "description": "Skaters line up in the corner. One at a time, skate a skill all the way around the first face-off circle, then drop down and go all the way around the second circle the other way, so both sides get the same work. Change the skill each time through: crossunders, C-cuts, quick-feet hi-lo, heel-to-heel pushes, and an inside pivot with one crossover. Get the footwork right before adding speed.",
+  "steps": [
+    "Out of the corner and all the way around the first circle.",
+    "Drop down and go all the way around the second circle the other way."
+  ],
+  "cues": [
+    "Same work both ways.",
+    "Footwork first, then speed.",
+    "Stay low on your edges."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Crossunders, C-cuts and heel-to-heel turns both directions."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Short, steady reps that keep everyone moving."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada Drill Hub Practice Plan 04 · Skating Circles",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Drill-Hub/Downloads/Practice-Plans/practice_plan_04_e.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 6,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 4,
+        "y": 10
+      },
+      {
+        "role": "O",
+        "x": 3,
+        "y": 14
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            9,
+            9
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            15.1,
+            13.1
+          ],
+          [
+            13.6,
+            18.5
+          ],
+          [
+            13.9,
+            24.1
+          ],
+          [
+            15.9,
+            29.3
+          ],
+          [
+            19.4,
+            33.6
+          ],
+          [
+            24.2,
+            36.6
+          ],
+          [
+            29.6,
+            37.9
+          ],
+          [
+            35.2,
+            37.5
+          ],
+          [
+            40.3,
+            35.3
+          ],
+          [
+            44.5,
+            31.6
+          ],
+          [
+            47.3,
+            26.7
+          ],
+          [
+            48.5,
+            21.3
+          ],
+          [
+            47.8,
+            15.7
+          ],
+          [
+            45.5,
+            10.6
+          ],
+          [
+            41.6,
+            6.6
+          ],
+          [
+            36.7,
+            3.9
+          ],
+          [
+            31.1,
+            3.0
+          ],
+          [
+            25.6,
+            3.9
+          ],
+          [
+            20.6,
+            6.4
+          ],
+          [
+            16.7,
+            10.4
+          ],
+          [
+            14.2,
+            15.4
+          ],
+          [
+            13.5,
+            21.0
+          ],
+          [
+            14.6,
+            26.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Out of the corner and all the way around the first circle.",
+        "stepAt": 0.3,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            19,
+            34
+          ],
+          [
+            21,
+            43
+          ],
+          [
+            24.4,
+            48.3
+          ],
+          [
+            29.8,
+            47.0
+          ],
+          [
+            35.4,
+            47.5
+          ],
+          [
+            40.4,
+            49.8
+          ],
+          [
+            44.6,
+            53.4
+          ],
+          [
+            47.3,
+            58.2
+          ],
+          [
+            48.5,
+            63.6
+          ],
+          [
+            47.9,
+            69.1
+          ],
+          [
+            45.6,
+            74.2
+          ],
+          [
+            41.8,
+            78.3
+          ],
+          [
+            37.0,
+            80.9
+          ],
+          [
+            31.5,
+            82.0
+          ],
+          [
+            26.1,
+            81.3
+          ],
+          [
+            21.1,
+            78.9
+          ],
+          [
+            17.1,
+            75.1
+          ],
+          [
+            14.5,
+            70.2
+          ],
+          [
+            13.5,
+            64.7
+          ],
+          [
+            14.3,
+            59.3
+          ],
+          [
+            16.8,
+            54.3
+          ],
+          [
+            20.7,
+            50.4
+          ],
+          [
+            25.6,
+            47.9
+          ],
+          [
+            36,
+            47.5
+          ],
+          [
+            42,
+            49
+          ]
+        ],
+        "step": 2,
+        "caption": "Drop down and go all the way around the second circle the other way.",
+        "stepAt": 0.3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

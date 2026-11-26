@@ -1,0 +1,223 @@
+{
+  "id": "u11-two-man-drive",
+  "funName": "Two-Man Drive",
+  "plainName": "Wide drive, pass back to the slot",
+  "sourceTitle": "Net Drive 1 on 0 / 2 on 0",
+  "minutes": 8,
+  "gear": "Pucks, 1 cone",
+  "worksAsStation": false,
+  "description": "One line at each side of the red line. The first skater crosses the ice and takes a pass from the other line. They stay wide around the cone, cross over at the blue line and drive to the far post. The passer cuts inside and drives to the slot. The puck carrier passes back to them for a quick shot, then both look for the rebound. Go from both sides.",
+  "steps": [
+    "Skate across the ice and take a pass from the top line.",
+    "Stay wide around the cone, cross over at the blue line and drive to the far post.",
+    "Pass back to your partner in the slot for the shot."
+  ],
+  "cues": [
+    "Wide, then cross over at the blue line.",
+    "Partner: stick on the ice in the slot.",
+    "Stop at the net for the rebound."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "Shots from the slot off a pass back."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Crossovers into a net drive."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "A pass across the slot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "OMHA Coaches Drill Book (Hockey Canada resources) · Peewee Practice Plan · Net Drive 1 on 0 and 2 on 0",
+    "url": "https://cloud.rampinteractive.com/hockeyregina/files/Drills/Various/OMHA_COACHES_DRILL_BOOK_-_V3.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 96,
+        "y": 80
+      },
+      {
+        "role": "O",
+        "x": 92,
+        "y": 80
+      },
+      {
+        "role": "O",
+        "x": 96,
+        "y": 6
+      },
+      {
+        "role": "O",
+        "x": 92,
+        "y": 6
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "cones": [
+      {
+        "x": 66,
+        "y": 14
+      }
+    ],
+    "piles": [
+      {
+        "x": 98,
+        "y": 12
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            95,
+            77
+          ],
+          [
+            88,
+            55
+          ],
+          [
+            86,
+            30
+          ],
+          [
+            84,
+            14
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate across the ice and take a pass from the top line.",
+        "stepAt": 0.4,
+        "stepSide": "right"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            94,
+            8
+          ],
+          [
+            86,
+            13
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            82,
+            13
+          ],
+          [
+            72,
+            8
+          ],
+          [
+            60,
+            8
+          ],
+          [
+            46,
+            14
+          ],
+          [
+            30,
+            24
+          ],
+          [
+            18,
+            34
+          ]
+        ],
+        "step": 2,
+        "caption": "Stay wide around the cone, cross over at the blue line and drive to the far post.",
+        "stepAt": 0.3,
+        "stepSide": "left"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            92,
+            9
+          ],
+          [
+            76,
+            30
+          ],
+          [
+            56,
+            40
+          ],
+          [
+            36,
+            44
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            17,
+            36
+          ],
+          [
+            32,
+            44
+          ]
+        ],
+        "step": 3,
+        "caption": "Pass back to your partner in the slot for the shot.",
+        "stepAt": 0.5,
+        "stepSide": "right"
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            30,
+            44
+          ],
+          [
+            13,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

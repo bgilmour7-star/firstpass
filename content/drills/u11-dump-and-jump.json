@@ -1,0 +1,469 @@
+{
+  "id": "u11-dump-and-jump",
+  "funName": "Dump and Jump",
+  "plainName": "Breakout pass, then a 1-on-1 back at the defender",
+  "sourceTitle": "Breakout, Regroup: 1-on-1 / 2-on-1",
+  "minutes": 10,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "A forward starts near the blue line and a defender starts in front of the net. The forward rims the puck into the corner and swings to the wall. The defender gets to the puck, checks over the shoulder and passes up the wall to the forward. The forward skates up ice, turns back and attacks; the defender follows the pass and closes the gap for a 1-on-1. Alternate rims and dumps at the goalie.",
+  "steps": [
+    "The forward rims the puck into the corner and swings to the wall.",
+    "The defender gets the puck and passes up the wall to the forward.",
+    "The forward skates up ice, turns back and attacks 1-on-1."
+  ],
+  "cues": [
+    "Shoulder check before you touch it.",
+    "Call for it, show a target.",
+    "Follow your pass, close the gap."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "The breakout pass up the wall, on the tape."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Reading the gap in the 1-on-1."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Backward skating to close the gap."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Breakout and 1-on-1",
+  "levels": [
+    {
+      "name": "2-on-1",
+      "adds": "Add a second forward, so it's a 2-on-1 back at the defender.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 70,
+            "y": 74
+          },
+          {
+            "role": "O",
+            "x": 70,
+            "y": 58
+          },
+          {
+            "role": "X",
+            "x": 24,
+            "y": 48
+          },
+          {
+            "role": "G",
+            "x": 9,
+            "y": 42.5
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                68,
+                76
+              ],
+              [
+                40,
+                83
+              ],
+              [
+                10,
+                80
+              ]
+            ],
+            "step": 1,
+            "caption": "The forward rims the puck into the corner and swings to the wall."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                66,
+                72
+              ],
+              [
+                50,
+                76
+              ],
+              [
+                38,
+                79
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                24,
+                51
+              ],
+              [
+                16,
+                66
+              ],
+              [
+                11,
+                74
+              ]
+            ],
+            "step": 2,
+            "caption": "The defender gets the puck and passes up the wall to the forward.",
+            "stepAt": 0.6,
+            "stepSide": "left"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                13,
+                76
+              ],
+              [
+                36,
+                80
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                39,
+                79
+              ],
+              [
+                60,
+                78
+              ],
+              [
+                82,
+                72
+              ],
+              [
+                90,
+                60
+              ],
+              [
+                84,
+                48
+              ],
+              [
+                66,
+                44
+              ],
+              [
+                44,
+                43
+              ],
+              [
+                30,
+                43
+              ]
+            ],
+            "step": 3,
+            "caption": "Two forwards skate up ice, turn back and attack 2-on-1.",
+            "stepAt": 0.25,
+            "stepSide": "right"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                70,
+                56
+              ],
+              [
+                86,
+                48
+              ],
+              [
+                80,
+                36
+              ],
+              [
+                60,
+                34
+              ],
+              [
+                40,
+                36
+              ]
+            ],
+            "stepWith": 3
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                14,
+                72
+              ],
+              [
+                30,
+                62
+              ],
+              [
+                48,
+                52
+              ],
+              [
+                60,
+                46
+              ]
+            ],
+            "stepWith": 3
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                62,
+                44
+              ],
+              [
+                50,
+                43.5
+              ],
+              [
+                38,
+                43
+              ]
+            ],
+            "stepWith": 3
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                28,
+                43
+              ],
+              [
+                14,
+                42.5
+              ]
+            ],
+            "stepWith": 3
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U11 and U13 Preparation Plan 3 · Breakout, Regroup: 1-on-1 / 2-on-1",
+    "url": "https://www.ohf.on.ca/media/0tqhs2k1/1-u13-preparation-plan-all-in-one.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 70,
+        "y": 74
+      },
+      {
+        "role": "X",
+        "x": 24,
+        "y": 48
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            68,
+            76
+          ],
+          [
+            40,
+            83
+          ],
+          [
+            10,
+            80
+          ]
+        ],
+        "step": 1,
+        "caption": "The forward rims the puck into the corner and swings to the wall."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            66,
+            72
+          ],
+          [
+            50,
+            76
+          ],
+          [
+            38,
+            79
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            24,
+            51
+          ],
+          [
+            16,
+            66
+          ],
+          [
+            11,
+            74
+          ]
+        ],
+        "step": 2,
+        "caption": "The defender gets the puck and passes up the wall to the forward.",
+        "stepAt": 0.6,
+        "stepSide": "left"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            13,
+            76
+          ],
+          [
+            36,
+            80
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            39,
+            79
+          ],
+          [
+            60,
+            78
+          ],
+          [
+            82,
+            72
+          ],
+          [
+            90,
+            60
+          ],
+          [
+            84,
+            48
+          ],
+          [
+            66,
+            44
+          ],
+          [
+            44,
+            43
+          ],
+          [
+            30,
+            43
+          ]
+        ],
+        "step": 3,
+        "caption": "The forward skates up ice, turns back and attacks 1-on-1.",
+        "stepAt": 0.25,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            72
+          ],
+          [
+            30,
+            62
+          ],
+          [
+            48,
+            52
+          ],
+          [
+            60,
+            46
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            62,
+            44
+          ],
+          [
+            50,
+            43.5
+          ],
+          [
+            38,
+            43
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            28,
+            43
+          ],
+          [
+            14,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

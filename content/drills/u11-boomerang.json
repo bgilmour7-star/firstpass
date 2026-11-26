@@ -1,0 +1,280 @@
+{
+  "id": "u11-boomerang",
+  "funName": "Boomerang",
+  "plainName": "Breakout, regroup with a defender, attack 2-on-1",
+  "sourceTitle": "Breakout / Regroup 2 on 1",
+  "minutes": 10,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "A defender starts in front of the net, two forwards on that side, and a second defender at the red line. On the whistle, the coach spots a puck in the corner. The first defender gets it and passes up the wall. The forwards skate up, pass back to the defender at the red line, and get the puck back to attack 2-on-1 against the first defender, who has stepped up. Then the red-line defender goes back for the next puck and two new forwards go.",
+  "steps": [
+    "On the whistle, the defender goes back for the loose puck in the corner.",
+    "Breakout pass up the wall.",
+    "The forwards skate up and pass back to the defender at the red line.",
+    "The defender passes up and the forwards attack 2-on-1."
+  ],
+  "cues": [
+    "Move it quickly.",
+    "Read the defender, then go.",
+    "Drive the net, close support."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Regrouping and reading a 2-on-1."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Breakout and regroup passes."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "Finishing the 2-on-1."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "OMHA Coaches Drill Book (Hockey Canada resources) · Peewee Practice Plan · Breakout / Regroup 2 on 1",
+    "url": "https://cloud.rampinteractive.com/hockeyregina/files/Drills/Various/OMHA_COACHES_DRILL_BOOK_-_V3.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "X",
+        "x": 24,
+        "y": 52
+      },
+      {
+        "role": "O",
+        "x": 36,
+        "y": 80
+      },
+      {
+        "role": "O",
+        "x": 44,
+        "y": 60
+      },
+      {
+        "role": "X",
+        "x": 96,
+        "y": 42.5
+      },
+      {
+        "role": "C",
+        "x": 30,
+        "y": 74
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "piles": [
+      {
+        "x": 33,
+        "y": 70
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            22,
+            55
+          ],
+          [
+            14,
+            68
+          ],
+          [
+            10,
+            76
+          ]
+        ],
+        "step": 1,
+        "caption": "On the whistle, the defender goes back for the loose puck in the corner.",
+        "stepAt": 0.5,
+        "stepSide": "left"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            12,
+            78
+          ],
+          [
+            34,
+            81
+          ]
+        ],
+        "step": 2,
+        "caption": "Breakout pass up the wall."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            38,
+            80
+          ],
+          [
+            62,
+            77
+          ],
+          [
+            80,
+            70
+          ]
+        ],
+        "step": 3,
+        "caption": "The forwards skate up and pass back to the defender at the red line.",
+        "stepAt": 0.5,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            46,
+            58
+          ],
+          [
+            66,
+            54
+          ],
+          [
+            84,
+            52
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            82,
+            68
+          ],
+          [
+            94,
+            46
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            94,
+            40
+          ],
+          [
+            80,
+            40
+          ]
+        ],
+        "step": 4,
+        "caption": "The defender passes up and the forwards attack 2-on-1.",
+        "stepAt": 0.5,
+        "stepSide": "left"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            78,
+            40
+          ],
+          [
+            60,
+            40
+          ],
+          [
+            40,
+            40
+          ],
+          [
+            28,
+            40
+          ]
+        ],
+        "stepWith": 4
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            84,
+            54
+          ],
+          [
+            70,
+            60
+          ],
+          [
+            45,
+            58
+          ],
+          [
+            22,
+            50
+          ]
+        ],
+        "stepWith": 4
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            14,
+            72
+          ],
+          [
+            30,
+            58
+          ],
+          [
+            46,
+            48
+          ]
+        ],
+        "stepWith": 4
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            26,
+            40
+          ],
+          [
+            13,
+            42
+          ]
+        ],
+        "stepWith": 4
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}
