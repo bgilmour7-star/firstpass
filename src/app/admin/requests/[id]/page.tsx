@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { getDrillStore } from '@/lib/drills/store';
 import { getRequestStore } from '@/lib/requests/store';
-import { SHAPE_LABEL } from '@/lib/requests/schema';
+import { SHAPE_LABEL, waitingForRedraw } from '@/lib/requests/schema';
 import { diagramChanged, drillChanges } from '@/lib/requests/diff';
 import { PART_LABEL } from '@/lib/drills/schema';
 import { Rink } from '@/components/ds';
@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 const when = (iso: string) => new Date(iso).toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Vancouver' });
 
 // One coach request (decision 0018). A suggested change shows the live drill beside Claude's
-// proposal with Accept and Decline; a new-drill request shows what the coach asked for and, once
+// proposal with Accept, Ask Claude to change it (decision 0055) and Decline; a new-drill request shows what the coach asked for and, once
 // drafted, links to the draft in Drill review.
 export default async function RequestPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -25,6 +25,19 @@ export default async function RequestPage({ params }: { params: Promise<{ id: st
   const changes = r.kind === 'change' && current && r.proposed ? drillChanges(current, r.proposed) : [];
   const redrawn = r.kind === 'change' && current && r.proposed ? diagramChanged(current, r.proposed) : false;
   const open = r.state === 'sent' || r.state === 'drafted';
+  const redoing = waitingForRedraw(r);
+  const status =
+    r.state === 'sent'
+      ? redoing
+        ? 'Sent back to Claude, redrawing with the next morning run'
+        : 'Waiting for Claude (drafts once a day, in the morning)'
+      : r.state === 'drafted'
+        ? r.feedback.length > 0
+          ? `Redrawn (round ${r.feedback.length + 1}), waiting for you`
+          : 'Drafted, waiting for you'
+        : r.state === 'accepted'
+          ? 'Accepted'
+          : `Declined${r.reason ? `: ${r.reason}` : ''}`;
   const asked = [r.answers.part && PART_LABEL[r.answers.part], r.answers.shape && SHAPE_LABEL[r.answers.shape], r.answers.focus.join(', '), r.answers.minutes && `${r.answers.minutes} min`].filter(Boolean).join(' · ');
 
   return (
@@ -37,7 +50,7 @@ export default async function RequestPage({ params }: { params: Promise<{ id: st
         <p className="text-ink-200">
           {r.requesterName ?? 'A coach'}
           {r.teamName ? `, ${r.teamName}` : ''} · {when(r.createdAt)} ·{' '}
-          {r.state === 'sent' ? 'Waiting for Claude (drafts once a day, in the morning)' : r.state === 'drafted' ? 'Drafted, waiting for you' : r.state === 'accepted' ? 'Accepted' : `Declined${r.reason ? `: ${r.reason}` : ''}`}
+          {status}
         </p>
       </header>
 
@@ -59,6 +72,22 @@ export default async function RequestPage({ params }: { params: Promise<{ id: st
         </section>
       )}
 
+      {r.feedback.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold">Your notes to Claude</h2>
+          <ol className="flex flex-col gap-2">
+            {r.feedback.map((f, i) => (
+              <li key={f.at} className="flex flex-col gap-0.5 border-l-2 border-border-100 pl-3">
+                <span className="text-xs text-ink-200">
+                  Round {i + 1} · {when(f.at)}
+                </span>
+                <span className="whitespace-pre-wrap text-sm leading-6">{f.text}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {r.kind === 'new' && r.drillId && (
         <Link href={`/admin/drills/${r.drillId}`} className="w-fit rounded-full bg-rink-100 px-5 py-2.5 text-sm font-semibold text-surface-100 hover:bg-rink-200">
           Review the draft
@@ -67,19 +96,20 @@ export default async function RequestPage({ params }: { params: Promise<{ id: st
 
       {r.kind === 'change' && current && r.proposed && (
         <section className="flex flex-col gap-4">
-          <h2 className="font-display text-xl font-bold">What changes</h2>
-          {redrawn && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <figure className="flex flex-col gap-2">
-                <figcaption className="text-sm font-semibold text-ink-200">Live now</figcaption>
-                <Rink spec={current.diagram} title={`${current.funName}, live`} className="rounded-md border border-border-100" />
-              </figure>
-              <figure className="flex flex-col gap-2">
-                <figcaption className="text-sm font-semibold">Proposed</figcaption>
-                <Rink spec={r.proposed.diagram} title={`${current.funName}, proposed`} className="rounded-md border-2 border-rink-100" />
-              </figure>
-            </div>
-          )}
+          <h2 className="font-display text-xl font-bold">{redoing ? 'The draft you sent back' : 'What changes'}</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <figure className="flex flex-col gap-2">
+              <figcaption className="text-sm font-semibold text-ink-200">Live now</figcaption>
+              <Rink spec={current.diagram} title={`${current.funName}, live`} className="rounded-md border border-border-100" />
+            </figure>
+            <figure className="flex flex-col gap-2">
+              <figcaption className="text-sm font-semibold">
+                {redoing ? 'Sent back' : 'Proposed'}
+                {!redrawn && <span className="font-normal text-ink-200"> · diagram unchanged</span>}
+              </figcaption>
+              <Rink spec={r.proposed.diagram} title={`${current.funName}, proposed`} className="rounded-md border-2 border-rink-100" />
+            </figure>
+          </div>
           {changes.length === 0 && !redrawn ? (
             <p className="text-sm text-ink-200">The proposal is the same as the live drill.</p>
           ) : (
@@ -102,7 +132,7 @@ export default async function RequestPage({ params }: { params: Promise<{ id: st
           {r.decidedAt ? ` ${when(r.decidedAt)}` : ''}. {r.requesterName ?? 'The coach'} was emailed.
         </p>
       )}
-      {open && <Decide requestId={r.id} kind={r.kind} canAccept={r.kind === 'change' && Boolean(r.proposed)} requester={r.requesterName ?? 'The coach'} />}
+      {open && <Decide requestId={r.id} kind={r.kind} canAccept={r.kind === 'change' && r.state === 'drafted' && Boolean(r.proposed)} canAsk={r.kind === 'change' && r.state === 'drafted'} requester={r.requesterName ?? 'The coach'} />}
     </div>
   );
 }

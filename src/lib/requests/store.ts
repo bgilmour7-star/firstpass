@@ -14,6 +14,8 @@ export interface RequestStore {
   get(id: string): Promise<DrillRequest | null>;
   /** An admin's decision. Returns the request as it was before, or null if it wasn't open. */
   decide(id: string, state: 'accepted' | 'declined', reason: string | null): Promise<DrillRequest | null>;
+  /** Send a drafted change back to Claude with a note (decision 0055): back to 'sent', the proposal kept to redraw from. Returns false if it wasn't a drafted change. */
+  askAgain(id: string, text: string): Promise<boolean>;
   markCoachEmailed(id: string): Promise<void>;
 }
 

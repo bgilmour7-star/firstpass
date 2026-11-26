@@ -11,6 +11,7 @@
  *   npm run drills -- seed [--force]        insert drills that aren't in Supabase yet (--force overwrites content)
  *   npm run drills -- asks                  list coaches' drill requests waiting for a draft (decision 0018)
  *   npm run drills -- drafted <requestId> <drillId> "note"   after push of a new drill (In review): link it, mark the request drafted
+ *   npm run drills -- redraw <requestId>           a change sent back with feedback: write its earlier proposal to content/drills to start from
  *   npm run drills -- propose <requestId> "note"   store content/drills/<drillId>.json as the proposed change (the live drill is untouched)
  *   npm run drills -- cant <requestId> "why"       mark a request drafted with only a note, for the reviewer to decline
  *   npm run drills -- public                check every drill named on a public page is live and matches its file (decisions 0038, 0042); run before merging a public-page change
@@ -175,12 +176,13 @@ body{font-family:system-ui;margin:24px;background:#fff}main{display:grid;grid-te
     const db = admin();
     const { data, error } = await db
       .from('drill_requests')
-      .select('id, kind, drill_id, answers, description, link, requester_name, created_at, teams(name)')
+      .select('id, kind, drill_id, answers, description, link, requester_name, feedback, proposed, created_at, teams(name)')
       .eq('state', 'sent')
       .order('created_at');
     if (error) throw error;
     if (!data.length) return console.log('No drill requests waiting.');
-    for (const r of data) console.log(JSON.stringify(r, null, 2));
+    // A change sent back with feedback (decision 0055) shows the notes; its earlier proposal is the starting point.
+    for (const { proposed, ...r } of data) console.log(JSON.stringify({ ...r, redraw: Array.isArray(r.feedback) && r.feedback.length > 0, hasProposal: Boolean(proposed) }, null, 2));
   },
 
   async drafted([requestId, drillId, ...rest]) {
@@ -198,6 +200,19 @@ body{font-family:system-ui;margin:24px;background:#fff}main{display:grid;grid-te
       .eq('id', requestId);
     if (e) throw e;
     console.log(`drafted ${requestId} → ${drillId}`);
+  },
+
+  /** A change sent back with feedback (decision 0055): put the earlier proposal in content/drills to redraw from. */
+  async redraw([requestId]) {
+    if (!requestId) throw new Error('Usage: redraw <requestId>');
+    const db = admin();
+    const { data: r, error } = await db.from('drill_requests').select('kind, state, drill_id, proposed, feedback').eq('id', requestId).single();
+    if (error) throw error;
+    if (r.kind !== 'change' || r.state !== 'sent' || !r.drill_id || !r.proposed) throw new Error(`Request is ${r.kind}/${r.state}${r.proposed ? '' : ' with no proposal'}, not a change sent back to redraw.`);
+    const { data: live } = await db.from('drills').select('status').eq('id', r.drill_id).single();
+    writeLocal(drillSchema.parse({ ...r.proposed, id: r.drill_id, status: live?.status ?? 'live' }));
+    console.log(`content/drills/${r.drill_id}.json is now the earlier proposal. Feedback, oldest first:`);
+    for (const f of (r.feedback as { text: string; at: string }[]) ?? []) console.log(`- ${f.at}: ${f.text}`);
   },
 
   async propose([requestId, ...rest]) {

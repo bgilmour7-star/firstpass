@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { requestInput, stateLine } from './schema';
+import { parseFeedback, requestInput, stateLine, waitingForRedraw } from './schema';
 
 describe('drill requests', () => {
   it('accepts a new-drill request with a link', () => {
@@ -17,5 +17,15 @@ describe('drill requests', () => {
   it('says where a request is in plain words', () => {
     expect(stateLine({ state: 'declined', kind: 'new', reason: 'Too much waiting' })).toBe('Not this time: Too much waiting');
     expect(stateLine({ state: 'accepted', kind: 'change', reason: null })).toBe('Changed');
+  });
+  it('keeps well-formed feedback notes and drops broken ones', () => {
+    expect(parseFeedback([{ text: 'Move the nets out', at: '2026-11-25T18:00:00Z' }, { text: 3 }, null])).toEqual([{ text: 'Move the nets out', at: '2026-11-25T18:00:00Z' }]);
+    expect(parseFeedback('nope')).toEqual([]);
+  });
+  it('knows a change sent back to Claude is waiting for a redraw', () => {
+    const note = [{ text: 'Move the nets out', at: '2026-11-25T18:00:00Z' }];
+    expect(waitingForRedraw({ state: 'sent', feedback: note })).toBe(true);
+    expect(waitingForRedraw({ state: 'sent', feedback: [] })).toBe(false);
+    expect(waitingForRedraw({ state: 'drafted', feedback: note })).toBe(false);
   });
 });

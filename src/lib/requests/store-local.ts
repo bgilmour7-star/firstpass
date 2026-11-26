@@ -2,7 +2,7 @@ import 'server-only';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { OPEN_LIMIT, isOpen, parseProposed, type DrillRequest, type RequestInput } from './schema';
+import { OPEN_LIMIT, isOpen, parseFeedback, parseProposed, type DrillRequest, type RequestInput } from './schema';
 import type { RequestStore } from './store';
 
 // Local mode: requests live in .local/requests.json. To play Claude's part by hand, set a
@@ -11,7 +11,7 @@ const FILE = join(process.cwd(), '.local', 'requests.json');
 
 async function read(): Promise<DrillRequest[]> {
   try {
-    return (JSON.parse(await fs.readFile(FILE, 'utf8')) as DrillRequest[]).map((r) => ({ ...r, proposed: parseProposed(r.proposed) }));
+    return (JSON.parse(await fs.readFile(FILE, 'utf8')) as DrillRequest[]).map((r) => ({ ...r, proposed: parseProposed(r.proposed), feedback: parseFeedback(r.feedback) }));
   } catch {
     return [];
   }
@@ -40,6 +40,7 @@ export class LocalRequestStore implements RequestStore {
       state: 'sent',
       proposed: null,
       claudeNote: null,
+      feedback: [],
       reason: null,
       createdAt: new Date().toISOString(),
       draftedAt: null,
@@ -63,6 +64,13 @@ export class LocalRequestStore implements RequestStore {
     if (!before || !isOpen(before)) return null;
     await write(all.map((r) => (r.id === id ? { ...r, state, reason, decidedAt: new Date().toISOString() } : r)));
     return before;
+  }
+  async askAgain(id: string, text: string) {
+    const all = await read();
+    const before = all.find((r) => r.id === id);
+    if (!before || before.kind !== 'change' || before.state !== 'drafted') return false;
+    await write(all.map((r) => (r.id === id ? { ...r, state: 'sent' as const, draftedAt: null, feedback: [...r.feedback, { text, at: new Date().toISOString() }] } : r)));
+    return true;
   }
   async markCoachEmailed() {}
 }
