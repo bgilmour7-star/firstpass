@@ -61,9 +61,9 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
     const needsMine = over && (Date.parse(today) - Date.parse(p.date)) / 864e5 <= 14 && !here.some((c) => c.userId === coach.id);
     return (
       <li key={p.id}>
-        <Link href={needsMine ? `/plans/${p.id}/check-in` : `/plans/${p.id}`} className="grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border-100 p-3 hover:border-ink-200">
+        <Link href={needsMine ? `/plans/${p.id}/check-in` : `/plans/${p.id}`} className="grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 border-t border-border-100 px-1 py-4 hover:bg-surface-200">
           <span className="flex flex-col">
-            <b className="font-display">{day(p.date)}</b>
+            <b className="font-display text-[17px] font-bold">{day(p.date)}</b>
             <span className="whitespace-nowrap font-mono text-xs text-ink-200">{clock(p.startTime)} · {p.minutes} min</span>
           </span>
           <span className="min-w-0 truncate text-sm text-ink-200">
@@ -112,11 +112,11 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-10 lg:gap-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Plans</h1>
-          <p className="text-sm text-ink-200">{plans.length ? 'A new plan starts as a copy of the one before it.' : 'Your first practice comes ready to run. Change anything you like.'}</p>
+          <h1 className="text-[30px] font-extrabold leading-9 lg:text-[40px] lg:leading-[1.1]">Plans</h1>
+          <p className="mt-1 text-sm text-ink-200 lg:text-base">{plans.length ? 'A new plan starts as a copy of the one before it.' : 'Your first practice comes ready to run. Change anything you like.'}</p>
         </div>
         <AddPractice date={guess.date} startTime={guess.startTime} hint={`${DATE_WHY[guess.why].charAt(0).toUpperCase()}${DATE_WHY[guess.why].slice(1)}.`} copies={plans.length > 0} />
       </div>
@@ -140,9 +140,9 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
       )}
 
       {/* One list in date and time order: planned practices and ice times still to plan, side by side. */}
-      <section className="flex flex-col gap-3">
+      <section className="flex flex-col gap-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-[17px] font-extrabold">{hidden ? 'Hidden ice times' : 'Coming up'}</h2>
+          <h2 className="text-2xl font-extrabold leading-8 lg:text-[28px]">{hidden ? 'Hidden ice times' : 'Coming up'}</h2>
           {(hiddenCount > 0 || hidden) && (
             <Link href={hidden ? '/plans' : '/plans?hidden=1'} className="text-sm text-rink-100 hover:underline">
               {hidden ? 'Back' : `${hiddenCount} hidden`}
@@ -150,7 +150,7 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
           )}
         </div>
         {coming.length ? (
-          <ul className="grid gap-2">{coming.slice(0, limit).map((c) => (c.kind === 'plan' ? row(c.p) : <IceRow key={c.x.id} x={c.x} />))}</ul>
+          <ul className="grid">{coming.slice(0, limit).map((c) => (c.kind === 'plan' ? row(c.p) : <IceRow key={c.x.id} x={c.x} />))}</ul>
         ) : (
           <p className="text-sm text-ink-200">{hidden ? 'Nothing hidden.' : 'Nothing coming up. Add a practice above.'}</p>
         )}
@@ -161,9 +161,9 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
         )}
       </section>
       {!hidden && past.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-[17px] font-extrabold">Earlier</h2>
-          <ul className="grid gap-2">{past.map(row)}</ul>
+        <section className="flex flex-col gap-4 border-t border-border-100 pt-8 lg:pt-10">
+          <h2 className="text-2xl font-extrabold leading-8 lg:text-[28px]">Earlier</h2>
+          <ul className="grid border-b border-border-100">{past.map(row)}</ul>
         </section>
       )}
     </div>
@@ -173,9 +173,9 @@ export default async function Plans({ searchParams }: { searchParams: Promise<{ 
 function IceRow({ x }: { x: IceTime }) {
   const game = x.kind === 'game';
   return (
-    <li className={`grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border p-3 ${game ? 'border-dashed border-border-100' : 'border-border-100'}`}>
+    <li className={`grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-3 border-t border-border-100 px-1 py-4 ${game ? 'text-ink-200' : ''}`}>
       <span className="flex flex-col">
-        <b className="font-display">{day(x.date)}</b>
+        <b className="font-display text-[17px] font-bold">{day(x.date)}</b>
         <span className="whitespace-nowrap font-mono text-xs text-ink-200">
           {clock(x.startTime)} · {x.minutes} min
         </span>

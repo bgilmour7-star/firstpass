@@ -56,11 +56,11 @@ export function Home(p: {
 
   return (
     <div className="-mx-4 -mt-6 flex min-h-[calc(100dvh-3.5rem)] flex-col lg:-mx-8 lg:min-h-dvh lg:flex-row">
-      <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-10 pt-5 lg:gap-7 lg:px-12 lg:pb-12 lg:pt-9 xl:pr-14">
+      <div className="flex min-w-0 flex-1 flex-col gap-8 px-4 pb-12 pt-6 lg:gap-12 lg:px-14 lg:pb-16 lg:pt-10 xl:pr-16">
         <header className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1">
-            <h1 className="font-display text-[28px] font-extrabold leading-8 tracking-[-0.02em] text-balance lg:text-[30px] lg:leading-9">{team.name}</h1>
-            <p className="text-sm text-ink-200">
+            <h1 className="font-display text-[30px] font-extrabold leading-9 tracking-[-0.02em] text-balance lg:text-[40px] lg:leading-[1.1]">{team.name}</h1>
+            <p className="text-sm text-ink-200 lg:text-base">
               {team.ageGroup} · {skaters} skater{skaters === 1 ? '' : 's'}
               <span className="hidden sm:inline"> · {names}</span>
             </p>
@@ -91,10 +91,10 @@ export function Home(p: {
         {p.progress && <Progress v={p.progress} isHead={p.isHead} />}
       </div>
 
-      <aside aria-label="Team" className="flex flex-col gap-7 border-t border-border-100 bg-surface-200 px-4 py-6 lg:w-[360px] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-7 lg:py-9">
+      <aside aria-label="Team" className="flex flex-col gap-8 border-t border-border-100 bg-surface-200 px-4 py-7 lg:w-[360px] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-7 lg:py-10">
         <section aria-labelledby="h-season" className="flex flex-col gap-2.5">
           <div className="flex items-baseline justify-between">
-            <h2 id="h-season" className="font-body text-[15px] font-semibold">
+            <h2 id="h-season" className="font-body text-sm font-semibold">
               Season so far
             </h2>
             {p.season.total > 0 && (
@@ -111,16 +111,16 @@ export function Home(p: {
                 [p.season.known, `drill${p.season.known === 1 ? '' : 's'} the kids know`],
               ] as const
             ).map(([n, l]) => (
-              <li key={l} className="grid grid-cols-[32px_minmax(0,1fr)] gap-2">
-                <b className="font-mono font-medium">{n}</b>
-                <span>{l}</span>
+              <li key={l} className="grid grid-cols-[36px_minmax(0,1fr)] items-baseline gap-3">
+                <b className="font-mono text-xl font-medium">{n}</b>
+                <span className="text-sm">{l}</span>
               </li>
             ))}
           </ul>
         </section>
 
         <section aria-labelledby="h-coaches" className="flex flex-col">
-          <h2 id="h-coaches" className="mb-2 font-body text-[15px] font-semibold">
+          <h2 id="h-coaches" className="mb-2 font-body text-sm font-semibold">
             Coaches
           </h2>
           <ul className="flex flex-col">
@@ -167,13 +167,13 @@ const monthName = (m: string) => new Date(`${m.slice(0, 7)}-15T12:00:00`).toLoca
 /** Progress on Home (decision 0031): one sentence, the chart, then where the round stands. */
 function Progress({ v, isHead }: { v: HomeProgress; isHead: boolean }) {
   const heading = (
-    <h2 id="h-progress" className="font-display text-xl font-bold leading-7">
+    <h2 id="h-progress" className="font-display text-2xl font-extrabold leading-8 lg:text-[32px] lg:leading-[1.15]">
       Progress
     </h2>
   );
   if (v.kind === 'first')
     return (
-      <section aria-labelledby="h-progress" className="flex flex-col gap-3">
+      <section aria-labelledby="h-progress" className="flex flex-col gap-3 border-t border-border-100 pt-8 lg:pt-10">
         {heading}
         <div className="flex flex-col gap-3 rounded-2xl border-[1.5px] border-dashed border-border-200 p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
           <span className="flex flex-1 flex-col gap-1">
@@ -194,7 +194,7 @@ function Progress({ v, isHead }: { v: HomeProgress; isHead: boolean }) {
   const moved = v.rows.filter((r) => r.now != null).map((r) => `${r.attribute} ${r.now!.toFixed(1)}${r.before != null && r.before !== r.now ? `, from ${r.before.toFixed(1)}` : ''}${r.goal ? `, goal ${r.goal.target.toFixed(1)}` : ''}`);
   const label = `Team average level, 1 to 5, ${span}. ${moved.join('. ')}.`;
   return (
-    <section aria-labelledby="h-progress" className="flex flex-col gap-4">
+    <section aria-labelledby="h-progress" className="flex flex-col gap-4 border-t border-border-100 pt-8 lg:pt-10">
       <div className="flex items-baseline justify-between gap-3">
         {heading}
         <Link href="/progress" className="min-h-11 content-center text-sm font-medium text-rink-100 hover:underline">
@@ -202,7 +202,7 @@ function Progress({ v, isHead }: { v: HomeProgress; isHead: boolean }) {
           <span className="max-sm:hidden">See the {monthName(v.month)} report ›</span>
         </Link>
       </div>
-      <p className="text-[15px] lg:text-base">
+      <p className="text-base lg:text-lg">
         <b className="font-semibold">{v.lead}</b>
         {v.detail && <span className="text-ink-200"> {v.detail}</span>}
       </p>
@@ -271,9 +271,9 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
   const btn = quiet ? outline : primary;
   if (next.kind === 'none')
     return (
-      <section aria-labelledby="h-next" className="flex flex-wrap items-end justify-between gap-3 border-b border-border-100 pb-6">
+      <section aria-labelledby="h-next" className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <h2 id="h-next" className="text-[13px] font-medium text-ink-200">
+          <h2 id="h-next" className="text-sm font-medium text-ink-200 lg:text-base">
             Next practice
           </h2>
           <p className="text-[15px]">Nothing planned yet.</p>
@@ -285,18 +285,18 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
     );
   const head = (
     <div className="flex flex-col gap-0.5">
-      <h2 id="h-next" className="text-[13px] font-medium text-ink-200">
+      <h2 id="h-next" className="text-sm font-medium text-ink-200 lg:text-base">
         Next practice
       </h2>
-      <span className="font-display text-[22px] font-bold leading-7 lg:text-[26px] lg:leading-8">
+      <span className="font-display text-[32px] font-extrabold leading-[1.1] tracking-[-0.02em] lg:text-[44px]">
         {day(next.date)} · {clock(next.startTime)}
       </span>
-      <span className="text-sm text-ink-200 lg:text-[15px]">{next.line}</span>
+      <span className="mt-1 text-[15px] text-ink-200 lg:text-lg">{emphasiseNew(next.line)}</span>
     </div>
   );
   if (next.kind === 'ice')
     return (
-      <section aria-labelledby="h-next" className="flex flex-wrap items-end justify-between gap-3 border-b border-border-100 pb-6">
+      <section aria-labelledby="h-next" className="flex flex-wrap items-end justify-between gap-3">
         {head}
         <form action={planIceTime.bind(null, next.iceId)}>
           <button type="submit" className={btn}>
@@ -310,7 +310,7 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
   const many = more > 0;
   const cols = shownDrills.length + (many ? 1 : 0);
   return (
-    <section aria-labelledby="h-next" className="flex flex-col gap-4 border-b border-border-100 pb-6">
+    <section aria-labelledby="h-next" className="flex flex-col gap-5 lg:gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         {head}
         <Link href={`/plans/${next.id}`} className={`${btn} max-sm:hidden`}>
@@ -318,7 +318,7 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
         </Link>
       </div>
       {shownDrills.length > 0 && (
-        <ol aria-label="Drills, in order" className="-mr-4 flex gap-3 overflow-x-auto pb-1 pr-4 lg:mr-0 lg:grid lg:overflow-visible lg:pr-0" style={{ gridTemplateColumns: `repeat(${Math.max(cols, 4)}, minmax(0, 1fr))` }}>
+        <ol aria-label="Drills, in order" className="-mr-4 flex gap-3 lg:gap-4 overflow-x-auto pb-1 pr-4 lg:mr-0 lg:grid lg:overflow-visible lg:pr-0" style={{ gridTemplateColumns: `repeat(${Math.max(cols, 4)}, minmax(0, 1fr))` }}>
           {shownDrills.map((d) => (
             <li key={d.id} className="flex w-[150px] shrink-0 flex-col gap-1 lg:w-auto">
               {/* One box size for every drill, so a full-rink drill lines up with half-rink ones. */}
@@ -328,8 +328,8 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
               <span className="font-mono text-xs text-ink-200">
                 {clock(d.time)} · {d.minutes} min
               </span>
-              <b className="text-sm font-semibold leading-5">{d.name}</b>
-              {d.isNew ? <span className="text-xs font-medium text-warn-text">New today</span> : null}
+              <b className="text-[15px] font-semibold leading-5">{d.name}</b>
+              {d.isNew ? <span className="text-[13px] font-medium text-warn-text">New today</span> : null}
             </li>
           ))}
           {many && (
@@ -346,6 +346,19 @@ function NextPractice({ next, quiet }: { next: HomeNext; quiet: boolean }) {
         Open the plan
       </Link>
     </section>
+  );
+}
+
+/** "3 new" is the one thing in the line that changes what a coach does, so it is the only orange in it. */
+function emphasiseNew(line: string) {
+  return line.split(/(\d+ new)/).map((part, i) =>
+    /^\d+ new$/.test(part) ? (
+      <b key={i} className="font-semibold text-warn-text">
+        {part}
+      </b>
+    ) : (
+      part
+    ),
   );
 }
 
