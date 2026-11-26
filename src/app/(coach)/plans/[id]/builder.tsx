@@ -762,7 +762,7 @@ export function Builder({
                   if ((e.target as HTMLElement).closest('button, a, input, select, textarea, label, [role="menu"], [role="menuitem"], [role="dialog"]')) return;
                   document.getElementById(`open-${b.id}`)?.click();
                 }}
-                className={`blk group grid cursor-pointer grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 lg:-mx-3 lg:grid-cols-[96px_minmax(0,1fr)] lg:rounded-xl lg:px-3 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-3' : 'py-5'} ${openId === b.id ? '-mx-4 bg-surface-200/60 px-4 lg:outline lg:outline-2 lg:-outline-offset-2 lg:outline-rink-100' : 'lg:hover:bg-surface-200/50'}`}
+                className={`blk group grid cursor-pointer grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border-100 lg:-mx-3 lg:grid-cols-[96px_minmax(0,1fr)] lg:rounded-xl lg:px-3 ${i === 0 ? 'border-t-0' : ''} ${b.kind === 'activity' ? 'py-4' : 'py-6 lg:py-7'} ${openId === b.id ? '-mx-4 bg-surface-200/60 px-4 lg:outline lg:outline-2 lg:-outline-offset-2 lg:outline-rink-100' : 'lg:hover:bg-surface-200/50'}`}
               >
                 <div className="flex flex-col items-start gap-0.5 pt-1">
                   <span className={`font-mono text-sm font-medium ${b.kind === 'activity' ? 'text-ink-200' : ''}`}>{clock(times[i])}</span>
@@ -845,8 +845,8 @@ export function Builder({
             {panelFor(openIndex)}
           </section>
         ) : (
-        <aside aria-label="This practice" className="flex flex-col gap-[18px] lg:pt-6">
-          <p className="hidden text-xs font-semibold tracking-[0.02em] text-ink-200 lg:block">This practice</p>
+        <aside aria-label="This practice" className="flex flex-col gap-6 lg:pt-6">
+          <p className="hidden text-sm font-semibold tracking-[0.02em] text-ink-200 lg:block">This practice</p>
           <div className="flex flex-col">
           <div id="time-card" />
           <TimeCard

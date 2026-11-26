@@ -78,14 +78,14 @@ export default async function Library({
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8 lg:gap-10">
       {/* Title and Request a drill share a row on every screen; the line under them is short (2026-11-16). */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold">Drills</h1>
+          <h1 className="text-[30px] font-extrabold leading-9 lg:text-[40px] lg:leading-[1.1]">Drills</h1>
           <RequestDrill />
         </div>
-        <p className="text-sm text-ink-200">
+        <p className="text-sm text-ink-200 lg:text-base">
           {all.length} drill{all.length === 1 ? "" : "s"} for {team.ageGroup || team.name}, each from a coaching
           source and checked by a coach.
           {coach.isAdmin &&
@@ -173,8 +173,8 @@ export default async function Library({
       )}
 
       {requests.length > 0 && (
-        <section aria-labelledby="your-requests" className="flex flex-col gap-2 border-t border-border-100 pt-5">
-          <h2 id="your-requests" className="text-sm font-semibold">
+        <section aria-labelledby="your-requests" className="flex flex-col gap-3 border-t border-border-100 pt-8">
+          <h2 id="your-requests" className="text-2xl font-extrabold leading-8">
             Your team&apos;s requests
           </h2>
           <ul className="flex flex-col">
