@@ -1,0 +1,346 @@
+{
+  "id": "u11-back-it-up",
+  "funName": "Back It Up",
+  "plainName": "Backward skating down the middle, back along the boards",
+  "sourceTitle": "Skating Warm-Up: Backward Skating",
+  "minutes": 8,
+  "gear": "2 cones",
+  "worksAsStation": false,
+  "description": "Two lines at one end, at the hash marks. One at a time, skate backward down the middle to the cone, then turn and skate back along the boards. Start with alternating C-cut holds, then one crossover reach each way. Both lines can go together or take turns.",
+  "steps": [
+    "Skate backward down the middle to the cone: C-cut holds, then one crossover reach.",
+    "Turn and skate back along the boards to your line."
+  ],
+  "cues": [
+    "Knees bent, stay low.",
+    "One hand on the stick, out front.",
+    "Quiet upper body."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Backward C-cuts and crossover reaches."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Level 2 mirrors a partner, like defending."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "warmup",
+  "effort": "medium",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Backward to the cone",
+  "levels": [
+    {
+      "name": "Mirror",
+      "adds": "A partner skates forward at you. Skate backward, stay in front of them and keep them contained.",
+      "diagram": {
+        "scope": "full",
+        "players": [
+          {
+            "role": "O",
+            "x": 14,
+            "y": 36
+          },
+          {
+            "role": "O",
+            "x": 17,
+            "y": 40
+          },
+          {
+            "role": "O",
+            "x": 14,
+            "y": 49
+          },
+          {
+            "role": "O",
+            "x": 10,
+            "y": 49
+          }
+        ],
+        "cones": [
+          {
+            "x": 100,
+            "y": 36
+          },
+          {
+            "x": 100,
+            "y": 49
+          }
+        ],
+        "paths": [
+          {
+            "type": "backward",
+            "points": [
+              [
+                18,
+                36
+              ],
+              [
+                50,
+                36
+              ],
+              [
+                96,
+                36
+              ]
+            ],
+            "step": 1,
+            "caption": "Skate backward down the middle while a partner skates forward at you; stay in front.",
+            "stepAt": 0.4,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                19,
+                40
+              ],
+              [
+                50,
+                39
+              ],
+              [
+                93,
+                38.5
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "backward",
+            "points": [
+              [
+                18,
+                49
+              ],
+              [
+                50,
+                49
+              ],
+              [
+                96,
+                49
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                100,
+                33
+              ],
+              [
+                95,
+                12
+              ],
+              [
+                70,
+                5
+              ],
+              [
+                35,
+                5
+              ],
+              [
+                16,
+                14
+              ],
+              [
+                12,
+                28
+              ]
+            ],
+            "step": 2,
+            "caption": "Turn and skate back along the boards to your line.",
+            "stepAt": 0.5
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                100,
+                52
+              ],
+              [
+                95,
+                73
+              ],
+              [
+                70,
+                80
+              ],
+              [
+                35,
+                80
+              ],
+              [
+                16,
+                71
+              ],
+              [
+                12,
+                57
+              ]
+            ],
+            "stepWith": 2
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U11 and U13 Preparation Plan 1 · Skating Warm-Up: Backward Skating",
+    "url": "https://www.ohf.on.ca/media/0tqhs2k1/1-u13-preparation-plan-all-in-one.pdf"
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 14,
+        "y": 36
+      },
+      {
+        "role": "O",
+        "x": 10,
+        "y": 36
+      },
+      {
+        "role": "O",
+        "x": 14,
+        "y": 49
+      },
+      {
+        "role": "O",
+        "x": 10,
+        "y": 49
+      }
+    ],
+    "cones": [
+      {
+        "x": 100,
+        "y": 36
+      },
+      {
+        "x": 100,
+        "y": 49
+      }
+    ],
+    "paths": [
+      {
+        "type": "backward",
+        "points": [
+          [
+            18,
+            36
+          ],
+          [
+            50,
+            36
+          ],
+          [
+            96,
+            36
+          ]
+        ],
+        "step": 1,
+        "caption": "Skate backward down the middle to the cone: C-cut holds, then one crossover reach.",
+        "stepAt": 0.4,
+        "stepSide": "left"
+      },
+      {
+        "type": "backward",
+        "points": [
+          [
+            18,
+            49
+          ],
+          [
+            50,
+            49
+          ],
+          [
+            96,
+            49
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            100,
+            33
+          ],
+          [
+            95,
+            12
+          ],
+          [
+            70,
+            5
+          ],
+          [
+            35,
+            5
+          ],
+          [
+            16,
+            14
+          ],
+          [
+            12,
+            28
+          ]
+        ],
+        "step": 2,
+        "caption": "Turn and skate back along the boards to your line.",
+        "stepAt": 0.5
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            100,
+            52
+          ],
+          [
+            95,
+            73
+          ],
+          [
+            70,
+            80
+          ],
+          [
+            35,
+            80
+          ],
+          [
+            16,
+            71
+          ],
+          [
+            12,
+            57
+          ]
+        ],
+        "stepWith": 2
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

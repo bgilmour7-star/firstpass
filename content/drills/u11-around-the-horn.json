@@ -1,0 +1,371 @@
+{
+  "id": "u11-around-the-horn",
+  "funName": "Around the Horn",
+  "plainName": "D-to-D breakout passes up to a point shot",
+  "sourceTitle": "D-to-D Passing with Blue Line Shot",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": true,
+  "description": "Four defenders: two low by the net and two high at the blue line. The coach rims a puck to a low defender, who passes across to the other low defender. That defender passes up to the high defender on the same side, who passes across the blue line for a shot on net. Switch spots so everyone plays all four.",
+  "steps": [
+    "The coach rims a puck to a low defender.",
+    "Low defender to low defender, in front of the net.",
+    "Up to the high defender on the far side.",
+    "Across the blue line, then shoot."
+  ],
+  "cues": [
+    "Shoulder check, then go get it.",
+    "Pass and receive on the forehand.",
+    "Hard, flat passes."
+  ],
+  "focus": [
+    {
+      "attribute": "Passing",
+      "level": 2,
+      "why": "Four passes, each one on the tape."
+    },
+    {
+      "attribute": "Shooting",
+      "level": 1,
+      "why": "A shot from the point to finish."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "How defenders move the puck out of their zone."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "In front of the net",
+  "levels": [
+    {
+      "name": "Behind the net",
+      "adds": "The low defenders pass behind the net instead of in front.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 18,
+            "y": 24
+          },
+          {
+            "role": "O",
+            "x": 18,
+            "y": 61
+          },
+          {
+            "role": "O",
+            "x": 68,
+            "y": 10
+          },
+          {
+            "role": "O",
+            "x": 68,
+            "y": 75
+          },
+          {
+            "role": "C",
+            "x": 55,
+            "y": 42.5
+          },
+          {
+            "role": "G",
+            "x": 9,
+            "y": 42.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 58,
+            "y": 38
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                53,
+                40
+              ],
+              [
+                30,
+                25
+              ],
+              [
+                9,
+                14
+              ]
+            ],
+            "step": 1,
+            "caption": "The coach rims a puck to a low defender."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                16,
+                22
+              ],
+              [
+                10,
+                15
+              ]
+            ],
+            "stepWith": 1
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                10,
+                18
+              ],
+              [
+                5,
+                32
+              ],
+              [
+                5,
+                54
+              ],
+              [
+                13,
+                63
+              ]
+            ],
+            "step": 2,
+            "caption": "Low defender to low defender, behind the net."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                19,
+                61
+              ],
+              [
+                45,
+                70
+              ],
+              [
+                65,
+                74
+              ]
+            ],
+            "step": 3,
+            "caption": "Up to the high defender on the far side."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                67,
+                72
+              ],
+              [
+                67,
+                42
+              ],
+              [
+                68,
+                13
+              ]
+            ],
+            "step": 4,
+            "caption": "Across the blue line, then shoot.",
+            "stepAt": 0.4,
+            "stepSide": "left"
+          },
+          {
+            "type": "shot",
+            "points": [
+              [
+                66,
+                13
+              ],
+              [
+                40,
+                30
+              ],
+              [
+                13,
+                41
+              ]
+            ],
+            "stepWith": 4
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U11 and U13 Preparation Plan 2 · D-to-D Passing with Blue Line Shot",
+    "url": "https://www.ohf.on.ca/media/0tqhs2k1/1-u13-preparation-plan-all-in-one.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 18,
+        "y": 24
+      },
+      {
+        "role": "O",
+        "x": 18,
+        "y": 61
+      },
+      {
+        "role": "O",
+        "x": 68,
+        "y": 10
+      },
+      {
+        "role": "O",
+        "x": 68,
+        "y": 75
+      },
+      {
+        "role": "C",
+        "x": 55,
+        "y": 42.5
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "piles": [
+      {
+        "x": 58,
+        "y": 38
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            53,
+            40
+          ],
+          [
+            30,
+            25
+          ],
+          [
+            9,
+            14
+          ]
+        ],
+        "step": 1,
+        "caption": "The coach rims a puck to a low defender."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            16,
+            22
+          ],
+          [
+            10,
+            15
+          ]
+        ],
+        "stepWith": 1
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            11,
+            18
+          ],
+          [
+            13,
+            40
+          ],
+          [
+            16,
+            58
+          ]
+        ],
+        "step": 2,
+        "caption": "Low defender to low defender, in front of the net."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            19,
+            61
+          ],
+          [
+            45,
+            70
+          ],
+          [
+            65,
+            74
+          ]
+        ],
+        "step": 3,
+        "caption": "Up to the high defender on the far side."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            67,
+            72
+          ],
+          [
+            67,
+            42
+          ],
+          [
+            68,
+            13
+          ]
+        ],
+        "step": 4,
+        "caption": "Across the blue line, then shoot.",
+        "stepAt": 0.4,
+        "stepSide": "left"
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            66,
+            13
+          ],
+          [
+            40,
+            30
+          ],
+          [
+            13,
+            41
+          ]
+        ],
+        "stepWith": 4
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

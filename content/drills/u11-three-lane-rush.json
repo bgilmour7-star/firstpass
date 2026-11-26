@@ -1,0 +1,313 @@
+{
+  "id": "u11-three-lane-rush",
+  "funName": "Three-Lane Rush",
+  "plainName": "Retrieve, break out and attack 3-on-0",
+  "sourceTitle": "Double 3 on 0 Transition",
+  "minutes": 10,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Three skaters circle the centre ice circle. The coach shoots a puck into one end. The three go back: one gets the puck, the others take a wall and the middle. Break it out with a pass and attack the far net 3-on-0, wide in three lanes, and finish with a shot. Once they shoot, the coach sends a puck the other way for the next three.",
+  "steps": [
+    "Three skaters circle centre ice until the coach spots a puck.",
+    "The coach shoots a puck into the corner; all three go back.",
+    "Break it out and attack the far net 3-on-0, three lanes wide."
+  ],
+  "cues": [
+    "Talk: who has it, who is open.",
+    "Three lanes, wide.",
+    "Attack with speed."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Supporting the puck and filling lanes."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "The breakout pass on the move."
+    },
+    {
+      "attribute": "Effort & fun",
+      "level": 1,
+      "why": "Full-ice rushes, one after another."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "OMHA Coaches Drill Book (Hockey Canada resources) · Peewee Practice Plan · Double 3 on 0 Transition",
+    "url": "https://cloud.rampinteractive.com/hockeyregina/files/Drills/Various/OMHA_COACHES_DRILL_BOOK_-_V3.pdf"
+  },
+  "diagram": {
+    "scope": "full",
+    "players": [
+      {
+        "role": "O",
+        "x": 86,
+        "y": 30
+      },
+      {
+        "role": "O",
+        "x": 112,
+        "y": 30
+      },
+      {
+        "role": "O",
+        "x": 100,
+        "y": 60
+      },
+      {
+        "role": "C",
+        "x": 100,
+        "y": 42.5
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      },
+      {
+        "role": "G",
+        "x": 191,
+        "y": 42.5
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            84.0,
+            36.7
+          ],
+          [
+            89.5,
+            29.1
+          ],
+          [
+            98.2,
+            25.6
+          ],
+          [
+            107.5,
+            27.2
+          ],
+          [
+            114.4,
+            33.5
+          ],
+          [
+            117.0,
+            42.5
+          ],
+          [
+            114.4,
+            51.5
+          ],
+          [
+            107.5,
+            57.8
+          ],
+          [
+            98.2,
+            59.4
+          ],
+          [
+            89.5,
+            55.9
+          ],
+          [
+            84.0,
+            48.3
+          ]
+        ],
+        "step": 1,
+        "caption": "Three skaters circle centre ice until the coach spots a puck.",
+        "stepAt": 0.1,
+        "stepSide": "right"
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            97,
+            40
+          ],
+          [
+            50,
+            22
+          ],
+          [
+            12,
+            12
+          ]
+        ],
+        "step": 2,
+        "caption": "The coach shoots a puck into the corner; all three go back."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            84,
+            28
+          ],
+          [
+            40,
+            18
+          ],
+          [
+            14,
+            14
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            110,
+            30
+          ],
+          [
+            60,
+            8
+          ],
+          [
+            35,
+            5
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            100,
+            58
+          ],
+          [
+            60,
+            62
+          ],
+          [
+            36,
+            72
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            14,
+            12
+          ],
+          [
+            30,
+            6
+          ]
+        ],
+        "step": 3,
+        "caption": "Break it out and attack the far net 3-on-0, three lanes wide.",
+        "stepAt": 0.5,
+        "stepSide": "left"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            34,
+            6
+          ],
+          [
+            100,
+            8
+          ],
+          [
+            160,
+            18
+          ],
+          [
+            175,
+            32
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            40,
+            68
+          ],
+          [
+            100,
+            50
+          ],
+          [
+            160,
+            44
+          ],
+          [
+            176,
+            44
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            40,
+            76
+          ],
+          [
+            100,
+            78
+          ],
+          [
+            160,
+            72
+          ],
+          [
+            178,
+            56
+          ]
+        ],
+        "stepWith": 3
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            177,
+            34
+          ],
+          [
+            189,
+            41
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

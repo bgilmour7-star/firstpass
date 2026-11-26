@@ -1,0 +1,489 @@
+{
+  "id": "u11-five-spot",
+  "funName": "Five Spot",
+  "plainName": "Quick-feet agility around five cones",
+  "sourceTitle": "Skating – Agility – 5 Puck Agility",
+  "minutes": 8,
+  "gear": "5 cones (or pucks as markers)",
+  "worksAsStation": true,
+  "description": "Set five cones in the neutral zone: one in the middle and four around it. One at a time, skate around an outside cone and come back to the middle before going around the next one. Keep your toes pointing forward through every turn and use only one crossover to get back to the middle.",
+  "steps": [
+    "Go around each outside cone, coming back through the middle cone every time."
+  ],
+  "cues": [
+    "Quick feet, stay low.",
+    "One crossover back to the middle.",
+    "Scan front and behind."
+  ],
+  "focus": [
+    {
+      "attribute": "Skating",
+      "level": 2,
+      "why": "Fast turns and transitions in a small space."
+    },
+    {
+      "attribute": "Puck control",
+      "level": 1,
+      "why": "Level 2 carries a puck."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "hard",
+  "format": "line",
+  "lessons": [],
+  "levelName": "Feet only",
+  "levels": [
+    {
+      "name": "With a puck, pass out",
+      "adds": "Carry a puck through the pattern, then pass to the coach to finish.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "O",
+            "x": 86,
+            "y": 66
+          },
+          {
+            "role": "O",
+            "x": 86,
+            "y": 70
+          },
+          {
+            "role": "O",
+            "x": 86,
+            "y": 74
+          },
+          {
+            "role": "C",
+            "x": 60,
+            "y": 42.5
+          }
+        ],
+        "cones": [
+          {
+            "x": 78,
+            "y": 33
+          },
+          {
+            "x": 94,
+            "y": 33
+          },
+          {
+            "x": 94,
+            "y": 52
+          },
+          {
+            "x": 78,
+            "y": 52
+          },
+          {
+            "x": 86,
+            "y": 42.5
+          }
+        ],
+        "piles": [
+          {
+            "x": 92,
+            "y": 72
+          }
+        ],
+        "paths": [
+          {
+            "type": "puck",
+            "points": [
+              [
+                86,
+                62
+              ],
+              [
+                86,
+                44.5
+              ],
+              [
+                81.6,
+                37.3
+              ],
+              [
+                81.4,
+                32.4
+              ],
+              [
+                80.2,
+                30.3
+              ],
+              [
+                78.0,
+                29.5
+              ],
+              [
+                75.7,
+                30.3
+              ],
+              [
+                74.6,
+                32.4
+              ],
+              [
+                75.0,
+                34.8
+              ],
+              [
+                76.8,
+                36.3
+              ],
+              [
+                86,
+                42.5
+              ],
+              [
+                90.4,
+                37.3
+              ],
+              [
+                95.2,
+                36.3
+              ],
+              [
+                97.0,
+                34.8
+              ],
+              [
+                97.4,
+                32.4
+              ],
+              [
+                96.3,
+                30.3
+              ],
+              [
+                94.0,
+                29.5
+              ],
+              [
+                91.8,
+                30.3
+              ],
+              [
+                90.6,
+                32.4
+              ],
+              [
+                86,
+                42.5
+              ],
+              [
+                90.4,
+                47.7
+              ],
+              [
+                90.6,
+                52.6
+              ],
+              [
+                91.8,
+                54.7
+              ],
+              [
+                94.0,
+                55.5
+              ],
+              [
+                96.3,
+                54.7
+              ],
+              [
+                97.4,
+                52.6
+              ],
+              [
+                97.0,
+                50.2
+              ],
+              [
+                95.2,
+                48.7
+              ],
+              [
+                86,
+                42.5
+              ],
+              [
+                81.6,
+                47.7
+              ],
+              [
+                76.8,
+                48.7
+              ],
+              [
+                75.0,
+                50.2
+              ],
+              [
+                74.6,
+                52.6
+              ],
+              [
+                75.7,
+                54.7
+              ],
+              [
+                78.0,
+                55.5
+              ],
+              [
+                80.2,
+                54.7
+              ],
+              [
+                81.4,
+                52.6
+              ],
+              [
+                86,
+                42.5
+              ]
+            ],
+            "step": 1,
+            "caption": "Carry a puck around each outside cone, back through the middle each time.",
+            "stepAt": 0.08,
+            "stepSide": "right"
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                84,
+                42.5
+              ],
+              [
+                63,
+                42.5
+              ]
+            ],
+            "step": 2,
+            "caption": "Pass to the coach when you finish."
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada U11 and U13 Preparation Plan 1 · 5 Puck Agility (also Drill Hub Practice Plan 01)",
+    "url": "https://www.ohf.on.ca/media/0tqhs2k1/1-u13-preparation-plan-all-in-one.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 86,
+        "y": 66
+      },
+      {
+        "role": "O",
+        "x": 86,
+        "y": 70
+      },
+      {
+        "role": "O",
+        "x": 86,
+        "y": 74
+      }
+    ],
+    "cones": [
+      {
+        "x": 78,
+        "y": 33
+      },
+      {
+        "x": 94,
+        "y": 33
+      },
+      {
+        "x": 94,
+        "y": 52
+      },
+      {
+        "x": 78,
+        "y": 52
+      },
+      {
+        "x": 86,
+        "y": 42.5
+      }
+    ],
+    "paths": [
+      {
+        "type": "skate",
+        "points": [
+          [
+            86,
+            62
+          ],
+          [
+            86,
+            44.5
+          ],
+          [
+            81.6,
+            37.3
+          ],
+          [
+            81.4,
+            32.4
+          ],
+          [
+            80.2,
+            30.3
+          ],
+          [
+            78.0,
+            29.5
+          ],
+          [
+            75.7,
+            30.3
+          ],
+          [
+            74.6,
+            32.4
+          ],
+          [
+            75.0,
+            34.8
+          ],
+          [
+            76.8,
+            36.3
+          ],
+          [
+            86,
+            42.5
+          ],
+          [
+            90.4,
+            37.3
+          ],
+          [
+            95.2,
+            36.3
+          ],
+          [
+            97.0,
+            34.8
+          ],
+          [
+            97.4,
+            32.4
+          ],
+          [
+            96.3,
+            30.3
+          ],
+          [
+            94.0,
+            29.5
+          ],
+          [
+            91.8,
+            30.3
+          ],
+          [
+            90.6,
+            32.4
+          ],
+          [
+            86,
+            42.5
+          ],
+          [
+            90.4,
+            47.7
+          ],
+          [
+            90.6,
+            52.6
+          ],
+          [
+            91.8,
+            54.7
+          ],
+          [
+            94.0,
+            55.5
+          ],
+          [
+            96.3,
+            54.7
+          ],
+          [
+            97.4,
+            52.6
+          ],
+          [
+            97.0,
+            50.2
+          ],
+          [
+            95.2,
+            48.7
+          ],
+          [
+            86,
+            42.5
+          ],
+          [
+            81.6,
+            47.7
+          ],
+          [
+            76.8,
+            48.7
+          ],
+          [
+            75.0,
+            50.2
+          ],
+          [
+            74.6,
+            52.6
+          ],
+          [
+            75.7,
+            54.7
+          ],
+          [
+            78.0,
+            55.5
+          ],
+          [
+            80.2,
+            54.7
+          ],
+          [
+            81.4,
+            52.6
+          ],
+          [
+            86,
+            42.5
+          ]
+        ],
+        "step": 1,
+        "caption": "Go around each outside cone, coming back through the middle cone every time.",
+        "stepAt": 0.08,
+        "stepSide": "right"
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

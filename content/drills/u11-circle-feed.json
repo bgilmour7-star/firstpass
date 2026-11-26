@@ -1,0 +1,195 @@
+{
+  "id": "u11-circle-feed",
+  "funName": "Circle Feed",
+  "plainName": "Pass across, loop the circle, feed the slot",
+  "sourceTitle": "Scoring – Circle Shooting",
+  "minutes": 8,
+  "gear": "Pucks",
+  "worksAsStation": true,
+  "description": "Pucks on both face-off dots, one player on each dot. A pass goes across from one dot to the other. The receiver skates around the circle with the puck, either way. The passer gets open in the slot and calls for it. The puck carrier finds them, and they shoot quickly. Switch roles each time.",
+  "steps": [
+    "A pass across from one dot to the other.",
+    "The receiver skates around the circle; the passer gets open in the slot.",
+    "Pass to the slot for a quick shot."
+  ],
+  "cues": [
+    "Quick feet around the circle.",
+    "Call for the puck.",
+    "Good pass, quick release."
+  ],
+  "focus": [
+    {
+      "attribute": "Shooting",
+      "level": 2,
+      "why": "One-touch and quick shots from the slot."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Feeding a moving teammate."
+    },
+    {
+      "attribute": "Game sense",
+      "level": 1,
+      "why": "Getting open in the slot."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "",
+  "levels": [],
+  "source": {
+    "label": "Hockey Canada Drill Hub Practice Plan 02 · Scoring – Circle Shooting",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Drill-Hub/Downloads/Practice-Plans/practice_plan_02_e.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "O",
+        "x": 31,
+        "y": 20.5
+      },
+      {
+        "role": "O",
+        "x": 31,
+        "y": 64.5
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "piles": [
+      {
+        "x": 34,
+        "y": 17
+      },
+      {
+        "x": 34,
+        "y": 68
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            33,
+            23
+          ],
+          [
+            33,
+            61
+          ]
+        ],
+        "step": 1,
+        "caption": "A pass across from one dot to the other."
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            34,
+            66
+          ],
+          [
+            44.8,
+            66.9
+          ],
+          [
+            44.2,
+            59.7
+          ],
+          [
+            40.0,
+            53.8
+          ],
+          [
+            33.4,
+            50.7
+          ],
+          [
+            26.2,
+            51.3
+          ],
+          [
+            20.3,
+            55.5
+          ],
+          [
+            17.2,
+            62.1
+          ],
+          [
+            17.8,
+            69.3
+          ]
+        ],
+        "step": 2,
+        "caption": "The receiver skates around the circle; the passer gets open in the slot.",
+        "stepAt": 0.3,
+        "stepSide": "right"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            33,
+            24
+          ],
+          [
+            37,
+            32
+          ],
+          [
+            38,
+            38
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            24,
+            55
+          ],
+          [
+            36,
+            41
+          ]
+        ],
+        "step": 3,
+        "caption": "Pass to the slot for a quick shot.",
+        "stepAt": 0.5,
+        "stepSide": "left"
+      },
+      {
+        "type": "shot",
+        "points": [
+          [
+            35,
+            41
+          ],
+          [
+            13,
+            42.5
+          ]
+        ],
+        "stepWith": 3
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}

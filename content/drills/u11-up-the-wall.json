@@ -1,0 +1,652 @@
+{
+  "id": "u11-up-the-wall",
+  "funName": "Up the Wall",
+  "plainName": "Basic breakout: defender, winger, centre, up ice",
+  "sourceTitle": "Breakout introduction; Breakout x4 (up, wheel, over)",
+  "minutes": 10,
+  "gear": "Pucks",
+  "worksAsStation": false,
+  "description": "Five skaters in their breakout spots: two defenders, a winger on each wall at the hash marks and a centre low in the slot. The coach dumps the puck into a corner. One defender gets it while the centre swings low to that side. The defender passes up the wall to the winger, the winger passes to the centre, and all three forwards skate up ice in their lanes. Go to both sides and rotate everyone through every spot.",
+  "steps": [
+    "The coach dumps the puck into the corner.",
+    "One defender gets the puck; the centre swings low to that side.",
+    "Pass up the wall to the winger.",
+    "Winger to the centre, and all three skate up ice."
+  ],
+  "cues": [
+    "Shoulder check, then get to the puck.",
+    "Winger: call for it, stick on the ice.",
+    "Centre: swing low, support."
+  ],
+  "focus": [
+    {
+      "attribute": "Game sense",
+      "level": 2,
+      "why": "Where each player goes in a breakout, and why."
+    },
+    {
+      "attribute": "Passing",
+      "level": 1,
+      "why": "Two quick passes on the tape."
+    },
+    {
+      "attribute": "Skating",
+      "level": 1,
+      "why": "Swinging into support at speed."
+    }
+  ],
+  "groupModel": "basic",
+  "part": "skill",
+  "effort": "medium",
+  "format": "groups",
+  "lessons": [],
+  "levelName": "Up the wall",
+  "levels": [
+    {
+      "name": "Wheel",
+      "adds": "The defender carries it behind the net and up the other side, then passes to that winger.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "X",
+            "x": 22,
+            "y": 30
+          },
+          {
+            "role": "X",
+            "x": 22,
+            "y": 55
+          },
+          {
+            "role": "O",
+            "x": 32,
+            "y": 5
+          },
+          {
+            "role": "O",
+            "x": 26,
+            "y": 44
+          },
+          {
+            "role": "O",
+            "x": 32,
+            "y": 80
+          },
+          {
+            "role": "C",
+            "x": 72,
+            "y": 42.5
+          },
+          {
+            "role": "G",
+            "x": 9,
+            "y": 42.5
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                70,
+                40
+              ],
+              [
+                40,
+                22
+              ],
+              [
+                8,
+                12
+              ]
+            ],
+            "step": 1,
+            "caption": "The coach dumps the puck into the corner."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                20,
+                28
+              ],
+              [
+                12,
+                18
+              ],
+              [
+                9,
+                13
+              ]
+            ],
+            "step": 2,
+            "caption": "One defender gets the puck; the centre swings low to that side.",
+            "stepAt": 0.5,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                28,
+                42
+              ],
+              [
+                30,
+                55
+              ],
+              [
+                36,
+                64
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                11,
+                14
+              ],
+              [
+                6,
+                30
+              ],
+              [
+                6,
+                55
+              ],
+              [
+                12,
+                70
+              ],
+              [
+                24,
+                77
+              ]
+            ],
+            "step": 3,
+            "caption": "The defender wheels behind the net and goes up the other side."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                26,
+                77
+              ],
+              [
+                33,
+                79
+              ]
+            ],
+            "step": 4,
+            "caption": "Pass to the winger on that wall, and all three skate up ice.",
+            "stepAt": 0.5,
+            "stepSide": "left"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                36,
+                80
+              ],
+              [
+                60,
+                79
+              ],
+              [
+                92,
+                75
+              ]
+            ],
+            "stepWith": 4
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                36,
+                4
+              ],
+              [
+                60,
+                4
+              ],
+              [
+                90,
+                6
+              ]
+            ],
+            "stepWith": 4
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                38,
+                62
+              ],
+              [
+                62,
+                56
+              ],
+              [
+                94,
+                50
+              ]
+            ],
+            "stepWith": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "Over",
+      "adds": "The defender passes D-to-D across to the partner, who goes up the far wall.",
+      "diagram": {
+        "scope": "half",
+        "side": "left",
+        "players": [
+          {
+            "role": "X",
+            "x": 22,
+            "y": 30
+          },
+          {
+            "role": "X",
+            "x": 22,
+            "y": 55
+          },
+          {
+            "role": "O",
+            "x": 32,
+            "y": 5
+          },
+          {
+            "role": "O",
+            "x": 26,
+            "y": 44
+          },
+          {
+            "role": "O",
+            "x": 32,
+            "y": 80
+          },
+          {
+            "role": "C",
+            "x": 72,
+            "y": 42.5
+          },
+          {
+            "role": "G",
+            "x": 9,
+            "y": 42.5
+          }
+        ],
+        "paths": [
+          {
+            "type": "pass",
+            "points": [
+              [
+                70,
+                40
+              ],
+              [
+                40,
+                22
+              ],
+              [
+                8,
+                12
+              ]
+            ],
+            "step": 1,
+            "caption": "The coach dumps the puck into the corner."
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                20,
+                28
+              ],
+              [
+                12,
+                18
+              ],
+              [
+                9,
+                13
+              ]
+            ],
+            "step": 2,
+            "caption": "One defender gets the puck; the centre swings low to that side.",
+            "stepAt": 0.5,
+            "stepSide": "left"
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                28,
+                42
+              ],
+              [
+                30,
+                55
+              ],
+              [
+                36,
+                64
+              ]
+            ],
+            "stepWith": 2
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                11,
+                15
+              ],
+              [
+                14,
+                40
+              ],
+              [
+                18,
+                57
+              ]
+            ],
+            "step": 3,
+            "caption": "D-to-D across to the partner in front of the net."
+          },
+          {
+            "type": "pass",
+            "points": [
+              [
+                21,
+                58
+              ],
+              [
+                30,
+                79
+              ]
+            ],
+            "step": 4,
+            "caption": "Up the far wall to the winger, and all three skate up ice.",
+            "stepAt": 0.5,
+            "stepSide": "left"
+          },
+          {
+            "type": "puck",
+            "points": [
+              [
+                34,
+                80
+              ],
+              [
+                60,
+                79
+              ],
+              [
+                92,
+                75
+              ]
+            ],
+            "stepWith": 4
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                36,
+                4
+              ],
+              [
+                60,
+                4
+              ],
+              [
+                90,
+                6
+              ]
+            ],
+            "stepWith": 4
+          },
+          {
+            "type": "skate",
+            "points": [
+              [
+                38,
+                62
+              ],
+              [
+                62,
+                56
+              ],
+              [
+                94,
+                50
+              ]
+            ],
+            "stepWith": 4
+          }
+        ]
+      }
+    }
+  ],
+  "source": {
+    "label": "Hockey Canada Novice Practice Plan 23 · Breakout introduction (5.2.2.1); options from the OMHA Coaches Drill Book (Hockey Canada resources) · Breakout x4",
+    "url": "https://cdn.hockeycanada.ca/hockey-canada/Hockey-Programs/Drill-Hub/Downloads/Practice-Plans/hc-novice-practice-plan-23-e.pdf"
+  },
+  "diagram": {
+    "scope": "half",
+    "side": "left",
+    "players": [
+      {
+        "role": "X",
+        "x": 22,
+        "y": 30
+      },
+      {
+        "role": "X",
+        "x": 22,
+        "y": 55
+      },
+      {
+        "role": "O",
+        "x": 32,
+        "y": 5
+      },
+      {
+        "role": "O",
+        "x": 26,
+        "y": 44
+      },
+      {
+        "role": "O",
+        "x": 32,
+        "y": 80
+      },
+      {
+        "role": "C",
+        "x": 72,
+        "y": 42.5
+      },
+      {
+        "role": "G",
+        "x": 9,
+        "y": 42.5
+      }
+    ],
+    "paths": [
+      {
+        "type": "pass",
+        "points": [
+          [
+            70,
+            40
+          ],
+          [
+            40,
+            22
+          ],
+          [
+            8,
+            12
+          ]
+        ],
+        "step": 1,
+        "caption": "The coach dumps the puck into the corner."
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            20,
+            28
+          ],
+          [
+            12,
+            18
+          ],
+          [
+            9,
+            13
+          ]
+        ],
+        "step": 2,
+        "caption": "One defender gets the puck; the centre swings low to that side.",
+        "stepAt": 0.5,
+        "stepSide": "left"
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            28,
+            42
+          ],
+          [
+            20,
+            30
+          ],
+          [
+            24,
+            20
+          ],
+          [
+            30,
+            14
+          ]
+        ],
+        "stepWith": 2
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            11,
+            10
+          ],
+          [
+            22,
+            5
+          ],
+          [
+            30,
+            5
+          ]
+        ],
+        "step": 3,
+        "caption": "Pass up the wall to the winger."
+      },
+      {
+        "type": "pass",
+        "points": [
+          [
+            35,
+            6
+          ],
+          [
+            38,
+            12
+          ]
+        ],
+        "step": 4,
+        "caption": "Winger to the centre, and all three skate up ice.",
+        "stepAt": 0.5,
+        "stepSide": "right"
+      },
+      {
+        "type": "puck",
+        "points": [
+          [
+            40,
+            14
+          ],
+          [
+            60,
+            22
+          ],
+          [
+            85,
+            30
+          ],
+          [
+            96,
+            34
+          ]
+        ],
+        "stepWith": 4
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            36,
+            4
+          ],
+          [
+            60,
+            4
+          ],
+          [
+            90,
+            6
+          ]
+        ],
+        "stepWith": 4
+      },
+      {
+        "type": "skate",
+        "points": [
+          [
+            35,
+            80
+          ],
+          [
+            60,
+            80
+          ],
+          [
+            92,
+            76
+          ]
+        ],
+        "stepWith": 4
+      }
+    ]
+  },
+  "status": "in_review",
+  "ageGroups": [
+    "U11",
+    "U13"
+  ]
+}
