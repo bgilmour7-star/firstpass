@@ -57,6 +57,8 @@ export type DrillRequest = {
 
 export type Feedback = { text: string; at: string };
 export const FEEDBACK_MAX = 1000;
+/** At most this many notes on one request (the database checks the same limit). */
+export const FEEDBACK_ROUNDS = 20;
 
 /** Parse stored feedback; anything malformed is dropped rather than crashing the page. */
 export function parseFeedback(v: unknown): Feedback[] {

@@ -55,7 +55,7 @@ export function Decide({ requestId, kind, canAccept, canAsk, requester }: { requ
       {mode === 'asking' && (
         <div className="flex flex-col gap-2">
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-semibold">What should Claude change? Only admins see this.</span>
+            <span className="text-sm font-semibold">What should Claude change? Keep it about the drill: the coach’s team can read this.</span>
             <textarea
               rows={3}
               maxLength={FEEDBACK_MAX}
